@@ -27,6 +27,7 @@ license = {text = "MIT license"}
 [project.scripts]
 # fileproc commands
 filedate = "pycmd2.fileproc.filedate:cli.app"
+filelvl = "pycmd2.fileproc.filelevel:cli.app"
 
 # git commands
 gitp = "pycmd2.git.gitp:cli.app"

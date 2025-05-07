@@ -80,9 +80,8 @@ def rename_target(filepath: Path) -> Tuple[str, str]:
 
 @cli.app.command()
 def main(
-    files: List[Path] = Argument(help="输入文件清单"),  # noqa: B008
+    targets: List[Path] = Argument(help="输入文件清单"),  # noqa: B008
 ):
-    targets = [Path(f) for f in files if Path(f).exists()]
     t0 = time.perf_counter()
     rets: List[concurrent.futures.Future] = []
 
