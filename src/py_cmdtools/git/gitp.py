@@ -14,7 +14,7 @@ def check_git_status():
 
     result = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
     if result.stdout.strip():
-        print("存在未提交的修改，请先提交更改")
+        logging.error("存在未提交的修改，请先提交更改")
         return False
     return True
 
@@ -26,15 +26,16 @@ def check_sensitive_data():
     sensitive_files = [".env", "credentials.json"]
     for file in result.stdout.splitlines():
         if file in sensitive_files:
-            print(f"检测到敏感文件 {file}，禁止推送")
+            logging.error(f"检测到敏感文件 {file}，禁止推送")
             return False
     return True
 
 
-def pull_rebase():
+def pull_rebase(remote: str = "origin", branch: str = "develop"):
     """拉取最新代码并变基"""
     try:
-        subprocess.run(["git", "pull", "--rebase"], check=True, stdout=subprocess.DEVNULL)
+        subprocess.run(["git", "fetch", remote], check=True, shell=True)
+        subprocess.run(["git", "pull", "--rebase", f"{remote}/{branch}"], check=True, shell=True)
         return True
     except subprocess.CalledProcessError as e:
         print(f"拉取失败，存在冲突需要解决: {e}")
@@ -42,14 +43,18 @@ def pull_rebase():
 
 
 def run(remote: str):
-    check_pass = all([check_git_status(), check_sensitive_data(), pull_rebase()])
+    checks = [check_git_status, check_sensitive_data]
+    for check in checks:
+        if not check():
+            return
 
-    if check_pass:
-        try:
-            subprocess.check_call(["git", "push", "--all", remote], shell=True)
-            logging.error(f"推送成功: [green bold]{remote}")
-        except subprocess.CalledProcessError as e:
-            logging.error(f"推送失败: [green bold]{remote}[/], [red bold]{e}")
+    pull_rebase(remote)
+
+    try:
+        subprocess.check_call(["git", "push", "--all", remote], shell=True)
+        logging.error(f"推送成功: [green bold]{remote}")
+    except subprocess.CalledProcessError as e:
+        logging.error(f"推送失败: [green bold]{remote}[/], [red bold]{e}")
 
 
 @cli.app.command()
