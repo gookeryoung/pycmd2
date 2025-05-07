@@ -52,7 +52,7 @@ def run(remote: str):
 
     try:
         subprocess.check_call(["git", "push", "--all", remote], shell=True)
-        logging.error(f"推送成功: [green bold]{remote}")
+        logging.info(f"推送成功: [green bold]{remote}")
     except subprocess.CalledProcessError as e:
         logging.error(f"推送失败: [green bold]{remote}[/], [red bold]{e}")
 
