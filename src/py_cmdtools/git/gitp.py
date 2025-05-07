@@ -31,11 +31,20 @@ def check_sensitive_data():
     return True
 
 
-def pull_rebase(remote: str = "origin", branch: str = "develop"):
-    """拉取最新代码并变基"""
+def fetch(remote: str = "origin"):
+    """拉取远端"""
     try:
         subprocess.run(["git", "fetch", remote], check=True, shell=True)
-        subprocess.run(["git", "pull", "--rebase", f"{remote}/{branch}"], check=True, shell=True)
+        return True
+    except subprocess.CalledProcessError:
+        print(f"拉取远端失败: {remote}")
+        return False
+
+
+def pull_rebase(remote: str = "origin"):
+    """拉取最新代码并变基"""
+    try:
+        subprocess.run(["git", "pull", "--rebase", remote], check=True, shell=True)
         return True
     except subprocess.CalledProcessError as e:
         print(f"拉取失败，存在冲突需要解决: {e}")
@@ -43,12 +52,14 @@ def pull_rebase(remote: str = "origin", branch: str = "develop"):
 
 
 def run(remote: str):
-    checks = [check_git_status, check_sensitive_data]
-    for check in checks:
-        if not check():
-            return
-
-    pull_rebase(remote)
+    if not check_git_status():
+        return
+    if not check_sensitive_data():
+        return
+    if not fetch(remote):
+        return
+    if not pull_rebase(remote):
+        return
 
     try:
         subprocess.check_call(["git", "push", "--all", remote], shell=True)
