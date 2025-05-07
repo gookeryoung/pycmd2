@@ -25,6 +25,10 @@ classifiers = []
 license = {text = "MIT license"}
 
 [project.scripts]
+# git commands
+gitp = "py_cmdtools.git.gitp:main"
+
+# llama commands
 llmcli = "py_cmdtools.llama.llama_client:main"
 llmsvr = "py_cmdtools.llama.llama_server:main"
 llmqnt = "py_cmdtools.llama.llama_quantize:main"

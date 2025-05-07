@@ -22,9 +22,9 @@ from PySide2.QtWidgets import QTextEdit
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
 
-from py_cmdtools.common.gui import setup_gui_env
+from py_cmdtools.common.gui import setup_pyside2_env
 
-setup_gui_env()
+setup_pyside2_env()
 
 Config = typing.NamedTuple(
     "Config",
