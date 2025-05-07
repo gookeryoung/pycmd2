@@ -25,9 +25,9 @@ classifiers = []
 license = {text = "MIT license"}
 
 [project.scripts]
-llamacli = "py_cmdtools.llama.llama_client:main"
-llamasvr = "py_cmdtools.llama.llama_server:main"
-llamaqnt = "py_cmdtools.llama.llama_quantize:main"
+llmcli = "py_cmdtools.llama.llama_client:main"
+llmsvr = "py_cmdtools.llama.llama_server:main"
+llmqnt = "py_cmdtools.llama.llama_quantize:main"
 
 [project.urls]
 Repository = "https://gitee.com/gooker_young/py_cmdtools"

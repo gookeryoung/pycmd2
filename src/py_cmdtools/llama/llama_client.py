@@ -19,6 +19,10 @@ from PySide2.QtWidgets import QTextEdit
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
 
+from py_cmdtools.common.gui import setup_gui_env
+
+setup_gui_env()
+
 
 class LlamaWorker(QThread):
     """工作线程，用于与llama-server通信"""

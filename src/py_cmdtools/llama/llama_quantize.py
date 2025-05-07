@@ -23,6 +23,10 @@ from PySide2.QtWidgets import QTextEdit
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
 
+from py_cmdtools.common.gui import setup_gui_env
+
+setup_gui_env()
+
 
 def _process_gguf_stem(filename: str):
     """处理文件名，移除可能的F16后缀"""
