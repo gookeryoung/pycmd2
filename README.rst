@@ -4,7 +4,7 @@ pycmd2
 简介
 ------
 
-Command tools build with python.
+Command tools built with python.
 
 主要特性:
 
