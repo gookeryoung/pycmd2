@@ -1,5 +1,5 @@
 FIND_NAME = find . -path './.venv' -prune -o -name
-.PHONY: bump clean cov dist doc help init lint publish sync
+.PHONY: bump clean cov dist doc help init lint pub sync
 
 .DEFAULT_GOAL := help
 
@@ -100,7 +100,7 @@ init: clean sync ## initialize environment
 lint: sync ## check style with ruff
 	$(RUFF) check src tests --fix
 
-publish: dist ## publish to pypi
+pub: dist ## publish to pypi
 	hatch publish
 
 sync: ## sync project using uv
