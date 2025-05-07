@@ -89,12 +89,13 @@ def main(
     logging.info("启动线程")
     with concurrent.futures.ThreadPoolExecutor() as t:
         for target in targets:
-            tt = "文件" if target.is_file() else "目录"
-            logging.info(f"[*] 开始处理{tt}=[{str(target)}]...")
+            target_type = "文件" if target.is_file() else "目录"
+            logging.info(f"开始处理{target_type}: [green bold]{str(target)}")
             rets.append(t.submit(rename_target, target))
     logging.info("关闭线程")
 
     for future in concurrent.futures.as_completed(rets):
         old, new = future.result()
-        logging.info(f"[*] 重命名文件成功: {old} => {new}")
-    logging.info(f"[*] 目标数=[{len(targets)}]\n用时=[{time.perf_counter() - t0:.3f}]s.")
+        logging.info(f"重命名文件成功: [yellow]{old}[/] => [green]{new}")
+
+    logging.info(f"目标数: [green]{len(targets)}[/], 用时: [green bold]{time.perf_counter() - t0:.4f}s.")

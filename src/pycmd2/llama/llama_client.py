@@ -2,7 +2,6 @@ import json
 import sys
 
 import requests
-from pycmd2.common.gui import setup_pyside2_env
 from PySide2.QtCore import Qt
 from PySide2.QtCore import QThread
 from PySide2.QtCore import Signal
@@ -19,6 +18,8 @@ from PySide2.QtWidgets import QSpinBox
 from PySide2.QtWidgets import QTextEdit
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
+
+from pycmd2.common.gui import setup_pyside2_env
 
 setup_pyside2_env()
 
