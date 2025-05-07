@@ -25,8 +25,11 @@ classifiers = []
 license = {text = "MIT license"}
 
 [project.scripts]
+# fileproc commands
+filedate = "pycmd2.fileproc.filedate:cli.app"
+
 # git commands
-gitp = "pycmd2.git.gitp:main"
+gitp = "pycmd2.git.gitp:cli.app"
 
 # llama commands
 llmcli = "pycmd2.llama.llama_client:main"
