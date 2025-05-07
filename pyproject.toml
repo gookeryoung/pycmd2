@@ -17,14 +17,17 @@ maintainers = [
 ]
 requires-python = ">=3.8"
 dependencies = [
+  "pyside2>=5.15.2.1",
   "rich>=13.9.4",
-  "typer>=0.15.1"
+  "typer>=0.15.1",
 ]
 classifiers = []
 license = {text = "MIT license"}
 
 [project.scripts]
-py_cmdtools = "py_cmdtools.cli:app"
+llamacli = "py_cmdtools.llama.llama_client:main"
+llamasvr = "py_cmdtools.llama.llama_server:main"
+llamaqnt = "py_cmdtools.llama.llama_quantize:main"
 
 [project.urls]
 Repository = "https://gitee.com/gooker_young/py_cmdtools"
@@ -91,6 +94,7 @@ order-by-type = false
 [tool.uv]
 dev-dependencies = [
   "coverage>=7.6.1",
+  "hatch>=1.14.1",
   "pip>=25.0.1",
   "pre-commit>=3.5.0",
   "pytest-benchmark>=4.0.0",
@@ -103,5 +107,5 @@ dev-dependencies = [
   "sphinx-rtd-theme",
   "tox>=4.24.1",
   "tox-uv>=1.13.1",
-  "wheel>=0.45.1"
+  "wheel>=0.45.1",
 ]

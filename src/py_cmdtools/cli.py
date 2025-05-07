@@ -1,5 +1,5 @@
 """Console script for py_cmdtools."""
-import py_cmdtools
+
 import logging
 
 import typer
@@ -20,10 +20,9 @@ console = Console()
 @app.command()
 def main():
     """Console script for py_cmdtools."""
-    console.print("Replace this message by putting your code into "
-               "py_cmdtools.cli.main")
+    console.print("调用py_cmdtools")
+    console.print("Replace this message by putting your code into py_cmdtools.cli.main")
     console.print("See Typer documentation at https://typer.tiangolo.com/")
-
 
 
 if __name__ == "__main__":
