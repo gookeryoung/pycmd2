@@ -1,4 +1,4 @@
-"""Top-level package for py-cmdtools."""
+"""Top-level package for pycmd2."""
 
 __author__ = """gooker_young"""
 __email__ = "gooker_young@qq.com"

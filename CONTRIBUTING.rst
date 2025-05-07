@@ -13,7 +13,7 @@
 报告错误
 ~~~~~~~~~~~
 
-请在 https://gitee.com/gooker_young/py_cmdtools/issues 报告错误。
+请在 https://gitee.com/gooker_young/pycmd2/issues 报告错误。
 
 如果您正在报告一个错误，请包含以下信息：
 
@@ -34,12 +34,12 @@
 撰写文档
 ~~~~~~~~~~~~~~~~~~
 
-无论是在官方 py-cmdtools 文档中，在文档字符串中，还是在网络上以博客文章或文章的形式，py-cmdtools 都可以使用更多的文档。
+无论是在官方 pycmd2 文档中，在文档字符串中，还是在网络上以博客文章或文章的形式，pycmd2 都可以使用更多的文档。
 
 提交反馈
 ~~~~~~~~~~~~~~
 
-发送反馈的最佳方式是通过 https://gitee.com/gooker_young/py_cmdtools/issues 创建一个问题。
+发送反馈的最佳方式是通过 https://gitee.com/gooker_young/pycmd2/issues 创建一个问题。
 
 如果您正在提议一个新功能：
 
@@ -50,12 +50,12 @@
 开始吧！
 ------------
 
-准备好贡献了吗？以下是为本地开发设置 `py_cmdtools` 的方法。
+准备好贡献了吗？以下是为本地开发设置 `pycmd2` 的方法。
 
-1. 在 gitee 上 fork `py_cmdtools` 仓库。
+1. 在 gitee 上 fork `pycmd2` 仓库。
 2. 克隆您的 fork 到本地::
 
-    $ git clone git@gitee.com:your_name_here/py_cmdtools.git
+    $ git clone git@gitee.com:your_name_here/pycmd2.git
 
 3. 使用 ``uv`` 配置项目环境。假设您已安装 ``uv`` ，这是设置您的 fork 进行本地开发的方法::
 
@@ -92,7 +92,7 @@
 
 运行部分测试集::
 
-$ pytest tests.test_py_cmdtools
+$ pytest tests.test_pycmd2
 
 
 部署

@@ -5,7 +5,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "py_cmdtools"
+name = "pycmd2"
 version = "0.1.2"
 description = "Command tools build with python."
 readme = "README.rst"
@@ -26,17 +26,17 @@ license = {text = "MIT license"}
 
 [project.scripts]
 # git commands
-gitp = "py_cmdtools.git.gitp:main"
+gitp = "pycmd2.git.gitp:main"
 
 # llama commands
-llmcli = "py_cmdtools.llama.llama_client:main"
-llmsvr = "py_cmdtools.llama.llama_server:main"
-llmqnt = "py_cmdtools.llama.llama_quantize:main"
+llmcli = "pycmd2.llama.llama_client:main"
+llmsvr = "pycmd2.llama.llama_server:main"
+llmqnt = "pycmd2.llama.llama_quantize:main"
 
 [project.urls]
-Repository = "https://gitee.com/gooker_young/py_cmdtools"
-Documentation = "https://py_cmdtools.readthedocs.io/zh-cn/stable/"
-Issues = "https://gitee.com/gooker_young/py_cmdtools/issues"
+Repository = "https://gitee.com/gooker_young/pycmd2"
+Documentation = "https://pycmd2.readthedocs.io/zh-cn/stable/"
+Issues = "https://gitee.com/gooker_young/pycmd2/issues"
 
 # ---------------------- coverage ----------------------- #
 [tool.coverage]
@@ -44,13 +44,13 @@ Issues = "https://gitee.com/gooker_young/py_cmdtools/issues"
 exclude_lines = ["coverage: ignore", "def main", "if __name__ == .__main__.:"]
 
 [tool.coverage.run]
-source = ["src/py_cmdtools"]
+source = ["src/pycmd2"]
 omit = ["tests/*", "examples/*"]
 
 # -------------------- hatch-version -------------------- #
 [tool.hatch]
 [tool.hatch.version]
-path = "src/py_cmdtools/__init__.py"
+path = "src/pycmd2/__init__.py"
 
 # ------------------------ mypy ------------------------- #
 [tool.mypy]

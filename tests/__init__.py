@@ -1,1 +1,1 @@
-"""Unit test package for py_cmdtools."""
+"""Unit test package for pycmd2."""

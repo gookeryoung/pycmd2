@@ -31,7 +31,7 @@ import re
 import sys
 
 build_date = datetime.datetime.now().strftime("%Y-%m-%d")
-init_file = pathlib.Path.cwd() / "src" / "py_cmdtools" / "__init__.py"
+init_file = pathlib.Path.cwd() / "src" / "pycmd2" / "__init__.py"
 for line in fileinput.input(init_file, inplace=True):
 	if "__build_date__" in line:
 		print(f'__build_date__ = "{build_date}"')  # 替换整行
@@ -73,16 +73,16 @@ clean: ## remove all build, test, coverage and Python artifacts
 
 
 cov: sync ## check code coverage quickly with the default Python
-	$(COVERAGE) run --source py_cmdtools -m pytest
+	$(COVERAGE) run --source pycmd2 -m pytest
 	$(COVERAGE) report -m
 	$(COVERAGE) html
 	$(BROWSER) htmlcov/index.html
 
 doc: sync ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/py_cmdtools*.rst
+	rm -f docs/pycmd2*.rst
 	rm -f docs/modules.rst
 	rm -rf docs/_build
-	$(SPHINX_APIDOC) -o docs/ src/py_cmdtools
+	$(SPHINX_APIDOC) -o docs/ src/pycmd2
 	$(SPHINX_BUILD) docs docs/_build
 	sphinx-autobuild ./docs ./docs/_build/html --watch . --open-browser
 

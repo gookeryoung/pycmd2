@@ -1,7 +1,7 @@
-欢迎访问 `py-cmdtools`_ 手册!
+欢迎访问 `pycmd2`_ 手册!
 ==================================================
 
-.. _py-cmdtools: https://gitee.com/gooker_young/py_cmdtools
+.. _pycmd2: https://gitee.com/gooker_young/pycmd2
 
 .. toctree::
    :maxdepth: 2

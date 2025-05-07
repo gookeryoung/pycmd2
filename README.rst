@@ -1,4 +1,4 @@
-py-cmdtools
+pycmd2
 =================================
 
 简介
@@ -17,8 +17,8 @@ TODO:
 快速开始
 ----------
 
-在项目中使用 ``py-cmdtools`` ::
+在项目中使用 ``pycmd2`` ::
 
-    import py_cmdtools
+    import pycmd2
 
 TODO:

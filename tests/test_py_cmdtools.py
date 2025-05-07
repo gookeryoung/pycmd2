@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
-"""Tests for `py_cmdtools` package."""
+"""Tests for `pycmd2` package."""
 
 import pytest
 
 
-from py_cmdtools import py_cmdtools
 @pytest.fixture
 def response():
     """Sample pytest fixture.

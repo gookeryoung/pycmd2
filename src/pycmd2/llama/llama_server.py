@@ -3,6 +3,7 @@ import pathlib
 import sys
 import typing
 
+from pycmd2.common.gui import setup_pyside2_env
 from PySide2.QtCore import QProcess
 from PySide2.QtCore import QTextStream
 from PySide2.QtGui import QColor
@@ -21,8 +22,6 @@ from PySide2.QtWidgets import QSpinBox
 from PySide2.QtWidgets import QTextEdit
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
-
-from py_cmdtools.common.gui import setup_pyside2_env
 
 setup_pyside2_env()
 

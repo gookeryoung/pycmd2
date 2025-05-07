@@ -6,6 +6,7 @@ import subprocess
 import sys
 import typing
 
+from pycmd2.common.gui import setup_pyside2_env
 from PySide2.QtCore import QThread
 from PySide2.QtCore import Signal
 from PySide2.QtCore import Slot
@@ -22,8 +23,6 @@ from PySide2.QtWidgets import QPushButton
 from PySide2.QtWidgets import QTextEdit
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
-
-from py_cmdtools.common.gui import setup_pyside2_env
 
 setup_pyside2_env()
 

@@ -1,4 +1,4 @@
-"""Console script for py_cmdtools."""
+"""Console script for pycmd2."""
 
 import logging
 
@@ -19,9 +19,9 @@ console = Console()
 
 @app.command()
 def main():
-    """Console script for py_cmdtools."""
-    console.print("调用py_cmdtools")
-    console.print("Replace this message by putting your code into py_cmdtools.cli.main")
+    """Console script for pycmd2."""
+    console.print("调用pycmd2")
+    console.print("Replace this message by putting your code into pycmd2.cli.main")
     console.print("See Typer documentation at https://typer.tiangolo.com/")
 
 

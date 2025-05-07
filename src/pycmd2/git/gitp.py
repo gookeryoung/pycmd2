@@ -4,7 +4,7 @@ import logging
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
-from py_cmdtools.common.cli import setup_client
+from pycmd2.common.cli import setup_client
 
 cli = setup_client()
 

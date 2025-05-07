@@ -8,15 +8,15 @@
 使用 ``pip``
 --------------
 
-使用 ``pip`` 安装托管在 `pypi`_ 上的 ``py-cmdtools`` 项目, 运行以下命令:
+使用 ``pip`` 安装托管在 `pypi`_ 上的 ``pycmd2`` 项目, 运行以下命令:
 
 .. _pypi: https://pypi.org/
 
 .. code-block:: console
 
-    $ pip install py_cmdtools
+    $ pip install pycmd2
 
-这是推荐用于安装最新稳定版本 ``py-cmdtools`` 的方式.
+这是推荐用于安装最新稳定版本 ``pycmd2`` 的方式.
 
 如果没有安装 `pip`_ , 可以参考此处  `Python installation guide`_ 相关内容.
 
@@ -30,7 +30,7 @@
 
 .. code-block:: console
 
-    $ poetry add py_cmdtools
+    $ poetry add pycmd2
 
 如果没有安装 ``poetry``, 可以参考此处内容: `安装 poetry`_ .
 
@@ -43,7 +43,7 @@
 
 .. code-block:: console
 
-    $ uv add py_cmdtools
+    $ uv add pycmd2
 
 如果没有安装 ``uv``, 可以参考此处内容: `安装 uv`_ .
 
@@ -52,19 +52,19 @@
 通过源代码构建
 ---------------
 
-可以在 ``gitee`` 代码托管平台上下载 ``py-cmdtools`` 项目的源代码, 地址: `gitee repo`_ .
+可以在 ``gitee`` 代码托管平台上下载 ``pycmd2`` 项目的源代码, 地址: `gitee repo`_ .
 
 可以使用 ``git`` 克隆项目源代码:
 
 .. code-block:: console
 
-    $ git clone https://gitee.com/gooker_young/py_cmdtools.git
+    $ git clone https://gitee.com/gooker_young/pycmd2.git
 
 获得源代码以后，可以使用以下命令构建(需要安装 ``uv``, 参考前文):
 
 .. code-block:: console
 
     $ uv build
-    $ cd dist && pip install py_cmdtools --no-index --find-links .
+    $ cd dist && pip install pycmd2 --no-index --find-links .
 
-.. _gitee repo: https://gitee.com/gooker_young/py_cmdtools
+.. _gitee repo: https://gitee.com/gooker_young/pycmd2

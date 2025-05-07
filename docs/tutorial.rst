@@ -1,6 +1,6 @@
 使用教程
 =========
 
-可以在项目代码中使用 ``py-cmdtools`` ::
+可以在项目代码中使用 ``pycmd2`` ::
 
-    import py_cmdtools
+    import pycmd2
