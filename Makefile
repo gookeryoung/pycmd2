@@ -86,7 +86,7 @@ doc: sync ## generate Sphinx HTML documentation, including API docs
 	$(SPHINX_BUILD) docs docs/_build
 	sphinx-autobuild ./docs ./docs/_build/html --watch . --open-browser
 
-dist: ## builds source and wheel package
+dist: clean ## builds source and wheel package
 	hatch build
 	ls -l dist
 
@@ -101,8 +101,7 @@ lint: sync ## check style with ruff
 	$(RUFF) check src tests --fix
 
 publish: dist ## publish to pypi
-	hatch build
-	uv publish
+	hatch publish
 
 sync: ## sync project using uv
 	uv sync
