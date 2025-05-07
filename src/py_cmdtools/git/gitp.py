@@ -73,5 +73,5 @@ def main():
     remotes = ["origin", "gitee.com", "github.com"]
     with ThreadPoolExecutor(max_workers=5) as e:
         for remote in remotes:
-            logging.info(f"推送到远端: [green bold]{remote}")
+            logging.info(f"推送远端: [yellow]{remote}")
             e.submit(run, remote)
