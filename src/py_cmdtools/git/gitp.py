@@ -14,7 +14,7 @@ def check_git_status():
 
     result = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
     if result.stdout.strip():
-        logging.error("存在未提交的修改，请先提交更改")
+        logging.error(f"存在未提交的修改，请先提交更改: [red]{result}")
         return False
     return True
 
@@ -26,7 +26,7 @@ def check_sensitive_data():
     sensitive_files = [".env", "credentials.json"]
     for file in result.stdout.splitlines():
         if file in sensitive_files:
-            logging.error(f"检测到敏感文件 {file}，禁止推送")
+            logging.error(f"检测到敏感文件, 禁止推送: [red]{file}")
             return False
     return True
 
@@ -37,7 +37,7 @@ def fetch(remote: str = "origin"):
         subprocess.run(["git", "fetch", remote], check=True, shell=True)
         return True
     except subprocess.CalledProcessError:
-        print(f"拉取远端失败: {remote}")
+        logging.error(f"拉取远端失败: [red]{remote}")
         return False
 
 
@@ -47,7 +47,7 @@ def pull_rebase(remote: str = "origin"):
         subprocess.run(["git", "pull", "--rebase", remote], check=True, shell=True)
         return True
     except subprocess.CalledProcessError as e:
-        print(f"拉取失败，存在冲突需要解决: {e}")
+        logging.error(f"拉取失败，存在冲突需要解决: [red]{e}")
         return False
 
 
