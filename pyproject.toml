@@ -1,0 +1,107 @@
+# -------------------- build-system --------------------- #
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "py_cmdtools"
+version = "0.1.0"
+description = "Command tools build with python."
+readme = "README.rst"
+authors = [
+  {name = "gooker_young", email = "gooker_young@qq.com"}
+]
+maintainers = [
+  {name = "gooker_young", email = "gooker_young@qq.com"}
+]
+requires-python = ">=3.8"
+dependencies = [
+  "rich>=13.9.4",
+  "typer>=0.15.1"
+]
+classifiers = []
+license = {text = "MIT license"}
+
+[project.scripts]
+py_cmdtools = "py_cmdtools.cli:app"
+
+[project.urls]
+Repository = "https://gitee.com/gooker_young/py_cmdtools"
+Documentation = "https://py_cmdtools.readthedocs.io/zh-cn/stable/"
+Issues = "https://gitee.com/gooker_young/py_cmdtools/issues"
+
+# ---------------------- coverage ----------------------- #
+[tool.coverage]
+[tool.coverage.report]
+exclude_lines = ["coverage: ignore", "def main", "if __name__ == .__main__.:"]
+
+[tool.coverage.run]
+source = ["src/py_cmdtools"]
+omit = ["tests/*", "examples/*"]
+
+# -------------------- hatch-version -------------------- #
+[tool.hatch]
+[tool.hatch.version]
+path = "src/py_cmdtools/__init__.py"
+
+# ------------------------ mypy ------------------------- #
+[tool.mypy]
+files = "."
+strict = true
+pretty = true
+show_error_codes = true
+warn_unreachable = true
+warn_no_return = true
+
+[[tool.mypy.overrides]]
+module = [
+  "tests.*",
+  "asgiref.*",
+  "dotenv.*",
+  "cryptography.*",
+  "importlib_metadata"
+]
+allow_untyped_defs = true
+disable_error_code = "attr-defined"
+ignore_missing_imports = true
+
+# ----------------------- pytest ------------------------ #
+[tool.pytest]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error"]
+
+# ------------------------ ruff ------------------------- #
+[tool.ruff]
+line-length = 120
+fix = true
+show-fixes = true
+output-format = "full"
+exclude = ["**/ui_*.py", "**/*_rc.py"]
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "UP", "W"]
+
+[tool.ruff.lint.isort]
+force-single-line = true
+order-by-type = false
+
+# ----------------------- uv-dependencies ------------------------ #
+[tool.uv]
+dev-dependencies = [
+  "coverage>=7.6.1",
+  "pip>=25.0.1",
+  "pre-commit>=3.5.0",
+  "pytest-benchmark>=4.0.0",
+  "pytest-cov>=5.0.0",
+  "pytest-html>=4.1.1",
+  "pytest-mock>=3.14.0",
+  "pytest>=8.3.4",
+  "ruff>=0.9.7",
+  "sphinx-autobuild>=2021.3.14",
+  "sphinx-rtd-theme",
+  "tox>=4.24.1",
+  "tox-uv>=1.13.1",
+  "wheel>=0.45.1"
+]
