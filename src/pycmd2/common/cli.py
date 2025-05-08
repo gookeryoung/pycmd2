@@ -65,7 +65,6 @@ def run_parallel(func: Callable, args: Optional[List[Any]] = None):
     logger.info(f"启动线程, 目标参数: [green]{len(args)}[/] 个")
     with concurrent.futures.ThreadPoolExecutor() as t:
         for arg in args:
-            logger.info(f"开始处理: arg={str(arg)}")
+            logger.info(f"开始处理: [green bold]{str(arg)}")
             rets.append(t.submit(func, arg))
-    logger.info("关闭线程")
-    logger.info(f"用时: [green bold]{time.perf_counter() - t0:.4f}s.")
+    logger.info(f"关闭线程, 用时: [green bold]{time.perf_counter() - t0:.4f}s.")

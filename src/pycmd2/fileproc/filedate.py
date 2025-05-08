@@ -6,8 +6,6 @@
  - 文件分隔符包含: -|_|#|.|~
 """
 
-import concurrent.futures
-import logging
 import re
 import time
 from pathlib import Path
@@ -16,6 +14,7 @@ from typing import Tuple
 
 from typer import Argument
 
+from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 
 # 检测分隔符
@@ -82,19 +81,4 @@ def rename_target(filepath: Path) -> Tuple[str, str]:
 def main(
     targets: List[Path] = Argument(help="输入文件清单"),  # noqa: B008
 ):
-    t0 = time.perf_counter()
-    rets: List[concurrent.futures.Future] = []
-
-    logging.info("启动线程")
-    with concurrent.futures.ThreadPoolExecutor() as t:
-        for target in targets:
-            target_type = "文件" if target.is_file() else "目录"
-            logging.info(f"开始处理{target_type}: [green bold]{str(target)}")
-            rets.append(t.submit(rename_target, target))
-    logging.info("关闭线程")
-
-    for future in concurrent.futures.as_completed(rets):
-        old, new = future.result()
-        logging.info(f"重命名文件成功: [yellow]{old}[/] => [green]{new}")
-
-    logging.info(f"目标数: [green]{len(targets)}[/], 用时: [green bold]{time.perf_counter() - t0:.4f}s.")
+    run_parallel(rename_target, targets)
