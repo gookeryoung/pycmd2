@@ -113,8 +113,7 @@ def call_option(option: MakeOption) -> None:
             else:
                 logging.error(f"未找到匹配选项: {command}")
                 return
-
-        if isinstance(command, list):
+        elif isinstance(command, list):
             run_cmd(command)
         elif isinstance(command, Callable):
             command()
