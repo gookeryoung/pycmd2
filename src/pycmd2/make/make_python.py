@@ -17,7 +17,7 @@ from pycmd2.common.cli import setup_client
 
 cli = setup_client()
 
-MakeOption = NamedTuple("MakeOption", (("name", str), ("commands", List[Union[List[str], Callable]])))
+MakeOption = NamedTuple("MakeOption", (("name", str), ("commands", List[Union[str, List[str], Callable]])))
 
 
 def _update_build_date():
@@ -93,6 +93,7 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
         name="publish",
         commands=[
             _clean,
+            "bump",
             ["hatch", "build"],
             ["hatch", "publish"],
             ["gitp"],
@@ -101,17 +102,30 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
 )
 
 
-@cli.app.command()
-def main(option: str = Argument(help="构建选项[bump/publish]")):
-    found_option = MAKE_OPTIONS.get(option, None)
-    if found_option:
-        logging.info(f"调用选项: mkp [green bold]{found_option.name}")
-        for command in found_option.commands:
-            if isinstance(command, list):
-                run_cmd(command)
-            elif isinstance(command, Callable):
-                command()
+def call_option(option: MakeOption) -> None:
+    logging.info(f"调用选项: mkp [green bold]{option.name}")
+    for command in option.commands:
+        if isinstance(command, str):
+            child_opt = MAKE_OPTIONS.get(command, None)
+            if child_opt:
+                logging.info(f"执行子命令: {child_opt.name}")
+                call_option(child_opt)
             else:
-                logging.error(f"非法命令: [red]{found_option.name} -> {command}")
+                logging.error(f"未找到匹配选项: {command}")
+                return
+
+        if isinstance(command, list):
+            run_cmd(command)
+        elif isinstance(command, Callable):
+            command()
+        else:
+            logging.error(f"非法命令: [red]{option.name} -> {command}")
+
+
+@cli.app.command()
+def main(optstr: str = Argument(help="构建选项[bump/publish]")):
+    found_option = MAKE_OPTIONS.get(optstr, None)
+    if found_option:
+        call_option(found_option)
     else:
-        logging.error(f"未找到匹配选项: {option}")
+        logging.error(f"未找到匹配选项: {optstr}")
