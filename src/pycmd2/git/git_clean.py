@@ -2,8 +2,7 @@
 
 from pycmd2.common.cli import run_cmd
 from pycmd2.common.cli import setup_client
-
-from .git_push_all import check_git_status
+from pycmd2.git.git_push_all import check_git_status
 
 cli = setup_client()
 

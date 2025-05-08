@@ -25,7 +25,7 @@ class StreamDecoder:
             return None
         result = chardet.detect(self._buffer[: self.min_bytes])
         self._encoding = result["encoding"] or "utf-8"
-        logger.debug(f"Detected encoding: {self._encoding} (confidence: {result['confidence']:.2f})")
+        logger.debug(f"检测到编码: {self._encoding} (置信度: {result['confidence']:.2f})")
         return self._encoding
 
     def feed(self, data):
@@ -50,7 +50,7 @@ class StreamDecoder:
                     self.logger_func(line.strip())
             self._buffer = lines[-1].encode(self._encoding)  # 保留未完成部分
         except UnicodeDecodeError:
-            logger.warning(f"Failed to decode with {self._encoding}, fallback to utf-8")
+            logger.warning(f"解码失败: [red]{self._encoding}[/], 退回到 [green]utf-8")
             self._encoding = "utf-8"  # 回退到 UTF-8
 
 
