@@ -32,24 +32,15 @@ def check_sensitive_data():
     return True
 
 
-def fetch(remote: str = "origin"):
-    """拉取远端"""
-    run_cmd(["git", "fetch", remote])
-
-
-def pull_rebase(remote: str = "origin"):
-    """拉取最新代码并变基"""
-    run_cmd(["git", "pull", "--rebase", remote])
-
-
 def push(remote: str):
     if not check_git_status():
         return
+
     if not check_sensitive_data():
         return
-    fetch(remote)
-    pull_rebase(remote)
 
+    run_cmd(["git", "fetch", remote])
+    run_cmd(["git", "pull", "--rebase", remote])
     run_cmd(["git", "push", "--all", remote])
 
 
