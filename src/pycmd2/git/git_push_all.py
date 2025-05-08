@@ -2,8 +2,9 @@
 
 import logging
 import subprocess
-from concurrent.futures import ThreadPoolExecutor
 
+from pycmd2.common.cli import run_cmd
+from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 
 cli = setup_client()
@@ -33,25 +34,15 @@ def check_sensitive_data():
 
 def fetch(remote: str = "origin"):
     """拉取远端"""
-    try:
-        subprocess.run(["git", "fetch", remote], check=True, shell=True)
-        return True
-    except subprocess.CalledProcessError:
-        logging.error(f"拉取远端失败: [red]{remote}")
-        return False
+    run_cmd(["git", "fetch", remote])
 
 
 def pull_rebase(remote: str = "origin"):
     """拉取最新代码并变基"""
-    try:
-        subprocess.run(["git", "pull", "--rebase", remote], check=True, shell=True)
-        return True
-    except subprocess.CalledProcessError as e:
-        logging.error(f"拉取失败，存在冲突需要解决: [red]{e}")
-        return False
+    run_cmd(["git", "pull", "--rebase", remote])
 
 
-def run(remote: str):
+def push(remote: str):
     if not check_git_status():
         return
     if not check_sensitive_data():
@@ -61,17 +52,11 @@ def run(remote: str):
     if not pull_rebase(remote):
         return
 
-    try:
-        subprocess.check_call(["git", "push", "--all", remote], shell=True)
-        logging.info(f"推送成功: [green bold]{remote}")
-    except subprocess.CalledProcessError as e:
-        logging.error(f"推送失败: [green bold]{remote}[/], [red bold]{e}")
+    run_cmd(["git", "push", "--all", remote])
 
 
 @cli.app.command()
 def main():
     remotes = ["origin", "gitee.com", "github.com"]
-    with ThreadPoolExecutor(max_workers=5) as e:
-        for remote in remotes:
-            logging.info(f"推送远端: [yellow]{remote}")
-            e.submit(run, remote)
+
+    run_parallel(push, remotes)
