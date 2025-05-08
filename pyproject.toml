@@ -43,6 +43,9 @@ llmqnt = "pycmd2.llama.llama_quantize:main"
 # pip commands
 pipd = "pycmd2.pip.pip_download:cli.app"
 
+# task commands
+taskk = "pycmd2.task.task_kill:cli.app"
+
 [project.urls]
 Repository = "https://gitee.com/gooker_young/pycmd2"
 Documentation = "https://pycmd2.readthedocs.io/zh-cn/stable/"

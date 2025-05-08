@@ -1,4 +1,5 @@
 import logging
+import platform
 
 import chardet
 from rich.logging import RichHandler
@@ -57,13 +58,14 @@ class StreamDecoder:
 def stream_reader(stream, logger_func):
     """读取流并使用动态编码解码"""
     decoder = StreamDecoder(logger_func)
+    default_encoding = "gbk" if platform.system() == "Windows" else "utf8"
 
     while True:
         data = stream.read(1024)  # 每次读取 1KB 二进制数据
         if not data:
             if decoder._buffer:
                 try:
-                    text = decoder._buffer.decode(decoder._encoding or "utf-8")
+                    text = decoder._buffer.decode(decoder._encoding or default_encoding)
                     if text.strip():
                         logger_func(text.strip())
                 except UnicodeDecodeError as e:
