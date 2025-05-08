@@ -44,6 +44,7 @@ llmqnt = "pycmd2.llama.llama_quantize:main"
 # pip commands
 pipd = "pycmd2.pip.pip_download:cli.app"
 pipi = "pycmd2.pip.pip_install:cli.app"
+pipir = "pycmd2.pip.pip_install_req:cli.app"
 pipf = "pycmd2.pip.pip_freeze:cli.app"
 pipn = "pycmd2.pip.pip_install_offline:cli.app"
 pipr = "pycmd2.pip.pip_reinstall:cli.app"
