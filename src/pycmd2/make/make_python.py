@@ -42,7 +42,7 @@ def _update_build_date():
 
                 # 替换日期（保留原有格式）
                 new_content = pattern.sub(
-                    lambda m: f"{m.group(1)}{m.group(2)} = {m.group(0).split('=')[1].split(m.group(3))[0]}{build_date}\n",
+                    lambda m: f"{m.group(1)}{m.group(2)} = {m.group(0).split('=')[1].split(m.group(3))[0]}{build_date}\n",  # noqa: E501
                     content,
                 )
 
