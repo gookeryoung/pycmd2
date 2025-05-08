@@ -15,7 +15,7 @@ cli = setup_client()
 
 @cli.app.command()
 def main(
-    lib_names: List[Path] = Argument(help="待下载库清单"),  # noqa: B008
+    libnames: List[Path] = Argument(help="待下载库清单"),  # noqa: B008
 ):
     run_pip_install_offline = partial(run_pip_install, options=["--no-index", "--find-links", "."])
-    run_parallel(run_pip_install_offline, lib_names)
+    run_parallel(run_pip_install_offline, libnames)
