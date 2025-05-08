@@ -68,7 +68,7 @@ author = "gooker_young"
 # the built documents.
 #
 # The short X.Y version.
-version = "0.1.15"
+version = "0.1.16"
 # The full version, including alpha/beta/rc tags.
 release = version
 
