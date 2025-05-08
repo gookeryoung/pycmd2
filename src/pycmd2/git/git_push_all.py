@@ -47,10 +47,8 @@ def push(remote: str):
         return
     if not check_sensitive_data():
         return
-    if not fetch(remote):
-        return
-    if not pull_rebase(remote):
-        return
+    fetch(remote)
+    pull_rebase(remote)
 
     run_cmd(["git", "push", "--all", remote])
 
