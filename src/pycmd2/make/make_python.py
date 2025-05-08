@@ -30,7 +30,12 @@ def _update_build_date():
 
                 # 使用正则表达式匹配各种格式的日期声明
                 pattern = re.compile(
-                    r'^(\s*)(__build_date__)\s*=\s*[\'"]?(\d{4}-\d{2}-\d{2})[\'"]?\s*$',
+                    r"^(\s*)"  # 缩进
+                    r"(__build_date__)\s*=\s*"  # 变量名
+                    r'(["\']?)'  # 引号类型（第3组）
+                    r"(\d{4}-\d{2}-\d{2})"  # 原日期（第4组）
+                    r"\3"  # 闭合引号
+                    r"(\s*(#.*)?)$",  # 尾部空格和注释（第5组）
                     flags=re.MULTILINE | re.IGNORECASE,
                 )
 
@@ -40,11 +45,15 @@ def _update_build_date():
                     print("未找到 __build_date__ 定义")
                     return False
 
-                # 替换日期（保留原有格式）
-                new_content = pattern.sub(
-                    lambda m: f"{m.group(1)}{m.group(2)} = {m.group(0).split('=')[1].split(m.group(3))[0]}{build_date}\n",  # noqa: E501
-                    content,
-                )
+                match = pattern.search(content)
+                if not match:
+                    print("未找到有效的 __build_date__ 定义")
+                    return False
+
+                # 构造新行（保留原始格式）
+                quote = match.group(3) or ""  # 获取原引号（可能为空）
+                new_line = f"{match.group(1)}{match.group(2)} = {quote}{build_date}{quote}{match.group(5)}"
+                new_content = pattern.sub(new_line, content, count=1)
 
                 # 检查是否需要更新
                 if new_content == content:
@@ -69,6 +78,7 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
         commands=[
             ["uvx", "--from", "bump2version", "bumpversion", "patch"],
             _update_build_date,
+            ["git", "add", "*/**/__init__.py"],
         ],
     )
 )
