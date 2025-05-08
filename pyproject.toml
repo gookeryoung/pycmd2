@@ -137,4 +137,8 @@ dev-dependencies = [
   "tox>=4.24.1",
   "tox-uv>=1.13.1",
   "wheel>=0.45.1",
+  "pycmd2",
 ]
+
+[tool.uv.sources]
+pycmd2 = { workspace = true }
