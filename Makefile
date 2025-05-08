@@ -102,6 +102,7 @@ lint: sync ## check style with ruff
 
 pub: dist ## publish to pypi
 	hatch publish
+	gitp
 
 sync: ## sync project using uv
 	uv sync
