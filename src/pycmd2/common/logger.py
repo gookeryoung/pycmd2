@@ -66,8 +66,8 @@ def stream_reader(stream, logger_func):
                     text = decoder._buffer.decode(decoder._encoding or "utf-8")
                     if text.strip():
                         logger_func(text.strip())
-                except Exception as e:
-                    logger.error(f"Final decode error: {e}")
+                except UnicodeDecodeError as e:
+                    logger.error(f"Unicode解码错误: [red]{e}")
             break
         decoder.feed(data)
     stream.close()
