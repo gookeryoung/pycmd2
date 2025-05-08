@@ -30,7 +30,8 @@ filedate = "pycmd2.fileproc.filedate:cli.app"
 filelvl = "pycmd2.fileproc.filelevel:cli.app"
 
 # git commands
-gitp = "pycmd2.git.gitp:cli.app"
+gitc = "pycmd2.git.git_clean:cli.app"
+gitp = "pycmd2.git.git_push_all:cli.app"
 
 # llama commands
 llmcli = "pycmd2.llama.llama_client:main"
