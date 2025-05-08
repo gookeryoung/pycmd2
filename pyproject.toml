@@ -34,6 +34,7 @@ filelvl = "pycmd2.fileproc.filelevel:cli.app"
 gitc = "pycmd2.git.git_clean:cli.app"
 gitinit = "pycmd2.git.git_init:cli.app"
 gitp = "pycmd2.git.git_push_all:cli.app"
+gitre = "pycmd2.git.git_restart_tgitcache:cli.app"
 
 # llama commands
 llmcli = "pycmd2.llama.llama_client:main"
