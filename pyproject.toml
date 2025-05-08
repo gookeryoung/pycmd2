@@ -44,6 +44,9 @@ llmcli = "pycmd2.llama.llama_client:main"
 llmsvr = "pycmd2.llama.llama_server:main"
 llmqnt = "pycmd2.llama.llama_quantize:main"
 
+# make commands
+mkp = "pycmd2.make.make_python:cli.app"
+
 # pip commands
 pipd = "pycmd2.pip.pip_download:cli.app"
 pipdr = "pycmd2.pip.pip_download_req:cli.app"
