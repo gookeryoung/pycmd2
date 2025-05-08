@@ -9,10 +9,11 @@ cli = setup_client()
 cwd = Path.cwd()
 
 
-def run_pip_freeze() -> None:
-    run_cmd_redirect("pip freeze >requirements.txt")
+def pip_freeze() -> None:
+    options = r' | grep -v "^\-e" '
+    run_cmd_redirect(f"pip freeze {options} > requirements.txt")
 
 
 @cli.app.command()
 def main():
-    run_pip_freeze()
+    pip_freeze()

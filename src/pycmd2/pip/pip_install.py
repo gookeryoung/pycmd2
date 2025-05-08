@@ -14,7 +14,7 @@ from pycmd2.common.consts import TRUSTED_PIP_URL
 cli = setup_client()
 
 
-def run_pip_install(libname: str, options: Optional[List[str]] = None) -> None:
+def pip_install(libname: str, options: Optional[List[str]] = None) -> None:
     run_opt = options or []
     run_cmd(["pip", "install", libname, *TRUSTED_PIP_URL, *run_opt])
 
@@ -23,4 +23,4 @@ def run_pip_install(libname: str, options: Optional[List[str]] = None) -> None:
 def main(
     libnames: List[Path] = Argument(help="待下载库清单"),  # noqa: B008
 ):
-    run_parallel(run_pip_install, libnames)
+    run_parallel(pip_install, libnames)

@@ -16,7 +16,7 @@ cwd = Path.cwd()
 dest_dir = cwd / "packages"
 
 
-def run(libname: str) -> None:
+def pip_download(libname: str) -> None:
     run_cmd(["pip", "download", libname, "-d", str(dest_dir), *TRUSTED_PIP_URL])
 
 
@@ -24,4 +24,4 @@ def run(libname: str) -> None:
 def main(
     libnames: List[Path] = Argument(help="待下载库清单"),  # noqa: B008
 ):
-    run_parallel(run, libnames)
+    run_parallel(pip_download, libnames)

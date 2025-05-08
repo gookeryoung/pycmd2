@@ -8,7 +8,7 @@ from typer import Argument
 
 from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
-from pycmd2.pip.pip_install import run_pip_install
+from pycmd2.pip.pip_install import pip_install
 
 cli = setup_client()
 
@@ -17,5 +17,5 @@ cli = setup_client()
 def main(
     libnames: List[Path] = Argument(help="待下载库清单"),  # noqa: B008
 ):
-    run_pip_install_offline = partial(run_pip_install, options=["--no-index", "--find-links", "."])
+    run_pip_install_offline = partial(pip_install, options=["--no-index", "--find-links", "."])
     run_parallel(run_pip_install_offline, libnames)

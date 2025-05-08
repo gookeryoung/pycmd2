@@ -12,7 +12,7 @@ from pycmd2.common.cli import setup_client
 cli = setup_client()
 
 
-def run_pip_uninstall(libname: str) -> None:
+def pip_uninstall(libname: str) -> None:
     run_cmd(["pip", "uninstall", libname, "-y"])
 
 
@@ -20,4 +20,4 @@ def run_pip_uninstall(libname: str) -> None:
 def main(
     libnames: List[Path] = Argument(help="待下载库清单"),  # noqa: B008
 ):
-    run_parallel(run_pip_uninstall, libnames)
+    run_parallel(pip_uninstall, libnames)
