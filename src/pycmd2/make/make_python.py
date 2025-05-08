@@ -95,3 +95,5 @@ def main(option: str):
                 command()
             else:
                 logging.error(f"非法命令: [red]{found_option.name} -> {command}")
+    else:
+        logging.error(f"未找到匹配选项: {option}")
