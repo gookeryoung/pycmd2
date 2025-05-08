@@ -10,6 +10,8 @@ from typing import List
 from typing import NamedTuple
 from typing import Union
 
+from typer import Argument
+
 from pycmd2.common.cli import run_cmd
 from pycmd2.common.cli import setup_client
 
@@ -100,7 +102,7 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
 
 
 @cli.app.command()
-def main(option: str):
+def main(option: str = Argument(help="构建选项[bump/publish]")):
     found_option = MAKE_OPTIONS.get(option, None)
     if found_option:
         logging.info(f"调用选项: mkp [green bold]{found_option.name}")
