@@ -108,7 +108,7 @@ def call_option(option: MakeOption) -> None:
         if isinstance(command, str):
             child_opt = MAKE_OPTIONS.get(command, None)
             if child_opt:
-                logging.info(f"执行子命令: {child_opt.name}")
+                logging.info(f"执行子命令: [purple]{child_opt.name}")
                 call_option(child_opt)
             else:
                 logging.error(f"未找到匹配选项: {command}")
