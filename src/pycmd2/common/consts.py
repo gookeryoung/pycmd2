@@ -1,4 +1,7 @@
+import platform
 from typing import List
+
+IS_WINDOWS = platform.system() == "Windows"
 
 TRUSTED_PIP_URL: List[str] = [
     "--trusted-host",

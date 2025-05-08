@@ -26,6 +26,9 @@ classifiers = []
 license = {text = "MIT license"}
 
 [project.scripts]
+# env commands
+envpy = "pycmd2.env.env_python:cli.app"
+
 # fileproc commands
 filedate = "pycmd2.fileproc.filedate:cli.app"
 filelvl = "pycmd2.fileproc.filelevel:cli.app"
