@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pycmd2"
-version = "0.1.13"
+version = "0.1.14"
 description = "Command tools build with python."
 readme = "README.rst"
 authors = [
