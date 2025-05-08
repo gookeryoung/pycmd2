@@ -1,6 +1,7 @@
 import logging
 import subprocess
 import threading
+from typing import List
 
 from rich.logging import RichHandler
 
@@ -23,13 +24,15 @@ def log_stream(stream, logger_func):
     stream.close()
 
 
-def run_cmd(command):
+def run_cmd(commands: List[str]):
     """
     执行命令并实时记录输出到日志。
     """
     # 启动子进程，设置文本模式并启用行缓冲
+    logging.info(f"调用命令: [green bold]{commands}")
+
     proc = subprocess.Popen(
-        command,
+        commands,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=False,  # 手动解码

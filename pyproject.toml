@@ -43,6 +43,8 @@ llmqnt = "pycmd2.llama.llama_quantize:main"
 
 # pip commands
 pipd = "pycmd2.pip.pip_download:cli.app"
+pipi = "pycmd2.pip.pip_install:cli.app"
+pipn = "pycmd2.pip.pip_install_offline:cli.app"
 
 # task commands
 taskk = "pycmd2.task.task_kill:cli.app"
