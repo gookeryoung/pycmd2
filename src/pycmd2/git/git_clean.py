@@ -1,7 +1,6 @@
 """功能：清理git"""
 
-import subprocess
-
+from pycmd2.common.cli import run_cmd
 from pycmd2.common.cli import setup_client
 
 from .git_push_all import check_git_status
@@ -14,5 +13,5 @@ def main():
     if not check_git_status():
         return
 
-    subprocess.check_call(["git", "clean", "-xfd"], shell=True)
-    subprocess.check_call(["git", "checkout", "."], shell=True)
+    run_cmd(["git", "clean", "-xfd"])
+    run_cmd(["git", "checkout", "."])
