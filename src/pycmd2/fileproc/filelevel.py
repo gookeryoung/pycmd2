@@ -5,15 +5,14 @@
  - 重命名格式为 '(PUB)'
 """
 
-import concurrent.futures
-import logging
-import time
 import typing
+from functools import partial
 from pathlib import Path
 from typing import List
 
 from typer import Argument
 
+from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 
 cli = setup_client()
@@ -71,22 +70,14 @@ def add_level_mark(filepath: Path, filelevel: int, suffix: int) -> Path:
     return filepath.with_name(dst_name)
 
 
+def rename(target: Path, level: int) -> None:
+    target.rename(add_level_mark(target, level, 0))
+
+
 @cli.app.command()
 def main(
     level: int = Argument(0, help="目标M等级, 0-4"),
     targets: List[Path] = Argument(help="目标文件或目录"),  # noqa: B008
 ):
-    t0 = time.perf_counter()
-    rets: List[concurrent.futures.Future] = []
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as exec:
-        for target in targets:
-            target_type = "文件" if target.is_file() else "目录"
-            logging.info(f"开始处理目标{target_type}: [green bold]{str(target)}")
-            rets.append(exec.submit(target.rename, add_level_mark(target, level, 0)))
-
-    print(f"[*] 目标数=[{len(targets)}]\n用时=[{time.perf_counter() - t0:.3f}]s.")
-
-
-if __name__ == "__main__":
-    main()
+    rename_func = partial(rename, level=level)
+    run_parallel(rename_func, targets)
