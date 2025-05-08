@@ -72,6 +72,12 @@ def _update_build_date():
         return True
 
 
+def _clean():
+    dirs = ["dist", ".tox", ".coverage", "htmlcov"]
+    for directory in dirs:
+        run_cmd(["rm", "-rf", directory])
+
+
 MAKE_OPTIONS: Dict[str, MakeOption] = dict(
     bump=MakeOption(
         name="bump",
@@ -80,7 +86,16 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
             _update_build_date,
             ["git", "add", "*/**/__init__.py"],
         ],
-    )
+    ),
+    pub=MakeOption(
+        name="publish",
+        commands=[
+            _clean,
+            ["hatch", "build"],
+            ["hatch", "publish"],
+            ["gitp"],
+        ],
+    ),
 )
 
 
@@ -88,6 +103,7 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
 def main(option: str):
     found_option = MAKE_OPTIONS.get(option, None)
     if found_option:
+        logging.info(f"调用选项: mkp [green bold]{found_option.name}")
         for command in found_option.commands:
             if isinstance(command, list):
                 run_cmd(command)

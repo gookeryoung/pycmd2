@@ -65,7 +65,7 @@ def run_cmd(commands: List[str]):
 
     # 创建并启动记录线程
     stdout_thread = threading.Thread(target=log_stream, args=(proc.stdout, logging.info))
-    stderr_thread = threading.Thread(target=log_stream, args=(proc.stderr, logging.error))
+    stderr_thread = threading.Thread(target=log_stream, args=(proc.stderr, logging.warning))
     stdout_thread.start()
     stderr_thread.start()
 
