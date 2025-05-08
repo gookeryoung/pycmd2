@@ -42,12 +42,12 @@ def _update_build_date():
                 # 查找所有匹配项
                 matches = pattern.findall(content)
                 if not matches:
-                    print("未找到 __build_date__ 定义")
+                    logging.warning("未找到 __build_date__ 定义")
                     return False
 
                 match = pattern.search(content)
                 if not match:
-                    print("未找到有效的 __build_date__ 定义")
+                    logging.warning("未找到有效的 __build_date__ 定义")
                     return False
 
                 # 构造新行（保留原始格式）
@@ -57,7 +57,7 @@ def _update_build_date():
 
                 # 检查是否需要更新
                 if new_content == content:
-                    print("构建日期已是最新，无需更新")
+                    logging.info("构建日期已是最新，无需更新")
                     return True
 
                 # 回写文件
