@@ -61,6 +61,9 @@ pipr = "pycmd2.pip.pip_reinstall:cli.app"
 pipu = "pycmd2.pip.pip_uninstall:cli.app"
 pipur = "pycmd2.pip.pip_uninstall_req:cli.app"
 
+# system commands
+which = "pycmd2.system.which:cli.app"
+
 # task commands
 taskk = "pycmd2.task.task_kill:cli.app"
 
