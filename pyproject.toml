@@ -47,6 +47,9 @@ llmqnt = "pycmd2.llama.llama_quantize:main"
 # make commands
 mkp = "pycmd2.make.make_python:cli.app"
 
+# office commands
+mindnote = "pycmd2.office.mindnote.cli:main"
+
 # pip commands
 pipd = "pycmd2.pip.pip_download:cli.app"
 pipdr = "pycmd2.pip.pip_download_req:cli.app"
