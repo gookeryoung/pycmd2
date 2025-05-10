@@ -15,6 +15,7 @@ cli = setup_client()
 
 # 用户文件夹
 HOME_DIR = Path.home()
+BASHRC_PATH = Path.home() / ".bashrc"
 
 # pip 配置信息
 PIP_CONF_CONTENT = """[global]
@@ -46,7 +47,7 @@ def _add_env_to_bashrc(
     override: bool = False,
 ) -> bool:
     """
-    安全添加或覆盖环境变量到.bashrc文件
+    安全添加或覆盖环境变量到.bashrc文件（优化空行问题）
 
     :param variable: 变量名 (如 "UV_INDEX_URL")
     :param value: 变量值 (如 "https://pypi.tuna.tsinghua.edu.cn/simple")
@@ -54,15 +55,16 @@ def _add_env_to_bashrc(
     :param override: 是否覆盖已有配置 (默认: False)
     :return: 操作是否成功
     """
-    bashrc_path = Path.home() / ".bashrc"
     export_line = f'export {variable}="{value}"'
-    entry = f"# {comment}\n{export_line}\n" if comment else f"{export_line}\n"
+    entry = (
+        f"\n# {comment}\n{export_line}\n" if comment else f"\n{export_line}\n"
+    )
 
     try:
         # 读取现有内容
         content = (
-            bashrc_path.read_text(encoding="utf-8")
-            if bashrc_path.exists()
+            BASHRC_PATH.read_text(encoding="utf-8")
+            if BASHRC_PATH.exists()
             else ""
         )
 
@@ -72,33 +74,35 @@ def _add_env_to_bashrc(
             flags=re.MULTILINE,
         )
 
-        # 检查是否存在配置
         if pattern.search(content):
             if override:
-                # 覆盖模式：删除所有旧配置，添加新条目
+                # 改进点1：删除旧配置及其后的空行
                 new_content = re.sub(pattern, "", content)
 
-                # 处理文件末尾换行
-                if new_content and not new_content.endswith("\n"):
-                    new_content += "\n"
-                new_content += entry
+                # 改进点2：清理多余空行（3+换行 -> 2换行）
+                new_content = re.sub(r"\n{3,}", "\n\n", new_content)
 
-                # 写入文件
-                bashrc_path.write_text(new_content, encoding="utf-8")
+                # 改进点3：确保末尾换行后添加新条目
+                new_content = new_content.rstrip("\n") + "\n"
+                new_content += entry.lstrip("\n")
+
+                BASHRC_PATH.write_text(new_content, encoding="utf-8")
                 logging.info(f"✅ 成功覆盖 {variable} 配置")
                 return True
             else:
                 logging.warning(f"⚠️ 已存在 {variable} 配置，跳过添加")
                 return False
         else:
-            # 追加模式：处理文件末尾换行
-            if content and content[-1] != "\n":
-                entry = "\n" + entry
+            # 改进点4：处理文件末尾空行后追加
+            if content:
+                last_char = content[-1]
+                entry = (
+                    entry if last_char == "\n" else "\n" + entry.lstrip("\n")
+                )
 
-            # 追加新条目
-            with bashrc_path.open("a", encoding="utf-8") as f:
+            with BASHRC_PATH.open("a", encoding="utf-8") as f:
                 f.write(entry)
-            logging.info(f"✅ 成功添加 {variable} 到 {bashrc_path}")
+            logging.info(f"✅ 成功添加 {variable} 到 {BASHRC_PATH}")
             return True
 
     except Exception as e:
