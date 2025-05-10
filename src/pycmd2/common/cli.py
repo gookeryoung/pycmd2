@@ -23,12 +23,17 @@ class Client:
     console: Console
 
 
-def setup_client() -> Client:
+def setup_client(
+    help: str = "",
+) -> Client:
     """创建 cli 程序"""
 
     setup_logging()
 
-    return Client(app=typer.Typer(), console=Console())
+    return Client(
+        app=typer.Typer(help=help),
+        console=Console(),
+    )
 
 
 def run_cmd_redirect(

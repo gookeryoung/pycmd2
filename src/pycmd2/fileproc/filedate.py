@@ -82,7 +82,7 @@ def rename_target(
     )
     dst_name = filepath.with_name(
         f"{time_mark}{SEP}{remove_date_prefix(filepath.name)}"
-    )  # noqa
+    )
     filepath.rename(dst_name)
     return filepath.name, dst_name.name
 
