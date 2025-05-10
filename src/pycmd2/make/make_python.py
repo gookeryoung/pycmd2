@@ -98,6 +98,22 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
             ["git", "add", "*/**/__init__.py"],
         ],
     ),
+    bumpi=MakeOption(
+        name="bump",
+        commands=[
+            ["uvx", "--from", "bump2version", "bumpversion", "minor"],
+            _update_build_date,
+            ["git", "add", "*/**/__init__.py"],
+        ],
+    ),
+    bumpa=MakeOption(
+        name="bump",
+        commands=[
+            ["uvx", "--from", "bump2version", "bumpversion", "major"],
+            _update_build_date,
+            ["git", "add", "*/**/__init__.py"],
+        ],
+    ),
     dist=MakeOption(
         name="dist",
         commands=[

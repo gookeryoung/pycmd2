@@ -23,44 +23,12 @@ for line in sys.stdin:
 endef
 export PRINT_HELP_PYSCRIPT
 
-define UPDATE_BUILDDATE_SCRIPT
-import datetime
-import fileinput
-import pathlib
-import re
-import sys
-
-build_date = datetime.datetime.now().strftime("%Y-%m-%d")
-init_file = pathlib.Path.cwd() / "src" / "pycmd2" / "__init__.py"
-for line in fileinput.input(init_file, inplace=True):
-	if "__build_date__" in line:
-		print(f'__build_date__ = "{build_date}"')  # 替换整行
-	else:
-		print(line, end='')  # 保持原行
-print(f"Update __build_date__ -> {build_date}")
-endef
-export UPDATE_BUILDDATE_SCRIPT
-
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 COVERAGE := coverage
 RUFF := uvx ruff
 UPDATE_BUILD_DATE := python -c "$$UPDATE_BUILDDATE_SCRIPT"
 SPHINX_APIDOC := sphinx-apidoc
 SPHINX_BUILD := sphinx-build
-
-bump: ## bump project version using `bump-my-version`. Example: `0.7.7` -> `0.7.8`
-	uvx --from bump2version bumpversion patch
-	$(UPDATE_BUILD_DATE)
-
-bumpmi: ## bump project version using `bump-my-version`, bump minor version.
-	uvx --from bump2version bumpversion minor
-	$(UPDATE_BUILD_DATE)
-
-bumpma: ## bump project version using `bump-my-version`, bump major version.
-	uvx --from bump2version bumpversion major
-	$(UPDATE_BUILD_DATE)
-
-bumpp: bump publish ## bump and publish
 
 clean: ## remove all build, test, coverage and Python artifacts
 	rm -fr dist/
@@ -100,10 +68,6 @@ init: clean sync ## initialize environment
 lint: sync ## check style with ruff
 	$(RUFF) check src tests --fix
 
-pub: dist ## publish to pypi
-	hatch publish
-	gitp
-
 sync: ## sync project using uv
 	uv sync
 
@@ -112,4 +76,3 @@ test: sync ## run tests quickly with the default Python
 
 test-all: ## run tests on every Python version with tox
 	tox
-
