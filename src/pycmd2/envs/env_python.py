@@ -40,7 +40,7 @@ def _set_chmod(filepath: Path) -> None:
         logging.info("Windows系统, 跳过权限设置")
 
 
-def _add_env_to_bashrc(
+def add_env_to_bashrc(
     variable: str,
     value: str,
     comment: str = "",
@@ -125,7 +125,7 @@ def setup_uv(override: bool = True) -> None:
             run_cmd(["setx", str(k), str(v)])
     else:
         for k, v in uv_envs.items():
-            _add_env_to_bashrc(str(k), str(v), override=override)
+            add_env_to_bashrc(str(k), str(v), override=override)
 
 
 def setup_hatch_token(
@@ -147,7 +147,7 @@ def setup_hatch_token(
             run_cmd(["setx", str(k), str(v)])
     else:
         for k, v in hatch_envs.items():
-            _add_env_to_bashrc(str(k), str(v), override=override)
+            add_env_to_bashrc(str(k), str(v), override=override)
 
 
 def setup_pip() -> None:
