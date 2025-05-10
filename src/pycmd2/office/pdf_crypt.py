@@ -20,14 +20,30 @@ cli = setup_client(help="pdf 加密/解密工具.")
 CWD = Path.cwd()
 
 
+def is_encrypted(filepath: Path) -> bool:
+    """判断文件是否加密
+
+    Args:
+        filepath (Path): 文件路径
+
+    Returns:
+        bool: 是否加密
+    """
+    return pypdf.PdfReader(filepath).is_encrypted
+
+
 def encrypt_pdf(
     filepath: Path,
     password: str,
 ) -> Tuple[Path, Optional[Path]]:
     """加密单个pdf文件
-    :param filepath: pdf文件路径
-    :param password: 加密使用的密码
-    :return 加密前, 后的文件路径
+
+    Args:
+        filepath (Path): 文件路径
+        password (str): 加密密码
+
+    Returns:
+        Tuple[Path, Optional[Path]]: 加密文件信息
     """
     reader = pypdf.PdfReader(filepath)
     writer = pypdf.PdfWriter()
@@ -55,11 +71,14 @@ def decrypt_pdf(
     filepath: Path,
     password: str,
 ) -> typing.Tuple[Path, typing.Optional[Path]]:
-    """
-    解密 PDF 文件。
+    """解密 PDF 文件
 
-    :param filepath: 输入的加密 PDF 文件路径
-    :param password: PDF 文件的密码
+    Args:
+        filepath (Path): 文件路径
+        password (str): 解密密码
+
+    Returns:
+        typing.Tuple[Path, typing.Optional[Path]]: 解密文件信息
     """
     # 打开输入的 PDF 文件
     with open(filepath, "rb") as f:
@@ -88,11 +107,6 @@ def decrypt_pdf(
             return filepath, outfile
 
 
-def _is_encrypted(filepath: Path) -> bool:
-    """判断文件是否加密"""
-    return pypdf.PdfReader(filepath).is_encrypted
-
-
 @cli.app.command("l", help="显示 pdf 文件列表, 别名: list")
 @cli.app.command("list", help="显示 pdf 文件列表")
 def list_dir() -> Tuple[List[Path], List[Path]]:
@@ -101,8 +115,8 @@ def list_dir() -> Tuple[List[Path], List[Path]]:
     Returns:
         Tuple[List[Path], List[Path]]: 返回未加密、已加密 pdf 文件清单
     """
-    un_encrypted = list(_ for _ in CWD.rglob("*.pdf") if not _is_encrypted(_))
-    encrypted = list(_ for _ in CWD.rglob("*.pdf") if _is_encrypted(_))
+    un_encrypted = list(_ for _ in CWD.rglob("*.pdf") if not is_encrypted(_))
+    encrypted = list(_ for _ in CWD.rglob("*.pdf") if is_encrypted(_))
 
     logging.info(f"加密文件: [green bold]{encrypted}")
     logging.info(f"未加密文件: [green bold]{un_encrypted}")
@@ -114,7 +128,7 @@ def list_dir() -> Tuple[List[Path], List[Path]]:
 def decrypt(
     password: str = Argument(help="解密密码"),
 ) -> None:
-    """执行加密操作
+    """执行解密操作
 
     Args:
         password (str, optional): 解密密码
@@ -133,6 +147,11 @@ def decrypt(
 def encrypt(
     password: str = Argument(help="加密密码"),
 ) -> None:
+    """执行加密操作
+
+    Args:
+        password (str, optional): 加密密码
+    """
     un_encrypted, _ = list_dir()
     if not un_encrypted:
         logging.error(f"当前目录下没有未加密的 pdf: {CWD}")
