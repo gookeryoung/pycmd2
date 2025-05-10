@@ -4,10 +4,10 @@ pycmd2.envs package
 Submodules
 ----------
 
-pycmd2.envs.envs\_python module
--------------------------------
+pycmd2.envs.env\_python module
+------------------------------
 
-.. automodule:: pycmd2.envs.envs_python
+.. automodule:: pycmd2.envs.env_python
    :members:
    :undoc-members:
    :show-inheritance:

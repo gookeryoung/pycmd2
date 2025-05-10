@@ -27,7 +27,7 @@ license = {text = "MIT license"}
 
 [project.scripts]
 # envs commands
-envpy = "pycmd2.envs.envs_python:cli.app"
+envpy = "pycmd2.envs.env_python:cli.app"
 
 # fileproc commands
 filedate = "pycmd2.fileproc.filedate:cli.app"

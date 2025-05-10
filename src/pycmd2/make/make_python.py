@@ -201,9 +201,9 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
         name="document",
         desc="生成 Sphinx HTML 文档, 包括 API",
         commands=[
-            ["rm", "-f", "docs/modules.rst"],
-            ["rm", "-f", f"docs/{PROJECT_NAME}*.rst"],
-            ["rm", "-rf", "docs/_build"],
+            ["rm", "-f", "./docs/modules.rst"],
+            ["rm", "-f", f"./docs/{PROJECT_NAME}*.rst"],
+            ["rm", "-rf", "./docs/_build"],
             ["sphinx-apidoc", "-o", "docs", f"src/{PROJECT_NAME}"],
             ["sphinx-build", "docs", "docs/_build"],
             [

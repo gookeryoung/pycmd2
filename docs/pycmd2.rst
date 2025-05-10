@@ -8,27 +8,14 @@ Subpackages
    :maxdepth: 4
 
    pycmd2.common
+   pycmd2.envs
+   pycmd2.fileproc
    pycmd2.git
    pycmd2.llama
-
-Submodules
-----------
-
-pycmd2.cli module
------------------
-
-.. automodule:: pycmd2.cli
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pycmd2.pycmd2 module
---------------------
-
-.. automodule:: pycmd2.pycmd2
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   pycmd2.office
+   pycmd2.pip
+   pycmd2.system
+   pycmd2.task
 
 Module contents
 ---------------
