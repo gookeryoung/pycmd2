@@ -97,12 +97,18 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
             ["git", "add", "*/**/__init__.py"],
         ],
     ),
+    dist=MakeOption(
+        name="dist",
+        commands=[
+            _clean,
+            ["hatch", "build"],
+        ],
+    ),
     pub=MakeOption(
         name="publish",
         commands=[
-            _clean,
             "bump",
-            ["hatch", "build"],
+            "dist",
             ["hatch", "publish"],
             ["gitp"],
         ],
@@ -129,8 +135,11 @@ def call_option(option: MakeOption) -> None:
             logging.error(f"非法命令: [red]{option.name} -> {command}")
 
 
+OPTIONS = "/".join(MAKE_OPTIONS.keys())
+
+
 @cli.app.command()
-def main(optstr: str = Argument(help="构建选项[bump/publish]")):
+def main(optstr: str = Argument(help=f"构建选项[{OPTIONS}]")):
     found_option = MAKE_OPTIONS.get(optstr, None)
     if found_option:
         call_option(found_option)
