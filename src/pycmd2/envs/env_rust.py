@@ -6,6 +6,7 @@ from pathlib import Path
 from typer import Option
 
 from pycmd2.common.cli import run_cmd
+from pycmd2.common.cli import run_cmd_redirect
 from pycmd2.common.cli import setup_client
 from pycmd2.common.consts import IS_WINDOWS
 from pycmd2.envs.env_python import add_env_to_bashrc
@@ -71,3 +72,6 @@ def main(
 ):
     setup_rustup(override=override)
     setup_cargo()
+    run_cmd_redirect(
+        "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+    )
