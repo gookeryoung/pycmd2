@@ -26,6 +26,9 @@ classifiers = []
 license = {text = "MIT license"}
 
 [project.scripts]
+# 自身命令
+pycmd2 = "pycmd2.cli:cli.app"
+
 # envs commands
 envpy = "pycmd2.envs.env_python:cli.app"
 envrs = "pycmd2.envs.env_rust:cli.app"
