@@ -5,7 +5,7 @@ from typing import IO
 from rich.logging import RichHandler
 
 
-def setup_logging():
+def setup_logging() -> None:
     """Setup logging config."""
 
     logging.basicConfig(
@@ -15,7 +15,7 @@ def setup_logging():
     )
 
 
-def log_stream(stream: IO[bytes], logger_func: Callable[[str], None]):
+def log_stream(stream: IO[bytes], logger_func: Callable[[str], None]) -> None:
     # 读取字节流
     for line_bytes in iter(stream.readline, b""):
         try:

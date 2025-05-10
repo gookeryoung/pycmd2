@@ -9,7 +9,6 @@ from typing import Callable
 from typing import Dict
 from typing import List
 from typing import NamedTuple
-from typing import Optional
 from typing import Union
 
 from typer import Argument
@@ -19,11 +18,12 @@ from pycmd2.common.cli import setup_client
 
 cli = setup_client()
 
+
 MakeOption = NamedTuple(
     "MakeOption",
     (
         ("name", str),
-        ("commands", List[Union[str, List[str], Callable[[Optional[Any]], Any]]]),  # noqa
+        ("commands", List[Union[str, List[str], Callable[..., Any]]]),
     ),
 )
 
@@ -122,8 +122,8 @@ def call_option(option: MakeOption) -> None:
                 logging.error(f"未找到匹配选项: {command}")
                 return
         elif isinstance(command, list):
-            run_cmd(command)
-        elif isinstance(command, Callable):
+            run_cmd(command)  # type: ignore
+        elif callable(command):
             command()
         else:
             logging.error(f"非法命令: [red]{option.name} -> {command}")

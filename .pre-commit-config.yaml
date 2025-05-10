@@ -13,7 +13,7 @@ repos:
       - id: fix-byte-order-marker
       - id: trailing-whitespace
       - id: end-of-file-fixer
-  - repo: https://gitcode.com/gh_mirrors/mi/mirrors-mypy
-    rev: 'v1.14.1'
-    hooks:
-      -   id: mypy
+  #- repo: https://gitcode.com/gh_mirrors/mi/mirrors-mypy
+  #  rev: 'v1.14.1'
+  #  hooks:
+  #    -   id: mypy

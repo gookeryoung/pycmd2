@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from time import perf_counter
 from typing import Any
 from typing import Callable
+from typing import Iterable
 from typing import List
 from typing import Optional
 
@@ -32,7 +33,7 @@ def setup_client() -> Client:
 
 def run_cmd_redirect(
     cmd_str: str,
-):
+) -> None:
     """直接执行命令, 用于避免输出重定向"""
 
     t0 = perf_counter()
@@ -52,7 +53,7 @@ def run_cmd_redirect(
 
 def run_cmd(
     commands: List[str],
-):
+) -> None:
     """
     执行命令并实时记录输出到日志。
     """
@@ -95,9 +96,15 @@ def run_cmd(
 
 
 def run_parallel(
-    func: Callable[[Optional[Any]], Optional[Any]],
-    args: Optional[List[Any]] = None,
-):
+    func: Callable[..., Any],
+    args: Optional[Iterable[Any]] = None,
+) -> None:
+    """并行调用命令.
+
+    Args:
+        func (Callable[..., Any]): 被调用函数, 支持任意数量参数
+        args (Optional[Iterable[Any]], optional): 调用函数参数, 默认值 `None`.
+    """
     if not callable(func):
         logging.error(f"对象不可调用, 退出: [red]{func.__name__}")
         return

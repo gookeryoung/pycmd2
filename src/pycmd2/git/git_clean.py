@@ -13,7 +13,7 @@ exclude_dirs = [
 
 
 @cli.app.command()
-def main():
+def main() -> None:
     if not check_git_status():
         return
 
