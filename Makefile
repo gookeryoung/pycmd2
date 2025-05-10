@@ -30,16 +30,6 @@ UPDATE_BUILD_DATE := python -c "$$UPDATE_BUILDDATE_SCRIPT"
 SPHINX_APIDOC := sphinx-apidoc
 SPHINX_BUILD := sphinx-build
 
-clean: ## remove all build, test, coverage and Python artifacts
-	rm -fr dist/
-	rm -fr .tox/
-	rm -f .coverage
-	rm -fr htmlcov/
-	rm -fr .pytest_cache
-	$(FIND_NAME) '*.pyc' -exec rm -f {} +
-	$(FIND_NAME) '__pycache__' -exec rm -fr {} +
-
-
 cov: sync ## check code coverage quickly with the default Python
 	$(COVERAGE) run --source pycmd2 -m pytest
 	$(COVERAGE) report -m
@@ -53,26 +43,3 @@ doc: sync ## generate Sphinx HTML documentation, including API docs
 	$(SPHINX_APIDOC) -o docs/ src/pycmd2
 	$(SPHINX_BUILD) docs docs/_build
 	sphinx-autobuild ./docs ./docs/_build/html --watch . --open-browser
-
-dist: clean ## builds source and wheel package
-	hatch build
-	ls -l dist
-
-help:
-	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
-
-init: clean sync ## initialize environment
-	git init
-	uvx pre-commit install
-
-lint: sync ## check style with ruff
-	$(RUFF) check src tests --fix
-
-sync: ## sync project using uv
-	uv sync
-
-test: sync ## run tests quickly with the default Python
-	pytest
-
-test-all: ## run tests on every Python version with tox
-	tox

@@ -3,12 +3,13 @@
 import datetime
 import logging
 import re
+import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
-from typing import NamedTuple
 from typing import Union
 
 from typer import Argument
@@ -19,14 +20,31 @@ from pycmd2.git.git_push_all import main as git_push_all
 
 cli = setup_client()
 
+CWD = Path.cwd()
+SRC_DIR = CWD / "src"
+PROJECTS_DIRS = list(f for f in SRC_DIR.iterdir())
 
-MakeOption = NamedTuple(
-    "MakeOption",
-    (
-        ("name", str),
-        ("commands", List[Union[str, List[str], Callable[..., Any]]]),
-    ),
-)
+if not len(PROJECTS_DIRS):
+    logging.error(
+        f"当前目录下不存在 python 项目: {CWD}, 结构: ./src/project-name"
+    )
+    sys.exit(1)
+
+PROJECT_DIR = PROJECTS_DIRS[0]
+PROJECT_NAME = PROJECT_DIR.stem
+
+if not PROJECT_DIR.exists():
+    logging.error(
+        f"当前目录下不存在 python 项目: {CWD}, 结构: ./src/project-name"
+    )
+    sys.exit(1)
+
+
+@dataclass
+class MakeOption:
+    name: str
+    commands: List[Union[str, List[str], Callable[..., Any]]]
+    desc: str = ""
 
 
 def _update_build_date():
@@ -84,14 +102,29 @@ def _update_build_date():
 
 
 def _clean():
-    dirs = ["dist", ".tox", ".coverage", "htmlcov"]
+    """清理项目"""
+
+    # 待清理目录
+    dirs = [
+        "dist",
+        ".tox",
+        ".coverage",
+        "htmlcov",
+        ".pytest_cache",
+        ".mypy_cache",
+    ]
     for directory in dirs:
         run_cmd(["rm", "-rf", directory])
+
+    find_name = ["find", ".", "-path", "'./.venv'", "-prune", "-o", "-name"]
+    run_cmd([*find_name, "'*.pyc'", "-exec", "rm", "-f", "{}", "+"])
+    run_cmd([*find_name, "'__pycache__'", "-exec", "rm", "-f", "{}", "+"])
 
 
 MAKE_OPTIONS: Dict[str, MakeOption] = dict(
     bump=MakeOption(
         name="bump",
+        desc="更新 patch 版本",
         commands=[
             ["uvx", "--from", "bump2version", "bumpversion", "patch"],
             _update_build_date,
@@ -100,6 +133,7 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
     ),
     bumpi=MakeOption(
         name="bump",
+        desc="更新 minor 版本",
         commands=[
             ["uvx", "--from", "bump2version", "bumpversion", "minor"],
             _update_build_date,
@@ -108,21 +142,67 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
     ),
     bumpa=MakeOption(
         name="bump",
+        desc="更新 major 版本",
         commands=[
             ["uvx", "--from", "bump2version", "bumpversion", "major"],
             _update_build_date,
             ["git", "add", "*/**/__init__.py"],
         ],
     ),
+    clean=MakeOption(
+        name="clean",
+        desc="清理所有构建、测试生成的临时内容",
+        commands=[_clean],
+    ),
     dist=MakeOption(
         name="dist",
+        desc="使用 hatch 构建 whl 包",
         commands=[
-            _clean,
+            "clean",
             ["hatch", "build"],
+            ["ls", "-l", "dist"],
+        ],
+    ),
+    doc=MakeOption(
+        name="document",
+        desc="生成 Sphinx HTML 文档, 包括 API",
+        commands=[
+            ["rm", "-f", "docs/modules.rst"],
+            ["rm", "-f", f"docs/{PROJECT_NAME}*.rst"],
+            ["rm", "-rf", "docs/_build"],
+            ["sphinx-apidoc", "-o", "docs", f"src/{PROJECT_NAME}"],
+            ["sphinx-build", "docs", "docs/_build"],
+            [
+                "sphinx-autobuild",
+                "docs",
+                "docs/_build/html",
+                "--watch",
+                ".",
+                "--open-browser",
+            ],
+        ],
+    ),
+    init=MakeOption(
+        name="initialize",
+        desc="项目初始化",
+        commands=[
+            "clean",
+            "sync",
+            ["git", "init"],
+            ["uvx", "pre-commit", "install"],
+        ],
+    ),
+    lint=MakeOption(
+        name="lint",
+        desc="代码质量检查",
+        commands=[
+            "sync",
+            ["ruff", "check", "src", "tests", "--fix"],
         ],
     ),
     pub=MakeOption(
         name="publish",
+        desc="执行版本更新、构建以及推送等系列操作",
         commands=[
             "bump",
             "dist",
@@ -130,11 +210,29 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
             git_push_all,
         ],
     ),
+    sync=MakeOption(
+        name="sync",
+        desc="项目环境同步",
+        commands=[
+            ["uv", "sync"],
+        ],
+    ),
+    test=MakeOption(
+        name="test",
+        desc="运行测试",
+        commands=[
+            "sync",
+            ["pytest"],
+        ],
+    ),
 )
 
 
 def call_option(option: MakeOption) -> None:
     logging.info(f"调用选项: mkp [green bold]{option.name}")
+    if option.desc:
+        logging.info(f"功能描述: [purple bold]{option.desc}")
+
     for command in option.commands:
         if isinstance(command, str):
             child_opt = MAKE_OPTIONS.get(command, None)

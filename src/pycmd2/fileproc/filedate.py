@@ -47,7 +47,9 @@ def remove_date_prefix(
     >>> remove_date_prefix('2022-my-file.xls')
     '2022-my-file.xls'
     """
-    pattern = re.compile(r"(20|19)\d{2}((0[1-9])|(1[012]))((0[1-9])|([12]\d)|(3[01]))")  # noqa
+    pattern = re.compile(
+        r"(20|19)\d{2}((0[1-9])|(1[012]))((0[1-9])|([12]\d)|(3[01]))"
+    )
     match = re.search(pattern, filename)
 
     if not match:
@@ -75,8 +77,12 @@ def rename_target(
         修改后的路径
     """
     modified, created = filepath.stat().st_mtime, filepath.stat().st_ctime
-    time_mark = time.strftime("%Y%m%d", time.localtime(max((modified, created))))
-    dst_name = filepath.with_name(f"{time_mark}{SEP}{remove_date_prefix(filepath.name)}")  # noqa
+    time_mark = time.strftime(
+        "%Y%m%d", time.localtime(max((modified, created)))
+    )
+    dst_name = filepath.with_name(
+        f"{time_mark}{SEP}{remove_date_prefix(filepath.name)}"
+    )  # noqa
     filepath.rename(dst_name)
     return filepath.name, dst_name.name
 

@@ -209,7 +209,8 @@ class GGUFQuantizerGUI(QMainWindow):
             # 检查文件名是否包含F16
             if "-F16" not in filename.upper():
                 self.output_text.append(
-                    "注意: 输入文件名不包含F16后缀，输出文件名将直接添加量化类型"
+                    "注意: 输入文件名不包含F16后缀，"
+                    "输出文件名将直接添加量化类型"
                 )
                 self._scroll_to_bottom()
 
@@ -229,10 +230,10 @@ class GGUFQuantizerGUI(QMainWindow):
         dir_path = self.input_file.parent
 
         for quant_type in self.quant_types.keys():
-            expected_file = (
-                dir_path
-                / f"{_process_gguf_stem(self.input_file.stem)}-{quant_type}.gguf"
+            filename = (
+                f"{_process_gguf_stem(self.input_file.stem)}-{quant_type}.gguf"
             )
+            expected_file = dir_path / filename
             if expected_file.exists():
                 self.quant_checks[quant_type].setChecked(False)
                 self.quant_checks[quant_type].setEnabled(False)

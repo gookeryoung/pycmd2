@@ -44,7 +44,10 @@ def remove_marks(
         if pos != -1:
             b, e = pos - 1, pos + len(mark)
             if b >= 0 and e <= len(filename) - 1:
-                if filename[b] not in BRACKET_PAIRS[0] or filename[e] not in BRACKET_PAIRS[1]:  # noqa
+                if (
+                    filename[b] not in BRACKET_PAIRS[0]
+                    or filename[e] not in BRACKET_PAIRS[1]
+                ):
                     return filename[:e] + remove_marks(filename[e:], marks)
                 filename = filename.replace(filename[b : e + 1], "")
                 return remove_marks(filename, marks)
@@ -56,7 +59,9 @@ def remove_level_and_digital_mark(
 ) -> str:
     for file_level in FILE_LEVELS[1:]:
         filename = remove_marks(filename, file_level.names)
-    filename = remove_marks(filename, tuple("".join([str(x) for x in range(1, 10)])))
+    filename = remove_marks(
+        filename, tuple("".join([str(x) for x in range(1, 10)]))
+    )
     return filename
 
 
@@ -66,12 +71,20 @@ def add_level_mark(
     suffix: int,
 ) -> Path:
     cleared_stem = remove_level_and_digital_mark(filepath.stem)
-    dst_stem = f"{cleared_stem}({FILE_LEVELS[filelevel].names[0]})" if filelevel else cleared_stem  # noqa
+    dst_stem = (
+        f"{cleared_stem}({FILE_LEVELS[filelevel].names[0]})"
+        if filelevel
+        else cleared_stem
+    )  # noqa
 
     if dst_stem == filepath.stem:
         print(f"destination stem [{dst_stem}] equals to current.")
         return filepath
-    dst_name = f"{dst_stem}({suffix}){filepath.suffix}" if suffix else f"{dst_stem}{filepath.suffix}"  # noqa
+    dst_name = (
+        f"{dst_stem}({suffix}){filepath.suffix}"
+        if suffix
+        else f"{dst_stem}{filepath.suffix}"
+    )
 
     if filepath.with_name(dst_name).exists():
         return add_level_mark(filepath, filelevel, suffix + 1)

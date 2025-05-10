@@ -68,7 +68,9 @@ class LlamaWorker(QThread):
                 stream=True,
             ) as response:
                 if response.status_code != 200:
-                    self.error_occurred.emit(f"Error: {response.status_code} - {response.text}")  # noqa
+                    self.error_occurred.emit(
+                        f"Error: {response.status_code} - {response.text}"
+                    )  # noqa
                     return
 
                 buffer = ""
@@ -205,7 +207,9 @@ class LlamaChatApp(QMainWindow):
             if response.status_code == 200:
                 self.statusBar().showMessage("连接成功!")
             else:
-                self.statusBar().showMessage(f"连接失败: {response.status_code}")
+                self.statusBar().showMessage(
+                    f"连接失败: {response.status_code}"
+                )
         except Exception as e:
             self.statusBar().showMessage(f"连接错误: {str(e)}")
 
