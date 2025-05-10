@@ -4,6 +4,9 @@ import logging
 import re
 from pathlib import Path
 
+from typer import Argument
+from typer import Option
+
 from pycmd2.common.cli import run_cmd
 from pycmd2.common.cli import setup_client
 from pycmd2.common.consts import IS_WINDOWS
@@ -11,65 +14,99 @@ from pycmd2.common.consts import IS_WINDOWS
 cli = setup_client()
 
 # 用户文件夹
-home_dir = Path.home()
+HOME_DIR = Path.home()
 
 # pip 配置信息
-pip_conf_content = """[global]
+PIP_CONF_CONTENT = """[global]
 index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
 [install]
 trusted-host = tuna.tsinghua.edu.cn
 """
 
 
+def _set_chmod(filepath: Path) -> None:
+    # 设置安全权限 (仅限 Unix 系统)
+    if not IS_WINDOWS:
+        if not filepath.exists():
+            run_cmd(["touch", str(filepath)])
+
+        try:
+            filepath.chmod(0o600)
+            logging.info(f"设置文件权限: {oct(filepath.stat().st_mode)[-3:]}")
+        except Exception:
+            logging.error(f"设置文件权限失败: {filepath}")
+    else:
+        logging.info("Windows系统, 跳过权限设置")
+
+
 def _add_env_to_bashrc(
     variable: str,
     value: str,
     comment: str = "",
-):
+    override: bool = False,
+) -> bool:
     """
-    安全添加环境变量到.bashrc文件
+    安全添加或覆盖环境变量到.bashrc文件
 
     :param variable: 变量名 (如 "UV_INDEX_URL")
     :param value: 变量值 (如 "https://pypi.tuna.tsinghua.edu.cn/simple")
     :param comment: 可选注释说明
+    :param override: 是否覆盖已有配置 (默认: False)
+    :return: 操作是否成功
     """
     bashrc_path = Path.home() / ".bashrc"
     export_line = f'export {variable}="{value}"'
-    entry = f"\n# {comment}\n{export_line}\n" if comment else f"\n{export_line}\n"  # noqa
+    entry = f"# {comment}\n{export_line}\n" if comment else f"{export_line}\n"
 
     try:
         # 读取现有内容
-        if bashrc_path.exists():
-            content = bashrc_path.read_text(encoding="utf-8")
-        else:
-            content = ""
+        content = (
+            bashrc_path.read_text(encoding="utf-8")
+            if bashrc_path.exists()
+            else ""
+        )
 
-        # 检查是否已存在
+        # 匹配现有配置的正则模式
         pattern = re.compile(
             r"^export\s+" + re.escape(variable) + r"=.*$",
             flags=re.MULTILINE,
         )
 
+        # 检查是否存在配置
         if pattern.search(content):
-            logging.warning(f"已存在 {variable} 配置，跳过添加")
-            return False
+            if override:
+                # 覆盖模式：删除所有旧配置，添加新条目
+                new_content = re.sub(pattern, "", content)
 
-        # 追加新条目并处理末尾换行
-        if content and content[-1] != "\n":
-            entry = "\n" + entry.lstrip()
+                # 处理文件末尾换行
+                if new_content and not new_content.endswith("\n"):
+                    new_content += "\n"
+                new_content += entry
 
-        with bashrc_path.open("a", encoding="utf-8") as f:
-            f.write(entry)
+                # 写入文件
+                bashrc_path.write_text(new_content, encoding="utf-8")
+                logging.info(f"✅ 成功覆盖 {variable} 配置")
+                return True
+            else:
+                logging.warning(f"⚠️ 已存在 {variable} 配置，跳过添加")
+                return False
+        else:
+            # 追加模式：处理文件末尾换行
+            if content and content[-1] != "\n":
+                entry = "\n" + entry
 
-        logging.info(f"成功添加 {variable} 到 {bashrc_path}")
-        return True
+            # 追加新条目
+            with bashrc_path.open("a", encoding="utf-8") as f:
+                f.write(entry)
+            logging.info(f"✅ 成功添加 {variable} 到 {bashrc_path}")
+            return True
 
     except Exception as e:
         logging.error(f"❌ 操作失败: {str(e)}")
         return False
 
 
-def setup_uv() -> None:
+def setup_uv(override: bool = True) -> None:
     logging.info("配置 uv 环境变量")
 
     uv_envs = dict(
@@ -84,11 +121,33 @@ def setup_uv() -> None:
             run_cmd(["setx", str(k), str(v)])
     else:
         for k, v in uv_envs.items():
-            _add_env_to_bashrc(str(k), str(v))
+            _add_env_to_bashrc(str(k), str(v), override=override)
+
+
+def setup_hatch_token(
+    token: str,
+    override: bool = True,
+) -> None:
+    """
+    永久配置 Hatch 的 PyPI Token
+
+    :param token: PyPI API Token (格式: pypi-xxxxxxxx)
+    """
+
+    hatch_envs = dict(
+        HATCH_INDEX_USER="__token__",
+        HATCH_INDEX_AUTH=token,
+    )
+    if IS_WINDOWS:
+        for k, v in hatch_envs.items():
+            run_cmd(["setx", str(k), str(v)])
+    else:
+        for k, v in hatch_envs.items():
+            _add_env_to_bashrc(str(k), str(v), override=override)
 
 
 def setup_pip() -> None:
-    pip_dir = home_dir / "pip" if IS_WINDOWS else home_dir / ".pip"
+    pip_dir = HOME_DIR / "pip" if IS_WINDOWS else HOME_DIR / ".pip"
     pip_conf = pip_dir / "pip.ini" if IS_WINDOWS else pip_dir / "pip.conf"
 
     if not pip_dir.exists():
@@ -97,11 +156,17 @@ def setup_pip() -> None:
     else:
         logging.info(f"已存在 pip 文件夹: [green bold]{pip_dir}")
 
+    _set_chmod(pip_conf)
+
     logging.info(f"写入文件: [green bold]{pip_conf}")
-    pip_conf.write_text(pip_conf_content)
+    pip_conf.write_text(PIP_CONF_CONTENT)
 
 
 @cli.app.command()
-def main():
+def main(
+    pypi_token: str = Argument(help="pypi token"),
+    override: bool = Option(default=True, help="是否覆盖已存在选项"),
+):
     setup_pip()
-    setup_uv()
+    setup_uv(override=override)
+    setup_hatch_token(pypi_token, override=override)
