@@ -72,6 +72,11 @@ def main(
 ):
     setup_rustup(override=override)
     setup_cargo()
-    run_cmd_redirect(
-        "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
-    )
+    if IS_WINDOWS:
+        run_cmd_redirect(
+            "wget https://static.rust-lang.org/rustup/dist/i686-pc-windows-msvc/rustup-init.exe"
+        )
+    else:
+        run_cmd_redirect(
+            "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+        )
