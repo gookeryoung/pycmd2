@@ -55,6 +55,7 @@ mkp = "pycmd2.make.make_python:cli.app"
 # office commands
 mindnote = "pycmd2.office.mindnote.cli:main"
 pdfc = "pycmd2.office.pdf_crypt:cli.app"
+pdfmrg = "pycmd2.office.pdf_merge:cli.app"
 
 # pip commands
 pipd = "pycmd2.pip.pip_download:cli.app"

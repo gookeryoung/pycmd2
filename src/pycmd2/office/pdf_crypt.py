@@ -109,7 +109,7 @@ def decrypt_pdf(
 
 @cli.app.command("l", help="显示 pdf 文件列表, 别名: list")
 @cli.app.command("list", help="显示 pdf 文件列表")
-def list_dir() -> Tuple[List[Path], List[Path]]:
+def list_pdf() -> Tuple[List[Path], List[Path]]:
     """显示当前文件夹中的 pdf 文件列表
 
     Returns:
@@ -133,7 +133,7 @@ def decrypt(
     Args:
         password (str, optional): 解密密码
     """
-    _, encrypted_files = list_dir()
+    _, encrypted_files = list_pdf()
     if not encrypted_files:
         logging.error(f"当前目录下没有已加密的 pdf: {CWD}")
         return
@@ -152,10 +152,10 @@ def encrypt(
     Args:
         password (str, optional): 加密密码
     """
-    un_encrypted, _ = list_dir()
-    if not un_encrypted:
+    unencrypted_files, _ = list_pdf()
+    if not unencrypted_files:
         logging.error(f"当前目录下没有未加密的 pdf: {CWD}")
         return
 
     enc_func = partial(encrypt_pdf, password=password)
-    run_parallel(enc_func, un_encrypted)
+    run_parallel(enc_func, unencrypted_files)
