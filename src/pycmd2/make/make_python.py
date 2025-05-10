@@ -3,6 +3,7 @@
 import datetime
 import logging
 import re
+import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -15,6 +16,7 @@ from typing import Union
 from typer import Argument
 
 from pycmd2.common.cli import run_cmd
+from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 from pycmd2.git.git_push_all import main as git_push_all
 
@@ -124,12 +126,18 @@ def _clean() -> None:
         ".pytest_cache",
         ".mypy_cache",
     ]
-    for directory in dirs:
-        run_cmd(["rm", "-rf", directory])
+    spec_dirs = [CWD / d for d in dirs]
 
-    find_name = ["find", ".", "-path", "'./.venv'", "-prune", "-o", "-name"]
-    run_cmd([*find_name, "'*.pyc'", "-exec", "rm", "-f", "{}", "+"])
-    run_cmd([*find_name, "'__pycache__'", "-exec", "rm", "-f", "{}", "+"])
+    # 定义移除函数
+    def remove_dir(dirpath: Path) -> None:
+        shutil.rmtree(dirpath, ignore_errors=True)
+
+    # 移除待清理目录
+    run_parallel(remove_dir, spec_dirs)
+
+    # 移除临时目录
+    cache_dirs = list(d for d in CWD.rglob("__pycache__") if d.is_dir())
+    run_parallel(remove_dir, cache_dirs)
 
 
 MAKE_OPTIONS: Dict[str, MakeOption] = dict(
@@ -159,6 +167,10 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
             _update_build_date,
             ["git", "add", "*/**/__init__.py"],
         ],
+    ),
+    c=MakeOption(
+        name="clean",
+        commands=["clean"],
     ),
     clean=MakeOption(
         name="clean",
