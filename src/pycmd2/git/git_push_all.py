@@ -13,7 +13,9 @@ cli = setup_client()
 def check_git_status():
     """检查是否存在未提交的修改"""
 
-    result = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
+    result = subprocess.run(
+        ["git", "status", "--porcelain"], capture_output=True, text=True
+    )
     if result.stdout.strip():
         logging.error(f"存在未提交的修改，请先提交更改: [red]{result}")
         return False

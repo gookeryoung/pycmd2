@@ -15,6 +15,7 @@ from typer import Argument
 
 from pycmd2.common.cli import run_cmd
 from pycmd2.common.cli import setup_client
+from pycmd2.git.git_push_all import main as git_push_all
 
 cli = setup_client()
 
@@ -110,7 +111,7 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
             "bump",
             "dist",
             ["hatch", "publish"],
-            ["gitp"],
+            git_push_all,
         ],
     ),
 )
