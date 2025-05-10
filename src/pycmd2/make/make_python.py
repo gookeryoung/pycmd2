@@ -101,7 +101,18 @@ def _update_build_date():
         return True
 
 
-def _clean():
+def _browse_coverage() -> None:
+    """打开浏览器查看测试覆盖率结果"""
+
+    import webbrowser
+    from urllib.request import pathname2url
+
+    webbrowser.open(
+        "file://" + pathname2url(str(CWD / "htmlcov" / "index.html"))
+    )
+
+
+def _clean() -> None:
     """清理项目"""
 
     # 待清理目录
@@ -153,6 +164,17 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
         name="clean",
         desc="清理所有构建、测试生成的临时内容",
         commands=[_clean],
+    ),
+    cov=MakeOption(
+        name="coverage",
+        desc="测试覆盖率检查",
+        commands=[
+            "sync",
+            ["coverage", "run", "--source", PROJECT_NAME, "-m", "pytest"],
+            ["coverage", "report", "-m"],
+            ["coverage", "html"],
+            _browse_coverage,
+        ],
     ),
     dist=MakeOption(
         name="dist",
