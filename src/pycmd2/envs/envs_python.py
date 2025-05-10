@@ -12,6 +12,7 @@ cli = setup_client()
 
 # 用户文件夹
 home_dir = Path.home()
+
 # pip 配置信息
 pip_conf_content = """[global]
 index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
@@ -20,7 +21,11 @@ trusted-host = tuna.tsinghua.edu.cn
 """
 
 
-def _add_env_to_bashrc(variable, value, comment=""):
+def _add_env_to_bashrc(
+    variable: str,
+    value: str,
+    comment: str = "",
+):
     """
     安全添加环境变量到.bashrc文件
 
@@ -30,14 +35,20 @@ def _add_env_to_bashrc(variable, value, comment=""):
     """
     bashrc_path = Path.home() / ".bashrc"
     export_line = f'export {variable}="{value}"'
-    entry = f"\n# {comment}\n{export_line}\n" if comment else f"\n{export_line}\n"
+    entry = f"\n# {comment}\n{export_line}\n" if comment else f"\n{export_line}\n"  # noqa
 
     try:
         # 读取现有内容
-        content = bashrc_path.read_text(encoding="utf-8") if bashrc_path.exists() else ""
+        if bashrc_path.exists():
+            content = bashrc_path.read_text(encoding="utf-8")
+        else:
+            content = ""
 
         # 检查是否已存在
-        pattern = re.compile(r"^export\s+" + re.escape(variable) + r"=.*$", flags=re.MULTILINE)
+        pattern = re.compile(
+            r"^export\s+" + re.escape(variable) + r"=.*$",
+            flags=re.MULTILINE,
+        )
 
         if pattern.search(content):
             logging.warning(f"已存在 {variable} 配置，跳过添加")
@@ -73,7 +84,7 @@ def setup_uv() -> None:
             run_cmd(["setx", str(k), str(v)])
     else:
         for k, v in uv_envs.items():
-            run_cmd(_add_env_to_bashrc(str(k), str(v)))
+            _add_env_to_bashrc(str(k), str(v))
 
 
 def setup_pip() -> None:

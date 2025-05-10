@@ -56,17 +56,29 @@ class QuantizationWorker(QThread):
     def run(self):
         try:
             for quant_type in self.quant_types:
-                output_file: pathlib.Path = self.input_dir / f"{self.base_name}-{quant_type}.gguf"
+                output_file: pathlib.Path = (
+                    self.input_dir / f"{self.base_name}-{quant_type}.gguf"
+                )
 
-                self.progress_msg_updated.emit(f"正在转换到 {quant_type} 格式...")
+                self.progress_msg_updated.emit(
+                    f"正在转换到 {quant_type} 格式..."
+                )
 
                 # 构建命令行参数
                 os.chdir(self.input_file.parent)
-                cmd = ["llama-quantize", str(self.input_file.name), str(output_file), quant_type]
+                cmd = [
+                    "llama-quantize",
+                    str(self.input_file.name),
+                    str(output_file),
+                    quant_type,
+                ]
 
                 # 执行转换命令
                 process = subprocess.Popen(
-                    cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    universal_newlines=True,
                 )
 
                 # 实时输出进度
@@ -79,7 +91,9 @@ class QuantizationWorker(QThread):
                 self.progress_count_updated.emit(progress)
 
                 if process.returncode == 0:
-                    self.progress_msg_updated.emit(f"成功生成: {str(output_file)}")
+                    self.progress_msg_updated.emit(
+                        f"成功生成: {str(output_file)}"
+                    )
                 else:
                     self.progress_msg_updated.emit(f"转换 {quant_type} 失败")
 
@@ -183,7 +197,9 @@ class GGUFQuantizerGUI(QMainWindow):
         self.setCentralWidget(main_widget)
 
     def select_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "选择F16格式的GGUF文件", "", "GGUF Files (*.gguf)")
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "选择F16格式的GGUF文件", "", "GGUF Files (*.gguf)"
+        )
 
         if file_path:
             self.input_file = pathlib.Path(file_path)
@@ -192,7 +208,9 @@ class GGUFQuantizerGUI(QMainWindow):
 
             # 检查文件名是否包含F16
             if "-F16" not in filename.upper():
-                self.output_text.append("注意: 输入文件名不包含F16后缀，输出文件名将直接添加量化类型")
+                self.output_text.append(
+                    "注意: 输入文件名不包含F16后缀，输出文件名将直接添加量化类型"
+                )
                 self._scroll_to_bottom()
 
             # 检查已存在的量化文件
@@ -211,14 +229,21 @@ class GGUFQuantizerGUI(QMainWindow):
         dir_path = self.input_file.parent
 
         for quant_type in self.quant_types.keys():
-            expected_file = dir_path / f"{_process_gguf_stem(self.input_file.stem)}-{quant_type}.gguf"
+            expected_file = (
+                dir_path
+                / f"{_process_gguf_stem(self.input_file.stem)}-{quant_type}.gguf"
+            )
             if expected_file.exists():
                 self.quant_checks[quant_type].setChecked(False)
                 self.quant_checks[quant_type].setEnabled(False)
-                self.quant_checks[quant_type].setText(f"{self.quant_types[quant_type]} (已存在)")
+                self.quant_checks[quant_type].setText(
+                    f"{self.quant_types[quant_type]} (已存在)"
+                )
             else:
                 self.quant_checks[quant_type].setEnabled(True)
-                self.quant_checks[quant_type].setText(self.quant_types[quant_type])
+                self.quant_checks[quant_type].setText(
+                    self.quant_types[quant_type]
+                )
                 self.quant_checks[quant_type].setStyleSheet("")
 
     def _scroll_to_bottom(self):
@@ -227,7 +252,9 @@ class GGUFQuantizerGUI(QMainWindow):
         scrollbar.setValue(scrollbar.maximum())
 
     def start_conversion(self):
-        selected_quants: typing.List[str] = [q for q, check in self.quant_checks.items() if check.isChecked()]
+        selected_quants: typing.List[str] = [
+            q for q, check in self.quant_checks.items() if check.isChecked()
+        ]
 
         if not selected_quants:
             self.output_text.append("请至少选择一种量化类型")

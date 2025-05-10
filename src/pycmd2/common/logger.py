@@ -1,10 +1,13 @@
 import logging
+from typing import Callable
+from typing import IO
 
 from rich.logging import RichHandler
 
 
 def setup_logging():
-    # 配置日志
+    """Setup logging config."""
+
     logging.basicConfig(
         level=logging.INFO,
         format="[*] %(message)s",
@@ -12,12 +15,15 @@ def setup_logging():
     )
 
 
-def log_stream(stream, logger_func):
-    for line_bytes in iter(stream.readline, b""):  # 读取字节流
+def log_stream(stream: IO[bytes], logger_func: Callable[[str], None]):
+    # 读取字节流
+    for line_bytes in iter(stream.readline, b""):
         try:
-            line = line_bytes.decode("utf-8").strip()  # 尝试UTF-8解码
+            # 尝试UTF-8解码
+            line = line_bytes.decode("utf-8").strip()
         except UnicodeDecodeError:
-            line = line_bytes.decode("gbk", errors="replace").strip()  # 尝试GBK解码并替换错误字符
+            # 尝试GBK解码并替换错误字符
+            line = line_bytes.decode("gbk", errors="replace").strip()
         if line:
             logger_func(line)
     stream.close()

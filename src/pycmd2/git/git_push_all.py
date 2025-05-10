@@ -23,7 +23,11 @@ def check_git_status():
 def check_sensitive_data():
     """检查敏感信息（正则表达式可根据需求扩展）"""
 
-    result = subprocess.run(["git", "diff", "--cached", "--name-only"], capture_output=True, text=True)
+    result = subprocess.run(
+        ["git", "diff", "--cached", "--name-only"],
+        capture_output=True,
+        text=True,
+    )
     sensitive_files = [".env", "credentials.json"]
     for file in result.stdout.splitlines():
         if file in sensitive_files:
@@ -32,7 +36,9 @@ def check_sensitive_data():
     return True
 
 
-def push(remote: str):
+def push(
+    remote: str,
+):
     if not check_git_status():
         return
 

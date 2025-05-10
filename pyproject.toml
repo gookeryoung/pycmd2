@@ -27,7 +27,7 @@ license = {text = "MIT license"}
 
 [project.scripts]
 # envs commands
-envspy = "pycmd2.envs.envs_python:cli.app"
+envpy = "pycmd2.envs.envs_python:cli.app"
 
 # fileproc commands
 filedate = "pycmd2.fileproc.filedate:cli.app"
@@ -62,7 +62,7 @@ pipu = "pycmd2.pip.pip_uninstall:cli.app"
 pipur = "pycmd2.pip.pip_uninstall_req:cli.app"
 
 # system commands
-which = "pycmd2.system.which:cli.app"
+wch = "pycmd2.system.which:cli.app"
 
 # task commands
 taskk = "pycmd2.task.task_kill:cli.app"
@@ -115,7 +115,7 @@ filterwarnings = ["error"]
 
 # ------------------------ ruff ------------------------- #
 [tool.ruff]
-line-length = 120
+line-length = 80
 fix = true
 show-fixes = true
 output-format = "full"

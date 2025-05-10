@@ -35,34 +35,43 @@ FILE_LEVELS = [FileLevel(c, n) for c, n in FILE_LEVEL_DATA]
 BRACKET_PAIRS = (" (（[【_-", " )）]】_-")
 
 
-def remove_marks(filename: str, marks: typing.Tuple[str, ...]) -> str:
+def remove_marks(
+    filename: str,
+    marks: typing.Tuple[str, ...],
+) -> str:
     for mark in marks:
         pos = filename.find(mark)
         if pos != -1:
             b, e = pos - 1, pos + len(mark)
             if b >= 0 and e <= len(filename) - 1:
-                if filename[b] not in BRACKET_PAIRS[0] or filename[e] not in BRACKET_PAIRS[1]:
+                if filename[b] not in BRACKET_PAIRS[0] or filename[e] not in BRACKET_PAIRS[1]:  # noqa
                     return filename[:e] + remove_marks(filename[e:], marks)
                 filename = filename.replace(filename[b : e + 1], "")
                 return remove_marks(filename, marks)
     return filename
 
 
-def remove_level_and_digital_mark(filename: str) -> str:
+def remove_level_and_digital_mark(
+    filename: str,
+) -> str:
     for file_level in FILE_LEVELS[1:]:
         filename = remove_marks(filename, file_level.names)
     filename = remove_marks(filename, tuple("".join([str(x) for x in range(1, 10)])))
     return filename
 
 
-def add_level_mark(filepath: Path, filelevel: int, suffix: int) -> Path:
+def add_level_mark(
+    filepath: Path,
+    filelevel: int,
+    suffix: int,
+) -> Path:
     cleared_stem = remove_level_and_digital_mark(filepath.stem)
-    dst_stem = f"{cleared_stem}({FILE_LEVELS[filelevel].names[0]})" if filelevel else cleared_stem
+    dst_stem = f"{cleared_stem}({FILE_LEVELS[filelevel].names[0]})" if filelevel else cleared_stem  # noqa
 
     if dst_stem == filepath.stem:
         print(f"destination stem [{dst_stem}] equals to current.")
         return filepath
-    dst_name = f"{dst_stem}({suffix}){filepath.suffix}" if suffix else f"{dst_stem}{filepath.suffix}"
+    dst_name = f"{dst_stem}({suffix}){filepath.suffix}" if suffix else f"{dst_stem}{filepath.suffix}"  # noqa
 
     if filepath.with_name(dst_name).exists():
         return add_level_mark(filepath, filelevel, suffix + 1)
@@ -70,7 +79,10 @@ def add_level_mark(filepath: Path, filelevel: int, suffix: int) -> Path:
     return filepath.with_name(dst_name)
 
 
-def rename(target: Path, level: int) -> None:
+def rename(
+    target: Path,
+    level: int,
+) -> None:
     target.rename(add_level_mark(target, level, 0))
 
 

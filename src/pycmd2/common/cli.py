@@ -2,8 +2,8 @@ import concurrent.futures
 import logging
 import subprocess
 import threading
-import time
 from dataclasses import dataclass
+from time import perf_counter
 from typing import Any
 from typing import Callable
 from typing import List
@@ -30,10 +30,12 @@ def setup_client() -> Client:
     return Client(app=typer.Typer(), console=Console())
 
 
-def run_cmd_redirect(cmd_str: str):
+def run_cmd_redirect(
+    cmd_str: str,
+):
     """直接执行命令, 用于避免输出重定向"""
 
-    t0 = time.perf_counter()
+    t0 = perf_counter()
     logging.info(f"调用命令: [green bold]{cmd_str}")
     try:
         subprocess.run(
@@ -44,15 +46,18 @@ def run_cmd_redirect(cmd_str: str):
     except Exception as e:
         logging.error(f"调用命令失败: [red]{e}")
     else:
-        logging.info(f"调用命令成功, 用时: [green bold]{time.perf_counter() - t0:.4f}s.")
+        total = perf_counter() - t0
+        logging.info(f"调用命令成功, 用时: [green bold]{total:.4f}s.")
 
 
-def run_cmd(commands: List[str]):
+def run_cmd(
+    commands: List[str],
+):
     """
     执行命令并实时记录输出到日志。
     """
 
-    t0 = time.perf_counter()
+    t0 = perf_counter()
     # 启动子进程，设置文本模式并启用行缓冲
     logging.info(f"调用命令: [green bold]{commands}")
 
@@ -64,8 +69,14 @@ def run_cmd(commands: List[str]):
     )
 
     # 创建并启动记录线程
-    stdout_thread = threading.Thread(target=log_stream, args=(proc.stdout, logging.info))
-    stderr_thread = threading.Thread(target=log_stream, args=(proc.stderr, logging.warning))
+    stdout_thread = threading.Thread(
+        target=log_stream,
+        args=(proc.stdout, logging.info),
+    )
+    stderr_thread = threading.Thread(
+        target=log_stream,
+        args=(proc.stderr, logging.warning),
+    )
     stdout_thread.start()
     stderr_thread.start()
 
@@ -80,10 +91,13 @@ def run_cmd(commands: List[str]):
     if proc.returncode != 0:
         logging.error(f"命令执行失败，返回码：{proc.returncode}")
 
-    logging.info(f"用时: [green bold]{time.perf_counter() - t0:.4f}s.")
+    logging.info(f"用时: [green bold]{perf_counter() - t0:.4f}s.")
 
 
-def run_parallel(func: Callable, args: Optional[List[Any]] = None):
+def run_parallel(
+    func: Callable[[Optional[Any]], Optional[Any]],
+    args: Optional[List[Any]] = None,
+):
     if not callable(func):
         logging.error(f"对象不可调用, 退出: [red]{func.__name__}")
         return
@@ -91,13 +105,14 @@ def run_parallel(func: Callable, args: Optional[List[Any]] = None):
     if not args:
         logging.info(f"缺少多个执行目标, 取消多线程: [red]args={args}")
         func()
+        return
 
-    t0 = time.perf_counter()
-    rets: List[concurrent.futures.Future] = []
+    t0 = perf_counter()
+    returns: List[concurrent.futures.Future[Any]] = []
 
     logging.info(f"启动线程, 目标参数: [green]{len(args)}[/] 个")
     with concurrent.futures.ThreadPoolExecutor() as t:
         for arg in args:
             logging.info(f"开始处理: [green bold]{str(arg)}")
-            rets.append(t.submit(func, arg))
-    logging.info(f"关闭线程, 用时: [green bold]{time.perf_counter() - t0:.4f}s.")
+            returns.append(t.submit(func, arg))
+    logging.info(f"关闭线程, 用时: [green bold]{perf_counter() - t0:.4f}s.")

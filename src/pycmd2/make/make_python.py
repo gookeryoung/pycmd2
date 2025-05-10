@@ -4,10 +4,12 @@ import datetime
 import logging
 import re
 from pathlib import Path
+from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
 from typing import NamedTuple
+from typing import Optional
 from typing import Union
 
 from typer import Argument
@@ -17,7 +19,13 @@ from pycmd2.common.cli import setup_client
 
 cli = setup_client()
 
-MakeOption = NamedTuple("MakeOption", (("name", str), ("commands", List[Union[str, List[str], Callable]])))
+MakeOption = NamedTuple(
+    "MakeOption",
+    (
+        ("name", str),
+        ("commands", List[Union[str, List[str], Callable[[Optional[Any]], Any]]]),  # noqa
+    ),
+)
 
 
 def _update_build_date():
@@ -54,7 +62,7 @@ def _update_build_date():
 
                 # 构造新行（保留原始格式）
                 quote = match.group(3) or ""  # 获取原引号（可能为空）
-                new_line = f"{match.group(1)}{match.group(2)} = {quote}{build_date}{quote}{match.group(5)}"
+                new_line = f"{match.group(1)}{match.group(2)} = {quote}{build_date}{quote}{match.group(5)}"  # noqa
                 new_content = pattern.sub(new_line, content, count=1)
 
                 # 检查是否需要更新

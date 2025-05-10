@@ -31,7 +31,15 @@ class LlamaWorker(QThread):
     error_occurred = Signal(str)
     finished = Signal()
 
-    def __init__(self, prompt, server_url, max_tokens, temperature, top_p, top_k):
+    def __init__(
+        self,
+        prompt,
+        server_url,
+        max_tokens,
+        temperature,
+        top_p,
+        top_k,
+    ):
         super().__init__()
         self.prompt = prompt
         self.server_url = server_url
@@ -53,9 +61,14 @@ class LlamaWorker(QThread):
                 "stream": True,
             }
 
-            with requests.post(f"{self.server_url}/completion", headers=headers, json=data, stream=True) as response:
+            with requests.post(
+                f"{self.server_url}/completion",
+                headers=headers,
+                json=data,
+                stream=True,
+            ) as response:
                 if response.status_code != 200:
-                    self.error_occurred.emit(f"Error: {response.status_code} - {response.text}")
+                    self.error_occurred.emit(f"Error: {response.status_code} - {response.text}")  # noqa
                     return
 
                 buffer = ""
@@ -246,7 +259,10 @@ class LlamaChatApp(QMainWindow):
             self.worker_thread.stop()
             self.statusBar().showMessage("生成已停止")
 
-    def update_response(self, text):
+    def update_response(
+        self,
+        text: str,
+    ):
         """更新聊天显示区域"""
         # 移动光标到最后
         cursor = self.chat_display.textCursor()

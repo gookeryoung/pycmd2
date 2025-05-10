@@ -110,11 +110,16 @@ class MindMapWindow(QMainWindow):
         if self.temp_connection:
             items = self.scene.items(event.pos())
             for item in items:
-                if isinstance(item, MindNode) and item != self.connection_start_node:
+                if (
+                    isinstance(item, MindNode)
+                    and item != self.connection_start_node
+                ):
                     # 完成连接
                     self.temp_connection.end_node = item
                     self.temp_connection.update_path()
-                    self.connection_start_node.connections.append(self.temp_connection)
+                    self.connection_start_node.connections.append(
+                        self.temp_connection
+                    )
                     item.connections.append(self.temp_connection)
                     self.temp_connection = None
                     return
@@ -123,20 +128,30 @@ class MindMapWindow(QMainWindow):
             self.temp_connection = None
 
     def save_mindmap(self):
-        path, _ = QFileDialog.getSaveFileName(self, "保存思维导图", "", "MindMap Files (*.mm)")
+        path, _ = QFileDialog.getSaveFileName(
+            self, "保存思维导图", "", "MindMap Files (*.mm)"
+        )
         if not path:
             return
 
         data = {"nodes": [], "connections": []}
 
         # 收集节点数据
-        nodes = [item for item in self.scene.items() if isinstance(item, MindNode)]
+        nodes = [
+            item for item in self.scene.items() if isinstance(item, MindNode)
+        ]
         for node in nodes:
-            node_data = {"text": node.text_item.toPlainText(), "pos": (node.x(), node.y()), "connections": []}
+            node_data = {
+                "text": node.text_item.toPlainText(),
+                "pos": (node.x(), node.y()),
+                "connections": [],
+            }
             data["nodes"].append(node_data)
 
         # 收集连接数据
-        connections = [item for item in self.scene.items() if isinstance(item, Connection)]
+        connections = [
+            item for item in self.scene.items() if isinstance(item, Connection)
+        ]
         for conn in connections:
             if conn.end_node:
                 start_idx = nodes.index(conn.start_node)
@@ -147,7 +162,9 @@ class MindMapWindow(QMainWindow):
             json.dump(data, f)
 
     def load_mindmap(self):
-        path, _ = QFileDialog.getOpenFileName(self, "打开思维导图", "", "MindMap Files (*.mm)")
+        path, _ = QFileDialog.getOpenFileName(
+            self, "打开思维导图", "", "MindMap Files (*.mm)"
+        )
         if not path:
             return
 

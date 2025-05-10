@@ -13,7 +13,17 @@ dest_dir = cwd / "packages"
 
 
 def pip_download_req() -> None:
-    run_cmd(["pip", "download", "-r", "requirements.txt", "-d", str(dest_dir), *TRUSTED_PIP_URL])
+    run_cmd(
+        [
+            "pip",
+            "download",
+            "-r",
+            "requirements.txt",
+            "-d",
+            str(dest_dir),
+            *TRUSTED_PIP_URL,
+        ]
+    )
 
 
 @cli.app.command()

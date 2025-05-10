@@ -27,7 +27,9 @@ SEP = "_"
 cli = setup_client()
 
 
-def remove_date_prefix(filename: str) -> str:
+def remove_date_prefix(
+    filename: str,
+) -> str:
     """移除形式如 `YYYYMMDD` 的日期格式.
 
     Args:
@@ -45,7 +47,7 @@ def remove_date_prefix(filename: str) -> str:
     >>> remove_date_prefix('2022-my-file.xls')
     '2022-my-file.xls'
     """
-    pattern = re.compile(r"(20|19)\d{2}((0[1-9])|(1[012]))((0[1-9])|([12]\d)|(3[01]))")
+    pattern = re.compile(r"(20|19)\d{2}((0[1-9])|(1[012]))((0[1-9])|([12]\d)|(3[01]))")  # noqa
     match = re.search(pattern, filename)
 
     if not match:
@@ -61,7 +63,9 @@ def remove_date_prefix(filename: str) -> str:
     return remove_date_prefix(filename)
 
 
-def rename_target(filepath: Path) -> Tuple[str, str]:
+def rename_target(
+    filepath: Path,
+) -> Tuple[str, str]:
     """更新日期标识, 如果没有则创建, 按照 YYYYMMDD 格式
 
     Args:
@@ -72,7 +76,7 @@ def rename_target(filepath: Path) -> Tuple[str, str]:
     """
     modified, created = filepath.stat().st_mtime, filepath.stat().st_ctime
     time_mark = time.strftime("%Y%m%d", time.localtime(max((modified, created))))
-    dst_name = filepath.with_name(f"{time_mark}{SEP}{remove_date_prefix(filepath.name)}")
+    dst_name = filepath.with_name(f"{time_mark}{SEP}{remove_date_prefix(filepath.name)}")  # noqa
     filepath.rename(dst_name)
     return filepath.name, dst_name.name
 

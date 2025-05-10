@@ -22,7 +22,13 @@ def find_executable(name: str):
         cmd = ["where" if is_windows else "which", name]
 
         # 执行命令并捕获输出
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, check=True)
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            check=True,
+        )
 
         # 处理 Windows 多结果情况
         paths = result.stdout.strip().split("\n")

@@ -143,7 +143,9 @@ class LlamaServerGUI(QMainWindow):
         self.process.finished.connect(self.on_process_finished)
 
     def on_load_model(self):
-        path, _ = QFileDialog.getOpenFileName(self, "选择模型文件", "", "模型文件 (*.bin *.gguf)")
+        path, _ = QFileDialog.getOpenFileName(
+            self, "选择模型文件", "", "模型文件 (*.bin *.gguf)"
+        )
         if path:
             self.model_path_input.setText(os.path.normpath(path))
 
@@ -189,7 +191,10 @@ class LlamaServerGUI(QMainWindow):
         QDesktopServices.openUrl(CONFIG.listen_url)
 
     def on_process_finished(self, exit_code, exit_status):
-        self.append_output(f"\n服务器已停止，退出码: {exit_code}，退出状态: {exit_status}\n", self.info_format)
+        self.append_output(
+            f"\n服务器已停止，退出码: {exit_code}，退出状态: {exit_status}\n",
+            self.info_format,
+        )
         self.update_ui_state(running=False)
 
     def handle_stdout(self):
@@ -202,7 +207,9 @@ class LlamaServerGUI(QMainWindow):
         text = QTextStream(data).readAll()
         self.append_output(text, self.error_format)
 
-    def append_output(self, text: str, text_format: typing.Optional[QTextCharFormat] = None):
+    def append_output(
+        self, text: str, text_format: typing.Optional[QTextCharFormat] = None
+    ):
         cursor: QTextCursor = self.output_area.textCursor()
         cursor.movePosition(QTextCursor.End)
 
