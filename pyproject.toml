@@ -36,8 +36,8 @@ envpy = "pycmd2.envs.env_python:cli.app"
 envrs = "pycmd2.envs.env_rust:cli.app"
 
 # files commands
-filedate = "pycmd2.files.filedate:cli.app"
-filelvl = "pycmd2.files.filelevel:cli.app"
+filedate = "pycmd2.files.file_date:cli.app"
+filelvl = "pycmd2.files.file_level:cli.app"
 folderz = "pycmd2.files.folder_zip:cli.app"
 
 # git commands
