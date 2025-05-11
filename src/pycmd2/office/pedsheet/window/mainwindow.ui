@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>723</width>
+    <height>558</height>
+   </rect>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/icons/style_gtk/img_application.png</normaloff>:/icons/style_gtk/img_application.png</iconset>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>723</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>文件(&amp;F)</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose"/>
+    <addaction name="actionExit"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>编辑(&amp;E)</string>
+    </property>
+    <widget class="QMenu" name="menuSelect">
+     <property name="title">
+      <string>选择</string>
+     </property>
+     <addaction name="actionSelectRow"/>
+     <addaction name="actionSelectColumn"/>
+     <addaction name="actionSelectAll"/>
+    </widget>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="actionDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="menuSelect"/>
+    <addaction name="actionGoToCell"/>
+    <addaction name="actionFind"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuTool">
+    <property name="title">
+     <string>工具(&amp;T)</string>
+    </property>
+    <addaction name="actionRecalc"/>
+    <addaction name="actionSort"/>
+   </widget>
+   <widget class="QMenu" name="menuOption">
+    <property name="title">
+     <string>选项(&amp;O)</string>
+    </property>
+    <addaction name="actionShowGrid"/>
+    <addaction name="actionAutoCalc"/>
+    <addaction name="actionSettings"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>帮助(&amp;H)</string>
+    </property>
+    <addaction name="actionAbout"/>
+    <addaction name="actionHelpDoc"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>视图(&amp;V)</string>
+    </property>
+    <addaction name="actionZoomIn"/>
+    <addaction name="actionZoomOut"/>
+   </widget>
+   <widget class="QMenu" name="menuFormula">
+    <property name="title">
+     <string>公式(&amp;U)</string>
+    </property>
+    <addaction name="actionInsertFunction"/>
+    <addaction name="actionSum"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
+   <addaction name="menuFormula"/>
+   <addaction name="menuTool"/>
+   <addaction name="menuOption"/>
+   <addaction name="menuAbout"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toobarFile">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNew"/>
+   <addaction name="actionOpen"/>
+   <addaction name="actionSave"/>
+   <addaction name="actionSaveAs"/>
+  </widget>
+  <widget class="QToolBar" name="toobarEdit">
+   <property name="windowTitle">
+    <string>toolBar_3</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionCut"/>
+   <addaction name="actionCopy"/>
+   <addaction name="actionPaste"/>
+   <addaction name="actionDelete"/>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="actionGoToCell"/>
+   <addaction name="actionFind"/>
+  </widget>
+  <widget class="QToolBar" name="toolbarTools">
+   <property name="windowTitle">
+    <string>toolBar_4</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionRecalc"/>
+   <addaction name="actionSort"/>
+  </widget>
+  <widget class="QToolBar" name="toolbarOptions">
+   <property name="windowTitle">
+    <string>toolBar_7</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionShowGrid"/>
+   <addaction name="actionAutoCalc"/>
+   <addaction name="actionSettings"/>
+  </widget>
+  <widget class="QToolBar" name="toobarHelp">
+   <property name="windowTitle">
+    <string>toolBar_8</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionAbout"/>
+   <addaction name="actionHelpDoc"/>
+  </widget>
+  <widget class="QToolBar" name="toolbarView">
+   <property name="windowTitle">
+    <string>toolBar_9</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionZoomIn"/>
+   <addaction name="actionZoomOut"/>
+  </widget>
+  <action name="actionFind">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/edit_find.png</normaloff>:/icons/resources/icons/edit_find.png</iconset>
+   </property>
+   <property name="text">
+    <string>查找</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionSort">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/tool_sort.png</normaloff>:/icons/resources/icons/tool_sort.png</iconset>
+   </property>
+   <property name="text">
+    <string>排序(&amp;S)</string>
+   </property>
+   <property name="shortcut">
+    <string>F8</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/file_new.png</normaloff>:/icons/resources/icons/file_new.png</iconset>
+   </property>
+   <property name="text">
+    <string>新建(&amp;N)</string>
+   </property>
+   <property name="statusTip">
+    <string>新建一个文件</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/file_open.png</normaloff>:/icons/resources/icons/file_open.png</iconset>
+   </property>
+   <property name="text">
+    <string>打开(&amp;O)</string>
+   </property>
+   <property name="statusTip">
+    <string>打开一个文件</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/file_save.png</normaloff>:/icons/resources/icons/file_save.png</iconset>
+   </property>
+   <property name="text">
+    <string>保存(&amp;S)</string>
+   </property>
+   <property name="statusTip">
+    <string>保存到指定盘符位置</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/file_save_as.png</normaloff>:/icons/resources/icons/file_save_as.png</iconset>
+   </property>
+   <property name="text">
+    <string>另存为...(&amp;A)</string>
+   </property>
+   <property name="iconText">
+    <string>另存为...</string>
+   </property>
+   <property name="toolTip">
+    <string>另存为...</string>
+   </property>
+   <property name="statusTip">
+    <string>另存到其他盘符位置</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/file_exit.png</normaloff>:/icons/resources/icons/file_exit.png</iconset>
+   </property>
+   <property name="text">
+    <string>退出(&amp;E)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/edit_cut.png</normaloff>:/icons/resources/icons/edit_cut.png</iconset>
+   </property>
+   <property name="text">
+    <string>剪切(&amp;X)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/edit_copy.png</normaloff>:/icons/resources/icons/edit_copy.png</iconset>
+   </property>
+   <property name="text">
+    <string>复制(&amp;C)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/edit_paste.png</normaloff>:/icons/resources/icons/edit_paste.png</iconset>
+   </property>
+   <property name="text">
+    <string>粘贴(&amp;P)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/edit_delete.png</normaloff>:/icons/resources/icons/edit_delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>删除(&amp;D)</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="actionGoToCell">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/edit_goto_cell.png</normaloff>:/icons/resources/icons/edit_goto_cell.png</iconset>
+   </property>
+   <property name="text">
+    <string>转到单元格</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+J</string>
+   </property>
+  </action>
+  <action name="actionSelectRow">
+   <property name="text">
+    <string>行(&amp;R)</string>
+   </property>
+   <property name="shortcut">
+    <string>F7</string>
+   </property>
+  </action>
+  <action name="actionRecalc">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/tool_recalc.png</normaloff>:/icons/resources/icons/tool_recalc.png</iconset>
+   </property>
+   <property name="text">
+    <string>重新计算(&amp;R)</string>
+   </property>
+   <property name="statusTip">
+    <string>重新计算单元格结果</string>
+   </property>
+   <property name="shortcut">
+    <string>F9</string>
+   </property>
+  </action>
+  <action name="actionShowGrid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/option_showgrid.png</normaloff>:/icons/resources/icons/option_showgrid.png</iconset>
+   </property>
+   <property name="text">
+    <string>显示栅格</string>
+   </property>
+   <property name="shortcut">
+    <string>F2</string>
+   </property>
+  </action>
+  <action name="actionAutoCalc">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/option_autocalc.png</normaloff>:/icons/resources/icons/option_autocalc.png</iconset>
+   </property>
+   <property name="text">
+    <string>自动计算(&amp;A)</string>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/help_about.png</normaloff>:/icons/resources/icons/help_about.png</iconset>
+   </property>
+   <property name="text">
+    <string>关于PEDSheet(&amp;A)</string>
+   </property>
+   <property name="shortcut">
+    <string>F12</string>
+   </property>
+  </action>
+  <action name="actionHelpDoc">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/help_doc.png</normaloff>:/icons/resources/icons/help_doc.png</iconset>
+   </property>
+   <property name="text">
+    <string>帮助文档(&amp;H)</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+  </action>
+  <action name="actionSelectColumn">
+   <property name="text">
+    <string>列(&amp;C)</string>
+   </property>
+   <property name="shortcut">
+    <string>F6</string>
+   </property>
+  </action>
+  <action name="actionSelectAll">
+   <property name="text">
+    <string>所有(&amp;A)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/edit_undo.png</normaloff>:/icons/resources/icons/edit_undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>撤销(&amp;U)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/edit_redo.png</normaloff>:/icons/resources/icons/edit_redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>重做(&amp;R)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/option_settings.png</normaloff>:/icons/resources/icons/option_settings.png</iconset>
+   </property>
+   <property name="text">
+    <string>设置(&amp;S)</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Shift+P</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/view_zoom_in.png</normaloff>:/icons/resources/icons/view_zoom_in.png</iconset>
+   </property>
+   <property name="text">
+    <string>放大</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/view_zoom_out.png</normaloff>:/icons/resources/icons/view_zoom_out.png</iconset>
+   </property>
+   <property name="text">
+    <string>缩小</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/resources/icons/file_close.png</normaloff>:/icons/resources/icons/file_close.png</iconset>
+   </property>
+   <property name="text">
+    <string>关闭(&amp;C)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionInsertFunction">
+   <property name="text">
+    <string>插入函数(&amp;I)</string>
+   </property>
+   <property name="shortcut">
+    <string>F4</string>
+   </property>
+  </action>
+  <action name="actionSum">
+   <property name="text">
+    <string>自动求和(&amp;A)</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Shift+S</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

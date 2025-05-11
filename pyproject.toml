@@ -64,6 +64,7 @@ mindnote = "pycmd2.office.mindnote.cli:main"
 pdfc = "pycmd2.office.pdf_crypt:cli.app"
 pdfmrg = "pycmd2.office.pdf_merge:cli.app"
 pdfspl = "pycmd2.office.pdf_split:cli.app"
+pedsheet = "pycmd2.office.pedsheet.pedsheet:main"
 
 # pip commands
 pipd = "pycmd2.pip.pip_download:cli.app"
