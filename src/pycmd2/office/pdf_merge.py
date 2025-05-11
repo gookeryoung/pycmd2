@@ -11,7 +11,6 @@ from typing import Optional
 
 import pypdf
 
-from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 from pycmd2.office.pdf_crypt import is_encrypted
 
@@ -121,7 +120,7 @@ def merge_file_info(info: PdfFileInfo, root_dir: Path, writer: pypdf.PdfWriter):
             )
             page_num += len(reader.pages)
 
-    run_parallel(_merge_pdf_file, info.files)
+    cli.run(_merge_pdf_file, info.files)
 
     for child_info in info.children:
         merge_file_info(child_info, root_dir, writer=writer)

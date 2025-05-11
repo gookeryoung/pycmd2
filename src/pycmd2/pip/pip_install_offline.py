@@ -6,7 +6,6 @@ from typing import List
 
 from typer import Argument
 
-from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 from pycmd2.pip.pip_install import pip_install
 
@@ -20,4 +19,4 @@ def main(
     run_pip_install_offline = partial(
         pip_install, options=["--no-index", "--find-links", "."]
     )
-    run_parallel(run_pip_install_offline, libnames)
+    cli.run(run_pip_install_offline, libnames)

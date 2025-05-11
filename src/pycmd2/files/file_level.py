@@ -12,7 +12,6 @@ from typing import List
 
 from typer import Argument
 
-from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 
 cli = setup_client()
@@ -105,4 +104,4 @@ def main(
     targets: List[Path] = Argument(help="目标文件或目录"),  # noqa: B008
 ):
     rename_func = partial(rename, level=level)
-    run_parallel(rename_func, targets)
+    cli.run(rename_func, targets)

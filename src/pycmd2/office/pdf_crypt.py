@@ -13,7 +13,6 @@ from typing import Tuple
 import pypdf
 from typer import Argument
 
-from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 
 cli = setup_client(help="pdf 加密/解密工具.")
@@ -139,7 +138,7 @@ def decrypt(
         return
 
     dec_func = partial(decrypt_pdf, password=password)
-    run_parallel(dec_func, encrypted_files)
+    cli.run(dec_func, encrypted_files)
 
 
 @cli.app.command("e", help="加密文件, 别名: enc")
@@ -158,4 +157,4 @@ def encrypt(
         return
 
     enc_func = partial(encrypt_pdf, password=password)
-    run_parallel(enc_func, unencrypted_files)
+    cli.run(enc_func, unencrypted_files)

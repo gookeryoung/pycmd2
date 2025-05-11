@@ -16,7 +16,6 @@ from typing import Union
 from typer import Argument
 
 from pycmd2.common.cli import run_cmd
-from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 from pycmd2.git.git_push_all import main as git_push_all
 
@@ -133,11 +132,11 @@ def _clean() -> None:
         shutil.rmtree(dirpath, ignore_errors=True)
 
     # 移除待清理目录
-    run_parallel(remove_dir, spec_dirs)
+    cli.run(remove_dir, spec_dirs)
 
     # 移除临时目录
     cache_dirs = list(d for d in CWD.rglob("__pycache__") if d.is_dir())
-    run_parallel(remove_dir, cache_dirs)
+    cli.run(remove_dir, cache_dirs)
 
 
 MAKE_OPTIONS: Dict[str, MakeOption] = dict(

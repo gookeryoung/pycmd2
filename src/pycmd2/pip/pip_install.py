@@ -7,7 +7,6 @@ from typing import Optional
 from typer import Argument
 
 from pycmd2.common.cli import run_cmd
-from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 from pycmd2.common.consts import TRUSTED_PIP_URL
 
@@ -23,4 +22,4 @@ def pip_install(libname: str, options: Optional[List[str]] = None) -> None:
 def main(
     libnames: List[Path] = Argument(help="待下载库清单"),  # noqa: B008
 ):
-    run_parallel(pip_install, libnames)
+    cli.run(pip_install, libnames)

@@ -4,7 +4,6 @@ import logging
 import subprocess
 
 from pycmd2.common.cli import run_cmd
-from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 
 cli = setup_client()
@@ -55,5 +54,4 @@ def push(
 @cli.app.command()
 def main():
     remotes = ["origin", "gitee.com", "github.com"]
-
-    run_parallel(push, remotes)
+    cli.run(push, remotes)

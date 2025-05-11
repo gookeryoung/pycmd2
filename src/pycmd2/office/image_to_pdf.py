@@ -8,7 +8,6 @@ from typing import List
 
 from PIL import Image
 
-from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 
 cli = setup_client(help="图片转化 pdf 工具.")
@@ -61,7 +60,7 @@ def main():
         logging.error(f"路径[{CWD}]下未找到图片文件.")
         return
 
-    run_parallel(convert_image, image_files)
+    cli.run(convert_image, image_files)
 
     if not images_converted:
         logging.error(f"[*] 路径[{CWD}]下未找到图片文件.")

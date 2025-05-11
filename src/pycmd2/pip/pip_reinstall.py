@@ -6,7 +6,6 @@ from typing import List
 from typer import Argument
 
 from pycmd2.common.cli import run_cmd
-from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 from pycmd2.common.consts import TRUSTED_PIP_URL
 from pycmd2.pip.pip_uninstall import pip_uninstall
@@ -23,4 +22,4 @@ def pip_reinstall(libname: str) -> None:
 def main(
     libnames: List[Path] = Argument(help="待下载库清单"),  # noqa: B008
 ):
-    run_parallel(pip_reinstall, libnames)
+    cli.run(pip_reinstall, libnames)

@@ -13,7 +13,6 @@ from typing import Tuple
 import pypdf
 from typer import Argument
 
-from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 from pycmd2.office.pdf_crypt import list_pdf
 
@@ -101,4 +100,4 @@ def main(
 
     range_list = parse_range_list(rangestr)
     split_func = partial(split_pdf_file, output_dir=CWD, range_list=range_list)
-    run_parallel(split_func, unecrypted_files)
+    cli.run(split_func, unecrypted_files)

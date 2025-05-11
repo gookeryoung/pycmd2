@@ -14,7 +14,6 @@ from typing import Tuple
 
 from typer import Argument
 
-from pycmd2.common.cli import run_parallel
 from pycmd2.common.cli import setup_client
 
 # 检测分隔符
@@ -91,4 +90,4 @@ def rename_target(
 def main(
     targets: List[Path] = Argument(help="输入文件清单"),  # noqa: B008
 ):
-    run_parallel(rename_target, targets)
+    cli.run(rename_target, targets)
