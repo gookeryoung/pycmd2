@@ -54,6 +54,29 @@ class Client:
                 returns.append(t.submit(func, arg))
         logging.info(f"关闭线程, 用时: [green bold]{perf_counter() - t0:.4f}s.")
 
+    def run_cmdstr(
+        self,
+        cmdstr: str,
+    ) -> None:
+        """直接执行命令, 用于避免输出重定向
+
+        Args:
+            cmdstr (str): 命令参数, 如: `ls -la`
+        """
+        t0 = perf_counter()
+        logging.info(f"调用命令: [green bold]{cmdstr}")
+        try:
+            subprocess.run(
+                cmdstr,  # 直接使用 Shell 语法
+                shell=True,
+                check=True,  # 检查命令是否成功
+            )
+        except Exception as e:
+            logging.error(f"调用命令失败: [red]{e}")
+        else:
+            total = perf_counter() - t0
+            logging.info(f"调用命令成功, 用时: [green bold]{total:.4f}s.")
+
 
 def setup_client(
     help: str = "",
@@ -67,26 +90,6 @@ def setup_client(
         console=Console(),
         cwd=Path.cwd(),
     )
-
-
-def run_cmd_redirect(
-    cmd_str: str,
-) -> None:
-    """直接执行命令, 用于避免输出重定向"""
-
-    t0 = perf_counter()
-    logging.info(f"调用命令: [green bold]{cmd_str}")
-    try:
-        subprocess.run(
-            cmd_str,  # 直接使用 Shell 语法
-            shell=True,
-            check=True,  # 检查命令是否成功
-        )
-    except Exception as e:
-        logging.error(f"调用命令失败: [red]{e}")
-    else:
-        total = perf_counter() - t0
-        logging.info(f"调用命令成功, 用时: [green bold]{total:.4f}s.")
 
 
 def run_cmd(
