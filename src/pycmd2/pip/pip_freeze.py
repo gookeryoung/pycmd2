@@ -1,8 +1,8 @@
 """功能：输出库清单到当前目录下的 requirements.txt 中"""
 
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 
-cli = setup_client()
+cli = get_client()
 
 
 def pip_freeze() -> None:

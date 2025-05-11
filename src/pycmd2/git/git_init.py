@@ -1,18 +1,15 @@
 """功能：清理git"""
 
 import os
-from pathlib import Path
 
-from pycmd2.common.cli import run_cmd
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 
-cli = setup_client()
-cwd = Path.cwd()
+cli = get_client()
 
 
 @cli.app.command()
 def main():
-    os.chdir(str(cwd))
-    run_cmd(["git", "init"])
-    run_cmd(["git", "add", "."])
-    run_cmd(["git", "commit", "-m", "initial commit"])
+    os.chdir(str(cli.cwd))
+    cli.run_cmd(["git", "init"])
+    cli.run_cmd(["git", "add", "."])
+    cli.run_cmd(["git", "commit", "-m", "initial commit"])

@@ -6,10 +6,10 @@ from typing import List
 
 from typer import Argument
 
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 from pycmd2.pip.pip_install import pip_install
 
-cli = setup_client()
+cli = get_client()
 
 
 @cli.app.command()

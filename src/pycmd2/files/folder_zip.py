@@ -7,9 +7,9 @@
 import pathlib
 import shutil
 
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 
-cli = setup_client(help="pdf 分割工具.")
+cli = get_client(help="pdf 分割工具.")
 
 
 IGNORE_DIRS = [".git", ".idea", ".vscode", "__pycache__"]

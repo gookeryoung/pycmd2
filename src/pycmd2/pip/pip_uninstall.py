@@ -5,14 +5,13 @@ from typing import List
 
 from typer import Argument
 
-from pycmd2.common.cli import run_cmd
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 
-cli = setup_client()
+cli = get_client()
 
 
 def pip_uninstall(libname: str) -> None:
-    run_cmd(["pip", "uninstall", libname, "-y"])
+    cli.run_cmd(["pip", "uninstall", libname, "-y"])
 
 
 @cli.app.command()

@@ -8,9 +8,9 @@ from typing import List
 
 from PIL import Image
 
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 
-cli = setup_client(help="图片转化 pdf 工具.")
+cli = get_client(help="图片转化 pdf 工具.")
 CWD = Path.cwd()
 
 images_converted: List[Image.Image] = []

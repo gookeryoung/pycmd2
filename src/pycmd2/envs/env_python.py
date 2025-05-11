@@ -7,11 +7,10 @@ from pathlib import Path
 from typer import Argument
 from typer import Option
 
-from pycmd2.common.cli import run_cmd
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 from pycmd2.common.consts import IS_WINDOWS
 
-cli = setup_client()
+cli = get_client()
 
 # 用户文件夹
 HOME_DIR = Path.home()
@@ -29,7 +28,7 @@ def _set_chmod(filepath: Path) -> None:
     # 设置安全权限 (仅限 Unix 系统)
     if not IS_WINDOWS:
         if not filepath.exists():
-            run_cmd(["touch", str(filepath)])
+            cli.run_cmd(["touch", str(filepath)])
 
         try:
             filepath.chmod(0o600)
@@ -122,7 +121,7 @@ def setup_uv(override: bool = True) -> None:
 
     if IS_WINDOWS:
         for k, v in uv_envs.items():
-            run_cmd(["setx", str(k), str(v)])
+            cli.run_cmd(["setx", str(k), str(v)])
     else:
         for k, v in uv_envs.items():
             add_env_to_bashrc(str(k), str(v), override=override)
@@ -144,7 +143,7 @@ def setup_hatch_token(
     )
     if IS_WINDOWS:
         for k, v in hatch_envs.items():
-            run_cmd(["setx", str(k), str(v)])
+            cli.run_cmd(["setx", str(k), str(v)])
     else:
         for k, v in hatch_envs.items():
             add_env_to_bashrc(str(k), str(v), override=override)

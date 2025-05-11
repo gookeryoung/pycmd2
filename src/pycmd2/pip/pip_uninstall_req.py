@@ -1,13 +1,12 @@
 """功能：卸载库, 使用 requirements.txt"""
 
-from pycmd2.common.cli import run_cmd
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 
-cli = setup_client()
+cli = get_client()
 
 
 def pip_uninstall_req() -> None:
-    run_cmd(["pip", "uninstall", "-r", "requirements.txt", "-y"])
+    cli.run_cmd(["pip", "uninstall", "-r", "requirements.txt", "-y"])
 
 
 @cli.app.command()

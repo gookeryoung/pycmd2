@@ -27,13 +27,15 @@ class Client:
     cwd: Path
 
     def run(
-        self, func: Callable[..., Any], args: Optional[Sequence[Any]] = None
+        self,
+        func: Callable[..., Any],
+        args: Optional[Sequence[Any]] = None,
     ):
         """并行调用命令.
 
         Args:
             func (Callable[..., Any]): 被调用函数, 支持任意数量参数
-            args (Optional[Iterable[Any]], optional): 调用函数参数, 默认值 `None`.
+            args (Optional[Iterable[Any]], optional): 调用参数, 默认值 `None`.
         """
         if not callable(func):
             logging.error(f"对象不可调用, 退出: [red]{func.__name__}")
@@ -53,6 +55,52 @@ class Client:
                 logging.info(f"开始处理: [green bold]{str(arg)}")
                 returns.append(t.submit(func, arg))
         logging.info(f"关闭线程, 用时: [green bold]{perf_counter() - t0:.4f}s.")
+
+    def run_cmd(
+        self,
+        commands: List[str],
+    ) -> None:
+        """执行命令并实时记录输出到日志。
+
+        Args:
+            commands (List[str]): 命令列表
+        """
+
+        t0 = perf_counter()
+        # 启动子进程，设置文本模式并启用行缓冲
+        logging.info(f"调用命令: [green bold]{commands}")
+
+        proc = subprocess.Popen(
+            commands,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=False,  # 手动解码
+        )
+
+        # 创建并启动记录线程
+        stdout_thread = threading.Thread(
+            target=log_stream,
+            args=(proc.stdout, logging.info),
+        )
+        stderr_thread = threading.Thread(
+            target=log_stream,
+            args=(proc.stderr, logging.warning),
+        )
+        stdout_thread.start()
+        stderr_thread.start()
+
+        # 等待进程结束
+        proc.wait()
+
+        # 等待所有输出处理完成
+        stdout_thread.join()
+        stderr_thread.join()
+
+        # 检查返回码
+        if proc.returncode != 0:
+            logging.error(f"命令执行失败，返回码：{proc.returncode}")
+
+        logging.info(f"用时: [green bold]{perf_counter() - t0:.4f}s.")
 
     def run_cmdstr(
         self,
@@ -78,10 +126,17 @@ class Client:
             logging.info(f"调用命令成功, 用时: [green bold]{total:.4f}s.")
 
 
-def setup_client(
+def get_client(
     help: str = "",
 ) -> Client:
-    """创建 cli 程序"""
+    """创建 cli 程序
+
+    Args:
+        help (str, optional): 描述文件
+
+    Returns:
+        Client: 获取实例
+    """
 
     setup_logging()
 
@@ -90,47 +145,3 @@ def setup_client(
         console=Console(),
         cwd=Path.cwd(),
     )
-
-
-def run_cmd(
-    commands: List[str],
-) -> None:
-    """
-    执行命令并实时记录输出到日志。
-    """
-
-    t0 = perf_counter()
-    # 启动子进程，设置文本模式并启用行缓冲
-    logging.info(f"调用命令: [green bold]{commands}")
-
-    proc = subprocess.Popen(
-        commands,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=False,  # 手动解码
-    )
-
-    # 创建并启动记录线程
-    stdout_thread = threading.Thread(
-        target=log_stream,
-        args=(proc.stdout, logging.info),
-    )
-    stderr_thread = threading.Thread(
-        target=log_stream,
-        args=(proc.stderr, logging.warning),
-    )
-    stdout_thread.start()
-    stderr_thread.start()
-
-    # 等待进程结束
-    proc.wait()
-
-    # 等待所有输出处理完成
-    stdout_thread.join()
-    stderr_thread.join()
-
-    # 检查返回码
-    if proc.returncode != 0:
-        logging.error(f"命令执行失败，返回码：{proc.returncode}")
-
-    logging.info(f"用时: [green bold]{perf_counter() - t0:.4f}s.")

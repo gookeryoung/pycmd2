@@ -1,10 +1,9 @@
 """功能：清理git"""
 
-from pycmd2.common.cli import run_cmd
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 from pycmd2.git.git_push_all import check_git_status
 
-cli = setup_client()
+cli = get_client()
 
 # 排除目录
 exclude_dirs = [
@@ -21,5 +20,5 @@ def main() -> None:
     for exclude_dir in exclude_dirs:
         clean_cmd.extend(["-e", exclude_dir])
 
-    run_cmd(clean_cmd)
-    run_cmd(["git", "checkout", "."])
+    cli.run_cmd(clean_cmd)
+    cli.run_cmd(["git", "checkout", "."])

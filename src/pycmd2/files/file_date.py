@@ -14,7 +14,7 @@ from typing import Tuple
 
 from typer import Argument
 
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 
 # 检测分隔符
 SEPARATORS = "-_#.~"
@@ -23,7 +23,7 @@ SEPARATORS = "-_#.~"
 SEP = "_"
 
 
-cli = setup_client()
+cli = get_client()
 
 
 def remove_date_prefix(

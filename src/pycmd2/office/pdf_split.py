@@ -13,10 +13,10 @@ from typing import Tuple
 import pypdf
 from typer import Argument
 
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 from pycmd2.office.pdf_crypt import list_pdf
 
-cli = setup_client(help="pdf 分割工具.")
+cli = get_client(help="pdf 分割工具.")
 CWD = Path.cwd()
 
 

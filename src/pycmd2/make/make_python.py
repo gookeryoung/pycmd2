@@ -15,11 +15,10 @@ from typing import Union
 
 from typer import Argument
 
-from pycmd2.common.cli import run_cmd
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 from pycmd2.git.git_push_all import main as git_push_all
 
-cli = setup_client()
+cli = get_client()
 
 CWD = Path.cwd()
 SRC_DIR = CWD / "src"
@@ -276,7 +275,7 @@ def call_option(option: MakeOption) -> None:
                 logging.error(f"未找到匹配选项: {command}")
                 return
         elif isinstance(command, list):
-            run_cmd(command)  # type: ignore
+            cli.run_cmd(command)  # type: ignore
         elif callable(command):
             command()
         else:

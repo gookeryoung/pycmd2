@@ -3,10 +3,9 @@
 import logging
 import subprocess
 
-from pycmd2.common.cli import run_cmd
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 
-cli = setup_client()
+cli = get_client()
 
 
 def check_git_status():
@@ -46,9 +45,9 @@ def push(
     if not check_sensitive_data():
         return
 
-    run_cmd(["git", "fetch", remote])
-    run_cmd(["git", "pull", "--rebase", remote])
-    run_cmd(["git", "push", "--all", remote])
+    cli.run_cmd(["git", "fetch", remote])
+    cli.run_cmd(["git", "pull", "--rebase", remote])
+    cli.run_cmd(["git", "push", "--all", remote])
 
 
 @cli.app.command()

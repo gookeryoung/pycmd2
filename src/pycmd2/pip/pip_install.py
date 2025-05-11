@@ -6,16 +6,15 @@ from typing import Optional
 
 from typer import Argument
 
-from pycmd2.common.cli import run_cmd
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 from pycmd2.common.consts import TRUSTED_PIP_URL
 
-cli = setup_client()
+cli = get_client()
 
 
 def pip_install(libname: str, options: Optional[List[str]] = None) -> None:
     run_opt = options or []
-    run_cmd(["pip", "install", libname, *TRUSTED_PIP_URL, *run_opt])
+    cli.run_cmd(["pip", "install", libname, *TRUSTED_PIP_URL, *run_opt])
 
 
 @cli.app.command()

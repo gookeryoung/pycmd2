@@ -1,8 +1,8 @@
 import logging
 
-from pycmd2.common.cli import setup_client
+from pycmd2.common.cli import get_client
 
-cli = setup_client()
+cli = get_client()
 
 
 @cli.app.command("v", help="显示版本, 等效命令: version")
