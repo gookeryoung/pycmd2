@@ -35,9 +35,9 @@ pycmd2 = "pycmd2.cli:cli.app"
 envpy = "pycmd2.envs.env_python:cli.app"
 envrs = "pycmd2.envs.env_rust:cli.app"
 
-# fileproc commands
-filedate = "pycmd2.fileproc.filedate:cli.app"
-filelvl = "pycmd2.fileproc.filelevel:cli.app"
+# files commands
+filedate = "pycmd2.files.filedate:cli.app"
+filelvl = "pycmd2.files.filelevel:cli.app"
 
 # git commands
 gitc = "pycmd2.git.git_clean:cli.app"
