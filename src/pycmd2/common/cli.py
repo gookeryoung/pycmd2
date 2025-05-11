@@ -3,12 +3,13 @@ import logging
 import subprocess
 import threading
 from dataclasses import dataclass
+from pathlib import Path
 from time import perf_counter
 from typing import Any
 from typing import Callable
-from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Sequence
 
 import typer
 from rich.console import Console
@@ -17,10 +18,48 @@ from pycmd2.common.logger import log_stream
 from pycmd2.common.logger import setup_logging
 
 
+def run_parallel(
+    func: Callable[..., Any],
+    args: Optional[Sequence[Any]] = None,
+) -> None:
+    """并行调用命令.
+
+    Args:
+        func (Callable[..., Any]): 被调用函数, 支持任意数量参数
+        args (Optional[Iterable[Any]], optional): 调用函数参数, 默认值 `None`.
+    """
+    if not callable(func):
+        logging.error(f"对象不可调用, 退出: [red]{func.__name__}")
+        return
+
+    if not args:
+        logging.info(f"缺少多个执行目标, 取消多线程: [red]args={args}")
+        func()
+        return
+
+    t0 = perf_counter()
+    returns: List[concurrent.futures.Future[Any]] = []
+
+    logging.info(f"启动线程, 目标参数: [green]{len(args)}[/] 个")
+    with concurrent.futures.ThreadPoolExecutor() as t:
+        for arg in args:
+            logging.info(f"开始处理: [green bold]{str(arg)}")
+            returns.append(t.submit(func, arg))
+    logging.info(f"关闭线程, 用时: [green bold]{perf_counter() - t0:.4f}s.")
+
+
 @dataclass
 class Client:
+    """命令工具"""
+
     app: typer.Typer
     console: Console
+    cwd: Path
+
+    def run(
+        self, func: Callable[..., Any], args: Optional[Sequence[Any]] = None
+    ):
+        return run_parallel(func, args)
 
 
 def setup_client(
@@ -33,6 +72,7 @@ def setup_client(
     return Client(
         app=typer.Typer(help=help),
         console=Console(),
+        cwd=Path.cwd(),
     )
 
 
@@ -98,33 +138,3 @@ def run_cmd(
         logging.error(f"命令执行失败，返回码：{proc.returncode}")
 
     logging.info(f"用时: [green bold]{perf_counter() - t0:.4f}s.")
-
-
-def run_parallel(
-    func: Callable[..., Any],
-    args: Optional[Iterable[Any]] = None,
-) -> None:
-    """并行调用命令.
-
-    Args:
-        func (Callable[..., Any]): 被调用函数, 支持任意数量参数
-        args (Optional[Iterable[Any]], optional): 调用函数参数, 默认值 `None`.
-    """
-    if not callable(func):
-        logging.error(f"对象不可调用, 退出: [red]{func.__name__}")
-        return
-
-    if not args:
-        logging.info(f"缺少多个执行目标, 取消多线程: [red]args={args}")
-        func()
-        return
-
-    t0 = perf_counter()
-    returns: List[concurrent.futures.Future[Any]] = []
-
-    logging.info(f"启动线程, 目标参数: [green]{len(args)}[/] 个")
-    with concurrent.futures.ThreadPoolExecutor() as t:
-        for arg in args:
-            logging.info(f"开始处理: [green bold]{str(arg)}")
-            returns.append(t.submit(func, arg))
-    logging.info(f"关闭线程, 用时: [green bold]{perf_counter() - t0:.4f}s.")
