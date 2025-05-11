@@ -46,6 +46,10 @@ gitinit = "pycmd2.git.git_init:cli.app"
 gitp = "pycmd2.git.git_push_all:cli.app"
 gitre = "pycmd2.git.git_restart_tgitcache:cli.app"
 
+# images commands
+img2pdf = "pycmd2.images.image_to_pdf:cli.app"
+imggry = "pycmd2.images.image_gray:cli.app"
+
 # llama commands
 llmcli = "pycmd2.llama.llama_client:main"
 llmsvr = "pycmd2.llama.llama_server:main"
@@ -59,7 +63,6 @@ mindnote = "pycmd2.office.mindnote.cli:main"
 pdfc = "pycmd2.office.pdf_crypt:cli.app"
 pdfmrg = "pycmd2.office.pdf_merge:cli.app"
 pdfspl = "pycmd2.office.pdf_split:cli.app"
-img2pdf = "pycmd2.office.image_to_pdf:cli.app"
 
 # pip commands
 pipd = "pycmd2.pip.pip_download:cli.app"
