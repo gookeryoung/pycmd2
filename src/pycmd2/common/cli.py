@@ -24,7 +24,9 @@ class Client:
 
     app: typer.Typer
     console: Console
-    cwd: Path
+
+    # 常量
+    CWD: Path
 
     def run(
         self,
@@ -143,5 +145,5 @@ def get_client(
     return Client(
         app=typer.Typer(help=help),
         console=Console(),
-        cwd=Path.cwd(),
+        CWD=Path.cwd(),
     )

@@ -25,5 +25,5 @@ def zip_folder(folder: pathlib.Path) -> None:
 
 @cli.app.command()
 def main():
-    dirs = list(d for d in cli.cwd.iterdir() if d.is_dir())
+    dirs = list(d for d in cli.CWD.iterdir() if d.is_dir())
     cli.run(zip_folder, dirs)

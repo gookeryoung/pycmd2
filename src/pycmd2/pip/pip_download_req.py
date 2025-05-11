@@ -1,14 +1,11 @@
 """功能：pip 下载库到本地 packages 文件夹, 使用 requirements.txt"""
 
-from pathlib import Path
-
 from pycmd2.common.cli import get_client
 from pycmd2.common.consts import TRUSTED_PIP_URL
 
 cli = get_client()
 
-cwd = Path.cwd()
-dest_dir = cwd / "packages"
+dest_dir = cli.CWD / "packages"
 
 
 def pip_download_req() -> None:

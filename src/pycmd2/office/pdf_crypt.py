@@ -16,7 +16,6 @@ from typer import Argument
 from pycmd2.common.cli import get_client
 
 cli = get_client(help="pdf 加密/解密工具.")
-CWD = Path.cwd()
 
 
 def is_encrypted(filepath: Path) -> bool:
@@ -114,8 +113,10 @@ def list_pdf() -> Tuple[List[Path], List[Path]]:
     Returns:
         Tuple[List[Path], List[Path]]: 返回未加密、已加密 pdf 文件清单
     """
-    un_encrypted = list(_ for _ in CWD.rglob("*.pdf") if not is_encrypted(_))
-    encrypted = list(_ for _ in CWD.rglob("*.pdf") if is_encrypted(_))
+    un_encrypted = list(
+        _ for _ in cli.CWD.rglob("*.pdf") if not is_encrypted(_)
+    )
+    encrypted = list(_ for _ in cli.CWD.rglob("*.pdf") if is_encrypted(_))
 
     logging.info(f"加密文件: [green bold]{encrypted}")
     logging.info(f"未加密文件: [green bold]{un_encrypted}")
@@ -134,7 +135,7 @@ def decrypt(
     """
     _, encrypted_files = list_pdf()
     if not encrypted_files:
-        logging.error(f"当前目录下没有已加密的 pdf: {CWD}")
+        logging.error(f"当前目录下没有已加密的 pdf: {cli.CWD}")
         return
 
     dec_func = partial(decrypt_pdf, password=password)
@@ -153,7 +154,7 @@ def encrypt(
     """
     unencrypted_files, _ = list_pdf()
     if not unencrypted_files:
-        logging.error(f"当前目录下没有未加密的 pdf: {CWD}")
+        logging.error(f"当前目录下没有未加密的 pdf: {cli.CWD}")
         return
 
     enc_func = partial(encrypt_pdf, password=password)

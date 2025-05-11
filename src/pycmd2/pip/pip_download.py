@@ -9,9 +9,7 @@ from pycmd2.common.cli import get_client
 from pycmd2.common.consts import TRUSTED_PIP_URL
 
 cli = get_client()
-
-cwd = Path.cwd()
-dest_dir = cwd / "packages"
+dest_dir = cli.CWD / "packages"
 
 
 def pip_download(libname: str) -> None:

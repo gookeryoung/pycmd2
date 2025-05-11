@@ -20,13 +20,12 @@ from pycmd2.git.git_push_all import main as git_push_all
 
 cli = get_client()
 
-CWD = Path.cwd()
-SRC_DIR = CWD / "src"
+SRC_DIR = cli.CWD / "src"
 PROJECTS_DIRS = list(f for f in SRC_DIR.iterdir())
 
 if not len(PROJECTS_DIRS):
     logging.error(
-        f"当前目录下不存在 python 项目: {CWD}, 结构: ./src/project-name"
+        f"当前目录下不存在 python 项目: {cli.CWD}, 结构: ./src/project-name"
     )
     sys.exit(1)
 
@@ -35,7 +34,7 @@ PROJECT_NAME = PROJECT_DIR.stem
 
 if not PROJECT_DIR.exists():
     logging.error(
-        f"当前目录下不存在 python 项目: {CWD}, 结构: ./src/project-name"
+        f"当前目录下不存在 python 项目: {cli.CWD}, 结构: ./src/project-name"
     )
     sys.exit(1)
 
@@ -49,7 +48,7 @@ class MakeOption:
 
 def _update_build_date():
     build_date = datetime.datetime.now().strftime("%Y-%m-%d")
-    src_dir = Path.cwd() / "src"
+    src_dir = cli.CWD / "src"
     init_files = src_dir.rglob("__init__.py")
 
     for init_file in init_files:
@@ -108,7 +107,7 @@ def _browse_coverage() -> None:
     from urllib.request import pathname2url
 
     webbrowser.open(
-        "file://" + pathname2url(str(CWD / "htmlcov" / "index.html"))
+        "file://" + pathname2url(str(cli.CWD / "htmlcov" / "index.html"))
     )
 
 
@@ -124,7 +123,7 @@ def _clean() -> None:
         ".pytest_cache",
         ".mypy_cache",
     ]
-    spec_dirs = [CWD / d for d in dirs]
+    spec_dirs = [cli.CWD / d for d in dirs]
 
     # 定义移除函数
     def remove_dir(dirpath: Path) -> None:
@@ -134,7 +133,7 @@ def _clean() -> None:
     cli.run(remove_dir, spec_dirs)
 
     # 移除临时目录
-    cache_dirs = list(d for d in CWD.rglob("__pycache__") if d.is_dir())
+    cache_dirs = list(d for d in cli.CWD.rglob("__pycache__") if d.is_dir())
     cli.run(remove_dir, cache_dirs)
 
 

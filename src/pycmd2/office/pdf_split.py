@@ -17,7 +17,6 @@ from pycmd2.common.cli import get_client
 from pycmd2.office.pdf_crypt import list_pdf
 
 cli = get_client(help="pdf 分割工具.")
-CWD = Path.cwd()
 
 
 def parse_range_list(
@@ -95,9 +94,11 @@ def main(
     """
     unecrypted_files, _ = list_pdf()
     if not unecrypted_files:
-        logging.error(f"当前目录下没有未加密的 pdf: {CWD}")
+        logging.error(f"当前目录下没有未加密的 pdf: {cli.CWD}")
         return
 
     range_list = parse_range_list(rangestr)
-    split_func = partial(split_pdf_file, output_dir=CWD, range_list=range_list)
+    split_func = partial(
+        split_pdf_file, output_dir=cli.CWD, range_list=range_list
+    )
     cli.run(split_func, unecrypted_files)

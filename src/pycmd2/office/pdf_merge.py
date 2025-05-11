@@ -16,8 +16,6 @@ from pycmd2.office.pdf_crypt import is_encrypted
 
 cli = get_client(help="pdf 合并工具.")
 
-CWD = Path.cwd()
-
 # 跳过的文件名或者文件夹名
 IGNORED_FOLDERS = [".git", "__pycache__"]
 
@@ -128,15 +126,15 @@ def merge_file_info(info: PdfFileInfo, root_dir: Path, writer: pypdf.PdfWriter):
 
 @cli.app.command()
 def main():
-    pdf_info = search_directory(CWD, CWD)
+    pdf_info = search_directory(cli.CWD, cli.CWD)
     if not pdf_info or pdf_info.count() <= 1:
         logging.error("[*] 未发现待合并文件, 退出...")
         return
 
     writer = pypdf.PdfWriter()
-    merge_file_info(pdf_info, root_dir=CWD, writer=writer)
+    merge_file_info(pdf_info, root_dir=cli.CWD, writer=writer)
 
-    target_filepath = CWD / f"{MERGE_MARK}{CWD.stem}.pdf"
+    target_filepath = cli.CWD / f"{MERGE_MARK}{cli.CWD.stem}.pdf"
     with open(target_filepath, "wb") as pdf_file:
         writer.write(pdf_file)
         writer.close()

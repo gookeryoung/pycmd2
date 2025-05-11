@@ -11,7 +11,6 @@ from PIL import Image
 from pycmd2.common.cli import get_client
 
 cli = get_client(help="图片转化 pdf 工具.")
-CWD = Path.cwd()
 
 images_converted: List[Image.Image] = []
 
@@ -55,18 +54,18 @@ def convert_image(
 
 @cli.app.command()
 def main():
-    image_files = list(sorted(_ for _ in CWD.iterdir() if is_image_file(_)))
+    image_files = list(sorted(_ for _ in cli.CWD.iterdir() if is_image_file(_)))
     if not image_files:
-        logging.error(f"路径[{CWD}]下未找到图片文件.")
+        logging.error(f"路径[{cli.CWD}]下未找到图片文件.")
         return
 
     cli.run(convert_image, image_files)
 
     if not images_converted:
-        logging.error(f"[*] 路径[{CWD}]下未找到图片文件.")
+        logging.error(f"[*] 路径[{cli.CWD}]下未找到图片文件.")
         return
 
-    output_pdf = CWD / f"{CWD.name}.pdf"
+    output_pdf = cli.CWD / f"{cli.CWD.name}.pdf"
     images_converted[0].save(
         output_pdf,
         "PDF",
