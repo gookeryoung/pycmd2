@@ -138,6 +138,14 @@ def _clean() -> None:
 
 
 MAKE_OPTIONS: Dict[str, MakeOption] = dict(
+    bpub=MakeOption(
+        name="bump and publish",
+        desc="执行版本更新、构建以及推送等系列操作",
+        commands=[
+            "bump",
+            "pub",
+        ],
+    ),
     bump=MakeOption(
         name="bump",
         desc="更新 patch 版本",
@@ -233,9 +241,8 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
     ),
     pub=MakeOption(
         name="publish",
-        desc="执行版本更新、构建以及推送等系列操作",
+        desc="执行构建以及推送等系列操作",
         commands=[
-            "bump",
             "dist",
             ["hatch", "publish"],
             git_push_all,
