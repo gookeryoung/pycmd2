@@ -1,5 +1,6 @@
 import concurrent.futures
 import logging
+import platform
 import subprocess
 import threading
 from dataclasses import dataclass
@@ -27,6 +28,7 @@ class Client:
 
     # 常量
     CWD: Path
+    IS_WINDOWS: bool = platform.system() == "Windows"
 
     def run(
         self,
