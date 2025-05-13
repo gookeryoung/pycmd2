@@ -13,8 +13,7 @@ from pycmd2.common.consts import IS_WINDOWS
 cli = get_client()
 
 # 用户文件夹
-HOME_DIR = Path.home()
-BASHRC_PATH = Path.home() / ".bashrc"
+BASHRC_PATH = cli.HOME / ".bashrc"
 
 # pip 配置信息
 PIP_CONF_CONTENT = """[global]
@@ -150,7 +149,7 @@ def setup_hatch_token(
 
 
 def setup_pip() -> None:
-    pip_dir = HOME_DIR / "pip" if IS_WINDOWS else HOME_DIR / ".pip"
+    pip_dir = cli.HOME / "pip" if IS_WINDOWS else cli.HOME / ".pip"
     pip_conf = pip_dir / "pip.ini" if IS_WINDOWS else pip_dir / "pip.conf"
 
     if not pip_dir.exists():

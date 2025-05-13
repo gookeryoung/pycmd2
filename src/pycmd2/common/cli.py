@@ -28,6 +28,7 @@ class Client:
 
     # 常量
     CWD: Path
+    HOME: Path = Path.home()
     IS_WINDOWS: bool = platform.system() == "Windows"
 
     def run(
