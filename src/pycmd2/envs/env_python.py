@@ -4,7 +4,6 @@ import logging
 import re
 from pathlib import Path
 
-from typer import Argument
 from typer import Option
 
 from pycmd2.common.cli import get_client
@@ -109,7 +108,7 @@ def add_env_to_bashrc(
 
 
 def setup_uv(override: bool = True) -> None:
-    logging.info("配置 uv 环境变量")
+    logging.info("配置 [purple bold]uv 环境变量")
 
     uv_envs = dict(
         UV_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple",
@@ -166,9 +165,12 @@ def setup_pip() -> None:
 
 @cli.app.command()
 def main(
-    pypi_token: str = Argument(help="pypi token"),
+    pypi_token: str = Option("", help="pypi token"),
     override: bool = Option(default=True, help="是否覆盖已存在选项"),
 ):
     setup_pip()
     setup_uv(override=override)
-    setup_hatch_token(pypi_token, override=override)
+
+    if pypi_token:
+        logging.info("设置 [purple bold]pypi token")
+        setup_hatch_token(pypi_token, override=override)
