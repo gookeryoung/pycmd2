@@ -172,11 +172,12 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
     ),
     c=MakeOption(
         name="clean",
+        desc="清理所有构建、测试生成的临时内容, 别名: clean",
         commands=["clean"],
     ),
     clean=MakeOption(
         name="clean",
-        desc="清理所有构建、测试生成的临时内容",
+        desc="清理所有构建、测试生成的临时内容, 别名: c",
         commands=[_clean],
     ),
     cov=MakeOption(
@@ -238,7 +239,12 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
     ),
     pub=MakeOption(
         name="publish",
-        desc="执行构建以及推送等系列操作",
+        desc="执行构建以及推送等系列操作, 别名: publish",
+        commands=["publish"],
+    ),
+    publish=MakeOption(
+        name="publish",
+        desc="执行构建以及推送等系列操作, 别名: pub",
         commands=[
             "dist",
             ["hatch", "publish"],
