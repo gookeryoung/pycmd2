@@ -150,27 +150,24 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
         name="bump",
         desc="更新 patch 版本",
         commands=[
+            "update",
             ["uvx", "--from", "bump2version", "bumpversion", "patch"],
-            _update_build_date,
-            ["git", "add", "*/**/__init__.py"],
         ],
     ),
     bumpi=MakeOption(
         name="bump",
         desc="更新 minor 版本",
         commands=[
+            "update",
             ["uvx", "--from", "bump2version", "bumpversion", "minor"],
-            _update_build_date,
-            ["git", "add", "*/**/__init__.py"],
         ],
     ),
     bumpa=MakeOption(
         name="bump",
         desc="更新 major 版本",
         commands=[
+            "update",
             ["uvx", "--from", "bump2version", "bumpversion", "major"],
-            _update_build_date,
-            ["git", "add", "*/**/__init__.py"],
         ],
     ),
     c=MakeOption(
@@ -261,6 +258,15 @@ MAKE_OPTIONS: Dict[str, MakeOption] = dict(
         commands=[
             "sync",
             ["pytest"],
+        ],
+    ),
+    update=MakeOption(
+        name="update",
+        desc="更新构建日期",
+        commands=[
+            _update_build_date,
+            ["git", "add", "*/**/__init__.py"],
+            ["git", "commit", "-m", "更新构建日期"],
         ],
     ),
 )
