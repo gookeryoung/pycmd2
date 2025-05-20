@@ -2,6 +2,7 @@ import os
 import pathlib
 import sys
 import typing
+from dataclasses import dataclass
 
 from PySide2.QtCore import QProcess
 from PySide2.QtCore import QTextStream
@@ -26,18 +27,19 @@ from pycmd2.common.gui import setup_pyside2_env
 
 setup_pyside2_env()
 
-Config = typing.NamedTuple(
-    "Config",
-    (
-        ("title", str),
-        ("size", typing.Tuple[int, int]),
-        ("listen_port_range", typing.Tuple[int, int]),
-        ("default_listen_port", int),
-        ("listen_url", str),
-        ("threads_range", typing.Tuple[int, int]),
-        ("default_threads", int),
-    ),
-)
+
+@dataclass
+class Config:
+    """配置数据类"""
+
+    title: str
+    size: typing.Tuple[int, int]
+    listen_port_range: typing.Tuple[int, int]
+    default_listen_port: int
+    listen_url: str
+    threads_range: typing.Tuple[int, int]
+    default_threads: int
+
 
 CONFIG = Config(
     title="Llama 本地模型管理器",
@@ -220,7 +222,7 @@ class LlamaServerGUI(QMainWindow):
         self.output_area.setTextCursor(cursor)
         self.output_area.ensureCursorVisible()
 
-    def update_ui_state(self, running):
+    def update_ui_state(self, running: bool):
         self.model_path_input.setEnabled(not running)
         self.load_model_btn.setEnabled(not running)
         self.port_spin.setEnabled(not running)
