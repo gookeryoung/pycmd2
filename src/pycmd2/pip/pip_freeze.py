@@ -1,4 +1,7 @@
-"""功能：输出库清单到当前目录下的 requirements.txt 中"""
+"""
+功能：输出库清单到当前目录下的 requirements.txt 中
+命令: pipf
+"""
 
 from pycmd2.common.cli import get_client
 
