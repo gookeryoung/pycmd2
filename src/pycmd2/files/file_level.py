@@ -13,8 +13,24 @@ from typing import List
 from typer import Argument
 
 from pycmd2.common.cli import get_client
+from pycmd2.common.settings import get_settings
 
 cli = get_client()
+settings = get_settings(
+    "file_level",
+    default_config=dict(
+        # 文件级别
+        file_levels={
+            0: "",
+            1: "PUB,NOR",
+            2: "INT",
+            3: "CON",
+            4: "CLA",
+        },
+        # 分隔符
+        bracket_pairs=(" ([_（【-", " )]_）】"),
+    ),
+)
 
 
 # 文件级别定义
@@ -23,15 +39,11 @@ class FileLevel(typing.NamedTuple):
     names: typing.Tuple[str, ...]
 
 
-FILE_LEVEL_DATA = (
-    (0, ("",)),
-    (1, ("PUB", "NOR")),
-    (2, ("INT",)),
-    (3, ("CON",)),
-    (4, ("CLA",)),
-)
-FILE_LEVELS = [FileLevel(c, n) for c, n in FILE_LEVEL_DATA]
-BRACKET_PAIRS = (" (（[【_-", " )）]】_-")
+levels = [
+    FileLevel(c, n.split(","))
+    for c, n in settings.get("file_levels", None).items()
+]
+bracket_pairs = settings.get("bracket_pairs", (" (（[【_-", " )）]】_"))
 
 
 def remove_marks(
@@ -44,8 +56,8 @@ def remove_marks(
             b, e = pos - 1, pos + len(mark)
             if b >= 0 and e <= len(filename) - 1:
                 if (
-                    filename[b] not in BRACKET_PAIRS[0]
-                    or filename[e] not in BRACKET_PAIRS[1]
+                    filename[b] not in bracket_pairs[0]
+                    or filename[e] not in bracket_pairs[1]
                 ):
                     return filename[:e] + remove_marks(filename[e:], marks)
                 filename = filename.replace(filename[b : e + 1], "")
@@ -56,7 +68,7 @@ def remove_marks(
 def remove_level_and_digital_mark(
     filename: str,
 ) -> str:
-    for file_level in FILE_LEVELS[1:]:
+    for file_level in levels[1:]:
         filename = remove_marks(filename, file_level.names)
     filename = remove_marks(
         filename, tuple("".join([str(x) for x in range(1, 10)]))
@@ -71,7 +83,7 @@ def add_level_mark(
 ) -> Path:
     cleared_stem = remove_level_and_digital_mark(filepath.stem)
     dst_stem = (
-        f"{cleared_stem}({FILE_LEVELS[filelevel].names[0]})"
+        f"{cleared_stem}({levels[filelevel].names[0]})"
         if filelevel
         else cleared_stem
     )  # noqa
