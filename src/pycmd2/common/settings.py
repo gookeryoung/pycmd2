@@ -1,3 +1,4 @@
+import atexit
 import json
 import logging
 from pathlib import Path
@@ -38,35 +39,33 @@ class Settings:
             with open(self.config_file) as f:
                 self.config = json.load(f)
         except json.JSONDecodeError as e:
-            logging.error(f"Error loading config: {e}")
+            logging.error(f"载入配置错误: {e}")
             self.config = {}
         except FileNotFoundError:
-            logging.error(f"Config file not found: {self.config_file}")
+            logging.error(f"未找到配置文件: {self.config_file}")
             self.config = {}
         except Exception as e:
-            logging.error(f"Error loading config: {e}")
+            logging.error(f"载入配置错误: {e}")
             self.config = {}
         else:
-            logging.info(f"Loading config from {self.config_file}")
+            logging.info(f"载入配置: {self.config_file}")
 
     def save_config(self):
         try:
             with open(self.config_file, "w") as f:
                 json.dump(self.config, f, indent=4)
         except Exception as e:
-            logging.error(f"Error saving config: {e}")
+            logging.error(f"保存配置错误: {e}")
         else:
-            logging.info(f"Config saved to {self.config_file}")
+            logging.info(f"保存配置: {self.config_file}")
 
     def get(self, key: str, default: Any = None) -> Any:
         val = self.config.get(key, default)
         if val is None:
-            logging.warning(
-                f"Config key '{key}' not found, returning default value."
-            )
+            logging.warning(f"未找到配置: {key} = {val}, 返回默认值: {default}")
             return default
 
-        logging.info(f"Getting config: {key} = {val}")
+        logging.info(f"获取配置: {key} = {val}")
         return val
 
     def set(self, key: str, value: Any):
@@ -103,4 +102,6 @@ def get_settings(
     """
     if config_dir is None:
         config_dir = DEFAULT_CONFIG_DIR
-    return Settings(config_dir, config_name, default_config)
+    settings = Settings(config_dir, config_name, default_config)
+    atexit.register(settings.save_config)
+    return settings

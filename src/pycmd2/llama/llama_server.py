@@ -167,7 +167,6 @@ class LlamaServerGUI(QMainWindow):
         )
         if path:
             settings.set("model_path", path)
-            settings.save_config()
 
             self.model_path_input.setText(os.path.normpath(path))
 
