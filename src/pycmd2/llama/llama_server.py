@@ -23,9 +23,17 @@ from PySide2.QtWidgets import QTextEdit
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
 
+from pycmd2.common.cli import get_client
 from pycmd2.common.gui import setup_pyside2_env
+from pycmd2.common.settings import get_settings
 
 setup_pyside2_env()
+
+cli = get_client()
+settings = get_settings(
+    config_name="llama_server",
+    default_config=dict(model_path=""),
+)
 
 
 @dataclass
@@ -62,6 +70,12 @@ class LlamaServerGUI(QMainWindow):
         self.init_ui()
         self.setup_process()
 
+        model_path = settings.get("model_path", "")
+        if model_path:
+            self.model_path_input.setText(str(model_path))
+        else:
+            self.model_path_input.setPlaceholderText("选择或输入模型文件路径")
+
     def init_ui(self):
         # 主界面布局
         main_widget = QWidget()
@@ -75,7 +89,7 @@ class LlamaServerGUI(QMainWindow):
         model_path_layout = QHBoxLayout()
         model_path_layout.addWidget(QLabel("模型路径:"))
         self.model_path_input = QLineEdit()
-        self.model_path_input.setPlaceholderText("选择或输入模型文件路径")
+
         model_path_layout.addWidget(self.model_path_input)
         self.load_model_btn = QPushButton("浏览...")
         self.load_model_btn.clicked.connect(self.on_load_model)
@@ -146,9 +160,15 @@ class LlamaServerGUI(QMainWindow):
 
     def on_load_model(self):
         path, _ = QFileDialog.getOpenFileName(
-            self, "选择模型文件", "", "模型文件 (*.bin *.gguf)"
+            self,
+            "选择模型文件",
+            settings.get("model_path", ""),
+            "模型文件 (*.bin *.gguf)",
         )
         if path:
+            settings.set("model_path", path)
+            settings.save_config()
+
             self.model_path_input.setText(os.path.normpath(path))
 
     def toggle_server(self):
