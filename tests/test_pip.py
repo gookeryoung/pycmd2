@@ -1,4 +1,24 @@
 import os
+import shutil
+
+import pytest
+
+
+@pytest.fixture(scope="function", autouse=True)
+def clear_packages(dir_tests):
+    os.chdir(dir_tests)
+
+    dir_packages = dir_tests / "packages"
+    if dir_packages.exists():
+        shutil.rmtree(dir_packages, ignore_errors=True)
+
+
+@pytest.fixture(scope="function")
+def requirments_file(dir_tests):
+    os.chdir(dir_tests)
+    with open("requirements.txt", "w") as f:
+        f.write("lxml==4.9.1\n")
+        f.write("jinja2==3.1.2")
 
 
 def test_pip_download(typer_runner, dir_tests):
@@ -10,4 +30,22 @@ def test_pip_download(typer_runner, dir_tests):
     assert result.exit_code == 0
 
     files = list(dir_tests.glob("packages/lxml-*.whl"))
+    assert len(files) == 1
+
+
+def test_pip_download_req(typer_runner, requirments_file, dir_tests):
+    os.chdir(dir_tests)
+
+    from pycmd2.pip.pip_download_req import cli
+
+    result = typer_runner.invoke(cli.app, [])
+    assert result.exit_code == 0
+
+    files = list(dir_tests.glob("packages/lxml-*.whl"))
+    assert len(files) == 1
+
+    files = list(dir_tests.glob("packages/jinja2-*.whl"))
+    assert len(files) == 1
+
+    files = list(dir_tests.glob("packages/markupsafe-*.whl"))
     assert len(files) == 1
