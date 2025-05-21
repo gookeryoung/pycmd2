@@ -1,4 +1,7 @@
-"""功能：python 项目用构建命令"""
+"""
+功能：python 项目用构建命令
+命令：mkp [OPTIONS]
+"""
 
 import datetime
 import logging
@@ -309,4 +312,4 @@ def main(optstr: str = Argument(help=f"构建选项[{OPTIONS}]")):
     if found_option:
         call_option(found_option)
     else:
-        logging.error(f"未找到匹配选项: {optstr}")
+        logging.error(f"未找到匹配选项: {optstr}, 选项列表: [red]{OPTIONS}")

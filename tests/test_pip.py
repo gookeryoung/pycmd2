@@ -77,8 +77,10 @@ def test_pip_install(typer_runner, dir_tests):
     result = typer_runner.invoke(cli.app, ["lxml", "typing-extensions"])
     assert result.exit_code == 0
 
-    files = list(dir_tests.glob("packages/lxml-*.whl"))
-    assert len(files) == 1
 
-    files = list(dir_tests.glob("packages/typing_extensions-*.whl"))
-    assert len(files) == 1
+def test_pip_install_offline(typer_runner, dir_tests):
+    os.chdir(dir_tests)
+    from pycmd2.pip.pip_install_offline import cli
+
+    result = typer_runner.invoke(cli.app, ["lxml", "typing-extensions"])
+    assert result.exit_code == 0

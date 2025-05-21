@@ -1,10 +1,10 @@
 """功能：pip 安装库到本地"""
 
-from pathlib import Path
 from typing import List
 from typing import Optional
 
 from typer import Argument
+from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 from pycmd2.pip.consts import TRUSTED_PIP_URL
@@ -19,6 +19,6 @@ def pip_install(libname: str, options: Optional[List[str]] = None) -> None:
 
 @cli.app.command()
 def main(
-    libnames: List[Path] = Argument(help="待下载库清单"),  # noqa: B008
+    libnames: Annotated[List[str], Argument(help="库名列表")],
 ):
     cli.run(pip_install, libnames)

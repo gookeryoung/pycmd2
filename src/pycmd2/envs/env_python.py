@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 
 from typer import Option
+from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 
@@ -164,8 +165,8 @@ def setup_pip() -> None:
 
 @cli.app.command()
 def main(
-    pypi_token: str = Option("", help="pypi token"),
-    override: bool = Option(default=True, help="是否覆盖已存在选项"),
+    pypi_token: Annotated[str, Option(help="pypi token")] = "",
+    override: Annotated[bool, Option(help="是否覆盖已存在选项")] = True,
 ):
     setup_pip()
     setup_uv(override=override)

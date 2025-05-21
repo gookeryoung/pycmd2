@@ -6,6 +6,7 @@
 import logging
 
 from typer import Option
+from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 from pycmd2.git.git_push_all import check_git_status
@@ -20,7 +21,7 @@ exclude_dirs = [
 
 @cli.app.command()
 def main(
-    force: bool = Option(False, "--force", "-f", help="强制清理"),
+    force: Annotated[bool, Option("--force", "-f", help="强制清理")] = False,
 ) -> None:
     if force:
         logging.warning("强制清理模式, 会删除未提交的修改和新文件")

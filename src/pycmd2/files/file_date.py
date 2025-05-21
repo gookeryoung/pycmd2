@@ -13,6 +13,7 @@ from typing import List
 from typing import Tuple
 
 from typer import Argument
+from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 from pycmd2.common.settings import get_settings
@@ -93,6 +94,6 @@ def rename_target(
 
 @cli.app.command()
 def main(
-    targets: List[Path] = Argument(help="输入文件清单"),  # noqa: B008
+    targets: Annotated[List[Path], Argument(help="输入文件清单")],
 ):
     cli.run(rename_target, targets)

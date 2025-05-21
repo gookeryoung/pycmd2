@@ -1,18 +1,17 @@
 """功能：初始化 python 环境变量"""
 
 import logging
-from pathlib import Path
+import platform
 from typing import Dict
 
 from typer import Option
+from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 from pycmd2.envs.env_python import add_env_to_bashrc
 
 cli = get_client()
 
-# 用户文件夹
-HOME_DIR = Path.home()
 
 # pip 配置信息
 CARGO_CONF_CONTENT = """# 字节跳动
@@ -51,7 +50,7 @@ def setup_rustup(override: bool = True) -> None:
 
 
 def setup_cargo() -> None:
-    cargo_dir = HOME_DIR / ".cargo"
+    cargo_dir = cli.HOME / ".cargo"
     cargo_conf = cargo_dir / "config.toml"
 
     if not cargo_dir.exists():
@@ -66,13 +65,20 @@ def setup_cargo() -> None:
 
 @cli.app.command()
 def main(
-    override: bool = Option(default=True, help="是否覆盖已存在选项"),
+    override: Annotated[bool, Option(help="是否覆盖已存在选项")] = True,
 ):
     setup_rustup(override=override)
     setup_cargo()
+
+    machine = (
+        "x86_64"
+        if platform.machine().lower() in ("x86_64", "amd64")
+        else "i686"
+    )
+
     if cli.IS_WINDOWS:
         cli.run_cmdstr(
-            "wget https://static.rust-lang.org/rustup/dist/i686-pc-windows-msvc/rustup-init.exe"
+            f"wget https://static.rust-lang.org/rustup/dist/{machine}-pc-windows-msvc/rustup-init.exe"
         )
     else:
         cli.run_cmdstr(

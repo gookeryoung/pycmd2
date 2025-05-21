@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import List
 
 from typer import Argument
+from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 from pycmd2.common.settings import get_settings
@@ -112,8 +113,8 @@ def rename(
 
 @cli.app.command()
 def main(
-    level: int = Argument(0, help="目标M等级, 0-4"),
-    targets: List[Path] = Argument(help="目标文件或目录"),  # noqa: B008
+    targets: Annotated[List[Path], Argument(help="目标文件或目录")],
+    level: Annotated[int, Argument(help="文件级别")] = 0,
 ):
     rename_func = partial(rename, level=level)
     cli.run(rename_func, targets)
