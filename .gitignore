@@ -145,6 +145,5 @@ uv.lock
 
 # Cython debug symbols
 cython_debug/
-.vscode/settings.json
 tests/packages
 tests/requirements.txt

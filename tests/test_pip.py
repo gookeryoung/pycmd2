@@ -67,3 +67,18 @@ def test_pip_freeze(typer_runner, dir_tests):
         libs = set(_.split("==")[0] for _ in f.readlines())
         assert "hatch" in libs
         assert "pytest" in libs
+
+
+def test_pip_install(typer_runner, dir_tests):
+    os.chdir(dir_tests)
+
+    from pycmd2.pip.pip_install import cli
+
+    result = typer_runner.invoke(cli.app, ["lxml", "typing-extensions"])
+    assert result.exit_code == 0
+
+    files = list(dir_tests.glob("packages/lxml-*.whl"))
+    assert len(files) == 1
+
+    files = list(dir_tests.glob("packages/typing_extensions-*.whl"))
+    assert len(files) == 1
