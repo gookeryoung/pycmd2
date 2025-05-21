@@ -1,7 +1,7 @@
 """功能：pip 下载库到本地 packages 文件夹, 使用 requirements.txt"""
 
 from pycmd2.common.cli import get_client
-from pycmd2.common.consts import TRUSTED_PIP_URL
+from pycmd2.pip.consts import TRUSTED_PIP_URL
 
 cli = get_client()
 

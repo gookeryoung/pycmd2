@@ -6,7 +6,7 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
-from .consts import DEFAULT_CONFIG_DIR
+from .cli import Client
 
 
 class Settings:
@@ -101,7 +101,7 @@ def get_settings(
         Settings 实例
     """
     if config_dir is None:
-        config_dir = DEFAULT_CONFIG_DIR
+        config_dir = Client.SETTINGS_DIR
     settings = Settings(config_dir, config_name, default_config)
     atexit.register(settings.save_config)
     return settings

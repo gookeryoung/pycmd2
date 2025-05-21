@@ -145,3 +145,4 @@ uv.lock
 
 # Cython debug symbols
 cython_debug/
+.vscode/settings.json

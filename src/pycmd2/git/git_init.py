@@ -1,4 +1,7 @@
-"""功能：清理git"""
+"""
+功能：初始化 git 目录
+命令: gitinit
+"""
 
 import os
 

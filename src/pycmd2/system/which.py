@@ -7,7 +7,6 @@ from typing import List
 from typer import Argument
 
 from pycmd2.common.cli import get_client
-from pycmd2.common.consts import IS_WINDOWS
 
 cli = get_client()
 
@@ -17,7 +16,7 @@ def find_executable(name: str):
 
     try:
         # 根据系统选择命令
-        cmd = ["where" if IS_WINDOWS else "which", name]
+        cmd = ["where" if cli.IS_WINDOWS else "which", name]
 
         # 执行命令并捕获输出
         result = subprocess.run(
@@ -30,11 +29,11 @@ def find_executable(name: str):
 
         # 处理 Windows 多结果情况
         paths = result.stdout.strip().split("\n")
-        return paths[0] if IS_WINDOWS else result.stdout.strip()
+        return paths[0] if cli.IS_WINDOWS else result.stdout.strip()
 
     except (subprocess.CalledProcessError, FileNotFoundError):
         # 检查 UNIX 系统的直接可执行路径
-        if not IS_WINDOWS and os.access(f"/usr/bin/{name}", os.X_OK):
+        if not cli.IS_WINDOWS and os.access(f"/usr/bin/{name}", os.X_OK):
             return f"/usr/bin/{name}"
         return None
 

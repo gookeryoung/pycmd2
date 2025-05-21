@@ -7,7 +7,6 @@ from typing import Dict
 from typer import Option
 
 from pycmd2.common.cli import get_client
-from pycmd2.common.consts import IS_WINDOWS
 from pycmd2.envs.env_python import add_env_to_bashrc
 
 cli = get_client()
@@ -43,7 +42,7 @@ def setup_rustup(override: bool = True) -> None:
         RUSTUP_DIST_SERVER="https://pypi.tuna.tsinghua.edu.cn/simple",
     )
 
-    if IS_WINDOWS:
+    if cli.IS_WINDOWS:
         for k, v in rustup_envs.items():
             cli.run_cmd(["setx", str(k), str(v)])
     else:
@@ -71,7 +70,7 @@ def main(
 ):
     setup_rustup(override=override)
     setup_cargo()
-    if IS_WINDOWS:
+    if cli.IS_WINDOWS:
         cli.run_cmdstr(
             "wget https://static.rust-lang.org/rustup/dist/i686-pc-windows-msvc/rustup-init.exe"
         )
