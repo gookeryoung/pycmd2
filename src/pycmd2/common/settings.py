@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import Optional
+from typing import Union
 
 from .cli import Client
 
@@ -12,7 +13,7 @@ from .cli import Client
 class Settings:
     def __init__(
         self,
-        config_dir: Path,
+        config_dir: Union[str, Path],
         config_name: str,
         default_config: Optional[Dict[str, Any]] = None,
     ):
@@ -22,7 +23,7 @@ class Settings:
             config_dir: 配置文件目录路径
             default_config: 默认配置字典，当配置文件不存在时使用
         """
-        self.config_dir = config_dir
+        self.config_dir = Path(config_dir)
         self.config_file = self.config_dir / f"{config_name}.json"
 
         if not self.config_dir.exists():
@@ -36,7 +37,7 @@ class Settings:
 
     def load_config(self):
         try:
-            with open(self.config_file) as f:
+            with open(self.config_file, encoding="utf-8") as f:
                 self.config = json.load(f)
         except json.JSONDecodeError as e:
             logging.error(f"载入配置错误: {e}")
@@ -52,7 +53,7 @@ class Settings:
 
     def save_config(self):
         try:
-            with open(self.config_file, "w") as f:
+            with open(self.config_file, "w", encoding="utf-8") as f:
                 json.dump(self.config, f, indent=4)
         except Exception as e:
             logging.error(f"保存配置错误: {e}")
