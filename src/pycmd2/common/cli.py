@@ -27,7 +27,7 @@ class Client:
     console: Console
 
     # 常量
-    CWD: Path
+    CWD: Path = Path(".")
     HOME: Path = Path.home()
     SETTINGS_DIR: Path = HOME / ".pycmd2"
     IS_WINDOWS: bool = platform.system() == "Windows"

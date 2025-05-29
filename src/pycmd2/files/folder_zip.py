@@ -1,29 +1,55 @@
 """
 功能: 压缩目录下的所有文件/文件夹, 默认为当前目录
-命令: folderzip.exe [DIRECTORIES ...]
-特性: 使用内置压缩工具
+命令: folderzip.exe [DIRECTORY]
 """
 
-import pathlib
+import logging
 import shutil
+from pathlib import Path
+
+from typer import Argument
+from typer import Option
+from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 
-cli = get_client(help="pdf 分割工具.")
+cli = get_client(help="目录压缩工具.")
 
 
-IGNORE_DIRS = [".git", ".idea", ".vscode", "__pycache__"]
-IGNORE_FILES = [".gitignore"]
-IGNORE = [*IGNORE_DIRS, *IGNORE_FILES]
-IGNORE_EXT = [".zip", ".rar", ".7z", ".tar", ".gz"]
+def is_valid_entry(entry: Path) -> bool:
+    """检查文件夹是否有效, 忽略已压缩的目录."""
+
+    if not entry.is_dir():
+        return False
+
+    if entry.with_suffix(".zip").exists():
+        logging.info(f"跳过已压缩目录: [red]{entry.name}")
+        return False
+
+    return True
 
 
-def zip_folder(folder: pathlib.Path) -> None:
-    shutil.make_archive(str(folder), "zip", folder)
-    print(f"[*] 压缩{'目录'}[{folder.name}]")
+def zip_folder(entry: Path) -> None:
+    logging.info(
+        f"压缩目录: [green]{entry.name} -> {entry.with_suffix('.zip').name}"
+    )
+    shutil.make_archive(str(entry), "zip", base_dir=entry)
 
 
 @cli.app.command()
-def main():
-    dirs = list(d for d in cli.CWD.iterdir() if d.is_dir())
-    cli.run(zip_folder, dirs)
+def main(
+    directory: Annotated[
+        Path, Argument(help="待备份目录, 默认为当前目录")
+    ] = Path("."),
+    ignore: Annotated[str, Option(help="忽略以此开头的目录或文件名")] = "._",
+):
+    ignores = list(ignore) or []
+    dirs = list(
+        d
+        for d in directory.iterdir()
+        if is_valid_entry(d)
+        and all([not d.name.startswith(ig) for ig in ignores])
+    )
+
+    if dirs:
+        cli.run(zip_folder, dirs)
