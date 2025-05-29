@@ -55,7 +55,7 @@ def test_initialize_settings_with_existing_config_directory(
 
         # Verify the object was created with correct attributes
         assert settings.config_dir == existing_config_dir
-        assert settings.config_file == existing_config_dir / "test.json"
+        assert settings.config_file == existing_config_dir / "test.toml"
         assert settings.config == {}
 
         # Verify no directory was created (mkdir shouldn't be called)
@@ -82,7 +82,7 @@ def test_initialize_settings_with_non_existent_config_directory(mock_logging):
 
     # Verify
     assert settings.config_dir == non_existent_path
-    assert settings.config_file == non_existent_path / f"{config_name}.json"
+    assert settings.config_file == non_existent_path / f"{config_name}.toml"
     assert non_existent_path.exists() is True
     mock_logging.assert_called_once_with(f"创建配置目录: {non_existent_path}")
 
@@ -93,7 +93,7 @@ def test_initialize_settings_with_non_existent_config_directory(mock_logging):
 def test_config_file_path_construction(existing_config_dir):
     """
     Verify correct config file path construction.
-    Test that the config file path matches expected pattern (dir/config_name.json)
+    Test that the config file path matches expected pattern (dir/config_name.toml)
     """
     # Create the directory to simulate existing config
     existing_config_dir.mkdir(parents=True, exist_ok=True)
@@ -108,9 +108,9 @@ def test_config_file_path_construction(existing_config_dir):
         )
 
         # Verify the config file path is constructed correctly
-        expected_path = existing_config_dir / "test_config.json"
+        expected_path = existing_config_dir / "test_config.toml"
         assert settings.config_file == expected_path
-        assert str(settings.config_file).endswith("test_config.json")
+        assert str(settings.config_file).endswith("test_config.toml")
 
         # Verify no logging occurred (side check)
         mock_logging.assert_not_called()
@@ -136,7 +136,7 @@ def test_empty_default_config_handling(tmp_path):
 
         # Verify the object was created with correct attributes
         assert settings.config_dir == existing_config_dir
-        assert settings.config_file == existing_config_dir / "test.json"
+        assert settings.config_file == existing_config_dir / "test.toml"
 
         # Verify config is an empty dictionary
         assert settings.config == {}
@@ -184,7 +184,7 @@ def test_initialize_settings_with_path_object(tmp_path):
 
         # Verify the object was created with correct attributes
         assert settings.config_dir == config_dir
-        assert settings.config_file == config_dir / "test.json"
+        assert settings.config_file == config_dir / "test.toml"
         assert settings.config == {}
 
         # Verify no directory was created (mkdir shouldn't be called)
@@ -205,18 +205,18 @@ def test_initialize_settings_with_string_path(tmp_path):
 
     # Verify the object was created with correct attributes
     assert settings.config_dir == Path(config_dir_str)
-    assert settings.config_file == Path(config_dir_str) / "test.json"
+    assert settings.config_file == Path(config_dir_str) / "test.toml"
     assert settings.config == {}
 
 
 @pytest.mark.parametrize(
     "config_name,expected_file",
     [
-        ("test", "test.json"),
-        ("config", "config.json"),
-        ("settings", "settings.json"),
-        ("my_config", "my_config.json"),
-        ("test.config", "test.config.json"),
+        ("test", "test.toml"),
+        ("config", "config.toml"),
+        ("settings", "settings.toml"),
+        ("my_config", "my_config.toml"),
+        ("test.config", "test.config.toml"),
     ],
 )
 def test_config_name_handling(existing_config_dir, config_name, expected_file):
@@ -246,7 +246,7 @@ def test_initialize_settings_with_read_only_config_directory(
 
         # Verify the object was created with correct attributes
         assert settings.config_dir == read_only_config_dir
-        assert settings.config_file == read_only_config_dir / "test.json"
+        assert settings.config_file == read_only_config_dir / "test.toml"
         assert settings.config == {}
 
         # Verify no directory modification was attempted (mkdir shouldn't be called)
