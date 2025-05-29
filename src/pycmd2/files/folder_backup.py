@@ -3,10 +3,10 @@
 命令: folderback.exe [DIRECTORY] --dest [DESTINATION] --max [MAX_FILE_COUNT]
 """
 
-import logging
+import os
 import pathlib
+import shutil
 import time
-import zipfile
 from pathlib import Path
 
 from typer import Argument
@@ -18,19 +18,6 @@ from pycmd2.common.cli import get_client
 cli = get_client()
 
 
-def remove_dump(src: pathlib.Path, dst: pathlib.Path, max_zip: int) -> None:
-    """删除超过 max_zip 个的备份."""
-
-    zip_paths = [
-        filepath for filepath in dst.rglob("*.zip") if src.stem in str(filepath)
-    ]
-    zip_files = sorted(zip_paths, key=lambda fn: str(fn)[-19:-4])
-    if len(zip_files) > max_zip:
-        print(f"remove oldest zip file: [{zip_files[0]}].")
-        zip_files[0].unlink()
-        remove_dump(src, dst, max_zip)
-
-
 def zip_folder(
     src: pathlib.Path,
     dst: pathlib.Path,
@@ -38,24 +25,19 @@ def zip_folder(
 ) -> None:
     """备份源文件夹 src 到目标文件夹 dst, 并删除超过 max_zip 个的备份."""
 
-    entries = list(e for e in src.iterdir() if e.stem != dst.stem)
-    timestamp = time.strftime("_%Y%m%d_%H%M%S")
-    target_path = dst / (src.stem + timestamp + ".zip")
-    zip_file = zipfile.ZipFile(target_path, "w")
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    zip_files = sorted(list(dst.rglob("*.zip")), key=lambda fn: str(fn.name))
+    if len(zip_files) >= max_zip:
+        cli.run(os.remove, zip_files[: len(zip_files) - max_zip + 1])
 
-    logging.info(f"压缩文件夹 [{src}] —> [{dst}]...")
-    for file in entries:
-        zip_file.write(
-            str(file), arcname=str(file).replace(str(src.parent), "")
-        )
-    remove_dump(src, dst, max_zip)
+    shutil.make_archive(str(dst / f"{timestamp}_{src.name}"), "zip")
 
 
 @cli.app.command()
 def main(
-    directory: Annotated[Path, Argument(help="备份目录, 默认当前")] = Path("."),
+    directory: Annotated[Path, Argument(help="备份目录, 默认当前")] = cli.CWD,
     dest: Annotated[Path, Option(help="目标文件夹")] = (
-        Path(".").parent / "_backup"
+        cli.CWD.parent / f"_backup_{cli.CWD.name}"
     ),
     max: Annotated[int, Option(help="最大备份数量")] = 5,
 ):
