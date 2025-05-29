@@ -9,6 +9,13 @@ from typing import Union
 
 from .cli import Client
 
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
+
+import tomli_w
+
 
 class Settings:
     def __init__(
@@ -24,7 +31,7 @@ class Settings:
             default_config: 默认配置字典，当配置文件不存在时使用
         """
         self.config_dir = Path(config_dir)
-        self.config_file = self.config_dir / f"{config_name}.json"
+        self.config_file = self.config_dir / f"{config_name}.toml"
 
         if not self.config_dir.exists():
             self.config_dir.mkdir(parents=True, exist_ok=True)
@@ -37,8 +44,8 @@ class Settings:
 
     def load_config(self):
         try:
-            with open(self.config_file, encoding="utf-8") as f:
-                self.config = json.load(f)
+            with open(self.config_file, "rb") as f:
+                self.config = tomllib.load(f)
         except json.JSONDecodeError as e:
             logging.error(f"载入配置错误: {e}")
             self.config = {}
@@ -53,8 +60,8 @@ class Settings:
 
     def save_config(self):
         try:
-            with open(self.config_file, "w", encoding="utf-8") as f:
-                json.dump(self.config, f, indent=4)
+            with open(self.config_file, "wb") as f:
+                tomli_w.dump(self.config, f)
         except Exception as e:
             logging.error(f"保存配置错误: {e}")
         else:

@@ -19,18 +19,18 @@ from pycmd2.common.settings import get_settings
 cli = get_client()
 settings = get_settings(
     "file_level",
-    default_config=dict(
+    default_config={
         # 文件级别
-        file_levels={
-            0: "",
-            1: "PUB,NOR",
-            2: "INT",
-            3: "CON",
-            4: "CLA",
+        "levels": {
+            "0": "",
+            "1": "PUB,NOR",
+            "2": "INT",
+            "3": "CON",
+            "4": "CLA",
         },
         # 分隔符
-        bracket_pairs=(" ([_（【-", " )]_）】"),
-    ),
+        "brackets": [" ([_（【-", " )]_）】"],
+    },
 )
 
 
@@ -41,10 +41,10 @@ class FileLevel(typing.NamedTuple):
 
 
 levels = [
-    FileLevel(c, n.split(","))
-    for c, n in settings.get("file_levels", None).items()
+    FileLevel(int(c), n.split(","))
+    for c, n in settings.get("levels", None).items()
 ]
-bracket_pairs = settings.get("bracket_pairs", (" (（[【_-", " )）]】_"))
+bracket_pairs = settings.get("brackets", (" (（[【_-", " )）]】_"))
 
 
 def remove_marks(

@@ -1,9 +1,9 @@
 """
 功能: 移除文件日期, 用创建日期替代.
-命令: filedate.exe [FILES ...]
+命令: filedate.exe [TARGETS ...]
 特性:
  - 日期格式为: YYYYMMDD
- - 文件分隔符包含: -|_|#|.|~
+ - 文件分隔符包含: -_#.~
 """
 
 import re
@@ -19,6 +19,7 @@ from pycmd2.common.cli import get_client
 from pycmd2.common.settings import get_settings
 
 cli = get_client()
+
 settings = get_settings(
     "file_date",
     default_config=dict(
