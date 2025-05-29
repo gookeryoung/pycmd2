@@ -6,29 +6,41 @@
 import logging
 import os
 import subprocess
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Set
-from typing import Tuple
 
 from pycmd2.common.cli import get_client
 
 cli = get_client()
 
 
-def get_changed_files() -> Set[Tuple[str, str]]:
+@dataclass
+class GitAddFileStatus:
+    """Git文件状态数据类"""
+
+    status: str
+    filepath: Path
+
+    def __hash__(self) -> int:
+        """计算哈希值, 用于在集合中唯一标识"""
+        return hash((self.status, str(self.filepath)))
+
+
+def get_changed_files_info() -> Set[GitAddFileStatus]:
     """获取git状态变化的文件列表"""
     result = subprocess.run(
         ["git", "status", "--porcelain"],
         capture_output=True,
         text=True,
     )
-    files = set()
+    files: Set[GitAddFileStatus] = set()
     if result.returncode == 0:
         for line in result.stdout.splitlines():
             if line.strip():
                 status = line[:2].strip()
                 filename = line[3:].strip()
-                files.add((status, filename))
+                files.add(GitAddFileStatus(status, Path(filename)))
     return files
 
 
@@ -36,20 +48,28 @@ def get_changed_files() -> Set[Tuple[str, str]]:
 def main():
     os.chdir(str(cli.CWD))
 
-    before = get_changed_files()
+    # 计算新增的文件
+    before = get_changed_files_info()
     cli.run_cmd(["git", "add", "."])
-    after = get_changed_files()
+    after = get_changed_files_info()
 
-    added_files = after - before
+    # 计算新增的文件信息
+    added_files_info = after - before
+    added_filenames = {
+        f.filepath.stem for f in added_files_info if f.status == "A"
+    }
+    modified_filenames = {
+        f.filepath.stem for f in added_files_info if f.status == "M"
+    }
 
     # 显示结果
-    if added_files:
-        logging.info(f"新增的文件:{added_files}")
-        cli.run_cmd([
-            "git",
-            "commit",
-            "-m",
-            f"新增文件: {''.join(list(Path(f[1]).stem for f in added_files))}",
-        ])
-    else:
-        logging.warning("没有新增文件")
+    check_status = {
+        "新增": added_filenames,
+        "修改": modified_filenames,
+    }
+    for status, filenames in check_status.items():
+        if filenames:
+            logging.info(f"{status}的文件: {', '.join(filenames)}")
+            cli.run_cmd(["git", "commit", "-m", f"{status}文件: {filenames}"])
+        else:
+            logging.warning(f"没有{status}的文件")
