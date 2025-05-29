@@ -48,7 +48,7 @@ folderz = "pycmd2.files.folder_zip:cli.app"
 gitadd = "pycmd2.git.git_add:cli.app"
 gitc = "pycmd2.git.git_clean:cli.app"
 gitinit = "pycmd2.git.git_init:cli.app"
-gitp = "pycmd2.git.git_push_all:cli.app"
+gitpa = "pycmd2.git.git_push_all:cli.app"
 gitre = "pycmd2.git.git_restart_tgitcache:cli.app"
 
 # images commands
