@@ -17,21 +17,13 @@ maintainers = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-  "chardet>=5.2.0",
-  "jieba>=0.42.1",
-  "openpyxl>=3.1.5",
-  "paramiko>=3.5.1",
-  "pdfplumber>=0.11.5",
   "pillow>=10.4.0",
   "pypdf>=5.4.0",
   "pyside2>=5.15.2.1",
-  "python-docx>=1.1.2",
   "rich>=13.9.4",
   "tomli>=2.2.1",
   "tomli-w>=1.0.0",
   "typer>=0.15.1",
-  "whoosh>=2.7.4",
-  "xlrd>=2.0.1",
 ]
 classifiers = []
 license = {text = "MIT license"}
