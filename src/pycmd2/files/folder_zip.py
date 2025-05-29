@@ -4,6 +4,7 @@
 """
 
 import logging
+import os
 import shutil
 from pathlib import Path
 
@@ -33,14 +34,15 @@ def zip_folder(entry: Path) -> None:
     logging.info(
         f"压缩目录: [green]{entry.name} -> {entry.with_suffix('.zip').name}"
     )
-    shutil.make_archive(str(entry), "zip", base_dir=entry)
+    os.chdir(entry.parent)  # 切换到父目录, 以便正确创建 zip 文件
+    shutil.make_archive(str(entry), "zip", base_dir=entry.name)
 
 
 @cli.app.command()
 def main(
     directory: Annotated[
         Path, Argument(help="待备份目录, 默认为当前目录")
-    ] = Path("."),
+    ] = cli.CWD,
     ignore: Annotated[str, Option(help="忽略以此开头的目录或文件名")] = "._",
 ):
     ignores = list(ignore) or []
