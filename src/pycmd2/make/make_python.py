@@ -35,7 +35,6 @@ class MakeOption:
         source_dir = cli.CWD / "src"
 
         if not source_dir.is_dir():
-            logging.warning(f"源代码目录不存在: {source_dir}")
             return None
 
         return source_dir
@@ -43,11 +42,12 @@ class MakeOption:
     @classmethod
     def project_name(cls) -> str:
         """获取项目目录"""
-        if cls.src_dir() is None:
-            logging.error("源代码目录未设置, 无法获取项目目录")
+
+        if not isinstance(source_dir := cls.src_dir(), Path):
+            logging.error(f"源代码目录不存在: {cls.src_dir}")
             return ""
 
-        project_dirs: List[Path] = list(f for f in cls.src_dir().iterdir())
+        project_dirs: List[Path] = list(source_dir.iterdir())
         if len(project_dirs):
             return project_dirs[0].name
         else:
