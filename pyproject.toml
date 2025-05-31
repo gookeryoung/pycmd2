@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pycmd2"
-version = "0.4.1"
+version = "0.4.2"
 description = "Command tools build with python."
 readme = "README.rst"
 authors = [
@@ -17,7 +17,7 @@ maintainers = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-  "pillow>=10.4.1",
+  "pillow>=10.4.2",
   "pypdf>=5.4.0",
   "pyside2>=5.15.2.1",
   "rich>=13.9.4",
