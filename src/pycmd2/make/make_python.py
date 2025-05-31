@@ -13,7 +13,6 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
-from typing import Optional
 from typing import Union
 
 from typer import Argument
@@ -30,24 +29,21 @@ class MakeOption:
     desc: str = ""
 
     @classmethod
-    def src_dir(cls) -> Optional[Path]:
+    def src_dir(cls) -> Path:
         """获取源代码目录"""
-        source_dir = cli.CWD / "src"
-
-        if not source_dir.is_dir():
-            return None
-
-        return source_dir
+        return cli.CWD / "src"
 
     @classmethod
     def project_name(cls) -> str:
         """获取项目目录"""
 
-        if not isinstance(source_dir := cls.src_dir(), Path):
-            logging.error(f"源代码目录不存在: {cls.src_dir}")
+        if not cls.src_dir().exists():
+            logging.error(
+                f"源代码目录不存在, 无法获取项目目录: [red]{cls.src_dir()}"
+            )
             return ""
 
-        project_dirs: List[Path] = list(source_dir.iterdir())
+        project_dirs: List[Path] = list(cls.src_dir().iterdir())
         if len(project_dirs):
             return project_dirs[0].name
         else:
@@ -89,8 +85,7 @@ class MakeOption:
     @classmethod
     def update_build_date(cls):
         build_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        src_dir = cli.CWD / "src"
-        init_files = src_dir.rglob("__init__.py")
+        init_files = cls.src_dir().rglob("__init__.py")
 
         for init_file in init_files:
             try:
