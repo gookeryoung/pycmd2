@@ -51,38 +51,6 @@ class MakeOption:
             return ""
 
     @classmethod
-    def browse_coverage(cls) -> None:
-        """打开浏览器查看测试覆盖率结果"""
-
-        import webbrowser
-        from urllib.request import pathname2url
-
-        webbrowser.open(
-            "file://" + pathname2url(str(cli.CWD / "htmlcov" / "index.html"))
-        )
-
-    @classmethod
-    def clean(cls) -> None:
-        """清理项目"""
-
-        # 待清理目录
-        dirs = [
-            "dist",
-            ".tox",
-            ".coverage",
-            "htmlcov",
-            ".pytest_cache",
-            ".mypy_cache",
-        ]
-        spec_dirs = [cli.CWD / d for d in dirs]
-        cache_dirs = list(cli.CWD.rglob("**/__pycache__"))
-        remove_func = partial(shutil.rmtree, ignore_errors=True)
-
-        # 移除待清理目录
-        cli.run(remove_func, spec_dirs)
-        cli.run(remove_func, cache_dirs)
-
-    @classmethod
     def update_build_date(cls):
         build_date = datetime.datetime.now().strftime("%Y-%m-%d")
         init_files = cls.src_dir().rglob("__init__.py")
@@ -183,10 +151,42 @@ class BumpMajorOption(MakeOption):
     ]
 
 
+def _clean() -> None:
+    """清理项目"""
+
+    # 待清理目录
+    dirs = [
+        "dist",
+        ".tox",
+        ".coverage",
+        "htmlcov",
+        ".pytest_cache",
+        ".mypy_cache",
+    ]
+    spec_dirs = [cli.CWD / d for d in dirs]
+    cache_dirs = list(cli.CWD.rglob("**/__pycache__"))
+    remove_func = partial(shutil.rmtree, ignore_errors=True)
+
+    # 移除待清理目录
+    cli.run(remove_func, spec_dirs)
+    cli.run(remove_func, cache_dirs)
+
+
 class CleanOption(MakeOption):
     name = "clean"
     desc = "清理所有构建、测试生成的临时内容, 别名: c / clean"
-    commands = [MakeOption.clean]
+    commands = [_clean]
+
+
+def _browse_coverage() -> None:
+    """打开浏览器查看测试覆盖率结果"""
+
+    import webbrowser
+    from urllib.request import pathname2url
+
+    webbrowser.open(
+        "file://" + pathname2url(str(cli.CWD / "htmlcov" / "index.html"))
+    )
 
 
 class CoverageOption(MakeOption):
@@ -204,7 +204,7 @@ class CoverageOption(MakeOption):
         ],
         ["coverage", "report", "-m"],
         ["coverage", "html"],
-        MakeOption.browse_coverage,
+        _browse_coverage,
     ]
 
 
