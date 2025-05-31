@@ -4,7 +4,7 @@ from PySide2.QtWidgets import QTableWidgetSelectionRange
 
 class SpreadSheet(QTableWidget):
     def __init__(self, parent=None):
-        super(SpreadSheet, self).__init__(parent)
+        super().__init__(parent)
 
     # def copy(self):
     #     selected = self.selected_range()

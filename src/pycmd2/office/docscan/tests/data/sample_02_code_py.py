@@ -1,5 +1,8 @@
 from PySide2.QtCore import QStringListModel
-from PySide2.QtWidgets import QApplication, QComboBox, QListView, QSplitter
+from PySide2.QtWidgets import QApplication
+from PySide2.QtWidgets import QComboBox
+from PySide2.QtWidgets import QListView
+from PySide2.QtWidgets import QSplitter
 
 app = QApplication()
 cities = "北京 上海 广州 深圳 武汉 成都 西安 长沙".split()

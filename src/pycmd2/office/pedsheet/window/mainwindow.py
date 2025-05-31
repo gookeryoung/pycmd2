@@ -13,7 +13,8 @@ from pycmd2.office.pedsheet.window.ui_mainwindow import Ui_MainWindow
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
-        super(MainWindow, self).__init__()
+        super().__init__()
+
         self.setupUi(self)
 
         self.config_data = {}

@@ -7,7 +7,8 @@ from pycmd2.office.pedsheet.dialog.ui_gotocelldialog import Ui_GoToCellDialog
 
 class GotoCellDialog(QDialog):
     def __init__(self, parent=None):
-        super(GotoCellDialog, self).__init__(parent)
+        super().__init__(parent)
+
         self.ui = Ui_GoToCellDialog()
         self.ui.setupUi(self)
 

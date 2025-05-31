@@ -13,7 +13,8 @@ class TestIndexer(unittest.TestCase):
         match_contents = SAMPLE_INDEXER.query_reg("world")
         for m in match_contents:
             print(
-                f"文件名: [{m.filename}], 匹配内容: [{[x.decode('utf8') for x in m.match_text]}]"
+                f"文件名: [{m.filename}], 匹配内容: "
+                f"[{[x.decode('utf8') for x in m.match_text]}]"
             )
         self.assertGreaterEqual(len(match_contents), 1)
 
@@ -21,7 +22,8 @@ class TestIndexer(unittest.TestCase):
         match_contents = SAMPLE_INDEXER.query_reg("蒜蓉")
         for m in match_contents:
             print(
-                f"文件名: [{m.filename}], 匹配内容: [{[x.decode('utf8') for x in m.match_text]}]"
+                f"文件名: [{m.filename}], 匹配内容: "
+                f"[{[x.decode('utf8') for x in m.match_text]}]"
             )
         self.assertGreaterEqual(len(match_contents), 2)
 
@@ -29,7 +31,8 @@ class TestIndexer(unittest.TestCase):
         match_contents = SAMPLE_INDEXER.query_reg("libraries")
         for m in match_contents:
             print(
-                f"文件名: [{m.filename}], 匹配内容: [{[x.decode('utf8') for x in m.match_text]}]"
+                f"文件名: [{m.filename}], 匹配内容: "
+                f"[{[x.decode('utf8') for x in m.match_text]}]"
             )
         self.assertGreaterEqual(len(match_contents), 1)
 
@@ -37,7 +40,8 @@ class TestIndexer(unittest.TestCase):
         match_contents = SAMPLE_INDEXER.query_reg("绿米")
         for m in match_contents:
             print(
-                f"文件名: [{m.filename}], 匹配内容: [{[x.decode('utf8') for x in m.match_text]}]"
+                f"文件名: [{m.filename}], 匹配内容: "
+                f"[{[x.decode('utf8') for x in m.match_text]}]"
             )
         self.assertGreaterEqual(len(match_contents), 1)
 
@@ -45,7 +49,8 @@ class TestIndexer(unittest.TestCase):
         match_contents = SAMPLE_INDEXER.query_reg("飞行器")
         for m in match_contents:
             print(
-                f"文件名: [{m.filename}], 匹配内容: [{[x.decode('utf8') for x in m.match_text]}]"
+                f"文件名: [{m.filename}], 匹配内容: "
+                f"[{[x.decode('utf8') for x in m.match_text]}]"
             )
         self.assertGreaterEqual(len(match_contents), 1)
 
@@ -53,7 +58,8 @@ class TestIndexer(unittest.TestCase):
         match_contents = SAMPLE_INDEXER.query_reg("压缩包")
         for m in match_contents:
             print(
-                f"文件名: [{m.filename}], 匹配内容: [{[x.decode('utf8') for x in m.match_text]}]"
+                f"文件名: [{m.filename}], 匹配内容: "
+                f"[{[x.decode('utf8') for x in m.match_text]}]"
             )
         self.assertGreaterEqual(len(match_contents), 1)
 
@@ -61,7 +67,8 @@ class TestIndexer(unittest.TestCase):
         match_contents = SAMPLE_INDEXER.query_reg("知识产权")
         for m in match_contents:
             print(
-                f"文件名: [{m.filename}], 匹配内容: [{[x.decode('utf8') for x in m.match_text]}]"
+                f"文件名: [{m.filename}], 匹配内容: "
+                f"[{[x.decode('utf8') for x in m.match_text]}]"
             )
         self.assertGreaterEqual(len(match_contents), 1)
 
@@ -69,7 +76,8 @@ class TestIndexer(unittest.TestCase):
         match_contents = SAMPLE_INDEXER.query_reg("华为")
         for m in match_contents:
             print(
-                f"文件名: [{m.filename}], 匹配内容: [{[x.decode('utf8') for x in m.match_text]}]"
+                f"文件名: [{m.filename}], 匹配内容: "
+                f"[{[x.decode('utf8') for x in m.match_text]}]"
             )
         self.assertGreaterEqual(len(match_contents), 1)
 

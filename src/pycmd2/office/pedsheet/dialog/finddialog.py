@@ -13,7 +13,8 @@ class FindDialog(QDialog):
     signal_replace_all = Signal(str, str, bool)  # 全部替换
 
     def __init__(self, parent=None):
-        super(FindDialog, self).__init__(parent)
+        super().__init__(parent)
+
         self.ui = Ui_FindDialog()
         self.ui.setupUi(self)
 

@@ -11,7 +11,7 @@ class FileTreeModel(QAbstractListModel):
 
         self.dirs = dirs
 
-    def rowCount(self, parent=QModelIndex()):
+    def rowCount(self, parent):
         return len(self.dirs)
 
     def data(self, index, role=Qt.DisplayRole):

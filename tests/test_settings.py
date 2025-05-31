@@ -93,7 +93,8 @@ def test_initialize_settings_with_non_existent_config_directory(mock_logging):
 def test_config_file_path_construction(existing_config_dir):
     """
     Verify correct config file path construction.
-    Test that the config file path matches expected pattern (dir/config_name.toml)
+    Test that the config file path matches expected
+    pattern (dir/config_name.toml)
     """
     # Create the directory to simulate existing config
     existing_config_dir.mkdir(parents=True, exist_ok=True)
@@ -119,7 +120,8 @@ def test_config_file_path_construction(existing_config_dir):
 def test_empty_default_config_handling(tmp_path):
     """
     Test initialization with None as default config.
-    Verifies that an empty dictionary is stored in settings.config when default_config is None.
+    Verifies that an empty dictionary is stored in settings.config
+    when default_config is None.
     """
     # Create a temporary config directory for testing
     existing_config_dir = tmp_path / "config"
@@ -155,7 +157,7 @@ def test_no_logging_for_existing_directory(existing_config_dir):
     # Mock the logging.info method to verify it's not called
     with patch("logging.info") as mock_logging:
         # Initialize Settings with existing directory
-        settings = Settings(
+        Settings(
             config_dir=existing_config_dir,
             config_name="test",
             default_config=None,
@@ -220,7 +222,7 @@ def test_initialize_settings_with_string_path(tmp_path):
     ],
 )
 def test_config_name_handling(existing_config_dir, config_name, expected_file):
-    """Verify different config names are handled correctly by checking the constructed config_file path"""
+    """检验配置名称处理"""
     with patch("logging.info"):
         settings = Settings(
             config_dir=existing_config_dir,
@@ -249,5 +251,6 @@ def test_initialize_settings_with_read_only_config_directory(
         assert settings.config_file == read_only_config_dir / "test.toml"
         assert settings.config == {}
 
-        # Verify no directory modification was attempted (mkdir shouldn't be called)
+        # Verify no directory modification was attempted
+        # (mkdir shouldn't be called)
         mock_logging.assert_not_called()

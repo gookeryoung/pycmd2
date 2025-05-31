@@ -7,12 +7,12 @@ from PySide2.QtWidgets import QTableWidgetItem
 
 class Cell(QTableWidgetItem):
     def __init__(self):
-        super(Cell, self).__init__()
+        super().__init__()
 
         self.cache_is_dirty = True
 
     def setData(self, role: int, value: typing.Any) -> None:
-        super(Cell, self).setData(role, value)
+        super().setData(role, value)
 
         if role == Qt.EditRole:
             self.set_dirty()

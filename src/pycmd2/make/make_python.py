@@ -7,6 +7,7 @@ import datetime
 import logging
 import re
 import shutil
+from functools import partial
 from pathlib import Path
 from typing import Any
 from typing import Callable
@@ -78,17 +79,12 @@ class MakeOption:
             ".mypy_cache",
         ]
         spec_dirs = [cli.CWD / d for d in dirs]
-
-        # 定义移除函数
-        def remove_dir(dirpath: Path) -> None:
-            shutil.rmtree(dirpath, ignore_errors=True)
+        cache_dirs = list(cli.CWD.rglob("**/__pycache__"))
+        remove_func = partial(shutil.rmtree, ignore_errors=True)
 
         # 移除待清理目录
-        cli.run(remove_dir, spec_dirs)
-
-        # 移除临时目录
-        cache_dirs = list(d for d in cli.CWD.rglob("__pycache__") if d.is_dir())
-        cli.run(remove_dir, cache_dirs)
+        cli.run(remove_func, spec_dirs)
+        cli.run(remove_func, cache_dirs)
 
     @classmethod
     def update_build_date(cls):
@@ -251,7 +247,7 @@ class LintOption(MakeOption):
     desc = "代码质量检查"
     commands = [
         "sync",
-        ["ruff", "check", "src", "tests", "--fix"],
+        ["uvx", "ruff", "check", "src", "tests", "--fix"],
     ]
 
 
@@ -349,6 +345,8 @@ class PyprojectMaker:
                     return
             elif isinstance(command, list):
                 cli.run_cmd(command)
+            elif callable(command):
+                command()
 
 
 @cli.app.command()

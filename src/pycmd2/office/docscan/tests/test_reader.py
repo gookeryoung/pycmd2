@@ -15,13 +15,13 @@ class TestPdfReader(unittest.TestCase):
 
         t0 = time.perf_counter()
         pdf2_reader = PdfReaderPDF()
-        content1 = pdf2_reader.read(pdf_file)
+        pdf2_reader.read(pdf_file)
         t1 = time.perf_counter() - t0
         print(f"time used: {t1=} --- PdfReaderPDF2")
 
         t0 = time.perf_counter()
         pp_reader = PdfReaderPlumber()
-        content2 = pp_reader.read(pdf_file)
+        pp_reader.read(pdf_file)
         t1 = time.perf_counter() - t0
         print(f"time used: {t1=} --- PdfReaderPlumber")
 
@@ -30,12 +30,12 @@ class TestPdfReader(unittest.TestCase):
 
         t0 = time.perf_counter()
         pdf2_reader = PdfReaderPDF()
-        content1 = pdf2_reader.read(pdf_file)
+        pdf2_reader.read(pdf_file)
         t1 = time.perf_counter() - t0
         print(f"time used: {t1=} --- PdfReaderPDF2")
 
         t0 = time.perf_counter()
         pp_reader = PdfReaderPlumber()
-        content2 = pp_reader.read(pdf_file)
+        pp_reader.read(pdf_file)
         t1 = time.perf_counter() - t0
         print(f"time used: {t1=} --- PdfReaderPlumber")
