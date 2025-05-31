@@ -26,6 +26,7 @@ def zip_folder(
 ) -> None:
     """备份源文件夹 src 到目标文件夹 dst, 并删除超过 max_zip 个的备份."""
 
+    logging.info(f"备份文件夹: {src} 到 {dst} 目录")
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     zip_files = sorted(list(dst.glob("*.zip")), key=lambda fn: str(fn.name))
     if len(zip_files) >= max_zip:
@@ -36,7 +37,9 @@ def zip_folder(
         )
         cli.run(os.remove, remove_files)
 
-    shutil.make_archive(str(dst / f"{timestamp}_{src.name}"), "zip")
+    backup_path = dst / f"{timestamp}_{src.name}.zip"
+    logging.info(f"创建备份: [purple]{backup_path.name}")
+    shutil.make_archive(str(backup_path), "zip")
 
 
 @cli.app.command()
@@ -46,9 +49,24 @@ def main(
         cli.CWD.parent / f"_backup_{cli.CWD.name}"
     ),
     max: Annotated[int, Option(help="最大备份数量")] = 5,
+    clean: Annotated[bool, Option("--clean", help="清理已有备份")] = False,
+    ls: Annotated[bool, Option("--list", help="列出备份文件")] = False,
 ):
+    backup_files = list(dest.glob("*.zip"))
+    if ls:
+        if not backup_files:
+            logging.info(f"没有找到备份文件: {dest}")
+        else:
+            logging.info(f"备份文件列表: {[f.name for f in backup_files]}")
+        return
+
+    if clean:
+        logging.info(f"清理已有备份: [purple]{backup_files}")
+        cli.run(os.remove, backup_files)
+        return
+
     if not dest.exists():
-        print(f"创建备份目标文件夹: {dest}")
+        logging.info(f"创建备份目标文件夹: {dest}")
         dest.mkdir(parents=True, exist_ok=True)
 
     zip_folder(directory, dest, max)
