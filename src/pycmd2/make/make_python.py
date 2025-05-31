@@ -290,7 +290,17 @@ class UpdateOption(MakeOption):
 
 
 class PyprojectMaker:
-    """Python 项目构建器"""
+    """Python 项目构建器
+
+    options: Dict[str, MakeOption]
+        可用的构建选项字典，键为选项名称，值为 MakeOption 子类实例
+    call_option_str(option_name: str) -> None
+        调用指定的构建选项
+    options_list() -> List[str]
+        获取所有可用的选项名称列表
+    _call_option(option: MakeOption) -> None
+        内部调用选项，执行其命令并处理描述信息
+    """
 
     options: Dict[str, MakeOption] = dict(
         bpub=BumpPublishOption(),
