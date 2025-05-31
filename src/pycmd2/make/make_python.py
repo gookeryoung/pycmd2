@@ -143,6 +143,18 @@ class MakeOption:
             return True
 
 
+def _activate_py_env() -> None:
+    extension = ".bat" if cli.IS_WINDOWS else ""
+    actviate_path = cli.CWD / ".venv" / "Scripts" / f"activate{extension}"
+    cli.run_cmd([str(actviate_path)])
+
+
+class ActivateOption(MakeOption):
+    name = "activate"
+    desc = "激活项目环境, 别名: act / activate"
+    commands = [_activate_py_env]
+
+
 class BumpPublishOption(MakeOption):
     name = "bump and publish"
     desc = "执行版本更新、构建以及推送等系列操作"
@@ -303,6 +315,7 @@ class PyprojectMaker:
     """
 
     options: Dict[str, MakeOption] = dict(
+        act=ActivateOption(),
         bpub=BumpPublishOption(),
         bump=BumpOption(),
         bumpi=BumpMinorOption(),
