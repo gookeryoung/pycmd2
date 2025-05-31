@@ -347,6 +347,8 @@ class PyprojectMaker:
                 cli.run_cmd(command)
             elif callable(command):
                 command()
+            else:
+                logging.error(f"未知命令类型: {type(command)}, 内容: {command}")
 
 
 @cli.app.command()
