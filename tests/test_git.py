@@ -1,4 +1,6 @@
 import os
+import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -30,3 +32,27 @@ def test_git_clean(typer_runner, git_repo):
     result = typer_runner.invoke(cli.app, ["-f"])
     assert result.exit_code == 0
     assert not test_file.exists()
+
+
+def test_git_init(typer_runner, tmp_path):
+    """Test the git_init() method."""
+    os.chdir(tmp_path)
+    Path(tmp_path / "test.txt").touch()
+    Path(tmp_path / "test02.txt").touch()
+
+    from pycmd2.git.git_init import cli
+
+    result = typer_runner.invoke(cli.app, [])
+    assert result.exit_code == 0
+
+    # Check if the .git directory was created
+    assert (tmp_path / ".git").exists()
+
+    # Check if the initial commit was made
+    result = subprocess.run(
+        ["git", "log", "--oneline"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert "initial commit" in result.stdout
