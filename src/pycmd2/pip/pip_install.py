@@ -7,7 +7,7 @@ from typer import Argument
 from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
-from pycmd2.pip.consts import TRUSTED_PIP_URL
+from pycmd2.pip._consts import TRUSTED_PIP_URL
 
 cli = get_client()
 

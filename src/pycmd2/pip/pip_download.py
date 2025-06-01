@@ -6,21 +6,23 @@ from typing import List
 from typer import Argument
 
 from pycmd2.common.cli import get_client
-from pycmd2.pip.consts import TRUSTED_PIP_URL
+from pycmd2.pip._consts import TRUSTED_PIP_URL
 
 cli = get_client()
 dest_dir = cli.CWD / "packages"
 
 
 def pip_download(libname: str) -> None:
-    cli.run_cmd([
-        "pip",
-        "download",
-        libname,
-        "-d",
-        str(dest_dir),
-        *TRUSTED_PIP_URL,
-    ])
+    cli.run_cmd(
+        [
+            "pip",
+            "download",
+            libname,
+            "-d",
+            str(dest_dir),
+            *TRUSTED_PIP_URL,
+        ]
+    )
 
 
 @cli.app.command()

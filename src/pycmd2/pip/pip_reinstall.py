@@ -6,7 +6,7 @@ from typing import List
 from typer import Argument
 
 from pycmd2.common.cli import get_client
-from pycmd2.pip.consts import TRUSTED_PIP_URL
+from pycmd2.pip._consts import TRUSTED_PIP_URL
 from pycmd2.pip.pip_uninstall import pip_uninstall
 
 cli = get_client()
