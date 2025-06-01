@@ -17,7 +17,11 @@ cli = get_client()
 
 @dataclass
 class GitAddFileStatus:
-    """Git文件状态数据类"""
+    """Git文件状态数据类
+
+    @param status: 文件状态, A: 新增, M: 修改
+    @param filepath: 文件路径
+    """
 
     status: str
     filepath: Path
