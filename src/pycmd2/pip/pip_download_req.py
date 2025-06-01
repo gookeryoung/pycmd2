@@ -4,11 +4,10 @@
 """
 
 from pycmd2.common.cli import get_client
-from pycmd2.pip._consts import TRUSTED_PIP_URL
+
+from .conf import settings
 
 cli = get_client()
-
-dest_dir = cli.CWD / "packages"
 
 
 def pip_download_req() -> None:
@@ -19,8 +18,8 @@ def pip_download_req() -> None:
             "-r",
             "requirements.txt",
             "-d",
-            str(dest_dir),
-            *TRUSTED_PIP_URL,
+            settings.get("dest_dir"),
+            *settings.get("trusted_pip_url"),
         ]
     )
 
