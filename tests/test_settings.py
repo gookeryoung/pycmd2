@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.common.settings import Settings
+from pycmd2.common.config import Settings
 
 
 @pytest.fixture

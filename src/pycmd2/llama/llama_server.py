@@ -2,7 +2,7 @@ import os
 import pathlib
 import sys
 import typing
-from dataclasses import dataclass
+from typing import Tuple
 
 from PySide2.QtCore import QProcess
 from PySide2.QtCore import QTextStream
@@ -24,53 +24,42 @@ from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
 
 from pycmd2.common.cli import get_client
+from pycmd2.common.config import TomlConfigMixin
 from pycmd2.common.gui import setup_pyside2_env
-from pycmd2.common.settings import get_settings
 
 setup_pyside2_env()
 
+
+class LlamaServerConfig(TomlConfigMixin):
+    NAME = "llama_server"
+
+    TITLE: str = "Llama 本地模型管理器"
+    WIN_SIZE: Tuple[int, int] = (800, 800)
+    MODEL_PATH: str = ""
+
+    URL: str = "http://127.0.0.1"
+    LISTEN_PORT: int = 8080
+    LISTEN_PORT_RNG: Tuple[int, int] = (1024, 65535)
+    THREAD_COUNT_RNG: Tuple[int, int] = (1, 24)
+    THREAD_COUNT_RNG: Tuple[int, int] = (1, 24)
+    THREAD_COUNT: int = 4
+
+
 cli = get_client()
-settings = get_settings(
-    config_name="llama_server",
-    default_config=dict(model_path=""),
-)
-
-
-@dataclass
-class Config:
-    """配置数据类"""
-
-    title: str
-    size: typing.Tuple[int, int]
-    listen_port_range: typing.Tuple[int, int]
-    default_listen_port: int
-    listen_url: str
-    threads_range: typing.Tuple[int, int]
-    default_threads: int
-
-
-CONFIG = Config(
-    title="Llama 本地模型管理器",
-    size=(800, 800),
-    listen_port_range=(1024, 65535),
-    default_listen_port=8080,
-    listen_url="http://127.0.0.1:8080",
-    threads_range=(1, 24),
-    default_threads=4,
-)
+conf = LlamaServerConfig()
 
 
 class LlamaServerGUI(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(CONFIG.title)
-        self.resize(*CONFIG.size)
+        self.setWindowTitle(conf.TITLE)
+        self.resize(*conf.WIN_SIZE)
 
         self.process = None
         self.init_ui()
         self.setup_process()
 
-        model_path = settings.get("model_path", "")
+        model_path = conf.MODEL_PATH
         if model_path:
             self.model_path_input.setText(str(model_path))
         else:
@@ -101,14 +90,14 @@ class LlamaServerGUI(QMainWindow):
         params_layout.addStretch(1)
         params_layout.addWidget(QLabel("端口号:"))
         self.port_spin = QSpinBox()
-        self.port_spin.setRange(*CONFIG.listen_port_range)
-        self.port_spin.setValue(CONFIG.default_listen_port)
+        self.port_spin.setRange(*conf.LISTEN_PORT_RNG)
+        self.port_spin.setValue(conf.LISTEN_PORT)
         params_layout.addWidget(self.port_spin)
 
         params_layout.addWidget(QLabel("线程数:"))
         self.threads_spin = QSpinBox()
-        self.threads_spin.setRange(*CONFIG.threads_range)
-        self.threads_spin.setValue(CONFIG.default_threads)
+        self.threads_spin.setRange(*conf.THREAD_COUNT_RNG)
+        self.threads_spin.setValue(conf.THREAD_COUNT)
         params_layout.addWidget(self.threads_spin)
         config_layout.addLayout(params_layout)
 
@@ -162,12 +151,11 @@ class LlamaServerGUI(QMainWindow):
         path, _ = QFileDialog.getOpenFileName(
             self,
             "选择模型文件",
-            settings.get("model_path", ""),
+            conf.MODEL_PATH,
             "模型文件 (*.bin *.gguf)",
         )
         if path:
-            settings.set("model_path", path)
-
+            conf.MODEL_PATH = path
             self.model_path_input.setText(os.path.normpath(path))
 
     def toggle_server(self):
@@ -209,7 +197,7 @@ class LlamaServerGUI(QMainWindow):
                 self.process.kill()
 
     def on_start_browser(self):
-        QDesktopServices.openUrl(CONFIG.listen_url)
+        QDesktopServices.openUrl(f"{conf.URL}:{conf.LISTEN_PORT}")
 
     def on_process_finished(self, exit_code, exit_status):
         self.append_output(

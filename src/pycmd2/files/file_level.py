@@ -14,42 +14,38 @@ from typer import Argument
 from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
-from pycmd2.common.settings import get_settings
+from pycmd2.common.config import TomlConfigMixin
+
+
+class FileLevelConfig(TomlConfigMixin):
+    NAME = "file_level"
+
+    LEVELS: typing.Dict[str, str] = {
+        "0": "",
+        "1": "PUB,NOR",
+        "2": "INT",
+        "3": "CON",
+        "4": "CLA",
+    }
+    BRACKETS = [" ([_（【-", " )]_）】"]
+
 
 cli = get_client()
-settings = get_settings(
-    "file_level",
-    default_config={
-        # 文件级别
-        "levels": {
-            "0": "",
-            "1": "PUB,NOR",
-            "2": "INT",
-            "3": "CON",
-            "4": "CLA",
-        },
-        # 分隔符
-        "brackets": [" ([_（【-", " )]_）】"],
-    },
-)
+conf = FileLevelConfig()
 
 
 # 文件级别定义
 class FileLevel(typing.NamedTuple):
     code: int
-    names: typing.Tuple[str, ...]
+    names: typing.List[str]
 
 
-levels = [
-    FileLevel(int(c), n.split(","))
-    for c, n in settings.get("levels", None).items()
-]
-bracket_pairs = settings.get("brackets", (" (（[【_-", " )）]】_"))
+levels = [FileLevel(int(c), n.split(",")) for c, n in conf.LEVELS.items()]
 
 
 def remove_marks(
     filename: str,
-    marks: typing.Tuple[str, ...],
+    marks: typing.List[str],
 ) -> str:
     for mark in marks:
         pos = filename.find(mark)
@@ -57,8 +53,8 @@ def remove_marks(
             b, e = pos - 1, pos + len(mark)
             if b >= 0 and e <= len(filename) - 1:
                 if (
-                    filename[b] not in bracket_pairs[0]
-                    or filename[e] not in bracket_pairs[1]
+                    filename[b] not in conf.BRACKETS[0]
+                    or filename[e] not in conf.BRACKETS[1]
                 ):
                     return filename[:e] + remove_marks(filename[e:], marks)
                 filename = filename.replace(filename[b : e + 1], "")
@@ -72,7 +68,7 @@ def remove_level_and_digital_mark(
     for file_level in levels[1:]:
         filename = remove_marks(filename, file_level.names)
     filename = remove_marks(
-        filename, tuple("".join([str(x) for x in range(1, 10)]))
+        filename, list("".join([str(x) for x in range(1, 10)]))
     )
     return filename
 
