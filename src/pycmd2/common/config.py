@@ -66,7 +66,6 @@ class TomlConfigMixin:
     def _load(self):
         if not self._config_file.exists():
             logging.error(f"未找到配置文件: {self._config_file}")
-            self._config = {}
             return
 
         try:
@@ -74,9 +73,9 @@ class TomlConfigMixin:
                 self._config = tomllib.load(f)
         except Exception as e:
             logging.error(f"载入配置错误: {e}")
-            self._config = {}
+            return
         else:
-            logging.info(f"载入配置: {self._config_file}")
+            logging.info(f"载入配置: [green]{self._config_file}")
 
     def _save(self):
         try:
@@ -85,4 +84,4 @@ class TomlConfigMixin:
         except Exception as e:
             logging.error(f"保存配置错误: {e}")
         else:
-            logging.info(f"保存配置: {self._config_file}")
+            logging.info(f"保存配置: [green]{self._config_file}")

@@ -25,7 +25,7 @@ class FileLevelConfig(TomlConfigMixin):
         "3": "CON",
         "4": "CLA",
     }
-    BRACKETS = [" ([_（【-", " )]_）】"]
+    BRACKETS: List[str] = [" ([_（【-", " )]_）】"]
 
 
 cli = get_client()

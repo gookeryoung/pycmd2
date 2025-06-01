@@ -2,7 +2,7 @@ import os
 import pathlib
 import sys
 import typing
-from typing import Tuple
+from typing import List
 
 from PySide2.QtCore import QProcess
 from PySide2.QtCore import QTextStream
@@ -32,14 +32,13 @@ setup_pyside2_env()
 
 class LlmServerConfig(TomlConfigMixin):
     TITLE: str = "Llama 本地模型管理器"
-    WIN_SIZE: Tuple[int, int] = (800, 800)
+    WIN_SIZE: List[int] = [800, 800]
     MODEL_PATH: str = ""
 
     URL: str = "http://127.0.0.1"
     LISTEN_PORT: int = 8080
-    LISTEN_PORT_RNG: Tuple[int, int] = (1024, 65535)
-    THREAD_COUNT_RNG: Tuple[int, int] = (1, 24)
-    THREAD_COUNT_RNG: Tuple[int, int] = (1, 24)
+    LISTEN_PORT_RNG: List[int] = [1024, 65535]
+    THREAD_COUNT_RNG: List[int] = [1, 24]
     THREAD_COUNT: int = 4
 
 
