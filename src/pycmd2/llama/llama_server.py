@@ -30,9 +30,7 @@ from pycmd2.common.gui import setup_pyside2_env
 setup_pyside2_env()
 
 
-class LlamaServerConfig(TomlConfigMixin):
-    NAME = "llama_server"
-
+class LlmServerConfig(TomlConfigMixin):
     TITLE: str = "Llama 本地模型管理器"
     WIN_SIZE: Tuple[int, int] = (800, 800)
     MODEL_PATH: str = ""
@@ -46,7 +44,7 @@ class LlamaServerConfig(TomlConfigMixin):
 
 
 cli = get_client()
-conf = LlamaServerConfig()
+conf = LlmServerConfig()
 
 
 class LlamaServerGUI(QMainWindow):

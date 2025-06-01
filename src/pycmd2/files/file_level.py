@@ -18,8 +18,6 @@ from pycmd2.common.config import TomlConfigMixin
 
 
 class FileLevelConfig(TomlConfigMixin):
-    NAME = "file_level"
-
     LEVELS: typing.Dict[str, str] = {
         "0": "",
         "1": "PUB,NOR",

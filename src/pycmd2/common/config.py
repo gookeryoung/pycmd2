@@ -1,5 +1,6 @@
 import atexit
 import logging
+import re
 
 from pycmd2.common.cli import Client
 
@@ -11,6 +12,18 @@ except ModuleNotFoundError:
 import tomli_w
 
 
+def to_snake_case(name):
+    """
+    将驼峰命名转换为下划线命名，处理连续大写字母的情况
+    例如: "HTTPRequest" -> "http_request"
+    """
+    name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+    name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", name)
+    # 处理连续大写字母的情况
+    name = re.sub("([A-Z]+)([A-Z][a-z])", r"\1_\2", name)
+    return name.lower()
+
+
 class TomlConfigMixin:
     """Toml配置管理器基类
 
@@ -18,16 +31,13 @@ class TomlConfigMixin:
     2. 通过重写 _load 和 _save 方法，可以自定义配置文件的载入和保存方式
     3. 通过重写 _props 属性，可以自定义配置文件中保存的属性
     4. 通过重写 NAME 属性，可以自定义配置文件名
-
-    Args:
-        NAME: 配置文件名
-
     """
 
     NAME: str = ""
 
     def __init__(self) -> None:
-        self._config_file = Client.SETTINGS_DIR / f"{self.NAME}.toml"
+        cls_name = to_snake_case(type(self).__name__).replace("_config", "")
+        self._config_file = Client.SETTINGS_DIR / f"{cls_name}.toml"
         self._config = {}
 
         # 载入配置

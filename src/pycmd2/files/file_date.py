@@ -20,8 +20,6 @@ from pycmd2.common.config import TomlConfigMixin
 
 
 class FileDateConfig(TomlConfigMixin):
-    NAME = "file_date"
-
     DETECT_SEPERATORS: str = "-_#.~"
     SEPERATOR: str = "_"
 
