@@ -20,6 +20,12 @@ from typer import Argument
 from pycmd2.common.cli import get_client
 from pycmd2.git.git_push_all import main as git_push_all
 
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
+
+
 cli = get_client()
 
 
@@ -37,17 +43,25 @@ class MakeOption:
     def project_name(cls) -> str:
         """获取项目目录"""
 
-        if not cls.src_dir().exists():
+        cfg_file = cli.CWD / "pyproject.toml"
+        if not cfg_file.exists():
             logging.error(
-                f"源代码目录不存在, 无法获取项目目录: [red]{cls.src_dir()}"
+                f"pyproject.toml 文件不存在, 无法获取项目目录: [red]{cfg_file}"
             )
             return ""
 
-        project_dirs: List[Path] = list(cls.src_dir().iterdir())
-        if len(project_dirs):
-            return project_dirs[0].name
-        else:
-            logging.error(f"源代码目录为空: {cls.src_dir}, 无法获取项目目录")
+        # 如果 pyproject.toml 存在，尝试从中获取项目名称
+        try:
+            with cfg_file.open("rb") as f:
+                config = tomllib.load(f)
+                project_name = (
+                    config["project"]["name"]
+                    or config["tool"]["poetry"]["name"]
+                )
+
+                return project_name or ""
+        except Exception as e:
+            logging.error(f"读取 pyproject.toml 失败: {str(e)}")
             return ""
 
     @classmethod

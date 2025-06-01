@@ -103,7 +103,7 @@ exclude_lines = ["coverage: ignore", "def main", "if __name__ == .__main__.:"]
 
 [tool.coverage.run]
 source = ["src/pycmd2"]
-omit = ["tests/*", "examples/*"]
+omit = ["*/tests/*", "*/examples/*"]
 
 # -------------------- hatch-version -------------------- #
 [tool.hatch]
