@@ -1,5 +1,4 @@
 import atexit
-import json
 import logging
 from pathlib import Path
 from typing import Any
@@ -46,12 +45,6 @@ class Settings:
         try:
             with open(self.config_file, "rb") as f:
                 self.config = tomllib.load(f)
-        except json.JSONDecodeError as e:
-            logging.error(f"载入配置错误: {e}")
-            self.config = {}
-        except FileNotFoundError:
-            logging.error(f"未找到配置文件: {self.config_file}")
-            self.config = {}
         except Exception as e:
             logging.error(f"载入配置错误: {e}")
             self.config = {}
