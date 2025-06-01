@@ -7,7 +7,7 @@ from typer import Argument
 from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
-from pycmd2.pip.conf import settings
+from pycmd2.pip.conf import conf
 
 cli = get_client()
 
@@ -19,7 +19,7 @@ def pip_install(libname: str, options: Optional[List[str]] = None) -> None:
             "pip",
             "install",
             libname,
-            *settings.get("trusted_pip_url"),
+            *conf.TRUSTED_PIP_URL,
             *run_opt,
         ]
     )

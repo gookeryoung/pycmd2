@@ -5,7 +5,7 @@
 
 from pycmd2.common.cli import get_client
 
-from .conf import settings
+from .conf import conf
 
 cli = get_client()
 
@@ -18,8 +18,8 @@ def pip_download_req() -> None:
             "-r",
             "requirements.txt",
             "-d",
-            settings.get("dest_dir"),
-            *settings.get("trusted_pip_url"),
+            conf.DEST_DIR,
+            *conf.TRUSTED_PIP_URL,
         ]
     )
 

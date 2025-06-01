@@ -1,12 +1,7 @@
 import atexit
 import logging
-from pathlib import Path
-from typing import Any
-from typing import Dict
-from typing import Optional
-from typing import Union
 
-from .cli import Client
+from pycmd2.common.cli import Client
 
 try:
     import tomllib
@@ -16,93 +11,68 @@ except ModuleNotFoundError:
 import tomli_w
 
 
-class Settings:
-    def __init__(
-        self,
-        config_dir: Union[str, Path],
-        config_name: str,
-        default_config: Optional[Dict[str, Any]] = None,
-    ):
-        """初始化配置管理器
+class TomlConfigMixin:
+    """Toml配置管理器基类
 
-        Args:
-            config_dir: 配置文件目录路径
-            default_config: 默认配置字典，当配置文件不存在时使用
-        """
-        self.config_dir = Path(config_dir)
-        self.config_file = self.config_dir / f"{config_name}.toml"
+    1. 通过继承该类，可以方便地管理配置文件
+    2. 通过重写 _load 和 _save 方法，可以自定义配置文件的载入和保存方式
+    3. 通过重写 _props 属性，可以自定义配置文件中保存的属性
+    4. 通过重写 NAME 属性，可以自定义配置文件名
 
-        if not self.config_dir.exists():
-            self.config_dir.mkdir(parents=True, exist_ok=True)
-            logging.info(f"创建配置目录: {self.config_dir}")
+    Args:
+        NAME: 配置文件名
 
-        if self.config_file.exists():
-            self.load_config()
-        else:
-            self.config = default_config if default_config else {}
+    """
 
-    def load_config(self):
+    NAME: str = ""
+
+    def __init__(self) -> None:
+        self._config_file = Client.SETTINGS_DIR / f"{self.NAME}.toml"
+        self._config = {}
+
+        # 载入配置
+        self._load()
+
+        # 获取属性
+        self._props = {
+            attr: getattr(self, attr)
+            for attr in dir(self)
+            if not attr.startswith("_") and not callable(getattr(self, attr))
+        }
+
+        # 写入配置数据到实例
+        if self._config:
+            for attr in self._props.keys():
+                if attr in self._config and self._config[attr] != getattr(
+                    self, attr
+                ):
+                    logging.info(f"设置属性: {attr} = {self._config[attr]}")
+                    setattr(self, attr, self._config[attr])
+                    self._props[attr] = self._config[attr]
+
+        # 保存配置数据到文件
+        atexit.register(self._save)
+
+    def _load(self):
+        if not self._config_file.exists():
+            logging.error(f"未找到配置文件: {self._config_file}")
+            self._config = {}
+            return
+
         try:
-            with open(self.config_file, "rb") as f:
-                self.config = tomllib.load(f)
+            with open(self._config_file, "rb") as f:
+                self._config = tomllib.load(f)
         except Exception as e:
             logging.error(f"载入配置错误: {e}")
-            self.config = {}
+            self._config = {}
         else:
-            logging.info(f"载入配置: {self.config_file}")
+            logging.info(f"载入配置: {self._config_file}")
 
-    def save_config(self):
+    def _save(self):
         try:
-            with open(self.config_file, "wb") as f:
-                tomli_w.dump(self.config, f)
+            with open(self._config_file, "wb") as f:
+                tomli_w.dump(self._props, f)
         except Exception as e:
             logging.error(f"保存配置错误: {e}")
         else:
-            logging.info(f"保存配置: {self.config_file}")
-
-    def get(self, key: str, default: Any = None) -> Any:
-        val = self.config.get(key, default)
-        if val is None:
-            logging.warning(f"未找到配置: {key} = {val}, 返回默认值: {default}")
-            return default
-
-        logging.info(f"获取配置: {key} = {val}")
-        return val
-
-    def set(self, key: str, value: Any):
-        self.config[key] = value
-        self.save_config()
-
-    def delete(self, key: str):
-        del self.config[key]
-        self.save_config()
-
-
-def get_settings(
-    config_name: str,
-    config_dir: Optional[Path] = None,
-    default_config: Optional[Dict[str, Any]] = None,
-) -> Settings:
-    """获取配置管理器实例
-
-    Args:
-        config_name: 配置文件名称，不需要扩展名
-        config_dir: 配置文件目录路径，默认为用户主目录下的 .pycmd2
-        default_config: 默认配置字典，当配置文件不存在时使用
-    例如:
-        {
-            "key": "value",
-            "key2": 123,
-            "key3": True,
-            "key4": ["a", "b", "c"],
-            "key5": {"subkey": "subvalue"}
-        }
-
-    Returns:
-        Settings 实例
-    """
-    if config_dir is None:
-        config_dir = Client.SETTINGS_DIR
-    settings = Settings(config_dir, config_name, default_config)
-    atexit.register(settings.save_config)
-    return settings
+            logging.info(f"保存配置: {self._config_file}")

@@ -1,17 +1,21 @@
+from typing import List
+
 from pycmd2.common.cli import get_client
-from pycmd2.common.settings import get_settings
+from pycmd2.common.settings import TomlConfigMixin
 
 cli = get_client()
 
-settings = get_settings(
-    "pip",
-    default_config=dict(
-        trusted_pip_url=[
-            "--trusted-host",
-            "pypi.tuna.tsinghua.edu.cn",
-            "-i",
-            "https://pypi.tuna.tsinghua.edu.cn/simple/",
-        ],
-        dest_dir=str(cli.CWD / "packages"),
-    ),
-)
+
+class PipConfig(TomlConfigMixin):
+    NAME = "pip"
+
+    TRUSTED_PIP_URL: List[str] = [
+        "--trusted-host",
+        "pypi.tuna.tsinghua.edu.cn",
+        "-i",
+        "https://pypi.tuna.tsinghua.edu.cn/simple/",
+    ]
+    DEST_DIR = str(cli.CWD / "packages")
+
+
+conf = PipConfig()
