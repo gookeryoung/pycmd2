@@ -21,7 +21,7 @@ from pycmd2.common.cli import get_client
 from pycmd2.git.git_push_all import main as git_push_all
 
 try:
-    import tomllib
+    import tomllib  # type: ignore
 except ModuleNotFoundError:
     import tomli as tomllib
 
@@ -123,7 +123,7 @@ class MakeOption:
 def _activate_py_env() -> None:
     extension = ".bat" if cli.IS_WINDOWS else ""
     actviate_path = cli.CWD / ".venv" / "Scripts" / f"activate{extension}"
-    cli.run_cmd([str(actviate_path)])
+    cli.run_cmdstr(str(actviate_path))
 
 
 class ActivateOption(MakeOption):
