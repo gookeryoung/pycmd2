@@ -4,9 +4,10 @@ from pathlib import Path
 from typing import List
 
 from typer import Argument
+from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
-from pycmd2.pip.conf import settings
+from pycmd2.pip.conf import conf
 from pycmd2.pip.pip_uninstall import pip_uninstall
 
 cli = get_client()
@@ -19,13 +20,13 @@ def pip_reinstall(libname: str) -> None:
             "pip",
             "install",
             libname,
-            *settings.get("trusted_pip_url"),
+            *conf.TRUSTED_PIP_URL,
         ]
     )
 
 
 @cli.app.command()
 def main(
-    libnames: List[Path] = Argument(help="待下载库清单"),  # noqa: B008
+    libnames: Annotated[List[Path], Argument(help="待下载库清单")],
 ):
     cli.run(pip_reinstall, libnames)
