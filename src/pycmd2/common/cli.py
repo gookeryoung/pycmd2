@@ -8,15 +8,31 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any
 from typing import Callable
+from typing import IO
 from typing import List
 from typing import Optional
 from typing import Sequence
 
 import typer
 from rich.console import Console
+from rich.logging import RichHandler
 
-from pycmd2.common.logger import log_stream
-from pycmd2.common.logger import setup_logging
+
+def _log_stream(
+    stream: IO[bytes],
+    logger_func: Callable[[str], None],
+) -> None:
+    # 读取字节流
+    for line_bytes in iter(stream.readline, b""):
+        try:
+            # 尝试UTF-8解码
+            line = line_bytes.decode("utf-8").strip()
+        except UnicodeDecodeError:
+            # 尝试GBK解码并替换错误字符
+            line = line_bytes.decode("gbk", errors="replace").strip()
+        if line:
+            logger_func(line)
+    stream.close()
 
 
 @dataclass
@@ -85,11 +101,11 @@ class Client:
 
         # 创建并启动记录线程
         stdout_thread = threading.Thread(
-            target=log_stream,
+            target=_log_stream,
             args=(proc.stdout, logging.info),
         )
         stderr_thread = threading.Thread(
-            target=log_stream,
+            target=_log_stream,
             args=(proc.stderr, logging.warning),
         )
         stdout_thread.start()
@@ -144,7 +160,11 @@ def get_client(
         Client: 获取实例
     """
 
-    setup_logging()
+    logging.basicConfig(
+        level=logging.INFO,
+        format="[*] %(message)s",
+        handlers=[RichHandler(markup=True)],
+    )
 
     return Client(
         app=typer.Typer(help=help),
