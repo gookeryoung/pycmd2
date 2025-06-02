@@ -1,15 +1,29 @@
 import atexit
 import logging
 import re
+import shutil
+from dataclasses import dataclass
 
 from pycmd2.common.cli import Client
 
 try:
-    import tomllib
+    import tomllib  # type: ignore
 except ModuleNotFoundError:
     import tomli as tomllib
 
 import tomli_w
+
+__all__ = [
+    "clear_config",
+    "to_snake_case",
+    "TomlConfigMixin",
+]
+
+
+def clear_config():
+    """清除配置文件"""
+    if Client.SETTINGS_DIR.exists():
+        shutil.rmtree(Client.SETTINGS_DIR)
 
 
 def to_snake_case(name):
@@ -24,6 +38,7 @@ def to_snake_case(name):
     return name.lower()
 
 
+@dataclass
 class TomlConfigMixin:
     """Toml配置管理器基类
 
@@ -39,6 +54,10 @@ class TomlConfigMixin:
         cls_name = to_snake_case(type(self).__name__).replace("_config", "")
         self._config_file = Client.SETTINGS_DIR / f"{cls_name}.toml"
         self._config = {}
+
+        # 创建父文件夹
+        if not Client.SETTINGS_DIR.exists():
+            Client.SETTINGS_DIR.mkdir(parents=True)
 
         # 载入配置
         self._load()
