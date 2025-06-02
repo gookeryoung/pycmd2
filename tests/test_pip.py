@@ -84,3 +84,21 @@ def test_pip_install_offline(typer_runner, dir_tests):
 
     result = typer_runner.invoke(cli.app, ["lxml", "typing-extensions"])
     assert result.exit_code == 0
+
+
+def test_pip_install_req(typer_runner, requirments_file, dir_tests):
+    os.chdir(dir_tests)
+
+    from pycmd2.pip.pip_install_req import cli
+
+    result = typer_runner.invoke(cli.app, [])
+    assert result.exit_code == 0
+
+
+def test_pip_uninstall_req(typer_runner, requirments_file, dir_tests):
+    os.chdir(dir_tests)
+
+    from pycmd2.pip.pip_uninstall_req import cli
+
+    result = typer_runner.invoke(cli.app, [])
+    assert result.exit_code == 0

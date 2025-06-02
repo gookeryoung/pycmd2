@@ -11,6 +11,7 @@ cli = get_client()
 
 
 def pip_download_req() -> None:
+    dest_dir = cli.CWD / "packages"
     cli.run_cmd(
         [
             "pip",
@@ -18,7 +19,7 @@ def pip_download_req() -> None:
             "-r",
             "requirements.txt",
             "-d",
-            conf.DEST_DIR,
+            str(dest_dir),
             *conf.TRUSTED_PIP_URL,
         ]
     )

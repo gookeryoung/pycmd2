@@ -15,7 +15,6 @@ class PipConfig(TomlConfigMixin):
         "-i",
         "https://pypi.tuna.tsinghua.edu.cn/simple/",
     ]
-    DEST_DIR = str(cli.CWD / "packages")
 
 
 conf = PipConfig()

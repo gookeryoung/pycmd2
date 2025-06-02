@@ -12,13 +12,15 @@ cli = get_client()
 
 
 def pip_download(libname: str) -> None:
+    dest_dir = cli.CWD / "packages"
+
     cli.run_cmd(
         [
             "pip",
             "download",
             libname,
             "-d",
-            conf.DEST_DIR,
+            str(dest_dir),
             *conf.TRUSTED_PIP_URL,
         ]
     )
