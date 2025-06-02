@@ -2,5 +2,5 @@
 
 __author__ = """gooker_young"""
 __email__ = "gooker_young@qq.com"
-__version__ = "0.4.6"
+__version__ = "0.4.7"
 __build_date__ = "2025-06-02"
