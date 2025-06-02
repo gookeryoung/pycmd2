@@ -23,9 +23,8 @@ from pycmd2.common.config import TomlConfigMixin
 class VideoConverterConfig(TomlConfigMixin):
     SRC_DIR = Path.home() / "Desktop"
     OUTPUT_DIR = Path.home() / "Desktop"
-    OUTPUT_NAME = "output"
-    FORMAT = "mp4"
-    QUALITY = "高"
+    TITLE = "FFmpeg 视频转换工具"
+    WIN_SIZE = [720, 0]
 
 
 conf = VideoConverterConfig()
@@ -34,8 +33,8 @@ conf = VideoConverterConfig()
 class VideoConverter(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("FFmpeg 视频转换工具")
-        self.setMinimumSize(500, 300)
+        self.setWindowTitle(conf.TITLE)
+        self.setMinimumSize(*conf.WIN_SIZE)
 
         # 主部件和布局
         self.main_widget = QWidget()
