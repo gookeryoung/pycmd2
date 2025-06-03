@@ -14,14 +14,12 @@ cli = get_client()
 
 
 # pip 配置信息
-CARGO_CONF_CONTENT = """# 字节跳动
-[source.crates-io]
+CARGO_CONF_CONTENT = """[source.crates-io]
 replace-with = 'rsproxy'
 
 [source.rsproxy]
 registry = "https://rsproxy.cn/crates.io-index"
 
-# 稀疏索引，要求 cargo >= 1.68
 [source.rsproxy-sparse]
 registry = "sparse+https://rsproxy.cn/index/"
 
