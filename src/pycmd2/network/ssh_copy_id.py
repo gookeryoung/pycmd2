@@ -1,4 +1,4 @@
-"""功能: 实现类似 ssh-copy-id 的功能。"""
+"""功能: 实现类似 ssh-copy-id 的功能."""
 
 import os
 from pathlib import Path
@@ -19,16 +19,15 @@ def ssh_copy_id(
     public_key_path: str = "~/.ssh/id_rsa.pub",
     timeout: int = 10,
 ) -> None:
-    """
-    实现类似 ssh-copy-id 的功能。
+    """实现类似 ssh-copy-id 的功能.
 
-    参数：
-    - hostname: 远程服务器地址
-    - port: SSH 端口
-    - username: 远程服务器用户名
-    - password: 远程服务器密码
-    - public_key_path: 本地公钥路径（默认 ~/.ssh/id_rsa.pub）
-    - timeout: 连接超时时间（秒）
+    Args:
+        hostname: 远程服务器地址
+        port: SSH 端口
+        username: 远程服务器用户名
+        password: 远程服务器密码
+        public_key_path: 本地公钥路径(默认 ~/.ssh/id_rsa.pub)
+        timeout: 连接超时时间(秒)
     """
     # 读取本地公钥内容
     expanded_path = os.path.expanduser(public_key_path)
@@ -41,9 +40,11 @@ def ssh_copy_id(
     try:
         ssh.connect(hostname, port, username, password, timeout=timeout)
     except paramiko.AuthenticationException as e:
-        raise Exception("认证失败，请检查用户名或密码") from e
+        msg = "认证失败, 请检查用户名或密码"
+        raise Exception(msg) from e
     except Exception as e:
-        raise Exception(f"连接失败：{str(e)}") from e
+        msg = f"连接失败: {e!s}"
+        raise Exception(msg) from e
 
     # 使用 SFTP 创建或更新 authorized_keys
     sftp = ssh.open_sftp()
@@ -65,7 +66,7 @@ def ssh_copy_id(
             with sftp.file(authorized_keys_path, "a") as f:
                 f.write(f"\n{public_key}\n")
 
-        # 设置文件权限（仅当文件新创建时）
+        # 设置文件权限
         sftp.chmod(authorized_keys_path, 0o600)
     finally:
         sftp.close()

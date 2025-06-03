@@ -1,5 +1,5 @@
-"""
-功能: 移除文件日期, 用创建日期替代.
+"""功能: 移除文件日期, 用创建日期替代.
+
 命令: filedate.exe [TARGETS ...]
 特性:
  - 日期格式为: YYYYMMDD
@@ -20,6 +20,8 @@ from pycmd2.common.config import TomlConfigMixin
 
 
 class FileDateConfig(TomlConfigMixin):
+    """配置项."""
+
     DETECT_SEPERATORS: str = "-_#.~"
     SEPERATOR: str = "_"
 
@@ -39,17 +41,17 @@ def remove_date_prefix(
     Returns:
         移除日期后文件名
 
-    >>> remove_date_prefix('20211211_hello.txt')
+    >>> remove_date_prefix("20211211_hello.txt")
     'hello.txt'
-    >>> remove_date_prefix('20191112-my-file.xls')
+    >>> remove_date_prefix("20191112-my-file.xls")
     'my-file.xls'
-    >>> remove_date_prefix('20201211my-file.xls')
+    >>> remove_date_prefix("20201211my-file.xls")
     'my-file.xls'
-    >>> remove_date_prefix('2022-my-file.xls')
+    >>> remove_date_prefix("2022-my-file.xls")
     '2022-my-file.xls'
     """
     pattern = re.compile(
-        r"(20|19)\d{2}((0[1-9])|(1[012]))((0[1-9])|([12]\d)|(3[01]))"
+        r"(20|19)\d{2}((0[1-9])|(1[012]))((0[1-9])|([12]\d)|(3[01]))",
     )
     match = re.search(pattern, filename)
 
@@ -69,7 +71,7 @@ def remove_date_prefix(
 def rename_target(
     filepath: Path,
 ) -> Tuple[str, str]:
-    """更新日期标识, 如果没有则创建, 按照 YYYYMMDD 格式
+    """更新日期标识, 如果没有则创建, 按照 YYYYMMDD 格式.
 
     Args:
         filepath: 文件路径
@@ -79,10 +81,11 @@ def rename_target(
     """
     modified, created = filepath.stat().st_mtime, filepath.stat().st_ctime
     time_mark = time.strftime(
-        "%Y%m%d", time.localtime(max((modified, created)))
+        "%Y%m%d",
+        time.localtime(max((modified, created))),
     )
     dst_name = filepath.with_name(
-        f"{time_mark}{conf.SEPERATOR}{remove_date_prefix(filepath.name)}"
+        f"{time_mark}{conf.SEPERATOR}{remove_date_prefix(filepath.name)}",
     )
     filepath.rename(dst_name)
     return filepath.name, dst_name.name

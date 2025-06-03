@@ -1,6 +1,4 @@
-"""
-功能: 加密/解密当前路径下所有pdf文件。
-"""
+"""功能: 加密/解密当前路径下所有pdf文件."""
 
 import logging
 import typing
@@ -15,11 +13,11 @@ from typer import Argument
 
 from pycmd2.common.cli import get_client
 
-cli = get_client(help="pdf 加密/解密工具.")
+cli = get_client(help_doc="pdf 加密/解密工具.")
 
 
 def is_encrypted(filepath: Path) -> bool:
-    """判断文件是否加密
+    """判断文件是否加密.
 
     Args:
         filepath (Path): 文件路径
@@ -34,7 +32,7 @@ def encrypt_pdf(
     filepath: Path,
     password: str,
 ) -> Tuple[Path, Optional[Path]]:
-    """加密单个pdf文件
+    """加密单个pdf文件.
 
     Args:
         filepath (Path): 文件路径
@@ -61,7 +59,9 @@ def encrypt_pdf(
             writer.write(f)
         return filepath, enc_pdf_file
     except OSError:
-        logging.error("写入加密文件[{enc_pdf_file.name}]失败, 错误信息: {e}")
+        logging.exception(
+            "写入加密文件[{enc_pdf_file.name}]失败, 错误信息: {e}"
+        )
         return filepath, None
 
 
@@ -69,7 +69,7 @@ def decrypt_pdf(
     filepath: Path,
     password: str,
 ) -> typing.Tuple[Path, typing.Optional[Path]]:
-    """解密 PDF 文件
+    """解密 PDF 文件.
 
     Args:
         filepath (Path): 文件路径
@@ -108,15 +108,13 @@ def decrypt_pdf(
 @cli.app.command("l", help="显示 pdf 文件列表, 别名: list")
 @cli.app.command("list", help="显示 pdf 文件列表")
 def list_pdf() -> Tuple[List[Path], List[Path]]:
-    """显示当前文件夹中的 pdf 文件列表
+    """显示当前文件夹中的 pdf 文件列表.
 
     Returns:
         Tuple[List[Path], List[Path]]: 返回未加密、已加密 pdf 文件清单
     """
-    un_encrypted = list(
-        _ for _ in cli.CWD.rglob("*.pdf") if not is_encrypted(_)
-    )
-    encrypted = list(_ for _ in cli.CWD.rglob("*.pdf") if is_encrypted(_))
+    un_encrypted = [_ for _ in cli.CWD.rglob("*.pdf") if not is_encrypted(_)]
+    encrypted = [_ for _ in cli.CWD.rglob("*.pdf") if is_encrypted(_)]
 
     logging.info(f"加密文件: [green bold]{encrypted}")
     logging.info(f"未加密文件: [green bold]{un_encrypted}")
@@ -128,7 +126,7 @@ def list_pdf() -> Tuple[List[Path], List[Path]]:
 def decrypt(
     password: str = Argument(help="解密密码"),
 ) -> None:
-    """执行解密操作
+    """执行解密操作.
 
     Args:
         password (str, optional): 解密密码
@@ -147,7 +145,7 @@ def decrypt(
 def encrypt(
     password: str = Argument(help="加密密码"),
 ) -> None:
-    """执行加密操作
+    """执行加密操作.
 
     Args:
         password (str, optional): 加密密码

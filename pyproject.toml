@@ -67,12 +67,10 @@ mkp = "pycmd2.make.make_python:cli.app"
 ssh-copy-id = "pycmd2.network.ssh_copy_id:cli.app"
 
 # office commands
-docscan = "pycmd2.office.docscan.cli:main"
 mindnote = "pycmd2.office.mindnote.cli:main"
 pdfc = "pycmd2.office.pdf_crypt:cli.app"
 pdfmrg = "pycmd2.office.pdf_merge:cli.app"
 pdfspl = "pycmd2.office.pdf_split:cli.app"
-pedsheet = "pycmd2.office.pedsheet.pedsheet:main"
 
 # pip commands
 pipd = "pycmd2.pip.pip_download:cli.app"
@@ -146,11 +144,48 @@ output-format = "full"
 exclude = ["**/ui_*.py", "**/*_rc.py"]
 
 [tool.ruff.lint]
-select = ["B", "E", "F", "I", "UP", "W"]
+select = [
+  "E",   # Pycodestyle 错误
+  "F",   # Pyflakes
+  "W",   # Pycodestyle 警告
+  "I",   # isort (导入排序)
+  "UP",  # pyupgrade (现代化语法)
+  "C",   # flake8-comprehensions
+  "B",   # flake8-bugbear
+  "Q",   # flake8-quotes
+  "A",   # flake8-builtins
+  "RUF", # Ruff 特有规则
+  "D",   # pydocstyle (文档字符串)
+  "PIE", # flake8-pie
+  "RET", # flake8-return
+  "SIM", # flake8-simplify
+  "TID", # tidy imports
+  "ERA", # 消除无用注释
+  "EM",  # 错误消息改进
+]
 
+# 忽略的规则
+ignore = [
+  "D100",
+  "D103",
+  "D107",
+  "D203", # D 规则中与 Black 冲突的部分
+  "D212", # 多行文档字符串首行是否空行
+]
+
+# 格式化配置 (Ruff 的格式化器)
+[tool.ruff.format]
+quote-style = "double"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+# 导入排序配置
 [tool.ruff.lint.isort]
 force-single-line = true
 order-by-type = false
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"  # 可选: "pep257", "numpy", "google"
 
 # ----------------------- uv-dependencies ------------------------ #
 [tool.uv]
@@ -164,6 +199,7 @@ dev-dependencies = [
   "pytest-html>=4.1.1",
   "pytest-mock>=3.14.0",
   "pytest>=8.3.4",
+  "ruff>=0.11.12",
   "sphinx-autobuild>=2021.3.14",
   "sphinx-rtd-theme",
   "tox>=4.24.1",

@@ -1,6 +1,6 @@
-"""
-功能: 将指定图像转为灰度图
-命令: imgr.exe [-b?] -w [width?] -d [directory?]
+"""功能: 将指定图像转为灰度图.
+
+命令: imgr [-b?] -w [width?] -d [directory?]
 """
 
 import logging
@@ -15,27 +15,31 @@ from typer import Option
 
 from pycmd2.common.cli import get_client
 
-cli = get_client(help="图片转换工具.")
+cli = get_client(help_doc="图片转换工具.")
 
 
 def is_valid_image(file_path: Path):
+    """综合校验文件是否为有效图片(支持 JPEG/PNG/GIF/BMP 等常见格式).
+
+    Arguments:
+        file_path: 待校验文件路径
+
+    Returns:
+        bool: 是否为有效图片
     """
-    综合校验文件是否为有效图片（支持 JPEG/PNG/GIF/BMP 等常见格式）
-    返回：布尔值，True 表示有效图片文件
-    """
-    # 基础校验：文件存在性及大小
+    # 基础校验: 文件存在性及大小.
     if not os.path.exists(file_path):
         return False
     if os.path.getsize(file_path) == 0:
         return False
 
-    # 第一层：扩展名校验（快速过滤）
+    # 第一层: 扩展名校验(快速过滤).
     img_exts = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
     ext = os.path.splitext(file_path)[1].lower()
     if ext not in img_exts:
         return False
 
-    # 第二层：文件头校验（魔数校验）
+    # 第二层: 文件头校验(魔数校验).
     magic_numbers = {
         b"\xff\xd8\xff": "jpeg",  # JPEG
         b"\x89PNG\r\n\x1a\n": "png",
@@ -52,13 +56,13 @@ def is_valid_image(file_path: Path):
     except OSError:
         return False
 
-    # 第三层：图像完整性验证
+    # 第三层: 图像完整性验证.
     try:
         with Image.open(file_path) as img:
             img.verify()
-            if img.format and img.format.lower() not in [
-                v for v in magic_numbers.values()
-            ]:
+            if img.format and img.format.lower() not in list(
+                magic_numbers.values()
+            ):
                 return False
     except (OSError, SyntaxError, ValueError):
         return False
@@ -67,11 +71,12 @@ def is_valid_image(file_path: Path):
 
 
 def convert_img(img_path: pathlib.Path, black_mode: bool, width: int):
-    """转化图片
+    """转化图片.
 
-    :param img_path: 待处理图片路径
-    :param black_mode: 黑白模式
-    :param width: 缩放尺寸宽度
+    Arguments:
+        img_path: 待处理图片路径
+        black_mode: 黑白模式
+        width: 缩放尺寸宽度
     """
     if not img_path.exists():
         raise FileNotFoundError(img_path)
@@ -97,10 +102,10 @@ def main(
     width: int = Argument(None, help="缩放尺寸宽度"),
     black: bool = Option(False, help="黑白模式"),
 ):
-    image_files = list(
+    image_files = [
         _ for _ in pathlib.Path(cli.CWD).glob("*.*") if is_valid_image(_)
-    )
-    if not len(image_files):
+    ]
+    if not image_files:
         logging.error("未找到待处理图片文件")
         return
 

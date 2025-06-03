@@ -1,6 +1,4 @@
-"""
-功能: 合并当前目录下所有 pdf 文件, 最多包含两层目录.
-"""
+"""功能: 合并当前目录下所有 pdf 文件, 最多包含两层目录."""
 
 import dataclasses
 import logging
@@ -14,7 +12,7 @@ import pypdf
 from pycmd2.common.cli import get_client
 from pycmd2.office.pdf_crypt import is_encrypted
 
-cli = get_client(help="pdf 合并工具.")
+cli = get_client(help_doc="pdf 合并工具.")
 
 # 跳过的文件名或者文件夹名
 IGNORED_FOLDERS = [".git", "__pycache__"]
@@ -29,23 +27,34 @@ page_num = 0
 
 @dataclasses.dataclass
 class PdfFileInfo:
+    """pdf 文件信息."""
+
     prefix: str
     files: List[Path]
     children: List["PdfFileInfo"]
 
     def count(self) -> int:
-        return len(self.files) + sum([x.count() for x in self.children])
+        """计算文件数量."""
+        return len(self.files) + sum(x.count() for x in self.children)
 
-    def __str__(self):
-        fs = list(x.name for x in self.files)
+    def __str__(self) -> str:
+        """打印信息."""
+        fs = [x.name for x in self.files]
         return f"prefix={self.prefix}, files={fs}, children={self.children}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """打印信息."""
         return self.__str__()
 
 
 def relative_depth(search_dir: Path, root_dir: Path) -> int:
-    """搜索文件夹相对根文件夹深度"""
+    """搜索文件夹相对根文件夹深度.
+
+    Parameters:
+        search_dir (Path): 当前搜索目录
+        root_dir (Path): 根目录
+
+    """
     try:
         relative_path = search_dir.relative_to(root_dir)
         return len(relative_path.parts)
@@ -58,14 +67,11 @@ def search_directory(
     search_dir: Path,
     root_dir: Path,
 ) -> Optional[PdfFileInfo]:
-    """搜索目录下的所有pdf文件
+    """搜索目录下的所有pdf文件.
 
     Args:
         search_dir (Path): 当前搜索目录
         root_dir (Path): 根目录
-
-    Returns:
-        Optional[PdfFileInfo]: pdf 文件信息
     """
     if relative_depth(search_dir, root_dir) > MAX_SEARCH_DEPTH:
         return None
@@ -81,12 +87,12 @@ def search_directory(
         if pdf_info is not None:
             children.append(pdf_info)
 
-    pdf_files = list(
+    pdf_files = [
         x
         for x in sorted(search_dir.glob("*.pdf"))
         if not is_encrypted(x) and MERGE_MARK not in x.stem
-    )
-    if not len(pdf_files) and not len(children):
+    ]
+    if not pdf_files and not children:
         return None
 
     prefix = search_dir.relative_to(root_dir).name
@@ -94,7 +100,7 @@ def search_directory(
 
 
 def merge_file_info(info: PdfFileInfo, root_dir: Path, writer: pypdf.PdfWriter):
-    """按照 PdfFileInfo 进行合并
+    """按照 PdfFileInfo 进行合并.
 
     Args:
         info (PdfFileInfo): 已搜索 PDFInfo

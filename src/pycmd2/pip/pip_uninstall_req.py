@@ -1,4 +1,4 @@
-"""功能：卸载库, 使用 requirements.txt"""
+"""功能: 卸载库, 使用 requirements.txt."""
 
 from pycmd2.common.cli import get_client
 

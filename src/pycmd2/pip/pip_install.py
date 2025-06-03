@@ -1,4 +1,4 @@
-"""功能：pip 安装库到本地"""
+"""功能: pip 安装库到本地."""
 
 from typing import List
 from typing import Optional
@@ -21,7 +21,7 @@ def pip_install(libname: str, options: Optional[List[str]] = None) -> None:
             libname,
             *conf.TRUSTED_PIP_URL,
             *run_opt,
-        ]
+        ],
     )
 
 

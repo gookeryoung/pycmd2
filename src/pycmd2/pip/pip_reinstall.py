@@ -1,4 +1,4 @@
-"""功能：重新安装库"""
+"""功能: 重新安装库."""
 
 from pathlib import Path
 from typing import List
@@ -21,7 +21,7 @@ def pip_reinstall(libname: str) -> None:
             "install",
             libname,
             *conf.TRUSTED_PIP_URL,
-        ]
+        ],
     )
 
 

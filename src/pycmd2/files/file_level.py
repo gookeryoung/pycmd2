@@ -1,5 +1,5 @@
-"""
-功能: 重命名文件级别后缀
+"""功能: 重命名文件级别后缀.
+
 用法: filelevel.exe -f FILES [FILES ...] -l level
 特性:
  - 重命名格式为 '(PUB)'
@@ -8,6 +8,8 @@
 import typing
 from functools import partial
 from pathlib import Path
+from typing import ClassVar
+from typing import Dict
 from typing import List
 
 from typer import Argument
@@ -18,22 +20,25 @@ from pycmd2.common.config import TomlConfigMixin
 
 
 class FileLevelConfig(TomlConfigMixin):
-    LEVELS: typing.Dict[str, str] = {
+    """文件级别配置."""
+
+    LEVELS: ClassVar[Dict[str, str]] = {
         "0": "",
         "1": "PUB,NOR",
         "2": "INT",
         "3": "CON",
         "4": "CLA",
     }
-    BRACKETS: List[str] = [" ([_（【-", " )]_）】"]
+    BRACKETS: ClassVar[List[str]] = [" ([_（【-", " )]_）】"]  # noqa: RUF001
 
 
 cli = get_client()
 conf = FileLevelConfig()
 
 
-# 文件级别定义
 class FileLevel(typing.NamedTuple):
+    """文件级别定义."""
+
     code: int
     names: typing.List[str]
 
@@ -65,10 +70,11 @@ def remove_level_and_digital_mark(
 ) -> str:
     for file_level in levels[1:]:
         filename = remove_marks(filename, file_level.names)
-    filename = remove_marks(
-        filename, list("".join([str(x) for x in range(1, 10)]))
+
+    return remove_marks(
+        filename,
+        list("".join([str(x) for x in range(1, 10)])),
     )
-    return filename
 
 
 def add_level_mark(
@@ -81,7 +87,7 @@ def add_level_mark(
         f"{cleared_stem}({levels[filelevel].names[0]})"
         if filelevel
         else cleared_stem
-    )  # noqa
+    )
 
     if dst_stem == filepath.stem:
         print(f"destination stem [{dst_stem}] equals to current.")

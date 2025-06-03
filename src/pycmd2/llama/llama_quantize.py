@@ -1,4 +1,4 @@
-"""GGUF量化转换GUI工具，用于将F16格式的GGUF文件转换为其他主流量化格式。"""
+"""GGUF量化转换GUI工具, 用于将F16格式的GGUF文件转换为其他主流量化格式."""
 
 import os
 import pathlib
@@ -29,15 +29,14 @@ setup_pyside2_env()
 
 
 def _process_gguf_stem(filename: str):
-    """处理文件名，移除可能的F16后缀"""
-
+    """处理文件名, 移除可能的F16后缀."""
     if filename.upper().endswith("-F16"):
         filename = filename[:-4]  # 移除-F16后缀
     return filename
 
 
 class QuantizationWorker(QThread):
-    """量化执行线程Worker"""
+    """量化执行线程Worker."""
 
     progress_msg_updated = Signal(str)
     progress_count_updated = Signal(int)
@@ -54,6 +53,7 @@ class QuantizationWorker(QThread):
         self.completed_files = 0
 
     def run(self):
+        """执行量化转换任务."""
         try:
             for quant_type in self.quant_types:
                 output_file: pathlib.Path = (
@@ -61,7 +61,7 @@ class QuantizationWorker(QThread):
                 )
 
                 self.progress_msg_updated.emit(
-                    f"正在转换到 {quant_type} 格式..."
+                    f"正在转换到 {quant_type} 格式...",
                 )
 
                 # 构建命令行参数
@@ -92,26 +92,26 @@ class QuantizationWorker(QThread):
 
                 if process.returncode == 0:
                     self.progress_msg_updated.emit(
-                        f"成功生成: {str(output_file)}"
+                        f"成功生成: {output_file!s}",
                     )
                 else:
                     self.progress_msg_updated.emit(f"转换 {quant_type} 失败")
 
             self.finished.emit(True)
         except Exception as e:
-            self.progress_msg_updated.emit(f"发生错误: {str(e)}")
+            self.progress_msg_updated.emit(f"发生错误: {e!s}")
             self.finished.emit(False)
 
 
 class GGUFQuantizerGUI(QMainWindow):
-    """GGUF量化转换工具GUI界面"""
+    """GGUF量化转换工具GUI界面."""
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle("GGUF量化转换工具")
         self.setGeometry(100, 100, 600, 500)
 
-        self.input_file: pathlib.Path = pathlib.Path("")
+        self.input_file: pathlib.Path = pathlib.Path()
         self.worker: typing.Optional[QuantizationWorker] = None
         self.quant_types = {
             "Q2_K": "Q2_K (极低精度, 最小尺寸)",
@@ -132,6 +132,7 @@ class GGUFQuantizerGUI(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
+        """初始化界面."""
         main_widget = QWidget()
         main_layout = QVBoxLayout()
 
@@ -197,8 +198,12 @@ class GGUFQuantizerGUI(QMainWindow):
         self.setCentralWidget(main_widget)
 
     def select_file(self):
+        """选择文件."""
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "选择F16格式的GGUF文件", "", "GGUF Files (*.gguf)"
+            self,
+            "选择F16格式的GGUF文件",
+            "",
+            "GGUF Files (*.gguf)",
         )
 
         if file_path:
@@ -209,8 +214,8 @@ class GGUFQuantizerGUI(QMainWindow):
             # 检查文件名是否包含F16
             if "-F16" not in filename.upper():
                 self.output_text.append(
-                    "注意: 输入文件名不包含F16后缀，"
-                    "输出文件名将直接添加量化类型"
+                    "注意: 输入文件名不包含F16后缀,"
+                    "输出文件名将直接添加量化类型",
                 )
                 self._scroll_to_bottom()
 
@@ -223,13 +228,13 @@ class GGUFQuantizerGUI(QMainWindow):
             self._scroll_to_bottom()
 
     def check_existing_quant_files(self):
-        """检查当前目录下已存在的量化文件，并更新checkbox状态"""
+        """检查当前目录下已存在的量化文件, 并更新checkbox状态."""
         if not self.input_file:
             return
 
         dir_path = self.input_file.parent
 
-        for quant_type in self.quant_types.keys():
+        for quant_type in self.quant_types:
             filename = (
                 f"{_process_gguf_stem(self.input_file.stem)}-{quant_type}.gguf"
             )
@@ -238,21 +243,22 @@ class GGUFQuantizerGUI(QMainWindow):
                 self.quant_checks[quant_type].setChecked(False)
                 self.quant_checks[quant_type].setEnabled(False)
                 self.quant_checks[quant_type].setText(
-                    f"{self.quant_types[quant_type]} (已存在)"
+                    f"{self.quant_types[quant_type]} (已存在)",
                 )
             else:
                 self.quant_checks[quant_type].setEnabled(True)
                 self.quant_checks[quant_type].setText(
-                    self.quant_types[quant_type]
+                    self.quant_types[quant_type],
                 )
                 self.quant_checks[quant_type].setStyleSheet("")
 
     def _scroll_to_bottom(self):
-        """滚动输出框到底部"""
+        """滚动输出框到底部."""
         scrollbar = self.output_text.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
 
     def start_conversion(self):
+        """开始转换."""
         selected_quants: typing.List[str] = [
             q for q, check in self.quant_checks.items() if check.isChecked()
         ]
@@ -269,7 +275,7 @@ class GGUFQuantizerGUI(QMainWindow):
 
         self.convert_btn.setEnabled(False)
         self.progress_bar.setValue(0)
-        self.output_text.append(f"开始转换: {str(self.input_file)}")
+        self.output_text.append(f"开始转换: {self.input_file!s}")
         self.output_text.append(f"选择的量化类型: {', '.join(selected_quants)}")
         self.output_text.append(f"将生成 {len(selected_quants)} 个量化文件")
 
@@ -281,22 +287,25 @@ class GGUFQuantizerGUI(QMainWindow):
 
     @Slot(str)
     def update_progress_msg(self, message: str):
+        """更新进度信息."""
         self.output_text.append(message)
         self.output_text.ensureCursorVisible()
         self._scroll_to_bottom()
 
     @Slot(int)
     def update_progress_value(self, value):
+        """更新进度条."""
         self.progress_bar.setValue(value)
 
     @Slot(bool)
     def conversion_finished(self, success):
+        """转换完成回调函数."""
         self.convert_btn.setEnabled(True)
         if success:
-            self.output_text.append("所有量化转换完成！")
+            self.output_text.append("所有量化转换完成!")
             self.progress_bar.setValue(100)
         else:
-            self.output_text.append("量化转换过程中出现错误")
+            self.output_text.append("量化转换过程中出现错误!")
 
 
 def main():
@@ -304,7 +313,9 @@ def main():
 
     # 检查是否安装了llama.cpp
     try:
-        subprocess.run(["llama-quantize", "--help"], capture_output=True)
+        subprocess.run(
+            ["llama-quantize", "--help"], capture_output=True, check=False
+        )
     except FileNotFoundError:
         print("错误: 未找到llama.cpp/quantize工具")
         print("请确保已编译llama.cpp并将quantize工具放在llama.cpp/目录下")
@@ -313,7 +324,3 @@ def main():
     window = GGUFQuantizerGUI()
     window.show()
     sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()

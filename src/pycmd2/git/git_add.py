@@ -1,5 +1,5 @@
-"""
-功能：增加文件到 git 目录, 显示新增的文件清单
+"""功能: 增加文件到 git 目录, 显示新增的文件清单.
+
 命令: gitadd
 """
 
@@ -17,26 +17,28 @@ cli = get_client()
 
 @dataclass
 class GitAddFileStatus:
-    """Git文件状态数据类
+    """Git文件状态数据类.
 
-    @param status: 文件状态, A: 新增, M: 修改
-    @param filepath: 文件路径
+    Properties:
+        status: 文件状态, A: 新增, M: 修改
+        filepath: 文件路径
     """
 
     status: str
     filepath: Path
 
     def __hash__(self) -> int:
-        """计算哈希值, 用于在集合中唯一标识"""
+        """计算哈希值, 用于在集合中唯一标识."""
         return hash((self.status, str(self.filepath)))
 
 
 def get_changed_files_info() -> Set[GitAddFileStatus]:
-    """获取git状态变化的文件列表"""
+    """获取git状态变化的文件列表."""
     result = subprocess.run(
         ["git", "status", "--porcelain"],
         capture_output=True,
         text=True,
+        check=False,
     )
     files: Set[GitAddFileStatus] = set()
     if result.returncode == 0:

@@ -14,8 +14,7 @@ cli = get_client()
 
 
 def find_executable(name: str, fuzzy: bool):
-    """跨平台查找可执行文件路径"""
-
+    """跨平台查找可执行文件路径."""
     try:
         # 根据系统选择命令
         match_name = name if not fuzzy else f"*{name}*.exe"
@@ -45,7 +44,8 @@ def find_executable(name: str, fuzzy: bool):
 def main(
     commmands: Annotated[List[str], Argument(help="待查询命令")],
     fuzzy: Annotated[
-        bool, Option("--fuzzy", "-F", help="是否模糊匹配")
+        bool,
+        Option("--fuzzy", "-F", help="是否模糊匹配"),
     ] = False,
 ):
     for cmd in commmands:

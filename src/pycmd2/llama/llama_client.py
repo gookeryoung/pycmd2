@@ -25,7 +25,7 @@ setup_pyside2_env()
 
 
 class LlamaWorker(QThread):
-    """工作线程，用于与llama-server通信"""
+    """工作线程, 用于与llama-server通信."""
 
     response_received = Signal(str)
     error_occurred = Signal(str)
@@ -50,6 +50,7 @@ class LlamaWorker(QThread):
         self._is_running = True
 
     def run(self):
+        """运行线程."""
         try:
             headers = {"Content-Type": "application/json"}
             data = {
@@ -69,8 +70,8 @@ class LlamaWorker(QThread):
             ) as response:
                 if response.status_code != 200:
                     self.error_occurred.emit(
-                        f"Error: {response.status_code} - {response.text}"
-                    )  # noqa
+                        f"Error: {response.status_code} - {response.text}",
+                    )
                     return
 
                 buffer = ""
@@ -90,15 +91,18 @@ class LlamaWorker(QThread):
                                 continue
 
         except Exception as e:
-            self.error_occurred.emit(f"Connection error: {str(e)}")
+            self.error_occurred.emit(f"Connection error: {e!s}")
         finally:
             self.finished.emit()
 
     def stop(self):
+        """停止工作线程."""
         self._is_running = False
 
 
 class LlamaChatApp(QMainWindow):
+    """llama-chat客户端."""
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Llama Local Model Tool")
@@ -111,6 +115,7 @@ class LlamaChatApp(QMainWindow):
         self.worker_thread = None
 
     def init_ui(self):
+        """初始化UI."""
         # 主窗口布局
         main_widget = QWidget()
         main_layout = QVBoxLayout()
@@ -196,7 +201,7 @@ class LlamaChatApp(QMainWindow):
         self.statusBar().showMessage("准备就绪")
 
     def test_connection(self):
-        """测试与llama-server的连接"""
+        """测试与llama-server的连接."""
         server_url = self.server_url_input.text().strip()
         if not server_url:
             self.statusBar().showMessage("请输入服务器地址")
@@ -208,13 +213,13 @@ class LlamaChatApp(QMainWindow):
                 self.statusBar().showMessage("连接成功!")
             else:
                 self.statusBar().showMessage(
-                    f"连接失败: {response.status_code}"
+                    f"连接失败: {response.status_code}",
                 )
         except Exception as e:
-            self.statusBar().showMessage(f"连接错误: {str(e)}")
+            self.statusBar().showMessage(f"连接错误: {e!s}")
 
     def send_prompt(self):
-        """发送提示词到llama-server"""
+        """发送提示词到llama-server."""
         if self.worker_thread and self.worker_thread.isRunning():
             self.statusBar().showMessage("请等待当前请求完成")
             return
@@ -258,7 +263,7 @@ class LlamaChatApp(QMainWindow):
         self.worker_thread.start()
 
     def stop_generation(self):
-        """停止生成响应"""
+        """停止生成响应."""
         if self.worker_thread and self.worker_thread.isRunning():
             self.worker_thread.stop()
             self.statusBar().showMessage("生成已停止")
@@ -267,7 +272,7 @@ class LlamaChatApp(QMainWindow):
         self,
         text: str,
     ):
-        """更新聊天显示区域"""
+        """更新聊天显示区域."""
         # 移动光标到最后
         cursor = self.chat_display.textCursor()
         cursor.movePosition(QTextCursor.End)
@@ -275,10 +280,10 @@ class LlamaChatApp(QMainWindow):
         # 检查是否已经有"AI:"前缀
         current_text = self.chat_display.toPlainText()
         if current_text.endswith("AI:"):
-            # 第一次更新，直接添加文本
+            # 第一次更新, 直接添加文本
             self.chat_display.insertPlainText(f" {text}")
         else:
-            # 后续更新，替换最后一行
+            # 后续更新, 替换最后一行
             lines = current_text.split("\n")
             lines[-1] = f"AI: {text}"
             self.chat_display.setPlainText("\n".join(lines))
@@ -287,7 +292,7 @@ class LlamaChatApp(QMainWindow):
         self.chat_display.ensureCursorVisible()
 
     def append_to_chat(self, text, is_user=False):
-        """添加文本到聊天显示区域"""
+        """添加文本到聊天显示区域."""
         cursor = self.chat_display.textCursor()
         cursor.movePosition(QTextCursor.End)
 
@@ -300,12 +305,12 @@ class LlamaChatApp(QMainWindow):
         self.chat_display.setTextColor(Qt.black)  # 重置为默认颜色
 
     def handle_error(self, error_msg):
-        """处理错误"""
+        """处理错误."""
         self.append_to_chat(f"Error: {error_msg}")
         self.statusBar().showMessage(error_msg)
 
     def on_finished(self):
-        """线程完成时的处理"""
+        """线程完成时的处理."""
         self.send_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
         self.statusBar().showMessage("生成完成")
@@ -328,7 +333,3 @@ def main():
     window.show()
 
     sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()

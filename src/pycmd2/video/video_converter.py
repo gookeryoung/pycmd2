@@ -1,6 +1,8 @@
 import logging
 import os
 from pathlib import Path
+from typing import ClassVar
+from typing import List
 
 from PySide2.QtCore import QProcess
 from PySide2.QtCore import QStandardPaths
@@ -21,16 +23,20 @@ from pycmd2.common.config import TomlConfigMixin
 
 
 class VideoConverterConfig(TomlConfigMixin):
+    """配置项."""
+
     SRC_DIR = Path.home() / "Desktop"
     OUTPUT_DIR = Path.home() / "Desktop"
     TITLE = "FFmpeg 视频转换工具"
-    WIN_SIZE = [720, 0]
+    WIN_SIZE: ClassVar[List[int]] = [720, 0]
 
 
 conf = VideoConverterConfig()
 
 
 class VideoConverter(QMainWindow):
+    """视频转换工具."""
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle(conf.TITLE)
@@ -111,11 +117,12 @@ class VideoConverter(QMainWindow):
 
         # 设置默认输出路径为文档目录
         docs_path = QStandardPaths.writableLocation(
-            QStandardPaths.DocumentsLocation
+            QStandardPaths.DocumentsLocation,
         )
         self.output_path.setText(docs_path)
 
     def select_input_file(self):
+        """选择输入文件."""
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             "选择视频文件",
@@ -129,11 +136,13 @@ class VideoConverter(QMainWindow):
             self.output_name.setText(f"{base_name}_converted")
 
     def select_output_dir(self):
+        """选择输出目录."""
         dir_path = QFileDialog.getExistingDirectory(self, "选择输出目录")
         if dir_path:
             self.output_path.setText(dir_path)
 
     def start_conversion(self):
+        """开始转换."""
         input_file = self.input_path.text()
         output_dir = self.output_path.text()
         output_name = self.output_name.text()
@@ -161,7 +170,7 @@ class VideoConverter(QMainWindow):
             reply = QMessageBox.question(
                 self,
                 "文件已存在",
-                "输出文件已存在，是否覆盖?",
+                "输出文件已存在, 是否覆盖?",
                 QMessageBox.Yes | QMessageBox.No,
             )
             if reply == QMessageBox.No:
@@ -180,11 +189,9 @@ class VideoConverter(QMainWindow):
 
         cmd.extend(["-c:a", "aac", "-strict", "experimental", "-b:a", "192k"])
         cmd.append(output_file)
+        logging.info("执行命令:", " ".join(cmd))
 
-        # 显示命令（调试用）
-        print("执行命令:", " ".join(cmd))
-
-        # 禁用按钮，防止重复点击
+        # 禁用按钮, 防止重复点击
         self.convert_button.setEnabled(False)
         self.progress_bar.setValue(0)
 
@@ -192,29 +199,32 @@ class VideoConverter(QMainWindow):
         self.process.start(cmd[0], cmd[1:])
 
     def handle_output(self):
+        """处理标准输出."""
         output = self.process.readAllStandardOutput().data().decode()
-        print("输出:", output)
+        logging.info("输出:", output)
         # 这里可以解析进度信息来更新进度条
 
     def handle_error(self):
+        """处理错误输出."""
         error = self.process.readAllStandardError().data().decode()
-        print("错误:", error)
+        logging.error("错误:", error)
 
         # 尝试从错误输出中解析进度
         if "time=" in error:
             time_pos = error.find("time=")
             time_str = error[time_pos + 5 : time_pos + 13]
             try:
-                # 简单的时间进度计算（实际应用中需要更复杂的解析）
+                # 简单的时间进度计算
                 h, m, s = map(float, time_str.split(":"))
                 total_seconds = h * 3600 + m * 60 + s
-                # 假设视频长度为60秒（实际应用中需要获取真实长度）
+                # 假设视频长度为60秒
                 progress = (total_seconds / 60) * 100
                 self.progress_bar.setValue(min(int(progress), 100))
             except Exception as e:
-                logging.error("解析进度信息失败:", e)
+                logging.exception("解析进度信息失败:", e)
 
     def conversion_finished(self, exit_code, exit_status):
+        """转换完成回调函数."""
         self.convert_button.setEnabled(True)
 
         if exit_code == 0:
@@ -222,7 +232,9 @@ class VideoConverter(QMainWindow):
             self.progress_bar.setValue(100)
         else:
             QMessageBox.critical(
-                self, "错误", f"转换失败，错误代码: {exit_code}"
+                self,
+                "错误",
+                f"转换失败, 错误代码: {exit_code}",
             )
             self.progress_bar.setValue(0)
 

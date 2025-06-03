@@ -1,4 +1,4 @@
-"""功能：卸载库"""
+"""功能: 卸载库."""
 
 from pathlib import Path
 from typing import List

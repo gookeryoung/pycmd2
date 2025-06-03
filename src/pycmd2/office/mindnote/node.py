@@ -10,6 +10,8 @@ from PySide2.QtWidgets import QMenu
 
 
 class MindNode(QGraphicsRectItem):
+    """思维导图节点."""
+
     def __init__(self, text="新节点"):
         super().__init__(-50, -25, 100, 50)
 
@@ -30,6 +32,7 @@ class MindNode(QGraphicsRectItem):
         self.connections = []
 
     def mousePressEvent(self, event):
+        """鼠标左键按下事件."""
         if event.button() == Qt.LeftButton:
             view = self.scene().views()[0]
             main_window = view.parent()
@@ -40,6 +43,7 @@ class MindNode(QGraphicsRectItem):
                 super().mousePressEvent(event)
 
     def contextMenuEvent(self, event):
+        """右键菜单事件."""
         menu = QMenu()
         add_child_action = menu.addAction("添加子节点")
         delete_action = menu.addAction("删除节点")
@@ -51,11 +55,13 @@ class MindNode(QGraphicsRectItem):
             self.delete_node()
 
     def add_child_node(self):
+        """添加子节点."""
         child = MindNode("子节点")
         child.setPos(self.pos() + QPointF(150, 0))
         self.scene().addItem(child)
 
     def delete_node(self):
+        """删除节点."""
         for conn in self.connections:
             conn.delete_connection()
         self.scene().removeItem(self)

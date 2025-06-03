@@ -14,38 +14,38 @@ except ModuleNotFoundError:
 import tomli_w
 
 __all__ = [
+    "TomlConfigMixin",
     "clear_config",
     "to_snake_case",
-    "TomlConfigMixin",
 ]
 
 
 def clear_config():
-    """清除配置文件"""
+    """清除配置文件."""
     if Client.SETTINGS_DIR.exists():
         shutil.rmtree(Client.SETTINGS_DIR)
 
 
 def to_snake_case(name):
+    """将驼峰命名转换为下划线命名, 处理连续大写字母的情况.
+
+    例如: "HTTPRequest" -> "http_request".
     """
-    将驼峰命名转换为下划线命名，处理连续大写字母的情况
-    例如: "HTTPRequest" -> "http_request"
-    """
-    name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
-    name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", name)
+    name = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
+    name = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", name)
     # 处理连续大写字母的情况
-    name = re.sub("([A-Z]+)([A-Z][a-z])", r"\1_\2", name)
+    name = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", name)
     return name.lower()
 
 
 @dataclass
 class TomlConfigMixin:
-    """Toml配置管理器基类
+    """Toml配置管理器基类.
 
-    1. 通过继承该类，可以方便地管理配置文件
-    2. 通过重写 _load 和 _save 方法，可以自定义配置文件的载入和保存方式
-    3. 通过重写 _props 属性，可以自定义配置文件中保存的属性
-    4. 通过重写 NAME 属性，可以自定义配置文件名
+    1. 通过继承该类, 可以方便地管理配置文件
+    2. 通过重写 _load 和 _save 方法, 可以自定义配置文件的载入和保存方式
+    3. 通过重写 _props 属性, 可以自定义配置文件中保存的属性
+    4. 通过重写 NAME 属性, 可以自定义配置文件名
     """
 
     NAME: str = ""
@@ -71,9 +71,10 @@ class TomlConfigMixin:
 
         # 写入配置数据到实例
         if self._config:
-            for attr in self._props.keys():
+            for attr in self._props:
                 if attr in self._config and self._config[attr] != getattr(
-                    self, attr
+                    self,
+                    attr,
                 ):
                     logging.info(f"设置属性: {attr} = {self._config[attr]}")
                     setattr(self, attr, self._config[attr])
@@ -91,7 +92,7 @@ class TomlConfigMixin:
             with open(self._config_file, "rb") as f:
                 self._config = tomllib.load(f)
         except Exception as e:
-            logging.error(f"载入配置错误: {e}")
+            logging.exception(f"载入配置错误: {e}")
             return
         else:
             logging.info(f"载入配置: [green]{self._config_file}")
@@ -101,6 +102,6 @@ class TomlConfigMixin:
             with open(self._config_file, "wb") as f:
                 tomli_w.dump(self._props, f)
         except Exception as e:
-            logging.error(f"保存配置错误: {e}")
+            logging.exception(f"保存配置错误: {e}")
         else:
             logging.info(f"保存配置: [green]{self._config_file}")

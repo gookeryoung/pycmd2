@@ -1,5 +1,5 @@
-"""
-功能：pip 下载库到本地 packages 文件夹, 使用 requirements.txt
+"""功能: pip 下载库到本地 packages 文件夹, 使用 requirements.txt.
+
 命令: pipdr
 """
 
@@ -21,7 +21,7 @@ def pip_download_req() -> None:
             "-d",
             str(dest_dir),
             *conf.TRUSTED_PIP_URL,
-        ]
+        ],
     )
 
 

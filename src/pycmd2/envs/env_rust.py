@@ -1,4 +1,4 @@
-"""功能：初始化 python 环境变量"""
+"""功能: 初始化 python 环境变量."""
 
 import logging
 import platform
@@ -34,10 +34,10 @@ git-fetch-with-cli = true
 def setup_rustup(override: bool = True) -> None:
     logging.info("配置 uv 环境变量")
 
-    rustup_envs: Dict[str, str] = dict(
-        RUSTUP_UPDATE_ROOT="https://rsproxy.cn",
-        RUSTUP_DIST_SERVER="https://pypi.tuna.tsinghua.edu.cn/simple",
-    )
+    rustup_envs: Dict[str, str] = {
+        "RUSTUP_UPDATE_ROOT": "https://rsproxy.cn",
+        "RUSTUP_DIST_SERVER": "https://pypi.tuna.tsinghua.edu.cn/simple",
+    }
 
     if cli.IS_WINDOWS:
         for k, v in rustup_envs.items():
@@ -76,9 +76,9 @@ def main(
 
     if cli.IS_WINDOWS:
         cli.run_cmdstr(
-            f"wget https://static.rust-lang.org/rustup/dist/{machine}-pc-windows-msvc/rustup-init.exe"
+            f"wget https://static.rust-lang.org/rustup/dist/{machine}-pc-windows-msvc/rustup-init.exe",
         )
     else:
         cli.run_cmdstr(
-            "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+            "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh",
         )

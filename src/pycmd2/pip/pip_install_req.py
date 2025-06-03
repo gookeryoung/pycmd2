@@ -1,4 +1,4 @@
-"""功能：pip 安装库到本地, 使用 requirements 内容"""
+"""功能: pip 安装库到本地, 使用 requirements 内容."""
 
 from pycmd2.common.cli import get_client
 from pycmd2.pip.conf import conf
@@ -14,7 +14,7 @@ def pip_install_req() -> None:
             "-r",
             "requirements.txt",
             *conf.TRUSTED_PIP_URL,
-        ]
+        ],
     )
 
 

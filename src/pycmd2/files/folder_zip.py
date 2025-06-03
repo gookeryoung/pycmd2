@@ -1,6 +1,6 @@
-"""
-功能: 压缩目录下的所有文件/文件夹, 默认为当前目录
-命令: folderzip.exe [DIRECTORY]
+"""功能: 压缩目录下的所有文件/文件夹, 默认为当前目录.
+
+命令: folderzip [DIRECTORY]
 """
 
 import logging
@@ -14,12 +14,11 @@ from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 
-cli = get_client(help="目录压缩工具.")
+cli = get_client(help_doc="目录压缩工具.")
 
 
 def is_valid_entry(entry: Path) -> bool:
     """检查文件夹是否有效, 忽略已压缩的目录."""
-
     if not entry.is_dir():
         return False
 
@@ -32,7 +31,7 @@ def is_valid_entry(entry: Path) -> bool:
 
 def zip_folder(entry: Path) -> None:
     logging.info(
-        f"压缩目录: [green]{entry.name} -> {entry.with_suffix('.zip').name}"
+        f"压缩目录: [green]{entry.name} -> {entry.with_suffix('.zip').name}",
     )
     os.chdir(entry.parent)  # 切换到父目录, 以便正确创建 zip 文件
     shutil.make_archive(str(entry), "zip", base_dir=entry.name)
@@ -41,17 +40,18 @@ def zip_folder(entry: Path) -> None:
 @cli.app.command()
 def main(
     directory: Annotated[
-        Path, Argument(help="待备份目录, 默认为当前目录")
+        Path,
+        Argument(help="待备份目录, 默认为当前目录"),
     ] = cli.CWD,
     ignore: Annotated[str, Option(help="忽略以此开头的目录或文件名")] = "._",
 ):
     ignores = list(ignore) or []
-    dirs = list(
+    dirs = [
         d
         for d in directory.iterdir()
         if is_valid_entry(d)
-        and all([not d.name.startswith(ig) for ig in ignores])
-    )
+        and all(not d.name.startswith(ig) for ig in ignores)
+    ]
 
     if dirs:
         cli.run(zip_folder, dirs)

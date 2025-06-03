@@ -1,3 +1,5 @@
+"""控制命令行工具."""
+
 import concurrent.futures
 import logging
 import platform
@@ -8,6 +10,7 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any
 from typing import Callable
+from typing import ClassVar
 from typing import IO
 from typing import List
 from typing import Optional
@@ -37,16 +40,16 @@ def _log_stream(
 
 @dataclass
 class Client:
-    """命令工具"""
+    """命令工具."""
 
     app: typer.Typer
     console: Console
 
     # 常量
-    CWD: Path = Path.cwd()
-    HOME: Path = Path.home()
-    SETTINGS_DIR: Path = HOME / ".pycmd2"
-    IS_WINDOWS: bool = platform.system() == "Windows"
+    CWD: ClassVar[Path] = Path.cwd()
+    HOME: ClassVar[Path] = Path.home()
+    SETTINGS_DIR: ClassVar[Path] = HOME / ".pycmd2"
+    IS_WINDOWS: ClassVar[bool] = platform.system() == "Windows"
 
     def run(
         self,
@@ -74,7 +77,7 @@ class Client:
         logging.info(f"启动线程, 目标参数: [green]{len(args)}[/] 个")
         with concurrent.futures.ThreadPoolExecutor() as t:
             for arg in args:
-                logging.info(f"开始处理: [green bold]{str(arg)}")
+                logging.info(f"开始处理: [green bold]{arg!s}")
                 returns.append(t.submit(func, arg))
         logging.info(f"关闭线程, 用时: [green bold]{perf_counter() - t0:.4f}s.")
 
@@ -82,14 +85,13 @@ class Client:
         self,
         commands: List[str],
     ) -> None:
-        """执行命令并实时记录输出到日志。
+        """执行命令并实时记录输出到日志.
 
         Args:
             commands (List[str]): 命令列表
         """
-
         t0 = perf_counter()
-        # 启动子进程，设置文本模式并启用行缓冲
+        # 启动子进程, 设置文本模式并启用行缓冲
         logging.info(f"调用命令: [green bold]{commands}")
 
         proc = subprocess.Popen(
@@ -120,7 +122,7 @@ class Client:
 
         # 检查返回码
         if proc.returncode != 0:
-            logging.error(f"命令执行失败，返回码：{proc.returncode}")
+            logging.error(f"命令执行失败, 返回码: {proc.returncode}")
 
         logging.info(f"用时: [green bold]{perf_counter() - t0:.4f}s.")
 
@@ -128,7 +130,7 @@ class Client:
         self,
         cmdstr: str,
     ) -> None:
-        """直接执行命令, 用于避免输出重定向
+        """直接执行命令, 用于避免输出重定向.
 
         Args:
             cmdstr (str): 命令参数, 如: `ls -la`
@@ -149,17 +151,16 @@ class Client:
 
 
 def get_client(
-    help: str = "",
+    help_doc: str = "",
 ) -> Client:
-    """创建 cli 程序
+    """创建 cli 程序.
 
     Args:
-        help (str, optional): 描述文件
+        help_doc (str, optional): 描述文件
 
     Returns:
         Client: 获取实例
     """
-
     logging.basicConfig(
         level=logging.INFO,
         format="[*] %(message)s",
@@ -167,7 +168,6 @@ def get_client(
     )
 
     return Client(
-        app=typer.Typer(help=help),
+        app=typer.Typer(help=help_doc),
         console=Console(),
-        CWD=Path.cwd(),
     )
