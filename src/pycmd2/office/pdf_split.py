@@ -92,13 +92,13 @@ def main(
     """
     unecrypted_files, _ = list_pdf()
     if not unecrypted_files:
-        logging.error(f"当前目录下没有未加密的 pdf: {cli.CWD}")
+        logging.error(f"当前目录下没有未加密的 pdf: {cli.cwd}")
         return
 
     range_list = parse_range_list(rangestr)
     split_func = partial(
         split_pdf_file,
-        output_dir=cli.CWD,
+        output_dir=cli.cwd,
         range_list=range_list,
     )
     cli.run(split_func, unecrypted_files)

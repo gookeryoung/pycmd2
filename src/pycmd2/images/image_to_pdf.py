@@ -51,18 +51,18 @@ def convert_image(
 
 @cli.app.command()
 def main():
-    image_files = sorted(_ for _ in cli.CWD.iterdir() if is_image_file(_))
+    image_files = sorted(_ for _ in cli.cwd.iterdir() if is_image_file(_))
     if not image_files:
-        logging.error(f"路径[{cli.CWD}]下未找到图片文件.")
+        logging.error(f"路径[{cli.cwd}]下未找到图片文件.")
         return
 
     cli.run(convert_image, image_files)
 
     if not images_converted:
-        logging.error(f"[*] 路径[{cli.CWD}]下未找到图片文件.")
+        logging.error(f"[*] 路径[{cli.cwd}]下未找到图片文件.")
         return
 
-    output_pdf = cli.CWD / f"{cli.CWD.name}.pdf"
+    output_pdf = cli.cwd / f"{cli.cwd.name}.pdf"
     images_converted[0].save(
         output_pdf,
         "PDF",

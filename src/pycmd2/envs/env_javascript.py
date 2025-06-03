@@ -28,7 +28,7 @@ def main(
         Argument(help=f"nodejs 版本: {NODE_VERSIONS.keys()}"),
     ] = "V18",
 ):
-    if cli.IS_WINDOWS:
+    if cli.is_windows:
         logging.error("当前系统为windows, 请下载压缩包直接安装")
         return
 

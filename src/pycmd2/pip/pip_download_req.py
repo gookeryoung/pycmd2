@@ -11,7 +11,7 @@ cli = get_client()
 
 
 def pip_download_req() -> None:
-    dest_dir = cli.CWD / "packages"
+    dest_dir = cli.cwd / "packages"
     cli.run_cmd(
         [
             "pip",

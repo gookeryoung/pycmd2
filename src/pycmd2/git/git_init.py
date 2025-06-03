@@ -12,7 +12,7 @@ cli = get_client()
 
 @cli.app.command()
 def main():
-    os.chdir(str(cli.CWD))
+    os.chdir(str(cli.cwd))
     cli.run_cmd(["git", "init"])
     cli.run_cmd(["git", "add", "."])
     cli.run_cmd(["git", "commit", "-m", "initial commit"])

@@ -40,12 +40,12 @@ class MakeOption:
     @classmethod
     def src_dir(cls) -> Path:
         """获取源代码目录."""
-        return cli.CWD / "src"
+        return cli.cwd / "src"
 
     @classmethod
     def project_name(cls) -> str:
         """获取项目目录."""
-        cfg_file = cli.CWD / "pyproject.toml"
+        cfg_file = cli.cwd / "pyproject.toml"
         if not cfg_file.exists():
             logging.error(
                 f"pyproject.toml 文件不存在, 无法获取项目目录: [red]{cfg_file}",
@@ -127,8 +127,8 @@ class MakeOption:
 
 
 def _activate_py_env() -> None:
-    extension = ".bat" if cli.IS_WINDOWS else ""
-    actviate_path = cli.CWD / ".venv" / "Scripts" / f"activate{extension}"
+    extension = ".bat" if cli.is_windows else ""
+    actviate_path = cli.cwd / ".venv" / "Scripts" / f"activate{extension}"
     cli.run_cmdstr(str(actviate_path))
 
 
@@ -192,8 +192,8 @@ def _clean() -> None:
         ".pytest_cache",
         ".mypy_cache",
     ]
-    spec_dirs = [cli.CWD / d for d in dirs]
-    cache_dirs = list(cli.CWD.rglob("**/__pycache__"))
+    spec_dirs = [cli.cwd / d for d in dirs]
+    cache_dirs = list(cli.cwd.rglob("**/__pycache__"))
     remove_func = partial(shutil.rmtree, ignore_errors=True)
 
     # 移除待清理目录
@@ -215,7 +215,7 @@ def _browse_coverage() -> None:
     from urllib.request import pathname2url
 
     webbrowser.open(
-        "file://" + pathname2url(str(cli.CWD / "htmlcov" / "index.html")),
+        "file://" + pathname2url(str(cli.cwd / "htmlcov" / "index.html")),
     )
 
 

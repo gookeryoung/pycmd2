@@ -103,7 +103,7 @@ def main(
     black: bool = Option(False, help="黑白模式"),
 ):
     image_files = [
-        _ for _ in pathlib.Path(cli.CWD).glob("*.*") if is_valid_image(_)
+        _ for _ in pathlib.Path(cli.cwd).glob("*.*") if is_valid_image(_)
     ]
     if not image_files:
         logging.error("未找到待处理图片文件")

@@ -5,12 +5,10 @@ import logging
 import platform
 import subprocess
 import threading
-from dataclasses import dataclass
 from pathlib import Path
 from time import perf_counter
 from typing import Any
 from typing import Callable
-from typing import ClassVar
 from typing import IO
 from typing import List
 from typing import Optional
@@ -38,18 +36,32 @@ def _log_stream(
     stream.close()
 
 
-@dataclass
 class Client:
     """命令工具."""
 
-    app: typer.Typer
-    console: Console
+    def __init__(self, app: typer.Typer, console: Console) -> None:
+        self.app = app
+        self.console = console
 
-    # 常量
-    CWD: ClassVar[Path] = Path.cwd()
-    HOME: ClassVar[Path] = Path.home()
-    SETTINGS_DIR: ClassVar[Path] = HOME / ".pycmd2"
-    IS_WINDOWS: ClassVar[bool] = platform.system() == "Windows"
+    @property
+    def cwd(self) -> Path:
+        """当前工作目录."""
+        return Path.cwd()
+
+    @property
+    def home(self) -> Path:
+        """用户目录."""
+        return Path.home()
+
+    @property
+    def settings_dir(self) -> Path:
+        """用户配置目录."""
+        return self.home / ".pycmd2"
+
+    @property
+    def is_windows(self) -> bool:
+        """是否为 Windows 系统."""
+        return platform.system() == "Windows"
 
     def run(
         self,

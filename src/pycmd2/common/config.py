@@ -4,7 +4,7 @@ import re
 import shutil
 from dataclasses import dataclass
 
-from pycmd2.common.cli import Client
+from pycmd2.common.cli import get_client
 
 try:
     import tomllib  # type: ignore
@@ -19,11 +19,13 @@ __all__ = [
     "to_snake_case",
 ]
 
+cli = get_client()
+
 
 def clear_config():
     """清除配置文件."""
-    if Client.SETTINGS_DIR.exists():
-        shutil.rmtree(Client.SETTINGS_DIR)
+    if cli.settings_dir.exists():
+        shutil.rmtree(str(cli.settings_dir))
 
 
 def to_snake_case(name):
@@ -52,12 +54,12 @@ class TomlConfigMixin:
 
     def __init__(self) -> None:
         cls_name = to_snake_case(type(self).__name__).replace("_config", "")
-        self._config_file = Client.SETTINGS_DIR / f"{cls_name}.toml"
+        self._config_file = cli.settings_dir / f"{cls_name}.toml"
         self._config = {}
 
         # 创建父文件夹
-        if not Client.SETTINGS_DIR.exists():
-            Client.SETTINGS_DIR.mkdir(parents=True)
+        if not cli.settings_dir.exists():
+            cli.settings_dir.mkdir(parents=True)
 
         # 载入配置
         self._load()

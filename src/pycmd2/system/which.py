@@ -18,7 +18,7 @@ def find_executable(name: str, fuzzy: bool):
     try:
         # 根据系统选择命令
         match_name = name if not fuzzy else f"*{name}*.exe"
-        cmd = ["where" if cli.IS_WINDOWS else "which", match_name]
+        cmd = ["where" if cli.is_windows else "which", match_name]
 
         # 执行命令并捕获输出
         result = subprocess.run(
@@ -31,11 +31,11 @@ def find_executable(name: str, fuzzy: bool):
 
         # 处理 Windows 多结果情况
         paths = result.stdout.strip().split("\n")
-        return paths[0] if cli.IS_WINDOWS else result.stdout.strip()
+        return paths[0] if cli.is_windows else result.stdout.strip()
 
     except (subprocess.CalledProcessError, FileNotFoundError):
         # 检查 UNIX 系统的直接可执行路径
-        if not cli.IS_WINDOWS and os.access(f"/usr/bin/{name}", os.X_OK):
+        if not cli.is_windows and os.access(f"/usr/bin/{name}", os.X_OK):
             return f"/usr/bin/{name}"
         return None
 

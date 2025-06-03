@@ -12,7 +12,7 @@ from pycmd2.common.cli import get_client
 cli = get_client()
 
 # 用户文件夹
-BASHRC_PATH = cli.HOME / ".bashrc"
+BASHRC_PATH = cli.home / ".bashrc"
 
 # pip 配置信息
 PIP_CONF_CONTENT = """[global]
@@ -24,7 +24,7 @@ trusted-host = tuna.tsinghua.edu.cn
 
 def _set_chmod(filepath: Path) -> None:
     # 设置安全权限 (仅限 Unix 系统)
-    if not cli.IS_WINDOWS:
+    if not cli.is_windows:
         if not filepath.exists():
             cli.run_cmd(["touch", str(filepath)])
 
@@ -115,7 +115,7 @@ def setup_uv(override: bool = True) -> None:
         "UV_LINK_MODE": "copy",
     }
 
-    if cli.IS_WINDOWS:
+    if cli.is_windows:
         for k, v in uv_envs.items():
             cli.run_cmd(["setx", str(k), str(v)])
     else:
@@ -135,7 +135,7 @@ def setup_hatch_token(
         "HATCH_INDEX_USER": "__token__",
         "HATCH_INDEX_AUTH": token,
     }
-    if cli.IS_WINDOWS:
+    if cli.is_windows:
         for k, v in hatch_envs.items():
             cli.run_cmd(["setx", str(k), str(v)])
     else:
@@ -144,8 +144,8 @@ def setup_hatch_token(
 
 
 def setup_pip() -> None:
-    pip_dir = cli.HOME / "pip" if cli.IS_WINDOWS else cli.HOME / ".pip"
-    pip_conf = pip_dir / "pip.ini" if cli.IS_WINDOWS else pip_dir / "pip.conf"
+    pip_dir = cli.home / "pip" if cli.is_windows else cli.home / ".pip"
+    pip_conf = pip_dir / "pip.ini" if cli.is_windows else pip_dir / "pip.conf"
 
     if not pip_dir.exists():
         logging.info(f"创建 pip 文件夹: [green bold]{pip_dir}")

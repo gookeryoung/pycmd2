@@ -39,7 +39,7 @@ def setup_rustup(override: bool = True) -> None:
         "RUSTUP_DIST_SERVER": "https://pypi.tuna.tsinghua.edu.cn/simple",
     }
 
-    if cli.IS_WINDOWS:
+    if cli.is_windows:
         for k, v in rustup_envs.items():
             cli.run_cmd(["setx", str(k), str(v)])
     else:
@@ -48,7 +48,7 @@ def setup_rustup(override: bool = True) -> None:
 
 
 def setup_cargo() -> None:
-    cargo_dir = cli.HOME / ".cargo"
+    cargo_dir = cli.home / ".cargo"
     cargo_conf = cargo_dir / "config.toml"
 
     if not cargo_dir.exists():
@@ -74,7 +74,7 @@ def main(
         else "i686"
     )
 
-    if cli.IS_WINDOWS:
+    if cli.is_windows:
         cli.run_cmdstr(
             f"wget https://static.rust-lang.org/rustup/dist/{machine}-pc-windows-msvc/rustup-init.exe",
         )

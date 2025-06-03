@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pytest
 
-from pycmd2.common.cli import Client
 from pycmd2.common.cli import get_client
 from pycmd2.common.config import TomlConfigMixin
 
@@ -15,9 +14,12 @@ class ExampleConfig(TomlConfigMixin):
     BAZ = "qux"
 
 
+cli = get_client()
+
+
 @pytest.fixture(scope="function", autouse=True)
 def clear_config():
-    config_files = list(Client.SETTINGS_DIR.glob("*.toml"))
+    config_files = list(cli.settings_dir.glob("*.toml"))
     for config_file in config_files:
         config_file.unlink()
 
@@ -28,7 +30,7 @@ def test_config():
     assert conf.BAZ == "qux"
     assert conf.NAME == "test"
 
-    config_file = Client.SETTINGS_DIR / "example.toml"
+    config_file = cli.settings_dir / "example.toml"
     assert config_file == conf._config_file
 
     assert not config_file.exists()
@@ -37,7 +39,7 @@ def test_config():
 
 
 def test_config_load():
-    config_file = Client.SETTINGS_DIR / "example.toml"
+    config_file = cli.settings_dir / "example.toml"
     config_file.write_text("FOO = '123'")
 
     conf = ExampleConfig()
@@ -46,7 +48,7 @@ def test_config_load():
 
 def test_config_load_error(caplog):
     # 模拟文件存在但内容不是有效TOML的情况
-    config_file = Client.SETTINGS_DIR / "example.toml"
+    config_file = cli.settings_dir / "example.toml"
     config_file.write_text("INVALID TOML CONTENT")
 
     conf = ExampleConfig()
@@ -57,8 +59,8 @@ def test_config_load_error(caplog):
 
 
 def test_config_save_error(mocker, caplog):
-    invalid_path = Path("C:") if get_client().IS_WINDOWS else "/root/readonly"
-    mocker.patch("pycmd2.common.cli.Client.SETTINGS_DIR", invalid_path)
+    invalid_path = Path("C:") if cli.is_windows else "/root/readonly"
+    mocker.patch("pycmd2.common.cli.Client.settings_dir", invalid_path)
 
     conf = ExampleConfig()
     conf._save()

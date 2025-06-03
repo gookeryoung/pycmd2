@@ -43,9 +43,9 @@ def zip_folder(
 
 @cli.app.command()
 def main(
-    directory: Annotated[Path, Argument(help="备份目录, 默认当前")] = cli.CWD,
+    directory: Annotated[Path, Argument(help="备份目录, 默认当前")] = cli.cwd,
     dest: Annotated[Path, Option(help="目标文件夹")] = (
-        cli.CWD.parent / f"_backup_{cli.CWD.name}"
+        cli.cwd.parent / f"_backup_{cli.cwd.name}"
     ),
     max_count: Annotated[int, Option(help="最大备份数量")] = 5,
     clean: Annotated[bool, Option("--clean", help="清理已有备份")] = False,

@@ -132,15 +132,15 @@ def merge_file_info(info: PdfFileInfo, root_dir: Path, writer: pypdf.PdfWriter):
 
 @cli.app.command()
 def main():
-    pdf_info = search_directory(cli.CWD, cli.CWD)
+    pdf_info = search_directory(cli.cwd, cli.cwd)
     if not pdf_info or pdf_info.count() <= 1:
         logging.error("[*] 未发现待合并文件, 退出...")
         return
 
     writer = pypdf.PdfWriter()
-    merge_file_info(pdf_info, root_dir=cli.CWD, writer=writer)
+    merge_file_info(pdf_info, root_dir=cli.cwd, writer=writer)
 
-    target_filepath = cli.CWD / f"{MERGE_MARK}{cli.CWD.stem}.pdf"
+    target_filepath = cli.cwd / f"{MERGE_MARK}{cli.cwd.stem}.pdf"
     with open(target_filepath, "wb") as pdf_file:
         writer.write(pdf_file)
         writer.close()
