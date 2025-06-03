@@ -1,3 +1,4 @@
+from typing import ClassVar
 from typing import List
 
 from pycmd2.common.cli import get_client
@@ -7,9 +8,11 @@ cli = get_client()
 
 
 class PipConfig(TomlConfigMixin):
+    """Pip配置."""
+
     NAME = "pip"
 
-    TRUSTED_PIP_URL: List[str] = [
+    TRUSTED_PIP_URL: ClassVar[List[str]] = [
         "--trusted-host",
         "pypi.tuna.tsinghua.edu.cn",
         "-i",

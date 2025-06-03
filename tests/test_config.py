@@ -8,6 +8,8 @@ from pycmd2.common.config import TomlConfigMixin
 
 
 class ExampleConfig(TomlConfigMixin):
+    """Example config class."""
+
     NAME = "test"
     FOO = "bar"
     BAZ = "qux"

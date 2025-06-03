@@ -5,6 +5,8 @@ from PySide2.QtWidgets import QGraphicsPathItem
 
 
 class Connection(QGraphicsPathItem):
+    """思维导图节点连接."""
+
     def __init__(self, start_node, end_node=None):
         super().__init__()
         self.start_node = start_node
@@ -13,6 +15,7 @@ class Connection(QGraphicsPathItem):
         self.update_path()
 
     def update_path(self):
+        """更新连接路径."""
         path = QPainterPath()
         start_pos = self.start_node.mapToScene(self.start_node.rect().center())
         if self.end_node:
@@ -25,6 +28,7 @@ class Connection(QGraphicsPathItem):
         self.setPath(path)
 
     def delete_connection(self):
+        """删除连接."""
         self.start_node.connections.remove(self)
         if self.end_node:
             self.end_node.connections.remove(self)

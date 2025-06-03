@@ -64,7 +64,7 @@ def test_pip_freeze(typer_runner, dir_tests):
     assert result.exit_code == 0
 
     with open("requirements.txt") as f:
-        libs = set(_.split("==")[0] for _ in f.readlines())
+        libs = {_.split("==")[0] for _ in f.readlines()}
         assert "hatch" in libs
         assert "pytest" in libs
 
