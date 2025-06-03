@@ -1,9 +1,6 @@
 """功能: 移除文件日期, 用创建日期替代.
 
-命令: filedate.exe [TARGETS ...]
-特性:
- - 日期格式为: YYYYMMDD
- - 文件分隔符包含: -_#.~
+命令: filedate [TARGETS ...]
 """
 
 import re

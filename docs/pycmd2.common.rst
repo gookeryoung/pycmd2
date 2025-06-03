@@ -12,10 +12,10 @@ pycmd2.common.cli module
    :undoc-members:
    :show-inheritance:
 
-pycmd2.common.consts module
+pycmd2.common.config module
 ---------------------------
 
-.. automodule:: pycmd2.common.consts
+.. automodule:: pycmd2.common.config
    :members:
    :undoc-members:
    :show-inheritance:
@@ -24,14 +24,6 @@ pycmd2.common.gui module
 ------------------------
 
 .. automodule:: pycmd2.common.gui
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pycmd2.common.logger module
----------------------------
-
-.. automodule:: pycmd2.common.logger
    :members:
    :undoc-members:
    :show-inheritance:

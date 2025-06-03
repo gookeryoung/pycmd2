@@ -1,8 +1,6 @@
 """功能: 重命名文件级别后缀.
 
-用法: filelevel.exe -f FILES [FILES ...] -l level
-特性:
- - 重命名格式为 '(PUB)'
+用法: filelevel -f FILES [FILES ...] -l level
 """
 
 import typing

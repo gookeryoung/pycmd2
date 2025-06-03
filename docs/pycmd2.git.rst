@@ -4,6 +4,14 @@ pycmd2.git package
 Submodules
 ----------
 
+pycmd2.git.git\_add module
+--------------------------
+
+.. automodule:: pycmd2.git.git_add
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pycmd2.git.git\_clean module
 ----------------------------
 

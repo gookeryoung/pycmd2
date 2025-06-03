@@ -4,6 +4,14 @@ pycmd2.pip package
 Submodules
 ----------
 
+pycmd2.pip.conf module
+----------------------
+
+.. automodule:: pycmd2.pip.conf
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pycmd2.pip.pip\_download module
 -------------------------------
 
