@@ -69,7 +69,9 @@ class MakeOption:
     @classmethod
     def update_build_date(cls) -> bool:
         """更新构建日期."""
-        build_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        build_date = datetime.datetime.now(datetime.timezone.utc).strftime(
+            "%Y-%m-%d",
+        )
         init_files = cls.src_dir().rglob("__init__.py")
 
         for init_file in init_files:
