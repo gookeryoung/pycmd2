@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import List
+
 from typer import Argument
 from typing_extensions import Annotated
 
@@ -9,9 +11,10 @@ from pycmd2.common.cli import get_client
 from pycmd2.pip.conf import conf
 
 cli = get_client()
+StrList = List[str]
 
 
-def pip_install(libname: str, options: list[str] | None = None) -> None:
+def pip_install(libname: str, options: StrList | None = None) -> None:
     run_opt = options or []
     cli.run_cmd(
         [
@@ -26,6 +29,6 @@ def pip_install(libname: str, options: list[str] | None = None) -> None:
 
 @cli.app.command()
 def main(
-    libnames: Annotated[list[str], Argument(help="库名列表")],
+    libnames: Annotated[StrList, Argument(help="库名列表")],
 ) -> None:
     cli.run(pip_install, libnames)

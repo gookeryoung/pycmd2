@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import List
 
 from typer import Argument
 from typing_extensions import Annotated
@@ -11,6 +11,7 @@ from pycmd2.common.cli import get_client
 from pycmd2.pip.conf import conf
 
 cli = get_client()
+StrList = List[str]
 
 
 def pip_download(libname: str) -> None:
@@ -30,6 +31,6 @@ def pip_download(libname: str) -> None:
 
 @cli.app.command()
 def main(
-    libnames: Annotated[list[Path], Argument(help="待下载库清单")],
+    libname: Annotated[StrList, Argument(help="待下载库清单")],
 ) -> None:
-    cli.run(pip_download, libnames)
+    cli.run(pip_download, libname)

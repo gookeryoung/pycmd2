@@ -24,7 +24,7 @@ def requirments_file(dir_tests: Path) -> None:
     os.chdir(dir_tests)
     with open("requirements.txt", "w") as f:
         f.write("lxml==4.9.1\n")
-        f.write("jinja2==3.1.2")
+        f.write("numba==0.58.1\n")
 
 
 def test_pip_download(typer_runner: CliRunner, dir_tests: Path) -> None:
@@ -50,10 +50,10 @@ def test_pip_download_req(typer_runner, requirments_file, dir_tests) -> None:
     files = list(dir_tests.glob("packages/lxml-*.whl"))
     assert len(files) == 1
 
-    files = list(dir_tests.glob("packages/jinja2-*.whl"))
+    files = list(dir_tests.glob("packages/numba-*.whl"))
     assert len(files) == 1
 
-    files = list(dir_tests.glob("packages/markupsafe-*.whl"))
+    files = list(dir_tests.glob("packages/numpy-*.whl"))
     assert len(files) == 1
 
 

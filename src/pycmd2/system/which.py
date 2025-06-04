@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 import os
 import subprocess
+from typing import List
 
 from typer import Argument
 from typer import Option
@@ -12,6 +13,7 @@ from typing_extensions import Annotated
 from pycmd2.common.cli import get_client
 
 cli = get_client()
+StrList = List[str]
 
 
 def find_executable(name: str, *, fuzzy: bool) -> str | None:
@@ -43,15 +45,16 @@ def find_executable(name: str, *, fuzzy: bool) -> str | None:
 
 @cli.app.command()
 def main(
-    cmd: Annotated[str, Argument(help="待查询命令")],
+    commands: Annotated[StrList, Argument(help="待查询命令")],
     *,
     fuzzy: Annotated[
         bool,
         Option("--fuzzy", help="是否模糊匹配"),
     ] = False,
 ) -> None:
-    path = find_executable(cmd, fuzzy=fuzzy)
-    if path:
-        logging.info(f"找到命令: [[green bold]{path}[/]]")
-    else:
-        logging.error(f"未找到符合的命令: [[red bold]{cmd}[/]]")
+    for cmd in commands:
+        path = find_executable(cmd, fuzzy=fuzzy)
+        if path:
+            logging.info(f"找到命令: [[green bold]{path}[/]]")
+        else:
+            logging.error(f"未找到符合的命令: [[red bold]{cmd}[/]]")
