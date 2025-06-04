@@ -159,13 +159,18 @@ select = [
   "C",      # flake8-comprehensions
   "C4",     # flake8-comprehensions
   "COM",    # flake8-commas
+  "DJ",     # flake8-django
   "DTZ",    # flake8-datetimez
+  "EM",     # flake8-errmsg
+  "EXE",    # flake8-executable
   "FBT",    # flake8-boolean-trap
+  "FIX",    # flake8-fixme
   "PIE",    # flake8-pie
   "Q",      # flake8-quotes
-  #"S",      # flake8-bandit
   "RET",    # flake8-return
+  #"S",      # flake8-bandit
   "SIM",    # flake8-simplify
+  "T10",    # flake8-debugger
   "YTT",    # flake8-2020
 
   "E",      # Pycodestyle 错误
