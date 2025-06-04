@@ -147,6 +147,7 @@ unsafe-fixes = true
 show-fixes = true
 output-format = "full"
 exclude = ["**/ui_*.py", "**/*_rc.py", "docs/*.py", "tests/*.py"]
+target-version = "py38"
 
 [tool.ruff.lint]
 select = [
@@ -166,6 +167,9 @@ select = [
   "FA",     # flake8-future-annotations
   "FBT",    # flake8-boolean-trap
   "FIX",    # flake8-fixme
+  "ICN",    # flake8-import-conventions
+  "INT",    # flake8-gettext
+  "ISC",    # flake8-implicit-str-concat
   "PIE",    # flake8-pie
   "Q",      # flake8-quotes
   "RET",    # flake8-return
