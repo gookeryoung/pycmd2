@@ -157,6 +157,7 @@ select = [
   "B",      # flake8-bugbear
   "BLE",    # flake8-blind-except
   "C",      # flake8-comprehensions
+  "COM",    # flake8-commas
   "FBT",    # flake8-boolean-trap
   "PIE",    # flake8-pie
   "Q",      # flake8-quotes

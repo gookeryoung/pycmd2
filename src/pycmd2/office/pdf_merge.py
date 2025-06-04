@@ -100,7 +100,9 @@ def search_directory(
 
 
 def merge_file_info(
-    info: PdfFileInfo, root_dir: Path, writer: pypdf.PdfWriter
+    info: PdfFileInfo,
+    root_dir: Path,
+    writer: pypdf.PdfWriter,
 ) -> None:
     """按照 PdfFileInfo 进行合并.
 

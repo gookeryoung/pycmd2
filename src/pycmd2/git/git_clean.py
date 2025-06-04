@@ -21,6 +21,7 @@ exclude_dirs = [
 
 @cli.app.command()
 def main(
+    *,
     force: Annotated[bool, Option("--force", "-f", help="强制清理")] = False,
 ) -> None:
     if force:

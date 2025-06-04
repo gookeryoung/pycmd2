@@ -62,7 +62,7 @@ def is_valid_image(file_path: Path) -> bool:
         with Image.open(file_path) as img:
             img.verify()
             if img.format and img.format.lower() not in list(
-                magic_numbers.values()
+                magic_numbers.values(),
             ):
                 return False
     except (OSError, SyntaxError, ValueError):

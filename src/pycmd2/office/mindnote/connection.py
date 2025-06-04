@@ -12,7 +12,9 @@ class Connection(QGraphicsPathItem):
     """思维导图节点连接."""
 
     def __init__(
-        self, start_node: MindNode, end_node: Optional[MindNode] = None
+        self,
+        start_node: MindNode,
+        end_node: Optional[MindNode] = None,
     ) -> None:
         super().__init__()
         self.start_node = start_node

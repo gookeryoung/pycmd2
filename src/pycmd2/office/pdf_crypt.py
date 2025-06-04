@@ -60,7 +60,7 @@ def encrypt_pdf(
         return filepath, enc_pdf_file
     except OSError:
         logging.exception(
-            "写入加密文件[{enc_pdf_file.name}]失败, 错误信息: {e}"
+            "写入加密文件[{enc_pdf_file.name}]失败, 错误信息: {e}",
         )
         return filepath, None
 

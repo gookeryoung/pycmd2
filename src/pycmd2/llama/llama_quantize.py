@@ -43,7 +43,9 @@ class QuantizationWorker(QThread):
     finished = Signal(bool)
 
     def __init__(
-        self, input_file: pathlib.Path, quant_types: typing.List[str]
+        self,
+        input_file: pathlib.Path,
+        quant_types: typing.List[str],
     ) -> None:
         super().__init__()
 
@@ -316,7 +318,9 @@ def main() -> None:
     # 检查是否安装了llama.cpp
     try:
         subprocess.run(
-            ["llama-quantize", "--help"], capture_output=True, check=False
+            ["llama-quantize", "--help"],
+            capture_output=True,
+            check=False,
         )
     except FileNotFoundError:
         print("错误: 未找到llama.cpp/quantize工具")
