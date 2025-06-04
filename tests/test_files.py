@@ -1,7 +1,7 @@
 from pycmd2.files.file_date import remove_date_prefix
 
 
-def test_remove_date_prefix():
+def test_remove_date_prefix() -> None:
     f1 = remove_date_prefix("20220101-hello.txt")
     assert f1 == "hello.txt"
 

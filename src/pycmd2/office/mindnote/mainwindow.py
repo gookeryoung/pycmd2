@@ -3,6 +3,7 @@ import json
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QCursor
 from PySide2.QtGui import QKeySequence
+from PySide2.QtGui import QMouseEvent
 from PySide2.QtGui import QPainter
 from PySide2.QtWidgets import QAction
 from PySide2.QtWidgets import QFileDialog
@@ -18,7 +19,7 @@ from pycmd2.office.mindnote.node import MindNode
 class MindMapWindow(QMainWindow):
     """主界面."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.scene = QGraphicsScene()
         self.view = QGraphicsView(self.scene, self)
@@ -38,7 +39,7 @@ class MindMapWindow(QMainWindow):
         self.scene.setSceneRect(-2000, -2000, 4000, 4000)
         self.view.setRenderHint(QPainter.Antialiasing)
 
-    def create_toolbar(self):
+    def create_toolbar(self) -> None:
         """创建工具栏."""
         toolbar = QToolBar("Main Toolbar")
         self.addToolBar(toolbar)
@@ -66,7 +67,7 @@ class MindMapWindow(QMainWindow):
         load_action.triggered.connect(self.load_mindmap)
         toolbar.addAction(load_action)
 
-    def add_root_node(self):
+    def add_root_node(self) -> None:
         """添加根节点."""
         node = MindNode("中心主题")
         self.scene.addItem(node)
@@ -74,7 +75,7 @@ class MindMapWindow(QMainWindow):
         view_center = self.view.mapToScene(self.view.viewport().rect().center())
         node.setPos(view_center)
 
-    def toggle_connect_mode(self, checked):
+    def toggle_connect_mode(self, *, checked: bool) -> None:
         """切换连接模式."""
         self.connecting = checked
         if checked:
@@ -82,7 +83,7 @@ class MindMapWindow(QMainWindow):
         else:
             self.unsetCursor()  # 退出时恢复默认光标
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event: QMouseEvent) -> None:
         """处理场景空白处的点击."""
         if event.button() == Qt.LeftButton and self.connect_action.isChecked():
             # 在空白处点击时开始新连接
@@ -90,7 +91,7 @@ class MindMapWindow(QMainWindow):
         else:
             super().mousePressEvent(event)
 
-    def start_connection(self, node):
+    def start_connection(self, node: MindNode) -> None:
         """开始创建连接."""
         if node is None:
             global_pos = QCursor.pos()  # 获取全局坐标
@@ -106,12 +107,12 @@ class MindMapWindow(QMainWindow):
         self.temp_connection = Connection(node)
         self.scene.addItem(self.temp_connection)
 
-    def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
         """处理场景内鼠标移动事件."""
         if self.temp_connection:
             self.temp_connection.update_path()
 
-    def mouseReleaseEvent(self, event):
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         """处理场景内鼠标释放事件."""
         if self.temp_connection:
             items = self.scene.items(event.pos())
@@ -133,7 +134,7 @@ class MindMapWindow(QMainWindow):
             self.scene.removeItem(self.temp_connection)
             self.temp_connection = None
 
-    def save_mindmap(self):
+    def save_mindmap(self) -> None:
         """保存思维导图."""
         path, _ = QFileDialog.getSaveFileName(
             self,
@@ -171,7 +172,7 @@ class MindMapWindow(QMainWindow):
         with open(path, "w") as f:
             json.dump(data, f)
 
-    def load_mindmap(self):
+    def load_mindmap(self) -> None:
         """加载思维导图."""
         path, _ = QFileDialog.getOpenFileName(
             self,

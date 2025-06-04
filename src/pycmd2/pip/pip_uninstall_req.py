@@ -10,5 +10,5 @@ def pip_uninstall_req() -> None:
 
 
 @cli.app.command()
-def main():
+def main() -> None:
     pip_uninstall_req()

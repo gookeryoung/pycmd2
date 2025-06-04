@@ -1,7 +1,7 @@
 import os
 
 
-def setup_pyside2_env():
+def setup_pyside2_env() -> None:
     """初始化 PySide2 环境."""
     import PySide2
 

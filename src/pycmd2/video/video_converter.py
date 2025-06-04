@@ -37,7 +37,7 @@ conf = VideoConverterConfig()
 class VideoConverter(QMainWindow):
     """视频转换工具."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle(conf.TITLE)
         self.setMinimumSize(*conf.WIN_SIZE)
@@ -121,7 +121,7 @@ class VideoConverter(QMainWindow):
         )
         self.output_path.setText(docs_path)
 
-    def select_input_file(self):
+    def select_input_file(self) -> None:
         """选择输入文件."""
         file_path, _ = QFileDialog.getOpenFileName(
             self,
@@ -135,13 +135,13 @@ class VideoConverter(QMainWindow):
             base_name = os.path.splitext(os.path.basename(file_path))[0]
             self.output_name.setText(f"{base_name}_converted")
 
-    def select_output_dir(self):
+    def select_output_dir(self) -> None:
         """选择输出目录."""
         dir_path = QFileDialog.getExistingDirectory(self, "选择输出目录")
         if dir_path:
             self.output_path.setText(dir_path)
 
-    def start_conversion(self):
+    def start_conversion(self) -> None:
         """开始转换."""
         input_file = self.input_path.text()
         output_dir = self.output_path.text()
@@ -198,13 +198,13 @@ class VideoConverter(QMainWindow):
         # 启动进程
         self.process.start(cmd[0], cmd[1:])
 
-    def handle_output(self):
+    def handle_output(self) -> None:
         """处理标准输出."""
         output = self.process.readAllStandardOutput().data().decode()
         logging.info("输出:", output)
         # 这里可以解析进度信息来更新进度条
 
-    def handle_error(self):
+    def handle_error(self) -> None:
         """处理错误输出."""
         error = self.process.readAllStandardError().data().decode()
         logging.error("错误:", error)
@@ -223,7 +223,7 @@ class VideoConverter(QMainWindow):
             except Exception as e:
                 logging.exception("解析进度信息失败:", e)
 
-    def conversion_finished(self, exit_code, exit_status):
+    def conversion_finished(self, exit_code: int, exit_status: int) -> None:
         """转换完成回调函数."""
         self.convert_button.setEnabled(True)
 
@@ -239,7 +239,7 @@ class VideoConverter(QMainWindow):
             self.progress_bar.setValue(0)
 
 
-def main():
+def main() -> None:
     app = QApplication([])
     converter = VideoConverter()
     converter.show()

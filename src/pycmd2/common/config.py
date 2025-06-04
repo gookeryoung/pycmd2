@@ -22,13 +22,13 @@ __all__ = [
 cli = get_client()
 
 
-def clear_config():
+def clear_config() -> None:
     """清除配置文件."""
     if cli.settings_dir.exists():
         shutil.rmtree(str(cli.settings_dir))
 
 
-def to_snake_case(name):
+def to_snake_case(name: str) -> str:
     """将驼峰命名转换为下划线命名, 处理连续大写字母的情况.
 
     例如: "HTTPRequest" -> "http_request".
@@ -85,7 +85,7 @@ class TomlConfigMixin:
         # 保存配置数据到文件
         atexit.register(self._save)
 
-    def _load(self):
+    def _load(self) -> None:
         if not self._config_file.exists():
             logging.error(f"未找到配置文件: {self._config_file}")
             return
@@ -99,7 +99,7 @@ class TomlConfigMixin:
         else:
             logging.info(f"载入配置: [green]{self._config_file}")
 
-    def _save(self):
+    def _save(self) -> None:
         try:
             with open(self._config_file, "wb") as f:
                 tomli_w.dump(self._props, f)

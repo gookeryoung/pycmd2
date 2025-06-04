@@ -80,7 +80,7 @@ def main(
     password: str = Argument(help="密码"),
     port: int = Argument(22, help="端口"),
     keypath: str = Argument(str(Path.home() / ".ssh/id_rsa.pub")),
-):
+) -> None:
     ssh_copy_id(
         hostname=hostname,
         port=port,

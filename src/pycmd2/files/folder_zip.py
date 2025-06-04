@@ -44,7 +44,7 @@ def main(
         Argument(help="待备份目录, 默认为当前目录"),
     ] = cli.cwd,
     ignore: Annotated[str, Option(help="忽略以此开头的目录或文件名")] = "._",
-):
+) -> None:
     ignores = list(ignore) or []
     dirs = [
         d

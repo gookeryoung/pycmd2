@@ -2,6 +2,7 @@ from PySide2.QtCore import QPointF
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QBrush
 from PySide2.QtGui import QColor
+from PySide2.QtGui import QMouseEvent
 from PySide2.QtGui import QPen
 from PySide2.QtWidgets import QGraphicsItem
 from PySide2.QtWidgets import QGraphicsRectItem
@@ -12,7 +13,7 @@ from PySide2.QtWidgets import QMenu
 class MindNode(QGraphicsRectItem):
     """思维导图节点."""
 
-    def __init__(self, text="新节点"):
+    def __init__(self, text: str = "新节点") -> None:
         super().__init__(-50, -25, 100, 50)
 
         self.setFlag(QGraphicsItem.ItemIsMovable)
@@ -31,7 +32,7 @@ class MindNode(QGraphicsRectItem):
         # 连接列表
         self.connections = []
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event: QMouseEvent) -> None:
         """鼠标左键按下事件."""
         if event.button() == Qt.LeftButton:
             view = self.scene().views()[0]
@@ -42,7 +43,7 @@ class MindNode(QGraphicsRectItem):
             else:
                 super().mousePressEvent(event)
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, event: QMouseEvent) -> None:
         """右键菜单事件."""
         menu = QMenu()
         add_child_action = menu.addAction("添加子节点")
@@ -54,13 +55,13 @@ class MindNode(QGraphicsRectItem):
         elif action == delete_action:
             self.delete_node()
 
-    def add_child_node(self):
+    def add_child_node(self) -> None:
         """添加子节点."""
         child = MindNode("子节点")
         child.setPos(self.pos() + QPointF(150, 0))
         self.scene().addItem(child)
 
-    def delete_node(self):
+    def delete_node(self) -> None:
         """删除节点."""
         for conn in self.connections:
             conn.delete_connection()

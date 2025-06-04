@@ -28,7 +28,7 @@ from pycmd2.common.gui import setup_pyside2_env
 setup_pyside2_env()
 
 
-def _process_gguf_stem(filename: str):
+def _process_gguf_stem(filename: str) -> str:
     """处理文件名, 移除可能的F16后缀."""
     if filename.upper().endswith("-F16"):
         filename = filename[:-4]  # 移除-F16后缀
@@ -42,7 +42,9 @@ class QuantizationWorker(QThread):
     progress_count_updated = Signal(int)
     finished = Signal(bool)
 
-    def __init__(self, input_file: pathlib.Path, quant_types: typing.List[str]):
+    def __init__(
+        self, input_file: pathlib.Path, quant_types: typing.List[str]
+    ) -> None:
         super().__init__()
 
         self.input_file = input_file
@@ -52,7 +54,7 @@ class QuantizationWorker(QThread):
         self.total_files = len(quant_types)
         self.completed_files = 0
 
-    def run(self):
+    def run(self) -> None:
         """执行量化转换任务."""
         try:
             for quant_type in self.quant_types:
@@ -97,16 +99,16 @@ class QuantizationWorker(QThread):
                 else:
                     self.progress_msg_updated.emit(f"转换 {quant_type} 失败")
 
-            self.finished.emit(True)
-        except Exception as e:
+            self.finished.emit(success=True)
+        except subprocess.CalledProcessError as e:
             self.progress_msg_updated.emit(f"发生错误: {e!s}")
-            self.finished.emit(False)
+            self.finished.emit(success=False)
 
 
 class GGUFQuantizerGUI(QMainWindow):
     """GGUF量化转换工具GUI界面."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("GGUF量化转换工具")
         self.setGeometry(100, 100, 600, 500)
@@ -131,7 +133,7 @@ class GGUFQuantizerGUI(QMainWindow):
 
         self.init_ui()
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         """初始化界面."""
         main_widget = QWidget()
         main_layout = QVBoxLayout()
@@ -197,7 +199,7 @@ class GGUFQuantizerGUI(QMainWindow):
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
 
-    def select_file(self):
+    def select_file(self) -> None:
         """选择文件."""
         file_path, _ = QFileDialog.getOpenFileName(
             self,
@@ -227,7 +229,7 @@ class GGUFQuantizerGUI(QMainWindow):
             self.progress_bar.setValue(0)
             self._scroll_to_bottom()
 
-    def check_existing_quant_files(self):
+    def check_existing_quant_files(self) -> None:
         """检查当前目录下已存在的量化文件, 并更新checkbox状态."""
         if not self.input_file:
             return
@@ -252,12 +254,12 @@ class GGUFQuantizerGUI(QMainWindow):
                 )
                 self.quant_checks[quant_type].setStyleSheet("")
 
-    def _scroll_to_bottom(self):
+    def _scroll_to_bottom(self) -> None:
         """滚动输出框到底部."""
         scrollbar = self.output_text.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
 
-    def start_conversion(self):
+    def start_conversion(self) -> None:
         """开始转换."""
         selected_quants: typing.List[str] = [
             q for q, check in self.quant_checks.items() if check.isChecked()
@@ -286,19 +288,19 @@ class GGUFQuantizerGUI(QMainWindow):
         self.worker.start()
 
     @Slot(str)
-    def update_progress_msg(self, message: str):
+    def update_progress_msg(self, message: str) -> None:
         """更新进度信息."""
         self.output_text.append(message)
         self.output_text.ensureCursorVisible()
         self._scroll_to_bottom()
 
     @Slot(int)
-    def update_progress_value(self, value):
+    def update_progress_value(self, value: int) -> None:
         """更新进度条."""
         self.progress_bar.setValue(value)
 
     @Slot(bool)
-    def conversion_finished(self, success):
+    def conversion_finished(self, *, success: bool) -> None:
         """转换完成回调函数."""
         self.convert_btn.setEnabled(True)
         if success:
@@ -308,7 +310,7 @@ class GGUFQuantizerGUI(QMainWindow):
             self.output_text.append("量化转换过程中出现错误!")
 
 
-def main():
+def main() -> None:
     app = QApplication(sys.argv)
 
     # 检查是否安装了llama.cpp

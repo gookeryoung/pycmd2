@@ -420,6 +420,6 @@ class PyprojectMaker:
 @cli.app.command()
 def main(
     optstr: str = Argument(help=f"构建选项: {PyprojectMaker.options_list()}"),
-):
+) -> None:
     pm = PyprojectMaker()
     pm.call_option_str(optstr)

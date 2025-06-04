@@ -1,11 +1,13 @@
 import os
 import shutil
+from pathlib import Path
 
 import pytest
+from typer.testing import CliRunner
 
 
 @pytest.fixture(scope="function", autouse=True)
-def clear_test_dir(dir_tests):
+def clear_test_dir(dir_tests: Path) -> None:
     os.chdir(dir_tests)
 
     dir_packages = dir_tests / "packages"
@@ -18,14 +20,14 @@ def clear_test_dir(dir_tests):
 
 
 @pytest.fixture(scope="function")
-def requirments_file(dir_tests):
+def requirments_file(dir_tests: Path) -> None:
     os.chdir(dir_tests)
     with open("requirements.txt", "w") as f:
         f.write("lxml==4.9.1\n")
         f.write("jinja2==3.1.2")
 
 
-def test_pip_download(typer_runner, dir_tests):
+def test_pip_download(typer_runner: CliRunner, dir_tests: Path) -> None:
     os.chdir(dir_tests)
 
     from pycmd2.pip.pip_download import cli
@@ -37,7 +39,7 @@ def test_pip_download(typer_runner, dir_tests):
     assert len(files) == 1
 
 
-def test_pip_download_req(typer_runner, requirments_file, dir_tests):
+def test_pip_download_req(typer_runner, requirments_file, dir_tests) -> None:
     os.chdir(dir_tests)
 
     from pycmd2.pip.pip_download_req import cli
@@ -55,7 +57,7 @@ def test_pip_download_req(typer_runner, requirments_file, dir_tests):
     assert len(files) == 1
 
 
-def test_pip_freeze(typer_runner, dir_tests):
+def test_pip_freeze(typer_runner, dir_tests) -> None:
     os.chdir(dir_tests)
 
     from pycmd2.pip.pip_freeze import cli
@@ -69,7 +71,7 @@ def test_pip_freeze(typer_runner, dir_tests):
         assert "pytest" in libs
 
 
-def test_pip_install(typer_runner, dir_tests):
+def test_pip_install(typer_runner, dir_tests) -> None:
     os.chdir(dir_tests)
 
     from pycmd2.pip.pip_install import cli
@@ -78,7 +80,7 @@ def test_pip_install(typer_runner, dir_tests):
     assert result.exit_code == 0
 
 
-def test_pip_install_offline(typer_runner, dir_tests):
+def test_pip_install_offline(typer_runner, dir_tests) -> None:
     os.chdir(dir_tests)
     from pycmd2.pip.pip_install_offline import cli
 
@@ -86,7 +88,7 @@ def test_pip_install_offline(typer_runner, dir_tests):
     assert result.exit_code == 0
 
 
-def test_pip_install_req(typer_runner, requirments_file, dir_tests):
+def test_pip_install_req(typer_runner, requirments_file, dir_tests) -> None:
     os.chdir(dir_tests)
 
     from pycmd2.pip.pip_install_req import cli
@@ -95,7 +97,7 @@ def test_pip_install_req(typer_runner, requirments_file, dir_tests):
     assert result.exit_code == 0
 
 
-def test_pip_uninstall_req(typer_runner, requirments_file, dir_tests):
+def test_pip_uninstall_req(typer_runner, requirments_file, dir_tests) -> None:
     os.chdir(dir_tests)
 
     from pycmd2.pip.pip_uninstall_req import cli

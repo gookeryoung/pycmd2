@@ -7,6 +7,7 @@ from typing import List
 
 from PySide2.QtCore import QProcess
 from PySide2.QtCore import QTextStream
+from PySide2.QtGui import QBrush
 from PySide2.QtGui import QColor
 from PySide2.QtGui import QDesktopServices
 from PySide2.QtGui import QTextCharFormat
@@ -52,7 +53,7 @@ conf = LlmServerConfig()
 class LlamaServerGUI(QMainWindow):
     """Llama 本地模型管理器."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle(conf.TITLE)
         self.resize(*conf.WIN_SIZE)
@@ -67,7 +68,7 @@ class LlamaServerGUI(QMainWindow):
         else:
             self.model_path_input.setPlaceholderText("选择或输入模型文件路径")
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         """初始化界面."""
         # 主界面布局
         main_widget = QWidget()
@@ -137,20 +138,20 @@ class LlamaServerGUI(QMainWindow):
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
 
-    def create_text_format(self, color):
+    def create_text_format(self, color: QColor) -> QTextCharFormat:
         """创建文本格式."""
         text_format = QTextCharFormat()
-        text_format.setForeground(color)
+        text_format.setForeground(QBrush(color))
         return text_format
 
-    def setup_process(self):
+    def setup_process(self) -> None:
         """初始化进程."""
         self.process = QProcess(self)
         self.process.readyReadStandardOutput.connect(self.handle_stdout)
         self.process.readyReadStandardError.connect(self.handle_stderr)
         self.process.finished.connect(self.on_process_finished)
 
-    def on_load_model(self):
+    def on_load_model(self) -> None:
         """选择模型文件."""
         path, _ = QFileDialog.getOpenFileName(
             self,
@@ -162,14 +163,14 @@ class LlamaServerGUI(QMainWindow):
             conf.MODEL_PATH = path
             self.model_path_input.setText(os.path.normpath(path))
 
-    def toggle_server(self):
+    def toggle_server(self) -> None:
         """启动或停止服务器."""
         if self.process.state() == QProcess.Running:
             self.stop_server()
         else:
             self.start_server()
 
-    def start_server(self):
+    def start_server(self) -> None:
         """启动服务器."""
         model_path = pathlib.Path(self.model_path_input.text().strip())
         if not model_path.exists():
@@ -192,10 +193,10 @@ class LlamaServerGUI(QMainWindow):
         try:
             self.process.start(cmd[0], cmd[1:])
             self.update_ui_state(running=True)
-        except Exception as e:
+        except QProcess.ProcessError as e:
             self.append_output(f"启动失败: {e!s}", self.error_format)
 
-    def stop_server(self):
+    def stop_server(self) -> None:
         """停止服务器."""
         if self.process.state() == QProcess.Running:
             self.append_output("正在停止服务器...", self.info_format)
@@ -203,11 +204,11 @@ class LlamaServerGUI(QMainWindow):
             if not self.process.waitForFinished(2000):
                 self.process.kill()
 
-    def on_start_browser(self):
+    def on_start_browser(self) -> None:
         """启动网页."""
         QDesktopServices.openUrl(f"{conf.URL}:{conf.LISTEN_PORT}")
 
-    def on_process_finished(self, exit_code, exit_status):
+    def on_process_finished(self, exit_code: int, exit_status: int) -> None:
         """进程结束."""
         self.append_output(
             f"\n服务器已停止, 退出码: {exit_code}, 状态: {exit_status}\n",
@@ -215,13 +216,13 @@ class LlamaServerGUI(QMainWindow):
         )
         self.update_ui_state(running=False)
 
-    def handle_stdout(self):
+    def handle_stdout(self) -> None:
         """处理标准输出."""
         data = self.process.readAllStandardOutput()
         text = QTextStream(data).readAll()
         self.append_output(text, self.info_format)
 
-    def handle_stderr(self):
+    def handle_stderr(self) -> None:
         """处理标准错误."""
         data = self.process.readAllStandardError()
         text = QTextStream(data).readAll()
@@ -231,7 +232,7 @@ class LlamaServerGUI(QMainWindow):
         self,
         text: str,
         text_format: typing.Optional[QTextCharFormat] = None,
-    ):
+    ) -> None:
         """追加输出."""
         cursor: QTextCursor = self.output_area.textCursor()
         cursor.movePosition(QTextCursor.End)
@@ -243,7 +244,7 @@ class LlamaServerGUI(QMainWindow):
         self.output_area.setTextCursor(cursor)
         self.output_area.ensureCursorVisible()
 
-    def update_ui_state(self, running: bool):
+    def update_ui_state(self, *, running: bool) -> None:
         """更新界面状态."""
         self.model_path_input.setEnabled(not running)
         self.load_model_btn.setEnabled(not running)
@@ -257,7 +258,7 @@ class LlamaServerGUI(QMainWindow):
             self.start_btn.setText("启动服务器")
 
 
-def main():
+def main() -> None:
     app = QApplication(sys.argv)
     window = LlamaServerGUI()
     window.show()

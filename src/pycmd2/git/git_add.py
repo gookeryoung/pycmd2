@@ -51,7 +51,7 @@ def get_changed_files_info() -> Set[GitAddFileStatus]:
 
 
 @cli.app.command()
-def main():
+def main() -> None:
     os.chdir(str(cli.cwd))
 
     # 计算新增的文件

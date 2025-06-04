@@ -31,7 +31,7 @@ git-fetch-with-cli = true
 """
 
 
-def setup_rustup(override: bool = True) -> None:
+def setup_rustup(*, override: bool = True) -> None:
     logging.info("配置 uv 环境变量")
 
     rustup_envs: Dict[str, str] = {
@@ -63,8 +63,9 @@ def setup_cargo() -> None:
 
 @cli.app.command()
 def main(
+    *,
     override: Annotated[bool, Option(help="是否覆盖已存在选项")] = True,
-):
+) -> None:
     setup_rustup(override=override)
     setup_cargo()
 

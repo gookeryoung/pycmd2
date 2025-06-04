@@ -15,7 +15,7 @@ from .deps.ui_checksum import Ui_ChecksumDialog
 class ChecksumDialog(QDialog, Ui_ChecksumDialog):
     """校验和对话框."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         QDialog.__init__(self)
         self.setupUi(self)
 
@@ -41,11 +41,11 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
         self.m_pbOpenFile.clicked.connect(self.open_file)
         self.m_pbGenerateFile.clicked.connect(self.generate_file_checksum)
 
-    def enable_check(self):
+    def enable_check(self) -> None:
         """激活比较功能."""
         self.m_enable_check = not self.m_enable_check
 
-    def update_checksum_method(self):
+    def update_checksum_method(self) -> None:
         """更新校验和方法."""
         if self.m_rbMD5.isChecked():
             self.m_hash_method = hashlib.md5
@@ -64,7 +64,7 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
         else:
             print("[*] 选项异常")
 
-    def generate_string_checksum(self):
+    def generate_string_checksum(self) -> None:
         """生成字符串校验和."""
         content = self.m_leString.text().encode("utf-8")
         if not len(content):
@@ -84,7 +84,7 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
 
         self.m_teChecksum.setText(hash_code)
 
-    def open_file(self):
+    def open_file(self) -> None:
         """打开文件."""
         dialog = QFileDialog()
         file_ = dialog.getOpenFileName(
@@ -96,7 +96,7 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
         self.m_current_file = file_[0]
         self.m_leFile.setText(self.m_current_file)
 
-    def generate_file_checksum(self):
+    def generate_file_checksum(self) -> None:
         """生成文件校验和."""
         if not os.path.exists(self.m_current_file):
             self.m_teChecksum.setText("请输入文件")
@@ -118,7 +118,7 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
         self.m_teChecksum.setText(hash_code)
 
 
-def main():
+def main() -> None:
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)  # type: ignore
     app = QApplication(sys.argv)
     win = ChecksumDialog()

@@ -113,6 +113,6 @@ def rename(
 def main(
     targets: Annotated[List[Path], Argument(help="目标文件或目录")],
     level: Annotated[int, Argument(help="文件级别")] = 0,
-):
+) -> None:
     rename_func = partial(rename, level=level)
     cli.run(rename_func, targets)

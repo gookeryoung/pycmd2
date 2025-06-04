@@ -6,5 +6,5 @@ cli = get_client()
 
 
 @cli.app.command()
-def main():
+def main() -> None:
     cli.run_cmd(["taskkill", "/f", "/t", "/im", "tgitcache.exe"])

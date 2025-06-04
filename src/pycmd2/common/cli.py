@@ -3,6 +3,7 @@
 import concurrent.futures
 import logging
 import platform
+import shutil
 import subprocess
 import threading
 from pathlib import Path
@@ -67,7 +68,7 @@ class Client:
         self,
         func: Callable[..., Any],
         args: Optional[Sequence[Any]] = None,
-    ):
+    ) -> None:
         """并行调用命令.
 
         Args:
@@ -106,8 +107,13 @@ class Client:
         # 启动子进程, 设置文本模式并启用行缓冲
         logging.info(f"调用命令: [green bold]{commands}")
 
+        proc_path = shutil.which(commands[0])
+        if not proc_path:
+            msg = f"找不到命令: {commands[0]}"
+            raise FileNotFoundError(msg)
+
         proc = subprocess.Popen(
-            commands,
+            [proc_path, *commands[1:]],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=False,  # 手动解码
@@ -155,7 +161,7 @@ class Client:
                 shell=True,
                 check=True,  # 检查命令是否成功
             )
-        except Exception as e:
+        except subprocess.CalledProcessError as e:
             logging.error(f"调用命令失败: [red]{e}")
         else:
             total = perf_counter() - t0

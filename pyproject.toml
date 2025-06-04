@@ -143,29 +143,38 @@ filterwarnings = ["error"]
 [tool.ruff]
 line-length = 80
 fix = true
+unsafe-fixes = true
 show-fixes = true
 output-format = "full"
-exclude = ["**/ui_*.py", "**/*_rc.py", "docs/*.py"]
+exclude = ["**/ui_*.py", "**/*_rc.py", "docs/*.py", "tests/*.py"]
 
 [tool.ruff.lint]
 select = [
-  "E",   # Pycodestyle 错误
-  "F",   # Pyflakes
-  "W",   # Pycodestyle 警告
-  "I",   # isort (导入排序)
-  "UP",  # pyupgrade (现代化语法)
-  "C",   # flake8-comprehensions
-  "B",   # flake8-bugbear
-  "Q",   # flake8-quotes
-  "A",   # flake8-builtins
-  "RUF", # Ruff 特有规则
-  "D",   # pydocstyle (文档字符串)
-  "PIE", # flake8-pie
-  "RET", # flake8-return
-  "SIM", # flake8-simplify
-  "TID", # tidy imports
-  "ERA", # 消除无用注释
-  "EM",  # 错误消息改进
+  # flake8 rules
+  "A",      # flake8-builtins
+  "ANN",    # flake8-annotations
+  "ASYNC",  # flake8-async
+  "B",      # flake8-bugbear
+  "BLE",    # flake8-blind-except
+  "C",      # flake8-comprehensions
+  "FBT",    # flake8-boolean-trap
+  "PIE",    # flake8-pie
+  "Q",      # flake8-quotes
+  #"S",      # flake8-bandit
+  "RET",    # flake8-return
+  "SIM",    # flake8-simplify
+  "YTT",    # flake8-2020
+
+  "E",      # Pycodestyle 错误
+  "F",      # Pyflakes
+  "W",      # Pycodestyle 警告
+  "I",      # isort (导入排序)
+  "UP",     # pyupgrade (现代化语法)
+  "RUF",    # Ruff 特有规则
+  "D",      # pydocstyle (文档字符串)
+  "TID",    # tidy imports
+  "ERA",    # 消除无用注释
+  "EM",     # 错误消息改进
 ]
 
 # 忽略的规则

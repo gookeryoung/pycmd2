@@ -18,13 +18,13 @@ cli = get_client()
 
 
 @pytest.fixture(scope="function", autouse=True)
-def clear_config():
+def clear_config() -> None:
     config_files = list(cli.settings_dir.glob("*.toml"))
     for config_file in config_files:
         config_file.unlink()
 
 
-def test_config():
+def test_config() -> None:
     conf = ExampleConfig()
     assert conf.FOO == "bar"
     assert conf.BAZ == "qux"
@@ -38,7 +38,7 @@ def test_config():
     assert config_file.exists()
 
 
-def test_config_load():
+def test_config_load() -> None:
     config_file = cli.settings_dir / "example.toml"
     config_file.write_text("FOO = '123'")
 
@@ -46,7 +46,7 @@ def test_config_load():
     assert conf.FOO == "123"
 
 
-def test_config_load_error(caplog):
+def test_config_load_error(caplog) -> None:
     # 模拟文件存在但内容不是有效TOML的情况
     config_file = cli.settings_dir / "example.toml"
     config_file.write_text("INVALID TOML CONTENT")
@@ -58,7 +58,7 @@ def test_config_load_error(caplog):
     assert "Expected '=' after a key in a key/value pair" in caplog.text
 
 
-def test_config_save_error(mocker, caplog):
+def test_config_save_error(mocker, caplog) -> None:
     invalid_path = Path("C:") if cli.is_windows else "/root/readonly"
     mocker.patch("pycmd2.common.cli.Client.settings_dir", invalid_path)
 

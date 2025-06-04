@@ -12,13 +12,14 @@ from pathlib import Path
 from PIL import Image
 from typer import Argument
 from typer import Option
+from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 
 cli = get_client(help_doc="图片转换工具.")
 
 
-def is_valid_image(file_path: Path):
+def is_valid_image(file_path: Path) -> bool:
     """综合校验文件是否为有效图片(支持 JPEG/PNG/GIF/BMP 等常见格式).
 
     Arguments:
@@ -70,7 +71,12 @@ def is_valid_image(file_path: Path):
     return True
 
 
-def convert_img(img_path: pathlib.Path, black_mode: bool, width: int):
+def convert_img(
+    img_path: pathlib.Path,
+    *,
+    black_mode: bool,
+    width: int,
+) -> None:
     """转化图片.
 
     Arguments:
@@ -90,7 +96,10 @@ def convert_img(img_path: pathlib.Path, black_mode: bool, width: int):
 
     if width:
         new_height = int(width / img_conv.width * img_conv.height)
-        img_conv = img_conv.resize((width, new_height), resample=Image.LANCZOS)
+        img_conv = img_conv.resize(
+            (width, new_height),
+            resample=Image.LANCZOS,
+        )
 
     new_img_path = img_path.with_name(img_path.stem + "_conv.png")
     img_conv.save(new_img_path, optimize=True, quality=90)
@@ -99,9 +108,10 @@ def convert_img(img_path: pathlib.Path, black_mode: bool, width: int):
 
 @cli.app.command()
 def main(
-    width: int = Argument(None, help="缩放尺寸宽度"),
-    black: bool = Option(False, help="黑白模式"),
-):
+    width: Annotated[int, Argument(help="缩放尺寸宽度")],
+    *,
+    black: Annotated[bool, Option(help="黑白模式")] = False,
+) -> None:
     image_files = [
         _ for _ in pathlib.Path(cli.cwd).glob("*.*") if is_valid_image(_)
     ]

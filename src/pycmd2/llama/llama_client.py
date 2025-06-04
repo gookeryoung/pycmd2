@@ -33,13 +33,13 @@ class LlamaWorker(QThread):
 
     def __init__(
         self,
-        prompt,
-        server_url,
-        max_tokens,
-        temperature,
-        top_p,
-        top_k,
-    ):
+        prompt: str,
+        server_url: str,
+        max_tokens: int,
+        temperature: float,
+        top_p: float,
+        top_k: int,
+    ) -> None:
         super().__init__()
         self.prompt = prompt
         self.server_url = server_url
@@ -49,7 +49,7 @@ class LlamaWorker(QThread):
         self.top_k = top_k
         self._is_running = True
 
-    def run(self):
+    def run(self) -> None:
         """运行线程."""
         try:
             headers = {"Content-Type": "application/json"}
@@ -90,12 +90,12 @@ class LlamaWorker(QThread):
                             except json.JSONDecodeError:
                                 continue
 
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             self.error_occurred.emit(f"Connection error: {e!s}")
         finally:
             self.finished.emit()
 
-    def stop(self):
+    def stop(self) -> None:
         """停止工作线程."""
         self._is_running = False
 
@@ -103,7 +103,7 @@ class LlamaWorker(QThread):
 class LlamaChatApp(QMainWindow):
     """llama-chat客户端."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("Llama Local Model Tool")
         self.setGeometry(100, 100, 800, 600)
@@ -114,7 +114,7 @@ class LlamaChatApp(QMainWindow):
         # 工作线程
         self.worker_thread = None
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         """初始化UI."""
         # 主窗口布局
         main_widget = QWidget()
@@ -200,7 +200,7 @@ class LlamaChatApp(QMainWindow):
         # 状态栏
         self.statusBar().showMessage("准备就绪")
 
-    def test_connection(self):
+    def test_connection(self) -> None:
         """测试与llama-server的连接."""
         server_url = self.server_url_input.text().strip()
         if not server_url:
@@ -215,10 +215,10 @@ class LlamaChatApp(QMainWindow):
                 self.statusBar().showMessage(
                     f"连接失败: {response.status_code}",
                 )
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             self.statusBar().showMessage(f"连接错误: {e!s}")
 
-    def send_prompt(self):
+    def send_prompt(self) -> None:
         """发送提示词到llama-server."""
         if self.worker_thread and self.worker_thread.isRunning():
             self.statusBar().showMessage("请等待当前请求完成")
@@ -262,7 +262,7 @@ class LlamaChatApp(QMainWindow):
 
         self.worker_thread.start()
 
-    def stop_generation(self):
+    def stop_generation(self) -> None:
         """停止生成响应."""
         if self.worker_thread and self.worker_thread.isRunning():
             self.worker_thread.stop()
@@ -271,7 +271,7 @@ class LlamaChatApp(QMainWindow):
     def update_response(
         self,
         text: str,
-    ):
+    ) -> None:
         """更新聊天显示区域."""
         # 移动光标到最后
         cursor = self.chat_display.textCursor()
@@ -291,7 +291,12 @@ class LlamaChatApp(QMainWindow):
         # 滚动到底部
         self.chat_display.ensureCursorVisible()
 
-    def append_to_chat(self, text, is_user=False):
+    def append_to_chat(
+        self,
+        text: str,
+        *,
+        is_user: bool = False,
+    ) -> None:
         """添加文本到聊天显示区域."""
         cursor = self.chat_display.textCursor()
         cursor.movePosition(QTextCursor.End)
@@ -304,12 +309,12 @@ class LlamaChatApp(QMainWindow):
         self.chat_display.append(text)
         self.chat_display.setTextColor(Qt.black)  # 重置为默认颜色
 
-    def handle_error(self, error_msg):
+    def handle_error(self, error_msg: str) -> None:
         """处理错误."""
         self.append_to_chat(f"Error: {error_msg}")
         self.statusBar().showMessage(error_msg)
 
-    def on_finished(self):
+    def on_finished(self) -> None:
         """线程完成时的处理."""
         self.send_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
@@ -323,7 +328,7 @@ class LlamaChatApp(QMainWindow):
             self.worker_thread = None
 
 
-def main():
+def main() -> None:
     app = QApplication(sys.argv)
 
     # 设置样式

@@ -3,7 +3,7 @@ from PySide2.QtWidgets import QApplication
 from pycmd2.office.mindnote.mainwindow import MindMapWindow
 
 
-def main():
+def main() -> None:
     app = QApplication([])
     window = MindMapWindow()
     window.setWindowTitle("PyMindMap")

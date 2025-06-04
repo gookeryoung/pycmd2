@@ -15,7 +15,7 @@ cli = get_client()
 @cli.app.command()
 def main(
     libnames: Annotated[List[str], Argument(help="待下载库清单")],
-):
+) -> None:
     run_pip_install_offline = partial(
         pip_install,
         options=["--no-index", "--find-links", "."],

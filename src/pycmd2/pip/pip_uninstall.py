@@ -17,5 +17,5 @@ def pip_uninstall(libname: str) -> None:
 @cli.app.command()
 def main(
     libnames: List[Path] = Argument(help="待下载库清单"),  # noqa: B008
-):
+) -> None:
     cli.run(pip_uninstall, libnames)

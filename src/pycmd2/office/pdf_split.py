@@ -46,7 +46,7 @@ def split_pdf_file(
     filepath: Path,
     output_dir: Path,
     range_list: Optional[List[Tuple[int, int]]],
-):
+) -> None:
     """按照范围进行分割.
 
     Args:
@@ -84,7 +84,7 @@ def split_pdf_file(
 @cli.app.command()
 def main(
     rangestr: str = Argument(default="", help="分割范围, 默认按单页分割"),
-):
+) -> None:
     """分割命令.
 
     Args:

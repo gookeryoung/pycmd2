@@ -19,5 +19,5 @@ def pip_install_req() -> None:
 
 
 @cli.app.command()
-def main():
+def main() -> None:
     pip_install_req()

@@ -28,5 +28,5 @@ def pip_install(libname: str, options: Optional[List[str]] = None) -> None:
 @cli.app.command()
 def main(
     libnames: Annotated[List[str], Argument(help="库名列表")],
-):
+) -> None:
     cli.run(pip_install, libnames)

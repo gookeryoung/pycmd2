@@ -50,7 +50,7 @@ def convert_image(
 
 
 @cli.app.command()
-def main():
+def main() -> None:
     image_files = sorted(_ for _ in cli.cwd.iterdir() if is_image_file(_))
     if not image_files:
         logging.error(f"路径[{cli.cwd}]下未找到图片文件.")

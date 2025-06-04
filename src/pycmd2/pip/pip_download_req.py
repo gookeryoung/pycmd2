@@ -26,5 +26,5 @@ def pip_download_req() -> None:
 
 
 @cli.app.command()
-def main():
+def main() -> None:
     pip_download_req()

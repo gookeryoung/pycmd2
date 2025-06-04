@@ -1,6 +1,7 @@
 """功能: 自动推送到github, gitee等远端, 推送前检查是否具备条件."""
 
 import logging
+import shutil
 import subprocess
 
 from pycmd2.common.cli import get_client
@@ -8,10 +9,19 @@ from pycmd2.common.cli import get_client
 cli = get_client()
 
 
-def check_git_status():
+def _get_cmd_full_path(cmd: str) -> str:
+    """获取git命令的完整路径."""
+    full_path = shutil.which(cmd)
+    if not full_path:
+        msg = f"命令不存在: {cmd}"
+        raise Exception(msg)
+    return full_path
+
+
+def check_git_status() -> bool:
     """检查是否存在未提交的修改."""
     result = subprocess.run(
-        ["git", "status", "--porcelain"],
+        [_get_cmd_full_path("git"), "status", "--porcelain"],
         capture_output=True,
         text=True,
         check=False,
@@ -22,10 +32,10 @@ def check_git_status():
     return True
 
 
-def check_sensitive_data():
+def check_sensitive_data() -> bool:
     """检查敏感信息(正则表达式可根据需求扩展)."""
     result = subprocess.run(
-        ["git", "diff", "--cached", "--name-only"],
+        [_get_cmd_full_path("git"), "diff", "--cached", "--name-only"],
         capture_output=True,
         text=True,
         check=False,
@@ -40,7 +50,7 @@ def check_sensitive_data():
 
 def push(
     remote: str,
-):
+) -> None:
     if not check_git_status():
         return
 
@@ -53,6 +63,6 @@ def push(
 
 
 @cli.app.command()
-def main():
+def main() -> None:
     remotes = ["origin", "gitee.com", "github.com"]
     cli.run(push, remotes)

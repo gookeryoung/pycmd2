@@ -17,7 +17,7 @@ def git_repo(tmp_path):
     return repo_path
 
 
-def test_git_clean(typer_runner, git_repo):
+def test_git_clean(typer_runner, git_repo) -> None:
     """Test the git_clean() method."""
     os.chdir(git_repo)
     test_file = git_repo / "test.txt"
@@ -34,7 +34,7 @@ def test_git_clean(typer_runner, git_repo):
     assert not test_file.exists()
 
 
-def test_git_init(typer_runner, tmp_path):
+def test_git_init(typer_runner, tmp_path) -> None:
     """Test the git_init() method."""
     os.chdir(tmp_path)
     Path(tmp_path / "test.txt").touch()

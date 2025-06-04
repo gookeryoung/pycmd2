@@ -30,5 +30,5 @@ def pip_download(libname: str) -> None:
 @cli.app.command()
 def main(
     libnames: Annotated[List[Path], Argument(help="待下载库清单")],
-):
+) -> None:
     cli.run(pip_download, libnames)

@@ -15,6 +15,6 @@ def pip_freeze() -> None:
 
 
 @cli.app.command()
-def main():
+def main() -> None:
     """主函数."""
     pip_freeze()

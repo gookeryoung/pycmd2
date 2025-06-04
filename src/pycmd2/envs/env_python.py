@@ -31,7 +31,7 @@ def _set_chmod(filepath: Path) -> None:
         try:
             filepath.chmod(0o600)
             logging.info(f"设置文件权限: {oct(filepath.stat().st_mode)[-3:]}")
-        except Exception:
+        except OSError:
             logging.error(f"设置文件权限失败: {filepath}")
     else:
         logging.info("Windows系统, 跳过权限设置")
@@ -41,6 +41,7 @@ def add_env_to_bashrc(
     variable: str,
     value: str,
     comment: str = "",
+    *,
     override: bool = False,
 ) -> bool:
     """安全添加或覆盖环境变量到.bashrc文件(优化空行问题).
@@ -100,12 +101,12 @@ def add_env_to_bashrc(
         logging.info(f"✅ 成功添加 {variable} 到 {BASHRC_PATH}")
         return True
 
-    except Exception as e:
+    except OSError as e:
         logging.error(f"❌ 操作失败: {e!s}")
         return False
 
 
-def setup_uv(override: bool = True) -> None:
+def setup_uv(*, override: bool = True) -> None:
     logging.info("配置 [purple bold]uv 环境变量")
 
     uv_envs = {
@@ -125,6 +126,7 @@ def setup_uv(override: bool = True) -> None:
 
 def setup_hatch_token(
     token: str,
+    *,
     override: bool = True,
 ) -> None:
     """永久配置 Hatch 的 PyPI Token.
@@ -162,8 +164,9 @@ def setup_pip() -> None:
 @cli.app.command()
 def main(
     pypi_token: Annotated[str, Option(help="pypi token")] = "",
+    *,
     override: Annotated[bool, Option(help="是否覆盖已存在选项")] = True,
-):
+) -> None:
     setup_pip()
     setup_uv(override=override)
 

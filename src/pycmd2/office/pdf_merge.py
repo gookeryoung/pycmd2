@@ -99,7 +99,9 @@ def search_directory(
     return PdfFileInfo(prefix=prefix, files=pdf_files, children=children)
 
 
-def merge_file_info(info: PdfFileInfo, root_dir: Path, writer: pypdf.PdfWriter):
+def merge_file_info(
+    info: PdfFileInfo, root_dir: Path, writer: pypdf.PdfWriter
+) -> None:
     """按照 PdfFileInfo 进行合并.
 
     Args:
@@ -112,7 +114,7 @@ def merge_file_info(info: PdfFileInfo, root_dir: Path, writer: pypdf.PdfWriter):
     else:
         root_bookmark = None
 
-    def _merge_pdf_file(filepath: Path):
+    def _merge_pdf_file(filepath: Path) -> None:
         global page_num
         with open(filepath.as_posix(), "rb") as pdf_file:
             reader = pypdf.PdfReader(pdf_file)
@@ -131,7 +133,7 @@ def merge_file_info(info: PdfFileInfo, root_dir: Path, writer: pypdf.PdfWriter):
 
 
 @cli.app.command()
-def main():
+def main() -> None:
     pdf_info = search_directory(cli.cwd, cli.cwd)
     if not pdf_info or pdf_info.count() <= 1:
         logging.error("[*] 未发现待合并文件, 退出...")

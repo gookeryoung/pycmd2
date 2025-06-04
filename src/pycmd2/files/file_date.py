@@ -91,5 +91,5 @@ def rename_target(
 @cli.app.command()
 def main(
     targets: Annotated[List[Path], Argument(help="输入文件清单")],
-):
+) -> None:
     cli.run(rename_target, targets)

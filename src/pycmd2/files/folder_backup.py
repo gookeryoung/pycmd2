@@ -48,9 +48,10 @@ def main(
         cli.cwd.parent / f"_backup_{cli.cwd.name}"
     ),
     max_count: Annotated[int, Option(help="最大备份数量")] = 5,
+    *,
     clean: Annotated[bool, Option("--clean", help="清理已有备份")] = False,
     ls: Annotated[bool, Option("--list", help="列出备份文件")] = False,
-):
+) -> None:
     backup_files = list(dest.glob("*.zip"))
     if ls:
         if not backup_files:
