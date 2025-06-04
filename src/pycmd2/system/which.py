@@ -43,16 +43,15 @@ def find_executable(name: str, *, fuzzy: bool) -> str | None:
 
 @cli.app.command()
 def main(
-    commmands: Annotated[list[str], Argument(help="待查询命令")],
+    cmd: Annotated[str, Argument(help="待查询命令")],
     *,
     fuzzy: Annotated[
         bool,
-        Option("--fuzzy", "-F", help="是否模糊匹配"),
+        Option("--fuzzy", help="是否模糊匹配"),
     ] = False,
 ) -> None:
-    for cmd in commmands:
-        path = find_executable(cmd, fuzzy=fuzzy)
-        if path:
-            logging.info(f"找到命令: [[green bold]{path}[/]]")
-        else:
-            logging.error(f"未找到符合的命令: [[red bold]{cmd}[/]]")
+    path = find_executable(cmd, fuzzy=fuzzy)
+    if path:
+        logging.info(f"找到命令: [[green bold]{path}[/]]")
+    else:
+        logging.error(f"未找到符合的命令: [[red bold]{cmd}[/]]")
