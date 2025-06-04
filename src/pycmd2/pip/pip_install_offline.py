@@ -1,7 +1,8 @@
 """功能: pip 安装库到本地."""
 
+from __future__ import annotations
+
 from functools import partial
-from typing import List
 
 from typer import Argument
 from typing_extensions import Annotated
@@ -14,7 +15,7 @@ cli = get_client()
 
 @cli.app.command()
 def main(
-    libnames: Annotated[List[str], Argument(help="待下载库清单")],
+    libnames: Annotated[list[str], Argument(help="待下载库清单")],
 ) -> None:
     run_pip_install_offline = partial(
         pip_install,

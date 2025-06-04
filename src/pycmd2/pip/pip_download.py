@@ -1,7 +1,8 @@
 """功能: pip 下载库到本地 packages 文件夹."""
 
+from __future__ import annotations
+
 from pathlib import Path
-from typing import List
 
 from typer import Argument
 from typing_extensions import Annotated
@@ -29,6 +30,6 @@ def pip_download(libname: str) -> None:
 
 @cli.app.command()
 def main(
-    libnames: Annotated[List[Path], Argument(help="待下载库清单")],
+    libnames: Annotated[list[Path], Argument(help="待下载库清单")],
 ) -> None:
     cli.run(pip_download, libnames)

@@ -3,12 +3,12 @@
 用法: filelevel -f FILES [FILES ...] -l level
 """
 
+from __future__ import annotations
+
 import typing
 from functools import partial
 from pathlib import Path
 from typing import ClassVar
-from typing import Dict
-from typing import List
 
 from typer import Argument
 from typing_extensions import Annotated
@@ -20,14 +20,14 @@ from pycmd2.common.config import TomlConfigMixin
 class FileLevelConfig(TomlConfigMixin):
     """文件级别配置."""
 
-    LEVELS: ClassVar[Dict[str, str]] = {
+    LEVELS: ClassVar[dict[str, str]] = {
         "0": "",
         "1": "PUB,NOR",
         "2": "INT",
         "3": "CON",
         "4": "CLA",
     }
-    BRACKETS: ClassVar[List[str]] = [" ([_（【-", " )]_）】"]  # noqa: RUF001
+    BRACKETS: ClassVar[list[str]] = [" ([_（【-", " )]_）】"]  # noqa: RUF001
 
 
 cli = get_client()
@@ -38,7 +38,7 @@ class FileLevel(typing.NamedTuple):
     """文件级别定义."""
 
     code: int
-    names: typing.List[str]
+    names: list[str]
 
 
 levels = [FileLevel(int(c), n.split(",")) for c, n in conf.LEVELS.items()]
@@ -46,7 +46,7 @@ levels = [FileLevel(int(c), n.split(",")) for c, n in conf.LEVELS.items()]
 
 def remove_marks(
     filename: str,
-    marks: typing.List[str],
+    marks: list[str],
 ) -> str:
     for mark in marks:
         pos = filename.find(mark)
@@ -111,7 +111,7 @@ def rename(
 
 @cli.app.command()
 def main(
-    targets: Annotated[List[Path], Argument(help="目标文件或目录")],
+    targets: Annotated[list[Path], Argument(help="目标文件或目录")],
     level: Annotated[int, Argument(help="文件级别")] = 0,
 ) -> None:
     rename_func = partial(rename, level=level)

@@ -3,11 +3,11 @@
 命令: filedate [TARGETS ...]
 """
 
+from __future__ import annotations
+
 import re
 import time
 from pathlib import Path
-from typing import List
-from typing import Tuple
 
 from typer import Argument
 from typing_extensions import Annotated
@@ -67,7 +67,7 @@ def remove_date_prefix(
 
 def rename_target(
     filepath: Path,
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     """更新日期标识, 如果没有则创建, 按照 YYYYMMDD 格式.
 
     Args:
@@ -90,6 +90,6 @@ def rename_target(
 
 @cli.app.command()
 def main(
-    targets: Annotated[List[Path], Argument(help="输入文件清单")],
+    targets: Annotated[list[Path], Argument(help="输入文件清单")],
 ) -> None:
     cli.run(rename_target, targets)

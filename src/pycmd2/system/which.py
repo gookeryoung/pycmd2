@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import logging
 import os
 import subprocess
-from typing import List
-from typing import Optional
 
 from typer import Argument
 from typer import Option
@@ -14,7 +14,7 @@ from pycmd2.common.cli import get_client
 cli = get_client()
 
 
-def find_executable(name: str, *, fuzzy: bool) -> Optional[str]:
+def find_executable(name: str, *, fuzzy: bool) -> str | None:
     """跨平台查找可执行文件路径."""
     try:
         # 根据系统选择命令
@@ -43,7 +43,7 @@ def find_executable(name: str, *, fuzzy: bool) -> Optional[str]:
 
 @cli.app.command()
 def main(
-    commmands: Annotated[List[str], Argument(help="待查询命令")],
+    commmands: Annotated[list[str], Argument(help="待查询命令")],
     *,
     fuzzy: Annotated[
         bool,

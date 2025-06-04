@@ -1,7 +1,8 @@
 """功能: 初始化 python 环境变量."""
 
+from __future__ import annotations
+
 import logging
-from typing import Dict
 
 from typer import Argument
 from typing_extensions import Annotated
@@ -11,7 +12,7 @@ from pycmd2.common.cli import get_client
 cli = get_client()
 
 
-NODE_VERSIONS: Dict[str, str] = {
+NODE_VERSIONS: dict[str, str] = {
     "V20": "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -",
     "V18": "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -",
 }

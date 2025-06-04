@@ -1,9 +1,9 @@
+from __future__ import annotations
+
 import os
 import pathlib
 import sys
-import typing
 from typing import ClassVar
-from typing import List
 
 from PySide2.QtCore import QProcess
 from PySide2.QtCore import QTextStream
@@ -36,13 +36,13 @@ class LlmServerConfig(TomlConfigMixin):
     """配置项."""
 
     TITLE: str = "Llama 本地模型管理器"
-    WIN_SIZE: ClassVar[List[int]] = [800, 800]
+    WIN_SIZE: ClassVar[list[int]] = [800, 800]
     MODEL_PATH: str = ""
 
     URL: str = "http://127.0.0.1"
     LISTEN_PORT: int = 8080
-    LISTEN_PORT_RNG: ClassVar[List[int]] = [1024, 65535]
-    THREAD_COUNT_RNG: ClassVar[List[int]] = [1, 24]
+    LISTEN_PORT_RNG: ClassVar[list[int]] = [1024, 65535]
+    THREAD_COUNT_RNG: ClassVar[list[int]] = [1, 24]
     THREAD_COUNT: int = 4
 
 
@@ -231,7 +231,7 @@ class LlamaServerGUI(QMainWindow):
     def append_output(
         self,
         text: str,
-        text_format: typing.Optional[QTextCharFormat] = None,
+        text_format: QTextCharFormat | None = None,
     ) -> None:
         """追加输出."""
         cursor: QTextCursor = self.output_area.textCursor()

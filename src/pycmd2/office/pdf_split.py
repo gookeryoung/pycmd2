@@ -1,12 +1,10 @@
 """功能: 拆分指定 pdf 文件为多个 pdf."""
 
+from __future__ import annotations
+
 import logging
-import typing
 from functools import partial
 from pathlib import Path
-from typing import List
-from typing import Optional
-from typing import Tuple
 
 import pypdf
 from typer import Argument
@@ -19,7 +17,7 @@ cli = get_client(help_doc="pdf 分割工具.")
 
 def parse_range_list(
     rangestr: str,
-) -> Optional[List[Tuple[int, int]]]:
+) -> list[tuple[int, int]] | None:
     """分析分割参数.
 
     Args:
@@ -32,7 +30,7 @@ def parse_range_list(
         return None
 
     ranges = [x.strip() for x in rangestr.split(",")]
-    range_list: List[Tuple[int, int]] = []
+    range_list: list[tuple[int, int]] = []
     for e in ranges:
         if "-" in e:
             start, end = e.split("-")
@@ -45,7 +43,7 @@ def parse_range_list(
 def split_pdf_file(
     filepath: Path,
     output_dir: Path,
-    range_list: Optional[List[Tuple[int, int]]],
+    range_list: list[tuple[int, int]] | None,
 ) -> None:
     """按照范围进行分割.
 
@@ -61,7 +59,7 @@ def split_pdf_file(
             range_list = [(_ + 1, _ + 1) for _ in range(len(reader.pages))]
 
         logging.info(f"分割文件: {filepath}, 范围列表: {range_list}")
-        out_pdfs: typing.List[Path] = [
+        out_pdfs: list[Path] = [
             output_dir / f"{filepath.stem}#{b:03}-{e:03}{filepath.suffix}"
             for (b, e) in range_list
         ]

@@ -1,11 +1,11 @@
 """功能: 合并当前目录下所有 pdf 文件, 最多包含两层目录."""
 
+from __future__ import annotations
+
 import dataclasses
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import List
-from typing import Optional
 
 import pypdf
 
@@ -30,8 +30,8 @@ class PdfFileInfo:
     """pdf 文件信息."""
 
     prefix: str
-    files: List[Path]
-    children: List["PdfFileInfo"]
+    files: list[Path]
+    children: list[PdfFileInfo]
 
     def count(self) -> int:
         """计算文件数量."""
@@ -66,7 +66,7 @@ def relative_depth(search_dir: Path, root_dir: Path) -> int:
 def search_directory(
     search_dir: Path,
     root_dir: Path,
-) -> Optional[PdfFileInfo]:
+) -> PdfFileInfo | None:
     """搜索目录下的所有pdf文件.
 
     Args:
@@ -76,7 +76,7 @@ def search_directory(
     if relative_depth(search_dir, root_dir) > MAX_SEARCH_DEPTH:
         return None
 
-    children: List[PdfFileInfo] = []
+    children: list[PdfFileInfo] = []
     folders = [
         d
         for d in sorted(search_dir.iterdir())

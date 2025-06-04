@@ -1,10 +1,11 @@
 """GGUF量化转换GUI工具, 用于将F16格式的GGUF文件转换为其他主流量化格式."""
 
+from __future__ import annotations
+
 import os
 import pathlib
 import subprocess
 import sys
-import typing
 
 from PySide2.QtCore import QThread
 from PySide2.QtCore import Signal
@@ -45,7 +46,7 @@ class QuantizationWorker(QThread):
     def __init__(
         self,
         input_file: pathlib.Path,
-        quant_types: typing.List[str],
+        quant_types: list[str],
     ) -> None:
         super().__init__()
 
@@ -116,7 +117,7 @@ class GGUFQuantizerGUI(QMainWindow):
         self.setGeometry(100, 100, 600, 500)
 
         self.input_file: pathlib.Path = pathlib.Path()
-        self.worker: typing.Optional[QuantizationWorker] = None
+        self.worker: QuantizationWorker | None = None
         self.quant_types = {
             "Q2_K": "Q2_K (极低精度, 最小尺寸)",
             "Q3_K_S": "Q3_K_S (低精度, 小尺寸)",
@@ -263,7 +264,7 @@ class GGUFQuantizerGUI(QMainWindow):
 
     def start_conversion(self) -> None:
         """开始转换."""
-        selected_quants: typing.List[str] = [
+        selected_quants: list[str] = [
             q for q, check in self.quant_checks.items() if check.isChecked()
         ]
 

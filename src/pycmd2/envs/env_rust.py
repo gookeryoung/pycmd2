@@ -1,8 +1,9 @@
 """功能: 初始化 python 环境变量."""
 
+from __future__ import annotations
+
 import logging
 import platform
-from typing import Dict
 
 from typer import Option
 from typing_extensions import Annotated
@@ -34,7 +35,7 @@ git-fetch-with-cli = true
 def setup_rustup(*, override: bool = True) -> None:
     logging.info("配置 uv 环境变量")
 
-    rustup_envs: Dict[str, str] = {
+    rustup_envs: dict[str, str] = {
         "RUSTUP_UPDATE_ROOT": "https://rsproxy.cn",
         "RUSTUP_DIST_SERVER": "https://pypi.tuna.tsinghua.edu.cn/simple",
     }

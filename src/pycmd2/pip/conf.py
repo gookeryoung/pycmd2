@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from typing import ClassVar
-from typing import List
 
 from pycmd2.common.cli import get_client
 from pycmd2.common.config import TomlConfigMixin
@@ -12,7 +13,7 @@ class PipConfig(TomlConfigMixin):
 
     NAME = "pip"
 
-    TRUSTED_PIP_URL: ClassVar[List[str]] = [
+    TRUSTED_PIP_URL: ClassVar[list[str]] = [
         "--trusted-host",
         "pypi.tuna.tsinghua.edu.cn",
         "-i",

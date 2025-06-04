@@ -3,6 +3,8 @@
 命令: mkp [OPTIONS]
 """
 
+from __future__ import annotations
+
 import datetime
 import logging
 import re
@@ -12,9 +14,6 @@ from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import ClassVar
-from typing import Dict
-from typing import List
-from typing import Union
 
 from typer import Argument
 
@@ -34,7 +33,7 @@ class MakeOption:
     """MakeOption 选项."""
 
     name: str
-    commands: List[Union[str, List[str], Callable[..., Any]]]
+    commands: list[str | list[str] | Callable[..., Any]]
     desc: str = ""
 
     @classmethod
@@ -359,7 +358,7 @@ class PyprojectMaker:
         内部调用选项, 执行其命令并处理描述信息
     """
 
-    options: ClassVar[Dict[str, MakeOption]] = {
+    options: ClassVar[dict[str, MakeOption]] = {
         "act": ActivateOption(),
         "bpub": BumpPublishOption(),
         "bump": BumpOption(),
@@ -392,7 +391,7 @@ class PyprojectMaker:
         self._call_option(option)
 
     @classmethod
-    def options_list(cls) -> List[str]:
+    def options_list(cls) -> list[str]:
         """获取所有可用的选项名称列表."""
         return list(cls.options.keys())
 

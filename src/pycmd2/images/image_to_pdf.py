@@ -1,8 +1,9 @@
 """功能: 将当前路径下所有图片合并为pdf文件."""
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
-from typing import List
 
 from PIL import Image
 
@@ -10,7 +11,7 @@ from pycmd2.common.cli import get_client
 
 cli = get_client(help_doc="图片转化 pdf 工具.")
 
-images_converted: List[Image.Image] = []
+images_converted: list[Image.Image] = []
 
 
 def is_image_file(

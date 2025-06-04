@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QPainterPath
@@ -14,7 +14,7 @@ class Connection(QGraphicsPathItem):
     def __init__(
         self,
         start_node: MindNode,
-        end_node: Optional[MindNode] = None,
+        end_node: MindNode | None = None,
     ) -> None:
         super().__init__()
         self.start_node = start_node

@@ -1,7 +1,8 @@
 """功能: 卸载库."""
 
+from __future__ import annotations
+
 from pathlib import Path
-from typing import List
 
 from typer import Argument
 
@@ -16,6 +17,6 @@ def pip_uninstall(libname: str) -> None:
 
 @cli.app.command()
 def main(
-    libnames: List[Path] = Argument(help="待下载库清单"),  # noqa: B008
+    libnames: list[Path] = Argument(help="待下载库清单"),  # noqa: B008
 ) -> None:
     cli.run(pip_uninstall, libnames)

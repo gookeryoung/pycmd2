@@ -1,7 +1,8 @@
 """功能: 重新安装库."""
 
+from __future__ import annotations
+
 from pathlib import Path
-from typing import List
 
 from typer import Argument
 from typing_extensions import Annotated
@@ -27,6 +28,6 @@ def pip_reinstall(libname: str) -> None:
 
 @cli.app.command()
 def main(
-    libnames: Annotated[List[Path], Argument(help="待下载库清单")],
+    libnames: Annotated[list[Path], Argument(help="待下载库清单")],
 ) -> None:
     cli.run(pip_reinstall, libnames)

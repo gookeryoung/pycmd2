@@ -3,12 +3,13 @@
 命令: gitadd
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Set
 
 from pycmd2.common.cli import get_client
 
@@ -32,7 +33,7 @@ class GitAddFileStatus:
         return hash((self.status, str(self.filepath)))
 
 
-def get_changed_files_info() -> Set[GitAddFileStatus]:
+def get_changed_files_info() -> set[GitAddFileStatus]:
     """获取git状态变化的文件列表."""
     result = subprocess.run(
         ["git", "status", "--porcelain"],
@@ -40,7 +41,7 @@ def get_changed_files_info() -> Set[GitAddFileStatus]:
         text=True,
         check=False,
     )
-    files: Set[GitAddFileStatus] = set()
+    files: set[GitAddFileStatus] = set()
     if result.returncode == 0:
         for line in result.stdout.splitlines():
             if line.strip():

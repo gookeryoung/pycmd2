@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import logging
 import os
 from pathlib import Path
 from typing import ClassVar
-from typing import List
 
 from PySide2.QtCore import QProcess
 from PySide2.QtCore import QStandardPaths
@@ -28,7 +29,7 @@ class VideoConverterConfig(TomlConfigMixin):
     SRC_DIR = Path.home() / "Desktop"
     OUTPUT_DIR = Path.home() / "Desktop"
     TITLE = "FFmpeg 视频转换工具"
-    WIN_SIZE: ClassVar[List[int]] = [720, 0]
+    WIN_SIZE: ClassVar[list[int]] = [720, 0]
 
 
 conf = VideoConverterConfig()

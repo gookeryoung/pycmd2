@@ -1,5 +1,7 @@
 """控制命令行工具."""
 
+from __future__ import annotations
+
 import concurrent.futures
 import logging
 import platform
@@ -11,8 +13,6 @@ from time import perf_counter
 from typing import Any
 from typing import Callable
 from typing import IO
-from typing import List
-from typing import Optional
 from typing import Sequence
 
 import typer
@@ -67,7 +67,7 @@ class Client:
     def run(
         self,
         func: Callable[..., Any],
-        args: Optional[Sequence[Any]] = None,
+        args: Sequence[Any] | None = None,
     ) -> None:
         """并行调用命令.
 
@@ -85,7 +85,7 @@ class Client:
             return
 
         t0 = perf_counter()
-        returns: List[concurrent.futures.Future[Any]] = []
+        returns: list[concurrent.futures.Future[Any]] = []
 
         logging.info(f"启动线程, 目标参数: [green]{len(args)}[/] 个")
         with concurrent.futures.ThreadPoolExecutor() as t:
@@ -96,7 +96,7 @@ class Client:
 
     def run_cmd(
         self,
-        commands: List[str],
+        commands: list[str],
     ) -> None:
         """执行命令并实时记录输出到日志.
 
