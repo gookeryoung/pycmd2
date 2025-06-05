@@ -10,15 +10,18 @@ import logging
 import re
 import shutil
 from functools import partial
-from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import ClassVar
+from typing import TYPE_CHECKING
 
 from typer import Argument
 
 from pycmd2.common.cli import get_client
 from pycmd2.git.git_push_all import main as git_push_all
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 try:
     import tomllib  # type: ignore

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QPainterPath
 from PySide2.QtGui import QPen
 from PySide2.QtWidgets import QGraphicsPathItem
 
-from .node import MindNode
+if TYPE_CHECKING:
+    from .node import MindNode
 
 
 class Connection(QGraphicsPathItem):

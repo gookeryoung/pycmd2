@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import logging
 from functools import partial
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pypdf
 from typer import Argument
 
 from pycmd2.common.cli import get_client
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 cli = get_client(help_doc="pdf 加密/解密工具.")
 

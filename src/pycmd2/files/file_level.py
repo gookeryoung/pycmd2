@@ -8,7 +8,6 @@ from __future__ import annotations
 import logging
 import typing
 from functools import partial
-from pathlib import Path
 from typing import ClassVar
 
 from typer import Argument
@@ -16,6 +15,9 @@ from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 from pycmd2.common.config import TomlConfigMixin
+
+if typing.TYPE_CHECKING:
+    from pathlib import Path
 
 
 class FileLevelConfig(TomlConfigMixin):

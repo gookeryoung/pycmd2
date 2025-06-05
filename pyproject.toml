@@ -174,12 +174,20 @@ select = [
   "ISC",    # flake8-implicit-str-concat
   #"LOG",    # flake8-logging
   "PIE",    # flake8-pie
+  "PT",     # flake8-pytest-style
+  "PYI",    # flake8-pyi
   "Q",      # flake8-quotes
   "RET",    # flake8-return
+  "RSE",    # flake8-raise
   #"S",      # flake8-bandit
   "SIM",    # flake8-simplify
+  "SLF",    # flake8-self
+  "SLOT",   # flake8-slots
   "T10",    # flake8-debugger
   "T20",    # flake8-print
+  "TC",     # flake8-type-checking
+  "TD",     # flake8-todo
+  "TID",    # flake8-tidy-imports
   "YTT",    # flake8-2020
 
   "E",      # Pycodestyle 错误
