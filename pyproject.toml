@@ -148,6 +148,7 @@ show-fixes = true
 output-format = "full"
 exclude = ["**/ui_*.py", "**/*_rc.py", "docs/*.py", "tests/*.py"]
 target-version = "py38"
+preview = true
 
 [tool.ruff.lint]
 select = [
@@ -168,6 +169,7 @@ select = [
   "FA",     # flake8-future-annotations
   "FBT",    # flake8-boolean-trap
   "FIX",    # flake8-fixme
+  "FLY",    # flake8-flynt
   #"G",      # flake8-logging-format
   "ICN",    # flake8-import-conventions
   "INT",    # flake8-gettext
@@ -192,13 +194,24 @@ select = [
   "TID",    # flake8-tidy-imports
   "YTT",    # flake8-2020
 
+  "C90",    # mccabe
+  "D",      # pydocstyle (文档字符串)
+  #"DOC",    # docstrings
   "E",      # Pycodestyle 错误
   "F",      # Pyflakes
-  "W",      # Pycodestyle 警告
   "I",      # isort (导入排序)
+  "N",      # pep8-naming
+  #"N8",     # Ned Batchelder
+  "NPY",    # numpy-specific
+  "PD",     # pandas-set
+  "PERF",   # perflint
+  "PGH",    # pygrep-hooks
+  #"PL",     # Pylint
+  #"PLW",    # Pylint (warnings)
+  "W",      # Pycodestyle 警告
+
   "UP",     # pyupgrade (现代化语法)
   "RUF",    # Ruff 特有规则
-  "D",      # pydocstyle (文档字符串)
   "TID",    # tidy imports
   "ERA",    # 消除无用注释
   "EM",     # 错误消息改进
@@ -212,6 +225,7 @@ ignore = [
   "D107",
   "D203", # D 规则中与 Black 冲突的部分
   "D212", # 多行文档字符串首行是否空行
+  "N802",
 ]
 
 # 格式化配置 (Ruff 的格式化器)

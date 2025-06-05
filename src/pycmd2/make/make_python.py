@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 try:
-    import tomllib  # type: ignore
+    import tomllib  # type: ignore[import]
 except ModuleNotFoundError:
     import tomli as tomllib
 
@@ -105,7 +105,7 @@ class MakeOption:
 
                     # 构造新行(保留原始格式).
                     quote = match.group(3) or ""  # 获取原引号(可能为空)
-                    new_line = f"{match.group(1)}{match.group(2)} = {quote}{build_date}{quote}{match.group(5)}"  # noqa
+                    new_line = f"{match.group(1)}{match.group(2)} = {quote}{build_date}{quote}{match.group(5)}"  # noqa: E501
                     new_content = pattern.sub(new_line, content, count=1)
 
                     # 检查是否需要更新

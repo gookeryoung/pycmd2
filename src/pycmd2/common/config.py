@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pycmd2.common.cli import get_client
 
 try:
-    import tomllib  # type: ignore
+    import tomllib  # type: ignore[import]
 except ModuleNotFoundError:
     import tomli as tomllib
 

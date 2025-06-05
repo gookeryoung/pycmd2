@@ -75,6 +75,9 @@ def search_directory(
     Args:
         search_dir (Path): 当前搜索目录
         root_dir (Path): 根目录
+
+    Returns:
+        PdfFileInfo | None: 搜索到的 PdfFileInfo
     """
     if relative_depth(search_dir, root_dir) > MAX_SEARCH_DEPTH:
         return None

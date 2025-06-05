@@ -17,7 +17,11 @@ StrList = List[str]
 
 
 def find_executable(name: str, *, fuzzy: bool) -> str | None:
-    """跨平台查找可执行文件路径."""
+    """跨平台查找可执行文件路径.
+
+    Returns:
+        str | None: 可执行文件路径, 如果未找到则返回 None
+    """
     try:
         # 根据系统选择命令
         match_name = name if not fuzzy else f"*{name}*.exe"

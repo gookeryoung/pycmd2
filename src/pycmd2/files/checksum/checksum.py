@@ -120,7 +120,7 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
 
 
 def main() -> None:
-    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)  # type: ignore
+    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)  # type: ignore[call-overload]
     app = QApplication(sys.argv)
     win = ChecksumDialog()
     win.show()
