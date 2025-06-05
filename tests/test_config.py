@@ -54,7 +54,7 @@ def test_config_load_error(caplog) -> None:
     conf = ExampleConfig()
     conf._load()
 
-    assert "载入配置错误" in caplog.text
+    assert "读取配置错误" in caplog.text
     assert "Expected '=' after a key in a key/value pair" in caplog.text
 
 

@@ -152,7 +152,6 @@ preview = true
 
 [tool.ruff.lint]
 select = [
-  # flake8 rules
   "A",      # flake8-builtins
   "ANN",    # flake8-annotations
   "ARG",    # flake8-arguments
@@ -162,6 +161,7 @@ select = [
   "C",      # flake8-comprehensions
   "C4",     # flake8-comprehensions
   "COM",    # flake8-commas
+  #"CPY",    # flake8-copyright
   "DJ",     # flake8-django
   "DTZ",    # flake8-datetimez
   "EM",     # flake8-errmsg
@@ -169,7 +169,6 @@ select = [
   "FA",     # flake8-future-annotations
   "FBT",    # flake8-boolean-trap
   "FIX",    # flake8-fixme
-  "FLY",    # flake8-flynt
   #"G",      # flake8-logging-format
   "ICN",    # flake8-import-conventions
   "INT",    # flake8-gettext
@@ -194,30 +193,27 @@ select = [
   "TID",    # flake8-tidy-imports
   "YTT",    # flake8-2020
 
+  "AIR",    # Airflow
   "C90",    # mccabe
   "D",      # pydocstyle (文档字符串)
   #"DOC",    # docstrings
   "E",      # Pycodestyle 错误
+  "ERA",    # Eradicate
   "F",      # Pyflakes
+  "FAST",   # FastAPI
+  "FLY",    # flynt
   "FURB",   # refurb
   "I",      # isort (导入排序)
   "N",      # pep8-naming
-  #"N8",     # Ned Batchelder
   "NPY",    # numpy-specific
   "PD",     # pandas-set
   "PERF",   # perflint
   "PGH",    # pygrep-hooks
   "PL",     # Pylint
-  "PLC",    # convention
-  #"PLW",    # Pylint (warnings)
   "RUF",    # Ruff 特有规则
   "TRY",    # tryceratops
   "UP",     # pyupgrade (现代化语法)
   "W",      # Pycodestyle 警告
-
-  "TID",    # tidy imports
-  "ERA",    # 消除无用注释
-  "EM",     # 错误消息改进
 ]
 
 # 忽略的规则
