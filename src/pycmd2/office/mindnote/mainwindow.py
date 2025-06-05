@@ -112,6 +112,8 @@ class MindMapWindow(QMainWindow):
         if self.temp_connection:
             self.temp_connection.update_path()
 
+        event.accept()
+
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         """处理场景内鼠标释放事件."""
         if self.temp_connection:

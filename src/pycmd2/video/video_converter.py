@@ -235,7 +235,7 @@ class VideoConverter(QMainWindow):
             QMessageBox.critical(
                 self,
                 "错误",
-                f"转换失败, 错误代码: {exit_code}",
+                f"转换失败, 错误代码: {exit_code}, 错误状态: {exit_status}",
             )
             self.progress_bar.setValue(0)
 
