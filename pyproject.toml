@@ -199,6 +199,7 @@ select = [
   #"DOC",    # docstrings
   "E",      # Pycodestyle 错误
   "F",      # Pyflakes
+  "FURB",   # refurb
   "I",      # isort (导入排序)
   "N",      # pep8-naming
   #"N8",     # Ned Batchelder
@@ -206,12 +207,12 @@ select = [
   "PD",     # pandas-set
   "PERF",   # perflint
   "PGH",    # pygrep-hooks
-  #"PL",     # Pylint
+  "PL",     # Pylint
   #"PLW",    # Pylint (warnings)
+  "RUF",    # Ruff 特有规则
+  "UP",     # pyupgrade (现代化语法)
   "W",      # Pycodestyle 警告
 
-  "UP",     # pyupgrade (现代化语法)
-  "RUF",    # Ruff 特有规则
   "TID",    # tidy imports
   "ERA",    # 消除无用注释
   "EM",     # 错误消息改进
@@ -226,6 +227,12 @@ ignore = [
   "D203", # D 规则中与 Black 冲突的部分
   "D212", # 多行文档字符串首行是否空行
   "N802",
+  "PLR0915",
+  "PLW0603",
+  "PLR1702",
+  "PLR0913",
+  "PLR0917",
+  "PLW0602",
 ]
 
 # 格式化配置 (Ruff 的格式化器)

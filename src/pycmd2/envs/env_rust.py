@@ -72,7 +72,7 @@ def main(
 
     machine = (
         "x86_64"
-        if platform.machine().lower() in ("x86_64", "amd64")
+        if platform.machine().lower() in {"x86_64", "amd64"}
         else "i686"
     )
 

@@ -16,7 +16,6 @@ def ssh_copy_id(
     username: str,
     password: str,
     public_key_path: str = "~/.ssh/id_rsa.pub",
-    timeout: int = 10,
 ) -> None:
     """实现类似 ssh-copy-id 的功能.
 
@@ -37,7 +36,7 @@ def ssh_copy_id(
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-        ssh.connect(hostname, port, username, password, timeout=timeout)
+        ssh.connect(hostname, port, username, password, timeout=10)
     except paramiko.AuthenticationException as e:
         msg = "认证失败, 请检查用户名或密码"
         raise Exception(msg) from e

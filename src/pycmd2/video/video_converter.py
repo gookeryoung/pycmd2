@@ -188,7 +188,7 @@ class VideoConverter(QMainWindow):
 
         cmd.extend(["-c:a", "aac", "-strict", "experimental", "-b:a", "192k"])
         cmd.append(str(output_file))
-        logging.info("执行命令:", " ".join(cmd))
+        logging.info(f"执行命令: {''.join(cmd)}")
 
         # 禁用按钮, 防止重复点击
         self.convert_button.setEnabled(False)
@@ -200,13 +200,13 @@ class VideoConverter(QMainWindow):
     def handle_output(self) -> None:
         """处理标准输出."""
         output = self.process.readAllStandardOutput().data().decode()
-        logging.info("输出:", output)
+        logging.info(f"输出: {output!s}")
         # 这里可以解析进度信息来更新进度条
 
     def handle_error(self) -> None:
         """处理错误输出."""
         error = self.process.readAllStandardError().data().decode()
-        logging.error("错误:", error)
+        logging.error(f"错误: {error!s}")
 
         # 尝试从错误输出中解析进度
         if "time=" in error:
@@ -220,7 +220,8 @@ class VideoConverter(QMainWindow):
                 progress = (total_seconds / 60) * 100
                 self.progress_bar.setValue(min(int(progress), 100))
             except Exception as e:
-                logging.exception("解析进度信息失败:", e)
+                msg = f"无法解析进度信息: {e}"
+                logging.exception(msg)
 
     def conversion_finished(self, exit_code: int, exit_status: int) -> None:
         """转换完成回调函数."""

@@ -64,8 +64,8 @@ class Client:
         """是否为 Windows 系统."""
         return platform.system() == "Windows"
 
+    @staticmethod
     def run(
-        self,
         func: Callable[..., Any],
         args: Sequence[Any] | None = None,
     ) -> None:
@@ -94,8 +94,8 @@ class Client:
                 returns.append(t.submit(func, arg))
         logging.info(f"关闭线程, 用时: [green bold]{perf_counter() - t0:.4f}s.")
 
+    @staticmethod
     def run_cmd(
-        self,
         commands: list[str],
     ) -> None:
         """执行命令并实时记录输出到日志.
@@ -144,8 +144,8 @@ class Client:
 
         logging.info(f"用时: [green bold]{perf_counter() - t0:.4f}s.")
 
+    @staticmethod
     def run_cmdstr(
-        self,
         cmdstr: str,
     ) -> None:
         """直接执行命令, 用于避免输出重定向.

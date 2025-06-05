@@ -172,7 +172,7 @@ class MindMapWindow(QMainWindow):
                 end_idx = nodes.index(conn.end_node)
                 data["connections"].append((start_idx, end_idx))
 
-        with Path(path).open("w") as f:
+        with Path(path).open("w", encoding="utf-8") as f:
             json.dump(data, f)
 
     def load_mindmap(self) -> None:
@@ -186,7 +186,7 @@ class MindMapWindow(QMainWindow):
         if not path:
             return
 
-        with Path(path).open() as f:
+        with Path(path).open(encoding="utf-8") as f:
             data = json.load(f)
 
         self.scene.clear()

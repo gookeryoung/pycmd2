@@ -9,11 +9,13 @@ import datetime
 import logging
 import re
 import shutil
+import webbrowser
 from functools import partial
 from typing import Any
 from typing import Callable
 from typing import ClassVar
 from typing import TYPE_CHECKING
+from urllib.request import pathname2url
 
 from typer import Argument
 
@@ -69,7 +71,7 @@ class MakeOption:
             return ""
 
     @classmethod
-    def update_build_date(cls) -> bool:
+    def update_build_date(cls) -> None:
         """更新构建日期."""
         build_date = datetime.datetime.now(datetime.timezone.utc).strftime(
             "%Y-%m-%d",
@@ -94,14 +96,10 @@ class MakeOption:
 
                     # 查找所有匹配项
                     matches = pattern.findall(content)
-                    if not matches:
-                        logging.warning("未找到 __build_date__ 定义")
-                        return False
-
                     match = pattern.search(content)
-                    if not match:
-                        logging.warning("未找到有效的 __build_date__ 定义")
-                        return False
+                    if not matches or not match:
+                        logging.warning("未找到 __build_date__ 定义")
+                        return
 
                     # 构造新行(保留原始格式).
                     quote = match.group(3) or ""  # 获取原引号(可能为空)
@@ -111,23 +109,18 @@ class MakeOption:
                     # 检查是否需要更新
                     if new_content == content:
                         logging.info("构建日期已是最新, 无需更新")
-                        return True
 
                     # 回写文件
                     f.seek(0)
                     f.write(new_content)
                     f.truncate()
-                    return True
             except Exception as e:
                 logging.exception(f"操作失败: [red]{init_file}, {e!s}")
-                return False
+                return
 
             logging.info(
                 f"更新文件: {init_file}, __build_date__ -> {build_date}",
             )
-            return True
-
-        return False
 
 
 def _activate_py_env() -> None:
@@ -215,9 +208,6 @@ class CleanOption(MakeOption):
 
 def _browse_coverage() -> None:
     """打开浏览器查看测试覆盖率结果."""
-    import webbrowser
-    from urllib.request import pathname2url
-
     webbrowser.open(
         "file://" + pathname2url(str(cli.cwd / "htmlcov" / "index.html")),
     )

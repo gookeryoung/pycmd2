@@ -138,7 +138,8 @@ class LlamaServerGUI(QMainWindow):
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
 
-    def create_text_format(self, color: QColor) -> QTextCharFormat:
+    @staticmethod
+    def create_text_format(color: QColor) -> QTextCharFormat:
         """创建文本格式."""
         text_format = QTextCharFormat()
         text_format.setForeground(QBrush(color))
@@ -204,7 +205,8 @@ class LlamaServerGUI(QMainWindow):
             if not self.process.waitForFinished(2000):
                 self.process.kill()
 
-    def on_start_browser(self) -> None:
+    @staticmethod
+    def on_start_browser() -> None:
         """启动网页."""
         QDesktopServices.openUrl(f"{conf.URL}:{conf.LISTEN_PORT}")
 

@@ -68,7 +68,7 @@ class LlamaWorker(QThread):
                 json=data,
                 stream=True,
             ) as response:
-                if response.status_code != 200:
+                if response.status_code != requests.codes.ok:
                     self.error_occurred.emit(
                         f"Error: {response.status_code} - {response.text}",
                     )
@@ -209,7 +209,7 @@ class LlamaChatApp(QMainWindow):
 
         try:
             response = requests.get(f"{server_url}/health")
-            if response.status_code == 200:
+            if response.status_code == requests.codes.ok:
                 self.statusBar().showMessage("连接成功!")
             else:
                 self.statusBar().showMessage(

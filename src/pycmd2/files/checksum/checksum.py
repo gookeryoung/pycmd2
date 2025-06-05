@@ -79,9 +79,9 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
                 return
 
             if self.m_leCompare.text() == hash_code:
-                hash_code = hash_code + "\n校验和相同"
+                hash_code += "\n校验和相同"
             else:
-                hash_code = hash_code + "\n校验和不同"
+                hash_code += "\n校验和不同"
 
         self.m_teChecksum.setText(hash_code)
 
@@ -112,9 +112,9 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
                 return
 
             if self.m_leCompare.text() == hash_code:
-                hash_code = hash_code + "\n校验和相同"
+                hash_code += "\n校验和相同"
             else:
-                hash_code = hash_code + "\n校验和不同"
+                hash_code += "\n校验和不同"
 
         self.m_teChecksum.setText(hash_code)
 

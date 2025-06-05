@@ -16,9 +16,10 @@ from typing_extensions import Annotated
 from pycmd2.common.cli import get_client
 
 cli = get_client(help_doc="图片转换工具.")
+GRAYSCALE_THRESHOLD = 128  # 灰度阈值, 用于黑白模式下的二值化处理
 
 
-def is_valid_image(file_path: Path) -> bool:
+def is_valid_image(file_path: Path) -> bool:  # noqa: PLR0911
     """综合校验文件是否为有效图片(支持 JPEG/PNG/GIF/BMP 等常见格式).
 
     Arguments:
@@ -91,7 +92,10 @@ def convert_img(
     img_conv = img.convert("L")
 
     if black_mode:
-        img_conv = img_conv.point(lambda x: 0 if x < 128 else 255, "1")
+        img_conv = img_conv.point(
+            lambda x: 0 if x < GRAYSCALE_THRESHOLD else 255,
+            "1",
+        )
 
     if width:
         new_height = int(width / img_conv.width * img_conv.height)
