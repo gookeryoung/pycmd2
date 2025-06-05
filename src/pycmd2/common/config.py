@@ -99,7 +99,8 @@ class TomlConfigMixin:
             with self._config_file.open("rb") as f:
                 self._config = tomllib.load(f)
         except Exception as e:
-            logging.exception(f"载入配置错误: {e}")
+            msg = f"读取配置错误: {e.__class__.__name__}: {e}"
+            logging.exception(msg)
             return
         else:
             logging.info(f"载入配置: [green]{self._config_file}")
@@ -109,6 +110,7 @@ class TomlConfigMixin:
             with self._config_file.open("wb") as f:
                 tomli_w.dump(self._props, f)
         except Exception as e:
-            logging.exception(f"保存配置错误: {e}")
+            msg = f"保存配置错误: {e.__class__.__name__}: {e}"
+            logging.exception(msg)
         else:
             logging.info(f"保存配置: [green]{self._config_file}")

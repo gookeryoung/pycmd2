@@ -31,9 +31,9 @@ def is_image_file(
     try:
         with Image.open(file_path) as img:
             img.verify()  # 验证图像是否损坏
-        return True
     except OSError:
         return False
+    return True
 
 
 def convert_image(

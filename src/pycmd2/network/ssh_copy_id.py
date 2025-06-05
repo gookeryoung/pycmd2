@@ -10,6 +10,14 @@ from pycmd2.common.cli import get_client
 cli = get_client()
 
 
+class SSHAuthenticationError(Exception):
+    """SSH认证失败异常."""
+
+
+class SSHConnectionError(Exception):
+    """SSH连接失败异常."""
+
+
 def ssh_copy_id(
     hostname: str,
     port: int,
@@ -39,10 +47,10 @@ def ssh_copy_id(
         ssh.connect(hostname, port, username, password, timeout=10)
     except paramiko.AuthenticationException as e:
         msg = "认证失败, 请检查用户名或密码"
-        raise Exception(msg) from e
+        raise SSHAuthenticationError(msg) from e
     except Exception as e:
         msg = f"连接失败: {e!s}"
-        raise Exception(msg) from e
+        raise SSHConnectionError(msg) from e
 
     # 使用 SFTP 创建或更新 authorized_keys
     sftp = ssh.open_sftp()

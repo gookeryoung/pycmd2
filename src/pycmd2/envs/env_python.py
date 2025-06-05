@@ -32,7 +32,7 @@ def _set_chmod(filepath: Path) -> None:
             filepath.chmod(0o600)
             logging.info(f"设置文件权限: {oct(filepath.stat().st_mode)[-3:]}")
         except OSError:
-            logging.error(f"设置文件权限失败: {filepath}")
+            logging.exception(f"设置文件权限失败: {filepath}")
     else:
         logging.info("Windows系统, 跳过权限设置")
 
@@ -99,11 +99,12 @@ def add_env_to_bashrc(
         with BASHRC_PATH.open("a", encoding="utf-8") as f:
             f.write(entry)
         logging.info(f"✅ 成功添加 {variable} 到 {BASHRC_PATH}")
-        return True
-
     except OSError as e:
-        logging.error(f"❌ 操作失败: {e!s}")
+        msg = f"❌ 操作失败: [red]{e.__class__.__name__}: {e}"
+        logging.exception(msg)
         return False
+    else:
+        return True
 
 
 def setup_uv(*, override: bool = True) -> None:

@@ -67,7 +67,8 @@ class MakeOption:
 
                 return project_name or ""
         except Exception as e:
-            logging.exception(f"读取 pyproject.toml 失败: {e!s}")
+            msg = f"读取 pyproject.toml 失败: {e.__class__.__name__}: {e}"
+            logging.exception(msg)
             return ""
 
     @classmethod
@@ -115,7 +116,8 @@ class MakeOption:
                     f.write(new_content)
                     f.truncate()
             except Exception as e:
-                logging.exception(f"操作失败: [red]{init_file}, {e!s}")
+                msg = f"操作失败: [red]{init_file}, {e.__class__.__name__}: {e}"
+                logging.exception(msg)
                 return
 
             logging.info(

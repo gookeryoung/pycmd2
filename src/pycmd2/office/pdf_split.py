@@ -76,7 +76,8 @@ def split_pdf_file(
                 with out.open("wb") as fw:
                     writer.write(fw)
             except OSError as e:
-                logging.exception(f"写入文件失败: {out.name}, 错误信息: {e}")
+                msg = f"写入文件失败: {out.name}, 错误信息: {e}"
+                logging.exception(msg)
             else:
                 logging.info(f"写入文件成功: {out.name}, 页码: {(begin, end)}")
             writer.close()

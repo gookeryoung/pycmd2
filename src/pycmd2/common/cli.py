@@ -162,7 +162,8 @@ class Client:
                 check=True,  # 检查命令是否成功
             )
         except subprocess.CalledProcessError as e:
-            logging.error(f"调用命令失败: [red]{e}")
+            msg = f"命令执行失败, 返回码: {e.returncode}"
+            logging.exception(msg)
         else:
             total = perf_counter() - t0
             logging.info(f"调用命令成功, 用时: [green bold]{total:.4f}s.")

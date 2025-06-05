@@ -208,8 +208,10 @@ select = [
   "PERF",   # perflint
   "PGH",    # pygrep-hooks
   "PL",     # Pylint
+  "PLC",    # convention
   #"PLW",    # Pylint (warnings)
   "RUF",    # Ruff 特有规则
+  "TRY",    # tryceratops
   "UP",     # pyupgrade (现代化语法)
   "W",      # Pycodestyle 警告
 

@@ -325,8 +325,8 @@ def main() -> None:
             check=False,
         )
     except FileNotFoundError:
-        logging.error("错误: 未找到llama.cpp/quantize工具")
-        logging.error(
+        logging.exception("错误: 未找到llama.cpp/quantize工具")
+        logging.exception(
             "请确保已编译llama.cpp并将quantize工具放在llama.cpp/目录下",
         )
         sys.exit(1)

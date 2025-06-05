@@ -9,12 +9,16 @@ from pycmd2.common.cli import get_client
 cli = get_client()
 
 
+class CommandNotFoundError(Exception):
+    """Exception raised when a command is not found in the system path."""
+
+
 def _get_cmd_full_path(cmd: str) -> str:
     """获取git命令的完整路径."""
     full_path = shutil.which(cmd)
     if not full_path:
         msg = f"命令不存在: {cmd}"
-        raise Exception(msg)
+        raise CommandNotFoundError(msg)
     return full_path
 
 
