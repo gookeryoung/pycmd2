@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import logging
 import typing
 from functools import partial
 from pathlib import Path
@@ -88,7 +89,7 @@ def add_level_mark(
     )
 
     if dst_stem == filepath.stem:
-        print(f"destination stem [{dst_stem}] equals to current.")
+        logging.info(f"destination stem [{dst_stem}] equals to current.")
         return filepath
     dst_name = (
         f"{dst_stem}({suffix}){filepath.suffix}"
@@ -98,7 +99,7 @@ def add_level_mark(
 
     if filepath.with_name(dst_name).exists():
         return add_level_mark(filepath, filelevel, suffix + 1)
-    print(f"rename [{filepath.name}] to [{dst_name}].")
+    logging.info(f"rename [{filepath.name}] to [{dst_name}].")
     return filepath.with_name(dst_name)
 
 

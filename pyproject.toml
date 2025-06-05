@@ -167,15 +167,19 @@ select = [
   "FA",     # flake8-future-annotations
   "FBT",    # flake8-boolean-trap
   "FIX",    # flake8-fixme
+  #"G",      # flake8-logging-format
   "ICN",    # flake8-import-conventions
   "INT",    # flake8-gettext
+  "INP",    # flake8-no-pep420
   "ISC",    # flake8-implicit-str-concat
+  #"LOG",    # flake8-logging
   "PIE",    # flake8-pie
   "Q",      # flake8-quotes
   "RET",    # flake8-return
   #"S",      # flake8-bandit
   "SIM",    # flake8-simplify
   "T10",    # flake8-debugger
+  "T20",    # flake8-print
   "YTT",    # flake8-2020
 
   "E",      # Pycodestyle 错误

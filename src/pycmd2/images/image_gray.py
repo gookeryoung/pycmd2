@@ -87,7 +87,7 @@ def convert_img(
     if not img_path.exists():
         raise FileNotFoundError(img_path)
 
-    print(f"[*] 开始转换图片[{img_path.name}]")
+    logging.info(f"[*] 开始转换图片[{img_path.name}]")
     img = Image.open(img_path.as_posix())
     img_conv = img.convert("L")
 
@@ -103,7 +103,7 @@ def convert_img(
 
     new_img_path = img_path.with_name(img_path.stem + "_conv.png")
     img_conv.save(new_img_path, optimize=True, quality=90)
-    print(f"[*] 转换图片[{img_path.name}]->[{new_img_path.name}]")
+    logging.info(f"[*] 转换图片[{img_path.name}]->[{new_img_path.name}]")
 
 
 @cli.app.command()

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import pathlib
 import subprocess
@@ -324,8 +325,10 @@ def main() -> None:
             check=False,
         )
     except FileNotFoundError:
-        print("错误: 未找到llama.cpp/quantize工具")
-        print("请确保已编译llama.cpp并将quantize工具放在llama.cpp/目录下")
+        logging.error("错误: 未找到llama.cpp/quantize工具")
+        logging.error(
+            "请确保已编译llama.cpp并将quantize工具放在llama.cpp/目录下",
+        )
         sys.exit(1)
 
     window = GGUFQuantizerGUI()

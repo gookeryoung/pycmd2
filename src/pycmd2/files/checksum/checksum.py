@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import os
 import sys
 
@@ -62,7 +63,7 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
         elif self.m_rbBlake2s.isChecked():
             self.m_hash_method = hashlib.blake2s
         else:
-            print("[*] 选项异常")
+            logging.error("未知的校验和方法")
 
     def generate_string_checksum(self) -> None:
         """生成字符串校验和."""

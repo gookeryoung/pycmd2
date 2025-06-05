@@ -149,4 +149,4 @@ def main() -> None:
         writer.write(pdf_file)
         writer.close()
 
-    print(f"[*] 写入到文件[{target_filepath.name}]")
+    logging.info(f"[*] 写入到文件[{target_filepath.name}]")
