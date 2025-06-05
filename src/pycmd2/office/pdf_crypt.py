@@ -56,7 +56,7 @@ def encrypt_pdf(
 
     enc_pdf_file = filepath.with_suffix(".enc.pdf")
     try:
-        with open(enc_pdf_file, "wb") as f:
+        with enc_pdf_file.open("wb") as f:
             writer.write(f)
         return filepath, enc_pdf_file
     except OSError:
@@ -80,7 +80,7 @@ def decrypt_pdf(
         typing.Tuple[Path, typing.Optional[Path]]: 解密文件信息
     """
     # 打开输入的 PDF 文件
-    with open(filepath, "rb") as f:
+    with filepath.open("rb") as f:
         reader = pypdf.PdfReader(f)
 
         # 尝试解密文件
@@ -100,7 +100,7 @@ def decrypt_pdf(
 
         # 将解密后的 PDF 写入输出文件
         outfile = filepath.with_suffix(".dec.pdf")
-        with open(outfile, "wb") as _:
+        with outfile.open("wb") as _:
             writer.write(_)
             logging.info(f"写入解密文件到[{outfile}]")
             return filepath, outfile

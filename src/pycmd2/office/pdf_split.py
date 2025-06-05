@@ -55,7 +55,7 @@ def split_pdf_file(
         output_dir (Path): 输出路径
         range_list (Optional[List[Tuple[int, int]]]): 分割范围, 如: 1-2, 3, 4-5
     """
-    with open(filepath, "rb") as pdf_file:
+    with filepath.open("rb") as pdf_file:
         reader = pypdf.PdfReader(pdf_file)
 
         if range_list is None:
@@ -73,7 +73,7 @@ def split_pdf_file(
                     writer.add_page(reader.pages[page_num])
 
             try:
-                with open(out, "wb") as fw:
+                with out.open("wb") as fw:
                     writer.write(fw)
             except OSError as e:
                 logging.exception(f"写入文件失败: {out.name}, 错误信息: {e}")

@@ -11,7 +11,12 @@ try:
 except ModuleNotFoundError:
     import tomli as tomllib
 
+from typing import TYPE_CHECKING
+
 import tomli_w
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 __all__ = [
     "TomlConfigMixin",
@@ -54,7 +59,7 @@ class TomlConfigMixin:
 
     def __init__(self) -> None:
         cls_name = to_snake_case(type(self).__name__).replace("_config", "")
-        self._config_file = cli.settings_dir / f"{cls_name}.toml"
+        self._config_file: Path = cli.settings_dir / f"{cls_name}.toml"
         self._config = {}
 
         # 创建父文件夹
@@ -91,7 +96,7 @@ class TomlConfigMixin:
             return
 
         try:
-            with open(self._config_file, "rb") as f:
+            with self._config_file.open("rb") as f:
                 self._config = tomllib.load(f)
         except Exception as e:
             logging.exception(f"载入配置错误: {e}")
@@ -101,7 +106,7 @@ class TomlConfigMixin:
 
     def _save(self) -> None:
         try:
-            with open(self._config_file, "wb") as f:
+            with self._config_file.open("wb") as f:
                 tomli_w.dump(self._props, f)
         except Exception as e:
             logging.exception(f"保存配置错误: {e}")

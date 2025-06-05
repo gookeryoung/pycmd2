@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import os
 from pathlib import Path
 from typing import ClassVar
 
@@ -133,8 +132,7 @@ class VideoConverter(QMainWindow):
         if file_path:
             self.input_path.setText(file_path)
             # 自动设置输出文件名
-            base_name = os.path.splitext(os.path.basename(file_path))[0]
-            self.output_name.setText(f"{base_name}_converted")
+            self.output_name.setText(f"{Path(file_path.stem)}_converted")
 
     def select_output_dir(self) -> None:
         """选择输出目录."""
@@ -151,11 +149,11 @@ class VideoConverter(QMainWindow):
         quality = self.quality_combo.currentText()
 
         # 验证输入
-        if not input_file or not os.path.exists(input_file):
+        if not input_file or not Path(input_file).exists():
             QMessageBox.critical(self, "错误", "请选择有效的输入文件")
             return
 
-        if not output_dir or not os.path.isdir(output_dir):
+        if not output_dir or not Path(output_dir).is_dir():
             QMessageBox.critical(self, "错误", "请选择有效的输出目录")
             return
 
@@ -164,10 +162,10 @@ class VideoConverter(QMainWindow):
             return
 
         # 构建输出路径
-        output_file = os.path.join(output_dir, f"{output_name}.{output_format}")
+        output_file = Path(output_dir) / f"{output_name}.{output_format}"
 
         # 检查输出文件是否已存在
-        if os.path.exists(output_file):
+        if output_file.exists():
             reply = QMessageBox.question(
                 self,
                 "文件已存在",
@@ -189,7 +187,7 @@ class VideoConverter(QMainWindow):
             cmd.extend(["-c:v", "libx264", "-crf", "28", "-preset", "fast"])
 
         cmd.extend(["-c:a", "aac", "-strict", "experimental", "-b:a", "192k"])
-        cmd.append(output_file)
+        cmd.append(str(output_file))
         logging.info("执行命令:", " ".join(cmd))
 
         # 禁用按钮, 防止重复点击

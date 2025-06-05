@@ -121,7 +121,7 @@ def merge_file_info(
 
     def _merge_pdf_file(filepath: Path) -> None:
         global page_num
-        with open(filepath.as_posix(), "rb") as pdf_file:
+        with filepath.open("rb") as pdf_file:
             reader = pypdf.PdfReader(pdf_file)
             writer.append(filepath.as_posix(), import_outline=False)
             writer.add_outline_item(
@@ -148,7 +148,7 @@ def main() -> None:
     merge_file_info(pdf_info, root_dir=cli.cwd, writer=writer)
 
     target_filepath = cli.cwd / f"{MERGE_MARK}{cli.cwd.stem}.pdf"
-    with open(target_filepath, "wb") as pdf_file:
+    with target_filepath.open("wb") as pdf_file:
         writer.write(pdf_file)
         writer.close()
 

@@ -1,7 +1,7 @@
 import hashlib
 import logging
-import os
 import sys
+from pathlib import Path
 
 from PySide2.QtCore import QCoreApplication
 from PySide2.QtCore import QDir
@@ -94,16 +94,16 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
             QDir.currentPath(),
             "文件(*.*)",
         )
-        self.m_current_file = file_[0]
+        self.m_current_file: Path = Path(file_[0])
         self.m_leFile.setText(self.m_current_file)
 
     def generate_file_checksum(self) -> None:
         """生成文件校验和."""
-        if not os.path.exists(self.m_current_file):
+        if not self.m_current_file.exists():
             self.m_teChecksum.setText("请输入文件")
             return
 
-        with open(self.m_current_file, encoding="utf8") as f:
+        with self.m_current_file.open(encoding="utf8") as f:
             data_ = f.read()
             hash_code = self.m_hash_method(data_.encode("utf8")).hexdigest()
         if self.m_enable_check:

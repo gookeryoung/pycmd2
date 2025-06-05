@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QCursor
@@ -171,7 +172,7 @@ class MindMapWindow(QMainWindow):
                 end_idx = nodes.index(conn.end_node)
                 data["connections"].append((start_idx, end_idx))
 
-        with open(path, "w") as f:
+        with Path(path).open("w") as f:
             json.dump(data, f)
 
     def load_mindmap(self) -> None:
@@ -185,7 +186,7 @@ class MindMapWindow(QMainWindow):
         if not path:
             return
 
-        with open(path) as f:
+        with Path(path).open() as f:
             data = json.load(f)
 
         self.scene.clear()

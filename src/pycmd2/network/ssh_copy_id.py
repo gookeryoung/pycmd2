@@ -1,6 +1,5 @@
 """功能: 实现类似 ssh-copy-id 的功能."""
 
-import os
 from pathlib import Path
 
 import paramiko
@@ -30,8 +29,8 @@ def ssh_copy_id(
         timeout: 连接超时时间(秒)
     """
     # 读取本地公钥内容
-    expanded_path = os.path.expanduser(public_key_path)
-    with open(expanded_path) as f:
+    expanded_path = Path(public_key_path).expanduser()
+    with expanded_path.open() as f:
         public_key = f.read().strip()
 
     # 建立 SSH 连接

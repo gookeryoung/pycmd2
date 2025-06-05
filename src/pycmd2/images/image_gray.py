@@ -4,7 +4,6 @@
 """
 
 import logging
-import os
 import pathlib
 from functools import partial
 from pathlib import Path
@@ -29,14 +28,14 @@ def is_valid_image(file_path: Path) -> bool:
         bool: 是否为有效图片
     """
     # 基础校验: 文件存在性及大小.
-    if not os.path.exists(file_path):
+    if not file_path.exists():
         return False
-    if os.path.getsize(file_path) == 0:
+    if file_path.stat().st_size == 0:
         return False
 
     # 第一层: 扩展名校验(快速过滤).
     img_exts = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
-    ext = os.path.splitext(file_path)[1].lower()
+    ext = file_path.suffix.lower()
     if ext not in img_exts:
         return False
 
@@ -50,7 +49,7 @@ def is_valid_image(file_path: Path) -> bool:
         b"RIFF....WEBP": "webp",  # 实际需更精确判断
     }
     try:
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             header = f.read(12)
             if not any(header.startswith(k) for k in magic_numbers):
                 return False
