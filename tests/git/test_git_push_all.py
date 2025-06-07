@@ -1,4 +1,3 @@
-from typing import Generator
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
@@ -12,15 +11,8 @@ from src.pycmd2.git.git_push_all import push
 
 
 @pytest.fixture
-def mock_cli() -> Generator[MagicMock, None, None]:
-    with patch("src.pycmd2.git.git_push_all.cli") as mock:
-        yield mock
-
-
-@pytest.fixture
-def mock_subprocess_run() -> Generator[MagicMock, None, None]:
-    with patch("subprocess.run") as mock:
-        yield mock
+def mock_cli(mocker: MagicMock) -> MagicMock:
+    return mocker.patch("src.pycmd2.git.git_push_all.cli")
 
 
 def test_get_cmd_full_path_success() -> None:
