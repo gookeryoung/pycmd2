@@ -251,6 +251,7 @@ class DistributionOption(MakeOption):
     name = "distribution"
     desc = "生成分发包"
     commands: ClassVar = [
+        "clean",
         "sync",
         ["hatch", "build"],
         ["ls", "-l", "dist"],
