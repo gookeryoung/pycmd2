@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from PIL import Image
+from typer import Argument
+from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
+
+from .image_gray import is_valid_image
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -15,64 +20,59 @@ if TYPE_CHECKING:
 cli = get_client(help_doc="图片转化 pdf 工具.")
 logger = logging.getLogger(__name__)
 
-images_converted: list[Image.Image] = []
 
+@dataclass
+class ImageProcessor:
+    """图片处理类."""
 
-def is_image_file(
-    file_path: Path,
-) -> bool:
-    """验证文件是否为图片.
+    def __init__(self, root_dir: Path) -> None:
+        self.root_dir = root_dir
+        self.converted_images: list[Image.Image] = []
 
-    Args:
-        file_path (pathlib.Path): 文件路径
+    def _convert(
+        self,
+        filepath: Path,
+    ) -> None:
+        """合并所有图片为pdf.
 
-    Returns:
-        bool: 是否为图片
-    """
-    try:
-        with Image.open(file_path) as img:
-            img.verify()  # 验证图像是否损坏
-    except OSError:
-        return False
-    return True
+        Args:
+            filepath (Path): 图片文件路径
+        """
+        converted_image = Image.open(str(filepath)).convert("RGB")
+        self.converted_images.append(converted_image)
 
+    def convert_images(self) -> None:
+        """合并所有图片为pdf."""
+        image_files = sorted(
+            _ for _ in self.root_dir.iterdir() if is_valid_image(_)
+        )
+        if not image_files:
+            logger.error(f"路径[{self.root_dir}]下未找到图片文件.")
+            return
 
-def convert_image(
-    filepath: Path,
-) -> None:
-    """合并所有图片为pdf.
+        cli.run(self._convert, image_files)
 
-    Args:
-        filepath (Path): 图片文件路径
-    """
-    global images_converted
+        if not self.converted_images:
+            logger.error(f"[*] 路径[{self.root_dir}]下未找到图片文件.")
+            return
 
-    img = Image.open(filepath)
-
-    # 将图像转换为RGB格式
-    img = img.convert("RGB")
-    images_converted.append(img)
+        output_pdf = self.root_dir / f"{self.root_dir.name}.pdf"
+        self.converted_images[0].save(
+            output_pdf,
+            "PDF",
+            resolution=100.0,
+            save_all=True,
+            append_images=self.converted_images[1:],
+        )
+        logger.info(f"[*] 创建PDF文件[{output_pdf.name}]成功!")
 
 
 @cli.app.command()
-def main() -> None:
-    image_files = sorted(_ for _ in cli.cwd.iterdir() if is_image_file(_))
-    if not image_files:
-        logger.error(f"路径[{cli.cwd}]下未找到图片文件.")
-        return
-
-    cli.run(convert_image, image_files)
-
-    if not images_converted:
-        logger.error(f"[*] 路径[{cli.cwd}]下未找到图片文件.")
-        return
-
-    output_pdf = cli.cwd / f"{cli.cwd.name}.pdf"
-    images_converted[0].save(
-        output_pdf,
-        "PDF",
-        resolution=100.0,
-        save_all=True,
-        append_images=images_converted[1:],
-    )
-    logger.info(f"[*] 创建PDF文件[{output_pdf.name}]成功!")
+def main(
+    directory: Annotated[
+        Path,
+        Argument(help="图片文件夹路径"),
+    ] = cli.cwd,
+) -> None:
+    proc = ImageProcessor(root_dir=directory)
+    proc.convert_images()

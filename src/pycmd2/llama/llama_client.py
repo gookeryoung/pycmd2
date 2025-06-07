@@ -31,7 +31,7 @@ class LlamaWorker(QThread):
     error_occurred = Signal(str)
     finished = Signal()
 
-    def __init__(
+    def __init__(  # noqa: PLR0913, PLR0917
         self,
         prompt: str,
         server_url: str,
@@ -51,7 +51,7 @@ class LlamaWorker(QThread):
 
     def run(self) -> None:
         """运行线程."""
-        try:
+        try:  # noqa: PLR1702
             headers = {"Content-Type": "application/json"}
             data = {
                 "prompt": self.prompt,
