@@ -8,13 +8,13 @@ from src.pycmd2.git.git_clean import main
 
 
 @pytest.fixture
-def mock_cli() -> Generator[MagicMock]:
+def mock_cli() -> Generator[MagicMock, None, None]:
     with patch("src.pycmd2.git.git_clean.cli") as mock:
         yield mock
 
 
 @pytest.fixture
-def mock_check_git_status() -> Generator[MagicMock]:
+def mock_check_git_status() -> Generator[MagicMock, None, None]:
     with patch("src.pycmd2.git.git_clean.check_git_status") as mock:
         yield mock
 
