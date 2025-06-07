@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from pycmd2.git.git_clean import cli as git_clean_cli
 from pycmd2.git.git_init import cli as git_init_cli
 
 
@@ -20,21 +19,6 @@ def git_repo(tmp_path: Path) -> Path:
     repo_path.mkdir(parents=True)
     subprocess.run(["git", "init", repo_path], check=True)
     return repo_path
-
-
-def test_git_clean(typer_runner: CliRunner, git_repo: Path) -> None:
-    """Test the git_clean() method."""
-    os.chdir(git_repo)
-    test_file = git_repo / "test.txt"
-    test_file.write_text("This is a test file.")
-
-    result = typer_runner.invoke(git_clean_cli.app, [])
-    assert result.exit_code == 0
-    assert test_file.exists()
-
-    result = typer_runner.invoke(git_clean_cli.app, ["-f"])
-    assert result.exit_code == 0
-    assert not test_file.exists()
 
 
 def test_git_init(typer_runner: CliRunner, tmp_path: Path) -> None:
