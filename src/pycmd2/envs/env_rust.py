@@ -12,7 +12,7 @@ from pycmd2.common.cli import get_client
 from pycmd2.envs.env_python import add_env_to_bashrc
 
 cli = get_client()
-
+logger = logging.getLogger(__name__)
 
 # pip 配置信息
 CARGO_CONF_CONTENT = """[source.crates-io]
@@ -33,7 +33,7 @@ git-fetch-with-cli = true
 
 
 def setup_rustup(*, override: bool = True) -> None:
-    logging.info("配置 uv 环境变量")
+    logger.info("配置 uv 环境变量")
 
     rustup_envs: dict[str, str] = {
         "RUSTUP_UPDATE_ROOT": "https://rsproxy.cn",
@@ -53,12 +53,12 @@ def setup_cargo() -> None:
     cargo_conf = cargo_dir / "config.toml"
 
     if not cargo_dir.exists():
-        logging.info(f"创建 pip 文件夹: [green bold]{cargo_dir}")
+        logger.info(f"创建 pip 文件夹: [green bold]{cargo_dir}")
         cargo_dir.mkdir(parents=True)
     else:
-        logging.info(f"已存在 pip 文件夹: [green bold]{cargo_dir}")
+        logger.info(f"已存在 pip 文件夹: [green bold]{cargo_dir}")
 
-    logging.info(f"写入文件: [green bold]{cargo_conf}")
+    logger.info(f"写入文件: [green bold]{cargo_conf}")
     cargo_conf.write_text(CARGO_CONF_CONTENT)
 
 

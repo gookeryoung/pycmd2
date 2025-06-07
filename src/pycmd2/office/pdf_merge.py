@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 cli = get_client(help_doc="pdf 合并工具.")
+logger = logging.getLogger(__name__)
 
 # 跳过的文件名或者文件夹名
 IGNORED_FOLDERS = [".git", "__pycache__"]
@@ -158,7 +159,7 @@ def merge_file_info(
 def main() -> None:
     pdf_info = search_directory(cli.cwd, cli.cwd)
     if not pdf_info or pdf_info.count() <= 1:
-        logging.error("[*] 未发现待合并文件, 退出...")
+        logger.error("[*] 未发现待合并文件, 退出...")
         return
 
     writer = pypdf.PdfWriter()
@@ -169,4 +170,4 @@ def main() -> None:
         writer.write(pdf_file)
         writer.close()
 
-    logging.info(f"[*] 写入到文件[{target_filepath.name}]")
+    logger.info(f"[*] 写入到文件[{target_filepath.name}]")

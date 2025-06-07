@@ -10,6 +10,7 @@ from typing_extensions import Annotated
 from pycmd2.common.cli import get_client
 
 cli = get_client()
+logger = logging.getLogger(__name__)
 
 
 NODE_VERSIONS: dict[str, str] = {
@@ -30,7 +31,7 @@ def main(
     ] = "V18",
 ) -> None:
     if cli.is_windows:
-        logging.error("当前系统为windows, 请下载压缩包直接安装")
+        logger.error("当前系统为windows, 请下载压缩包直接安装")
         return
 
     install_nodejs(node_ver)

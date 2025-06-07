@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 cli = get_client(help_doc="pdf 加密/解密工具.")
+logger = logging.getLogger(__name__)
 
 
 def is_encrypted(filepath: Path) -> bool:
@@ -60,7 +61,7 @@ def encrypt_pdf(
             writer.write(f)
 
     except OSError:
-        logging.exception(
+        logger.exception(
             "写入加密文件[{enc_pdf_file.name}]失败, 错误信息: {e}",
         )
         return filepath, None
@@ -87,9 +88,9 @@ def decrypt_pdf(
 
         # 尝试解密文件
         if reader.decrypt(password):
-            logging.info(f"尝试解密[{filepath.name}文件]成功!")
+            logger.info(f"尝试解密[{filepath.name}文件]成功!")
         else:
-            logging.error(f"尝试解密[{filepath.name}文件]失败, 密码不正确。")
+            logger.error(f"尝试解密[{filepath.name}文件]失败, 密码不正确。")
             return filepath, None
 
         # 创建一个新的 PdfWriter 对象
@@ -104,7 +105,7 @@ def decrypt_pdf(
         outfile = filepath.with_suffix(".dec.pdf")
         with outfile.open("wb") as _:
             writer.write(_)
-            logging.info(f"写入解密文件到[{outfile}]")
+            logger.info(f"写入解密文件到[{outfile}]")
             return filepath, outfile
 
 
@@ -119,8 +120,8 @@ def list_pdf() -> tuple[list[Path], list[Path]]:
     un_encrypted = [_ for _ in cli.cwd.rglob("*.pdf") if not is_encrypted(_)]
     encrypted = [_ for _ in cli.cwd.rglob("*.pdf") if is_encrypted(_)]
 
-    logging.info(f"加密文件: [green bold]{encrypted}")
-    logging.info(f"未加密文件: [green bold]{un_encrypted}")
+    logger.info(f"加密文件: [green bold]{encrypted}")
+    logger.info(f"未加密文件: [green bold]{un_encrypted}")
     return un_encrypted, encrypted
 
 
@@ -136,7 +137,7 @@ def decrypt(
     """
     _, encrypted_files = list_pdf()
     if not encrypted_files:
-        logging.error(f"当前目录下没有已加密的 pdf: {cli.cwd}")
+        logger.error(f"当前目录下没有已加密的 pdf: {cli.cwd}")
         return
 
     dec_func = partial(decrypt_pdf, password=password)
@@ -155,7 +156,7 @@ def encrypt(
     """
     unencrypted_files, _ = list_pdf()
     if not unencrypted_files:
-        logging.error(f"当前目录下没有未加密的 pdf: {cli.cwd}")
+        logger.error(f"当前目录下没有未加密的 pdf: {cli.cwd}")
         return
 
     enc_func = partial(encrypt_pdf, password=password)

@@ -14,6 +14,7 @@ from pathlib import Path
 from pycmd2.common.cli import get_client
 
 cli = get_client()
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -84,7 +85,7 @@ def main() -> None:
     }
     for status, filenames in check_status.items():
         if filenames:
-            logging.info(f"{status}的文件: {', '.join(filenames)}")
+            logger.info(f"{status}的文件: {', '.join(filenames)}")
             cli.run_cmd(["git", "commit", "-m", f"{status}文件: {filenames}"])
         else:
-            logging.warning(f"没有{status}的文件")
+            logger.warning(f"没有{status}的文件")

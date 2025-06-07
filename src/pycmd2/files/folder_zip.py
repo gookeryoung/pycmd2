@@ -15,6 +15,7 @@ from typing_extensions import Annotated
 from pycmd2.common.cli import get_client
 
 cli = get_client(help_doc="目录压缩工具.")
+logger = logging.getLogger(__name__)
 
 
 def is_valid_entry(entry: Path) -> bool:
@@ -30,14 +31,14 @@ def is_valid_entry(entry: Path) -> bool:
         return False
 
     if entry.with_suffix(".zip").exists():
-        logging.info(f"跳过已压缩目录: [red]{entry.name}")
+        logger.info(f"跳过已压缩目录: [red]{entry.name}")
         return False
 
     return True
 
 
 def zip_folder(entry: Path) -> None:
-    logging.info(
+    logger.info(
         f"压缩目录: [green]{entry.name} -> {entry.with_suffix('.zip').name}",
     )
     os.chdir(entry.parent)  # 切换到父目录, 以便正确创建 zip 文件

@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 cli = get_client(help_doc="pdf 分割工具.")
+logger = logging.getLogger(__name__)
 
 
 def parse_range_list(
@@ -61,7 +62,7 @@ def split_pdf_file(
         if range_list is None:
             range_list = [(_ + 1, _ + 1) for _ in range(len(reader.pages))]
 
-        logging.info(f"分割文件: {filepath}, 范围列表: {range_list}")
+        logger.info(f"分割文件: {filepath}, 范围列表: {range_list}")
         out_pdfs: list[Path] = [
             output_dir / f"{filepath.stem}#{b:03}-{e:03}{filepath.suffix}"
             for (b, e) in range_list
@@ -77,9 +78,9 @@ def split_pdf_file(
                     writer.write(fw)
             except OSError as e:
                 msg = f"写入文件失败: {out.name}, 错误信息: {e}"
-                logging.exception(msg)
+                logger.exception(msg)
             else:
-                logging.info(f"写入文件成功: {out.name}, 页码: {(begin, end)}")
+                logger.info(f"写入文件成功: {out.name}, 页码: {(begin, end)}")
             writer.close()
 
 
@@ -94,7 +95,7 @@ def main(
     """
     unecrypted_files, _ = list_pdf()
     if not unecrypted_files:
-        logging.error(f"当前目录下没有未加密的 pdf: {cli.cwd}")
+        logger.error(f"当前目录下没有未加密的 pdf: {cli.cwd}")
         return
 
     range_list = parse_range_list(rangestr)

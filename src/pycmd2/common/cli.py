@@ -19,6 +19,8 @@ import typer
 from rich.console import Console
 from rich.logging import RichHandler
 
+logger = logging.getLogger(__name__)
+
 
 def _log_stream(
     stream: IO[bytes],
@@ -76,23 +78,23 @@ class Client:
             args (Optional[Iterable[Any]], optional): 调用参数, 默认值 `None`.
         """
         if not callable(func):
-            logging.error(f"对象不可调用, 退出: [red]{func.__name__}")
+            logger.error(f"对象不可调用, 退出: [red]{func.__name__}")
             return
 
         if not args:
-            logging.info(f"缺少多个执行目标, 取消多线程: [red]args={args}")
+            logger.info(f"缺少多个执行目标, 取消多线程: [red]args={args}")
             func()
             return
 
         t0 = perf_counter()
         returns: list[concurrent.futures.Future[Any]] = []
 
-        logging.info(f"启动线程, 目标参数: [green]{len(args)}[/] 个")
+        logger.info(f"启动线程, 目标参数: [green]{len(args)}[/] 个")
         with concurrent.futures.ThreadPoolExecutor() as t:
             for arg in args:
-                logging.info(f"开始处理: [green bold]{arg!s}")
+                logger.info(f"开始处理: [green bold]{arg!s}")
                 returns.append(t.submit(func, arg))
-        logging.info(f"关闭线程, 用时: [green bold]{perf_counter() - t0:.4f}s.")
+        logger.info(f"关闭线程, 用时: [green bold]{perf_counter() - t0:.4f}s.")
 
     @staticmethod
     def run_cmd(
@@ -108,7 +110,7 @@ class Client:
         """
         t0 = perf_counter()
         # 启动子进程, 设置文本模式并启用行缓冲
-        logging.info(f"调用命令: [green bold]{commands}")
+        logger.info(f"调用命令: [green bold]{commands}")
 
         proc_path = shutil.which(commands[0])
         if not proc_path:
@@ -143,9 +145,9 @@ class Client:
 
         # 检查返回码
         if proc.returncode != 0:
-            logging.error(f"命令执行失败, 返回码: {proc.returncode}")
+            logger.error(f"命令执行失败, 返回码: {proc.returncode}")
 
-        logging.info(f"用时: [green bold]{perf_counter() - t0:.4f}s.")
+        logger.info(f"用时: [green bold]{perf_counter() - t0:.4f}s.")
 
     @staticmethod
     def run_cmdstr(
@@ -157,7 +159,7 @@ class Client:
             cmdstr (str): 命令参数, 如: `ls -la`
         """
         t0 = perf_counter()
-        logging.info(f"调用命令: [green bold]{cmdstr}")
+        logger.info(f"调用命令: [green bold]{cmdstr}")
         try:
             subprocess.run(
                 cmdstr,  # 直接使用 Shell 语法
@@ -166,10 +168,10 @@ class Client:
             )
         except subprocess.CalledProcessError as e:
             msg = f"命令执行失败, 返回码: {e.returncode}"
-            logging.exception(msg)
+            logger.exception(msg)
         else:
             total = perf_counter() - t0
-            logging.info(f"调用命令成功, 用时: [green bold]{total:.4f}s.")
+            logger.info(f"调用命令成功, 用时: [green bold]{total:.4f}s.")
 
 
 def get_client(

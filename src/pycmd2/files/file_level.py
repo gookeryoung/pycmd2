@@ -35,6 +35,7 @@ class FileLevelConfig(TomlConfigMixin):
 
 cli = get_client()
 conf = FileLevelConfig()
+logger = logging.getLogger(__name__)
 
 
 class FileLevel(typing.NamedTuple):
@@ -91,7 +92,7 @@ def add_level_mark(
     )
 
     if dst_stem == filepath.stem:
-        logging.info(f"destination stem [{dst_stem}] equals to current.")
+        logger.info(f"destination stem [{dst_stem}] equals to current.")
         return filepath
     dst_name = (
         f"{dst_stem}({suffix}){filepath.suffix}"
@@ -101,7 +102,7 @@ def add_level_mark(
 
     if filepath.with_name(dst_name).exists():
         return add_level_mark(filepath, filelevel, suffix + 1)
-    logging.info(f"rename [{filepath.name}] to [{dst_name}].")
+    logger.info(f"rename [{filepath.name}] to [{dst_name}].")
     return filepath.with_name(dst_name)
 
 

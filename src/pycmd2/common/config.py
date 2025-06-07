@@ -25,6 +25,7 @@ __all__ = [
 ]
 
 cli = get_client()
+logger = logging.getLogger(__name__)
 
 
 def clear_config() -> None:
@@ -89,7 +90,7 @@ class TomlConfigMixin:
                     self,
                     attr,
                 ):
-                    logging.info(f"设置属性: {attr} = {self._config[attr]}")
+                    logger.info(f"设置属性: {attr} = {self._config[attr]}")
                     setattr(self, attr, self._config[attr])
                     self._props[attr] = self._config[attr]
 
@@ -98,7 +99,7 @@ class TomlConfigMixin:
 
     def _load(self) -> None:
         if not self._config_file.exists():
-            logging.error(f"未找到配置文件: {self._config_file}")
+            logger.error(f"未找到配置文件: {self._config_file}")
             return
 
         try:
@@ -106,10 +107,10 @@ class TomlConfigMixin:
                 self._config = tomllib.load(f)
         except Exception as e:
             msg = f"读取配置错误: {e.__class__.__name__}: {e}"
-            logging.exception(msg)
+            logger.exception(msg)
             return
         else:
-            logging.info(f"载入配置: [green]{self._config_file}")
+            logger.info(f"载入配置: [green]{self._config_file}")
 
     def _save(self) -> None:
         try:
@@ -117,6 +118,6 @@ class TomlConfigMixin:
                 tomli_w.dump(self._props, f)
         except Exception as e:
             msg = f"保存配置错误: {e.__class__.__name__}: {e}"
-            logging.exception(msg)
+            logger.exception(msg)
         else:
-            logging.info(f"保存配置: [green]{self._config_file}")
+            logger.info(f"保存配置: [green]{self._config_file}")

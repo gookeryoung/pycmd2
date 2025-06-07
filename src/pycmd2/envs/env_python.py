@@ -10,6 +10,7 @@ from typing_extensions import Annotated
 from pycmd2.common.cli import get_client
 
 cli = get_client()
+logger = logging.getLogger(__name__)
 
 # 用户文件夹
 BASHRC_PATH = cli.home / ".bashrc"
@@ -30,11 +31,11 @@ def _set_chmod(filepath: Path) -> None:
 
         try:
             filepath.chmod(0o600)
-            logging.info(f"设置文件权限: {oct(filepath.stat().st_mode)[-3:]}")
+            logger.info(f"设置文件权限: {oct(filepath.stat().st_mode)[-3:]}")
         except OSError:
-            logging.exception(f"设置文件权限失败: {filepath}")
+            logger.exception(f"设置文件权限失败: {filepath}")
     else:
-        logging.info("Windows系统, 跳过权限设置")
+        logger.info("Windows系统, 跳过权限设置")
 
 
 def add_env_to_bashrc(
@@ -87,9 +88,9 @@ def add_env_to_bashrc(
                 new_content += entry.lstrip("\n")
 
                 BASHRC_PATH.write_text(new_content, encoding="utf-8")
-                logging.info(f"✅ 成功覆盖 {variable} 配置")
+                logger.info(f"✅ 成功覆盖 {variable} 配置")
                 return True
-            logging.warning(f"⚠️ 已存在 {variable} 配置, 跳过添加")
+            logger.warning(f"⚠️ 已存在 {variable} 配置, 跳过添加")
             return False
         # 改进点4: 处理文件末尾空行后追加.
         if content:
@@ -98,17 +99,17 @@ def add_env_to_bashrc(
 
         with BASHRC_PATH.open("a", encoding="utf-8") as f:
             f.write(entry)
-        logging.info(f"✅ 成功添加 {variable} 到 {BASHRC_PATH}")
+        logger.info(f"✅ 成功添加 {variable} 到 {BASHRC_PATH}")
     except OSError as e:
         msg = f"❌ 操作失败: [red]{e.__class__.__name__}: {e}"
-        logging.exception(msg)
+        logger.exception(msg)
         return False
     else:
         return True
 
 
 def setup_uv(*, override: bool = True) -> None:
-    logging.info("配置 [purple bold]uv 环境变量")
+    logger.info("配置 [purple bold]uv 环境变量")
 
     uv_envs = {
         "UV_INDEX_URL": "https://pypi.tuna.tsinghua.edu.cn/simple",
@@ -151,14 +152,14 @@ def setup_pip() -> None:
     pip_conf = pip_dir / "pip.ini" if cli.is_windows else pip_dir / "pip.conf"
 
     if not pip_dir.exists():
-        logging.info(f"创建 pip 文件夹: [green bold]{pip_dir}")
+        logger.info(f"创建 pip 文件夹: [green bold]{pip_dir}")
         pip_dir.mkdir(parents=True)
     else:
-        logging.info(f"已存在 pip 文件夹: [green bold]{pip_dir}")
+        logger.info(f"已存在 pip 文件夹: [green bold]{pip_dir}")
 
     _set_chmod(pip_conf)
 
-    logging.info(f"写入文件: [green bold]{pip_conf}")
+    logger.info(f"写入文件: [green bold]{pip_conf}")
     pip_conf.write_text(PIP_CONF_CONTENT)
 
 
@@ -172,5 +173,5 @@ def main(
     setup_uv(override=override)
 
     if pypi_token:
-        logging.info("设置 [purple bold]pypi token")
+        logger.info("设置 [purple bold]pypi token")
         setup_hatch_token(pypi_token, override=override)

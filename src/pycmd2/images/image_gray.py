@@ -15,8 +15,10 @@ from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 
-cli = get_client(help_doc="图片转换工具.")
 GRAYSCALE_THRESHOLD = 128  # 灰度阈值, 用于黑白模式下的二值化处理
+
+cli = get_client(help_doc="图片转换工具.")
+logger = logging.getLogger(__name__)
 
 
 def is_valid_image(file_path: Path) -> bool:  # noqa: PLR0911
@@ -90,7 +92,7 @@ def convert_img(
     if not img_path.exists():
         raise FileNotFoundError(img_path)
 
-    logging.info(f"[*] 开始转换图片[{img_path.name}]")
+    logger.info(f"[*] 开始转换图片[{img_path.name}]")
     img = Image.open(img_path.as_posix())
     img_conv = img.convert("L")
 
@@ -109,7 +111,7 @@ def convert_img(
 
     new_img_path = img_path.with_name(img_path.stem + "_conv.png")
     img_conv.save(new_img_path, optimize=True, quality=90)
-    logging.info(f"[*] 转换图片[{img_path.name}]->[{new_img_path.name}]")
+    logger.info(f"[*] 转换图片[{img_path.name}]->[{new_img_path.name}]")
 
 
 @cli.app.command()
@@ -122,7 +124,7 @@ def main(
         _ for _ in pathlib.Path(cli.cwd).glob("*.*") if is_valid_image(_)
     ]
     if not image_files:
-        logging.error("未找到待处理图片文件")
+        logger.error("未找到待处理图片文件")
         return
 
     conver_func = partial(convert_img, black_mode=black, width=width)

@@ -7,6 +7,7 @@ import subprocess
 from pycmd2.common.cli import get_client
 
 cli = get_client()
+logger = logging.getLogger(__name__)
 
 
 class CommandNotFoundError(Exception):
@@ -45,7 +46,7 @@ def check_git_status() -> bool:
         check=False,
     )
     if result.stdout.strip():
-        logging.error(f"存在未提交的修改, 请先提交更改: [red]{result}")
+        logger.error(f"存在未提交的修改, 请先提交更改: [red]{result}")
         return False
     return True
 
@@ -65,7 +66,7 @@ def check_sensitive_data() -> bool:
     sensitive_files = [".env", "credentials.json"]
     for file in result.stdout.splitlines():
         if file in sensitive_files:
-            logging.error(f"检测到敏感文件, 禁止推送: [red]{file}")
+            logger.error(f"检测到敏感文件, 禁止推送: [red]{file}")
             return False
     return True
 

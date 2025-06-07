@@ -29,6 +29,8 @@ from pycmd2.common.gui import setup_pyside2_env
 
 setup_pyside2_env()
 
+logger = logging.getLogger(__name__)
+
 
 def _process_gguf_stem(filename: str) -> str:
     """处理文件名, 移除可能的F16后缀.
@@ -329,8 +331,8 @@ def main() -> None:
             check=False,
         )
     except FileNotFoundError:
-        logging.exception("错误: 未找到llama.cpp/quantize工具")
-        logging.exception(
+        logger.exception("错误: 未找到llama.cpp/quantize工具")
+        logger.exception(
             "请确保已编译llama.cpp并将quantize工具放在llama.cpp/目录下",
         )
         sys.exit(1)

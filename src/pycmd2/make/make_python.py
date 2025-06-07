@@ -32,6 +32,7 @@ except ModuleNotFoundError:
 
 
 cli = get_client()
+logger = logging.getLogger(__name__)
 
 
 class MakeOption:
@@ -59,7 +60,7 @@ class MakeOption:
         """
         cfg_file = cli.cwd / "pyproject.toml"
         if not cfg_file.exists():
-            logging.error(
+            logger.error(
                 f"pyproject.toml 文件不存在, 无法获取项目目录: [red]{cfg_file}",
             )
             return ""
@@ -76,7 +77,7 @@ class MakeOption:
                 return project_name or ""
         except Exception as e:
             msg = f"读取 pyproject.toml 失败: {e.__class__.__name__}: {e}"
-            logging.exception(msg)
+            logger.exception(msg)
             return ""
 
     @classmethod
@@ -107,7 +108,7 @@ class MakeOption:
                     matches = pattern.findall(content)
                     match = pattern.search(content)
                     if not matches or not match:
-                        logging.warning("未找到 __build_date__ 定义")
+                        logger.warning("未找到 __build_date__ 定义")
                         return
 
                     # 构造新行(保留原始格式).
@@ -117,7 +118,7 @@ class MakeOption:
 
                     # 检查是否需要更新
                     if new_content == content:
-                        logging.info("构建日期已是最新, 无需更新")
+                        logger.info("构建日期已是最新, 无需更新")
 
                     # 回写文件
                     f.seek(0)
@@ -125,10 +126,10 @@ class MakeOption:
                     f.truncate()
             except Exception as e:
                 msg = f"操作失败: [red]{init_file}, {e.__class__.__name__}: {e}"
-                logging.exception(msg)
+                logger.exception(msg)
                 return
 
-            logging.info(
+            logger.info(
                 f"更新文件: {init_file}, __build_date__ -> {build_date}",
             )
 
@@ -385,7 +386,7 @@ class PyprojectMaker:
         """调用指定的构建选项."""
         option = self.options.get(option_name, None)
         if not option:
-            logging.error(
+            logger.error(
                 f"未找到匹配选项: {option_name}, 选项列表: "
                 f"[red]{self.options_list()}",
             )
@@ -404,25 +405,25 @@ class PyprojectMaker:
 
     def _call_option(self, option: MakeOption) -> None:
         """内部调用选项."""
-        logging.info(f"调用选项: mkp [green bold]{option.name}")
+        logger.info(f"调用选项: mkp [green bold]{option.name}")
         if option.desc:
-            logging.info(f"功能描述: [purple bold]{option.desc}")
+            logger.info(f"功能描述: [purple bold]{option.desc}")
 
         for command in option.commands:
             if isinstance(command, str):
                 child_opt = self.options.get(command, None)
                 if child_opt:
-                    logging.info(f"执行子命令: [purple]{child_opt.name}")
+                    logger.info(f"执行子命令: [purple]{child_opt.name}")
                     self._call_option(child_opt)
                 else:
-                    logging.error(f"未找到匹配选项: {command}")
+                    logger.error(f"未找到匹配选项: {command}")
                     return
             elif isinstance(command, list):
                 cli.run_cmd(command)
             elif callable(command):
                 command()
             else:
-                logging.error(f"未知命令类型: {type(command)}, 内容: {command}")
+                logger.error(f"未知命令类型: {type(command)}, 内容: {command}")
 
 
 @cli.app.command()

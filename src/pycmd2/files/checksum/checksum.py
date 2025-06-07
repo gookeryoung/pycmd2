@@ -12,6 +12,8 @@ from PySide2.QtWidgets import QFileDialog
 
 from .deps.ui_checksum import Ui_ChecksumDialog
 
+logger = logging.getLogger(__name__)
+
 
 class ChecksumDialog(QDialog, Ui_ChecksumDialog):
     """校验和对话框."""
@@ -63,7 +65,7 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
         elif self.m_rbBlake2s.isChecked():
             self.m_hash_method = hashlib.blake2s
         else:
-            logging.error("未知的校验和方法")
+            logger.error("未知的校验和方法")
 
     def generate_string_checksum(self) -> None:
         """生成字符串校验和."""

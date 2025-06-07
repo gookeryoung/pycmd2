@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 cli = get_client(help_doc="图片转化 pdf 工具.")
+logger = logging.getLogger(__name__)
 
 images_converted: list[Image.Image] = []
 
@@ -57,13 +58,13 @@ def convert_image(
 def main() -> None:
     image_files = sorted(_ for _ in cli.cwd.iterdir() if is_image_file(_))
     if not image_files:
-        logging.error(f"路径[{cli.cwd}]下未找到图片文件.")
+        logger.error(f"路径[{cli.cwd}]下未找到图片文件.")
         return
 
     cli.run(convert_image, image_files)
 
     if not images_converted:
-        logging.error(f"[*] 路径[{cli.cwd}]下未找到图片文件.")
+        logger.error(f"[*] 路径[{cli.cwd}]下未找到图片文件.")
         return
 
     output_pdf = cli.cwd / f"{cli.cwd.name}.pdf"
@@ -74,4 +75,4 @@ def main() -> None:
         save_all=True,
         append_images=images_converted[1:],
     )
-    logging.info(f"[*] 创建PDF文件[{output_pdf.name}]成功!")
+    logger.info(f"[*] 创建PDF文件[{output_pdf.name}]成功!")

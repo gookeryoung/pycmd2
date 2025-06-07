@@ -12,8 +12,10 @@ from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 
-cli = get_client()
 StrList = List[str]
+
+cli = get_client()
+logger = logging.getLogger(__name__)
 
 
 def find_executable(name: str, *, fuzzy: bool) -> str | None:
@@ -59,6 +61,6 @@ def main(
     for cmd in commands:
         path = find_executable(cmd, fuzzy=fuzzy)
         if path:
-            logging.info(f"找到命令: [[green bold]{path}[/]]")
+            logger.info(f"找到命令: [[green bold]{path}[/]]")
         else:
-            logging.error(f"未找到符合的命令: [[red bold]{cmd}[/]]")
+            logger.error(f"未找到符合的命令: [[red bold]{cmd}[/]]")
