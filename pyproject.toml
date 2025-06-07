@@ -146,7 +146,7 @@ fix = true
 unsafe-fixes = true
 show-fixes = true
 output-format = "full"
-exclude = ["**/ui_*.py", "**/*_rc.py", "docs/*.py", "tests/*.py"]
+exclude = ["**/ui_*.py", "**/*_rc.py", "docs/*.py"]
 target-version = "py38"
 preview = true
 

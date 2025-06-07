@@ -5,8 +5,16 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
+from pycmd2.pip.pip_download import cli as pip_download_cli
+from pycmd2.pip.pip_download_req import cli as pip_download_req_cli
+from pycmd2.pip.pip_freeze import cli as pip_freeze_cli
+from pycmd2.pip.pip_install import cli as pip_install_cli
+from pycmd2.pip.pip_install_offline import cli as pip_install_offline_cli
+from pycmd2.pip.pip_install_req import cli as pip_install_req_cli
+from pycmd2.pip.pip_uninstall_req import cli as pip_uninstall_req_cli
 
-@pytest.fixture(scope="function", autouse=True)
+
+@pytest.fixture(autouse=True)
 def clear_test_dir(dir_tests: Path) -> None:
     os.chdir(dir_tests)
 
@@ -16,13 +24,14 @@ def clear_test_dir(dir_tests: Path) -> None:
 
     requirements_file = dir_tests / "requirements.txt"
     if requirements_file.exists():
-        os.remove(requirements_file)
+        requirements_file.unlink()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def requirments_file(dir_tests: Path) -> None:
     os.chdir(dir_tests)
-    with open("requirements.txt", "w") as f:
+
+    with (dir_tests / "requirements.txt").open("w", encoding="utf-8") as f:
         f.write("lxml==4.9.1\n")
         f.write("numba==0.58.1\n")
 
@@ -30,21 +39,21 @@ def requirments_file(dir_tests: Path) -> None:
 def test_pip_download(typer_runner: CliRunner, dir_tests: Path) -> None:
     os.chdir(dir_tests)
 
-    from pycmd2.pip.pip_download import cli
-
-    result = typer_runner.invoke(cli.app, ["lxml"])
+    result = typer_runner.invoke(pip_download_cli.app, ["lxml"])
     assert result.exit_code == 0
 
     files = list(dir_tests.glob("packages/lxml-*.whl"))
     assert len(files) == 1
 
 
-def test_pip_download_req(typer_runner, requirments_file, dir_tests) -> None:
+def test_pip_download_req(
+    typer_runner: CliRunner,
+    dir_tests: Path,
+    requirments_file: None,  # noqa: ARG001
+) -> None:
     os.chdir(dir_tests)
 
-    from pycmd2.pip.pip_download_req import cli
-
-    result = typer_runner.invoke(cli.app, [])
+    result = typer_runner.invoke(pip_download_req_cli.app, [])
     assert result.exit_code == 0
 
     files = list(dir_tests.glob("packages/lxml-*.whl"))
@@ -57,50 +66,55 @@ def test_pip_download_req(typer_runner, requirments_file, dir_tests) -> None:
     assert len(files) == 1
 
 
-def test_pip_freeze(typer_runner, dir_tests) -> None:
+def test_pip_freeze(typer_runner: CliRunner, dir_tests: Path) -> None:
     os.chdir(dir_tests)
 
-    from pycmd2.pip.pip_freeze import cli
-
-    result = typer_runner.invoke(cli.app, [])
+    result = typer_runner.invoke(pip_freeze_cli.app, [])
     assert result.exit_code == 0
 
-    with open("requirements.txt") as f:
-        libs = {_.split("==")[0] for _ in f.readlines()}
+    with (dir_tests / "requirements.txt").open("r", encoding="utf-8") as f:
+        libs = {_.split("==")[0] for _ in f}
         assert "hatch" in libs
         assert "pytest" in libs
 
 
-def test_pip_install(typer_runner, dir_tests) -> None:
+def test_pip_install(typer_runner: CliRunner, dir_tests: Path) -> None:
     os.chdir(dir_tests)
 
-    from pycmd2.pip.pip_install import cli
-
-    result = typer_runner.invoke(cli.app, ["lxml", "typing-extensions"])
+    result = typer_runner.invoke(
+        pip_install_cli.app,
+        ["lxml", "typing-extensions"],
+    )
     assert result.exit_code == 0
 
 
-def test_pip_install_offline(typer_runner, dir_tests) -> None:
+def test_pip_install_offline(typer_runner: CliRunner, dir_tests: Path) -> None:
     os.chdir(dir_tests)
-    from pycmd2.pip.pip_install_offline import cli
 
-    result = typer_runner.invoke(cli.app, ["lxml", "typing-extensions"])
+    result = typer_runner.invoke(
+        pip_install_offline_cli.app,
+        ["lxml", "typing-extensions"],
+    )
     assert result.exit_code == 0
 
 
-def test_pip_install_req(typer_runner, requirments_file, dir_tests) -> None:
+def test_pip_install_req(
+    typer_runner: CliRunner,
+    requirments_file: None,  # noqa: ARG001
+    dir_tests: Path,
+) -> None:
     os.chdir(dir_tests)
 
-    from pycmd2.pip.pip_install_req import cli
-
-    result = typer_runner.invoke(cli.app, [])
+    result = typer_runner.invoke(pip_install_req_cli.app, [])
     assert result.exit_code == 0
 
 
-def test_pip_uninstall_req(typer_runner, requirments_file, dir_tests) -> None:
+def test_pip_uninstall_req(
+    typer_runner: CliRunner,
+    requirments_file: None,  # noqa: ARG001
+    dir_tests: Path,
+) -> None:
     os.chdir(dir_tests)
 
-    from pycmd2.pip.pip_uninstall_req import cli
-
-    result = typer_runner.invoke(cli.app, [])
+    result = typer_runner.invoke(pip_uninstall_req_cli.app, [])
     assert result.exit_code == 0
