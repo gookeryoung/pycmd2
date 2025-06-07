@@ -260,6 +260,7 @@ dev-dependencies = [
   "tox-uv>=1.13.1",
   "wheel>=0.45.1",
   "pycmd2",
+  "reportlab>=4.4.1",
 ]
 
 [tool.uv.sources]

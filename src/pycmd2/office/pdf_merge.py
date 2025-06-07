@@ -36,6 +36,7 @@ class PdfFileInfo:
     prefix: str
     files: list[Path]
     children: list[PdfFileInfo]
+    page_count: int = 0
 
     def count(self) -> int:
         """计算文件数量.
@@ -44,6 +45,40 @@ class PdfFileInfo:
             int: 文件数量
         """
         return len(self.files) + sum(x.count() for x in self.children)
+
+    def merge_file_info(
+        self,
+        info: PdfFileInfo,
+        root_dir: Path,
+        writer: pypdf.PdfWriter,
+    ) -> None:
+        """按照 PdfFileInfo 进行合并.
+
+        Args:
+            info (PdfFileInfo): 已搜索 PDFInfo
+            root_dir (Path): 根目录
+            writer (pypdf.PdfWriter): PdfWriter
+        """
+        if info.prefix:
+            root_bookmark = writer.add_outline_item(info.prefix, 0)
+        else:
+            root_bookmark = None
+
+        def _merge_pdf_file(filepath: Path) -> None:
+            with filepath.open("rb") as pdf_file:
+                reader = pypdf.PdfReader(pdf_file)
+                writer.append(filepath.as_posix(), import_outline=False)
+                writer.add_outline_item(
+                    filepath.stem,
+                    self.page_count,
+                    parent=root_bookmark,
+                )
+                self.page_count += len(reader.pages)
+
+        cli.run(_merge_pdf_file, self.files)
+
+        for child_info in self.children:
+            self.merge_file_info(child_info, root_dir, writer=writer)
 
     def __str__(self) -> str:
         """打印信息.
@@ -120,41 +155,6 @@ def search_directory(
     return PdfFileInfo(prefix=prefix, files=pdf_files, children=children)
 
 
-def merge_file_info(
-    info: PdfFileInfo,
-    root_dir: Path,
-    writer: pypdf.PdfWriter,
-) -> None:
-    """按照 PdfFileInfo 进行合并.
-
-    Args:
-        info (PdfFileInfo): 已搜索 PDFInfo
-        root_dir (Path): 根目录
-        writer (pypdf.PdfWriter): PdfWriter
-    """
-    if info.prefix:
-        root_bookmark = writer.add_outline_item(info.prefix, 0)
-    else:
-        root_bookmark = None
-
-    def _merge_pdf_file(filepath: Path) -> None:
-        global page_num
-        with filepath.open("rb") as pdf_file:
-            reader = pypdf.PdfReader(pdf_file)
-            writer.append(filepath.as_posix(), import_outline=False)
-            writer.add_outline_item(
-                filepath.stem,
-                page_num,
-                parent=root_bookmark,
-            )
-            page_num += len(reader.pages)
-
-    cli.run(_merge_pdf_file, info.files)
-
-    for child_info in info.children:
-        merge_file_info(child_info, root_dir, writer=writer)
-
-
 @cli.app.command()
 def main() -> None:
     pdf_info = search_directory(cli.cwd, cli.cwd)
@@ -163,7 +163,7 @@ def main() -> None:
         return
 
     writer = pypdf.PdfWriter()
-    merge_file_info(pdf_info, root_dir=cli.cwd, writer=writer)
+    pdf_info.merge_file_info(pdf_info, cli.cwd, writer=writer)
 
     target_filepath = cli.cwd / f"{MERGE_MARK}{cli.cwd.stem}.pdf"
     with target_filepath.open("wb") as pdf_file:
