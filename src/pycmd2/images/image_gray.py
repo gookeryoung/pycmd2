@@ -79,10 +79,13 @@ def convert_img(
 ) -> None:
     """转化图片.
 
-    Arguments:
+    Args:
         img_path: 待处理图片路径
         black_mode: 黑白模式
         width: 缩放尺寸宽度
+
+    Raises:
+        FileNotFoundError: 未找到待处理图片文件
     """
     if not img_path.exists():
         raise FileNotFoundError(img_path)

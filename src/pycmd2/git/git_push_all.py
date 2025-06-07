@@ -14,7 +14,17 @@ class CommandNotFoundError(Exception):
 
 
 def _get_cmd_full_path(cmd: str) -> str:
-    """获取git命令的完整路径."""
+    """获取git命令的完整路径.
+
+    Args:
+        cmd (str): 命令名
+
+    Returns:
+        str: 命令的完整路径
+
+    Raises:
+        CommandNotFoundError: 命令不存在时抛出异常
+    """
     full_path = shutil.which(cmd)
     if not full_path:
         msg = f"命令不存在: {cmd}"
@@ -23,7 +33,11 @@ def _get_cmd_full_path(cmd: str) -> str:
 
 
 def check_git_status() -> bool:
-    """检查是否存在未提交的修改."""
+    """检查是否存在未提交的修改.
+
+    Returns:
+        bool: 是否存在未提交的修改
+    """
     result = subprocess.run(
         [_get_cmd_full_path("git"), "status", "--porcelain"],
         capture_output=True,
@@ -37,7 +51,11 @@ def check_git_status() -> bool:
 
 
 def check_sensitive_data() -> bool:
-    """检查敏感信息(正则表达式可根据需求扩展)."""
+    """检查敏感提交信息(正则表达式可根据需求扩展).
+
+    Returns:
+        bool: 是否存在敏感提交信息
+    """
     result = subprocess.run(
         [_get_cmd_full_path("git"), "diff", "--cached", "--name-only"],
         capture_output=True,

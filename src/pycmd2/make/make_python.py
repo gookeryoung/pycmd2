@@ -43,12 +43,20 @@ class MakeOption:
 
     @classmethod
     def src_dir(cls) -> Path:
-        """获取源代码目录."""
+        """获取源代码目录.
+
+        Returns:
+            Path: 源代码目录
+        """
         return cli.cwd / "src"
 
     @classmethod
     def project_name(cls) -> str:
-        """获取项目目录."""
+        """获取项目目录.
+
+        Returns:
+            str: 项目目录
+        """
         cfg_file = cli.cwd / "pyproject.toml"
         if not cfg_file.exists():
             logging.error(
@@ -387,7 +395,11 @@ class PyprojectMaker:
 
     @classmethod
     def options_list(cls) -> list[str]:
-        """获取所有可用的选项名称列表."""
+        """获取所有可用的选项名称列表.
+
+        Returns:
+            list[str]: 可用选项名称列表
+        """
         return list(cls.options.keys())
 
     def _call_option(self, option: MakeOption) -> None:

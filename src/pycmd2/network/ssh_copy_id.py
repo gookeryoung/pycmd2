@@ -34,6 +34,10 @@ def ssh_copy_id(
         password: 远程服务器密码
         public_key_path: 本地公钥路径(默认 ~/.ssh/id_rsa.pub)
         timeout: 连接超时时间(秒)
+
+    Raises:
+        SSHAuthenticationError: 认证失败
+        SSHConnectionError: 连接失败
     """
     # 读取本地公钥内容
     expanded_path = Path(public_key_path).expanduser()

@@ -196,7 +196,7 @@ select = [
   "AIR",    # Airflow
   "C90",    # mccabe
   "D",      # pydocstyle (文档字符串)
-  #"DOC",    # docstrings
+  "DOC",    # docstrings
   "E",      # Pycodestyle 错误
   "ERA",    # Eradicate
   "F",      # Pyflakes
@@ -223,7 +223,6 @@ ignore = [
   "D104",
   "D107",
   "D203", # D 规则中与 Black 冲突的部分
-  "D212", # 多行文档字符串首行是否空行
   "N802",
   "PLR0915",
   "PLW0603",

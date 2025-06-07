@@ -18,7 +18,14 @@ cli = get_client(help_doc="目录压缩工具.")
 
 
 def is_valid_entry(entry: Path) -> bool:
-    """检查文件夹是否有效, 忽略已压缩的目录."""
+    """检查文件夹是否有效, 忽略已压缩的目录.
+
+    Args:
+        entry (Path): 目录
+
+    Returns:
+        bool: 是否有效
+    """
     if not entry.is_dir():
         return False
 

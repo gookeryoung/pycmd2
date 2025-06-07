@@ -140,7 +140,14 @@ class LlamaServerGUI(QMainWindow):
 
     @staticmethod
     def create_text_format(color: QColor) -> QTextCharFormat:
-        """创建文本格式."""
+        """创建文本格式.
+
+        Args:
+            color: 颜色.
+
+        Returns:
+            文本格式.
+        """
         text_format = QTextCharFormat()
         text_format.setForeground(QBrush(color))
         return text_format

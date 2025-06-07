@@ -102,6 +102,9 @@ class Client:
 
         Args:
             commands (List[str]): 命令列表
+
+        Raises:
+            FileNotFoundError: 找不到命令
         """
         t0 = perf_counter()
         # 启动子进程, 设置文本模式并启用行缓冲

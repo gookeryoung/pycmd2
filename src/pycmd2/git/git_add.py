@@ -29,12 +29,20 @@ class GitAddFileStatus:
     filepath: Path
 
     def __hash__(self) -> int:
-        """计算哈希值, 用于在集合中唯一标识."""
+        """计算哈希值, 用于在集合中唯一标识.
+
+        Returns:
+            int: 哈希值
+        """
         return hash((self.status, str(self.filepath)))
 
 
 def get_changed_files_info() -> set[GitAddFileStatus]:
-    """获取git状态变化的文件列表."""
+    """获取git状态变化的文件列表.
+
+    Returns:
+        set[GitAddFileStatus]: 文件状态列表
+    """
     result = subprocess.run(
         ["git", "status", "--porcelain"],
         capture_output=True,

@@ -37,16 +37,28 @@ class PdfFileInfo:
     children: list[PdfFileInfo]
 
     def count(self) -> int:
-        """计算文件数量."""
+        """计算文件数量.
+
+        Returns:
+            int: 文件数量
+        """
         return len(self.files) + sum(x.count() for x in self.children)
 
     def __str__(self) -> str:
-        """打印信息."""
+        """打印信息.
+
+        Returns:
+            str: 打印信息
+        """
         fs = [x.name for x in self.files]
         return f"prefix={self.prefix}, files={fs}, children={self.children}"
 
     def __repr__(self) -> str:
-        """打印信息."""
+        """打印信息.
+
+        Returns:
+            str: 打印信息
+        """
         return self.__str__()
 
 
@@ -57,6 +69,8 @@ def relative_depth(search_dir: Path, root_dir: Path) -> int:
         search_dir (Path): 当前搜索目录
         root_dir (Path): 根目录
 
+    Returns:
+        int: 搜索深度
     """
     try:
         relative_path = search_dir.relative_to(root_dir)

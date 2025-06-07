@@ -31,7 +31,11 @@ setup_pyside2_env()
 
 
 def _process_gguf_stem(filename: str) -> str:
-    """处理文件名, 移除可能的F16后缀."""
+    """处理文件名, 移除可能的F16后缀.
+
+    Returns:
+        str: 处理后的文件名
+    """
     if filename.upper().endswith("-F16"):
         filename = filename[:-4]  # 移除-F16后缀
     return filename

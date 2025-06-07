@@ -36,7 +36,13 @@ def clear_config() -> None:
 def to_snake_case(name: str) -> str:
     """将驼峰命名转换为下划线命名, 处理连续大写字母的情况.
 
-    例如: "HTTPRequest" -> "http_request".
+    Args:
+        name (str): 驼峰命名
+
+    Returns:
+        str: 下划线命名
+
+    E.g.: "HTTPRequest" -> "http_request"
     """
     name = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
     name = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", name)
