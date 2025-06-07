@@ -7,4 +7,4 @@ def test_config_save_toml(
     example_config: ExampleConfig,
     benchmark: BenchmarkFixture,
 ) -> None:
-    benchmark(example_config.save)
+    benchmark(example_config._save)  # noqa: SLF001

@@ -66,7 +66,7 @@ class TomlConfigMixin:
 
     def __init__(self) -> None:
         cls_name = to_snake_case(type(self).__name__).replace("_config", "")
-        self.config_file: Path = cli.settings_dir / f"{cls_name}.toml"
+        self._config_file: Path = cli.settings_dir / f"{cls_name}.toml"
         self._config = {}
 
         # 创建父文件夹
@@ -74,7 +74,7 @@ class TomlConfigMixin:
             cli.settings_dir.mkdir(parents=True)
 
         # 载入配置
-        self.load()
+        self._load()
 
         # 获取属性
         self._props = {
@@ -95,31 +95,31 @@ class TomlConfigMixin:
                     self._props[attr] = self._config[attr]
 
         # 保存配置数据到文件
-        atexit.register(self.save)
+        atexit.register(self._save)
 
-    def load(self) -> None:
+    def _load(self) -> None:
         """从文件载入配置."""
-        if not self.config_file.exists():
-            logger.error(f"未找到配置文件: {self.config_file}")
+        if not self._config_file.exists():
+            logger.error(f"未找到配置文件: {self._config_file}")
             return
 
         try:
-            with self.config_file.open("rb") as f:
+            with self._config_file.open("rb") as f:
                 self._config = tomllib.load(f)
         except Exception as e:
             msg = f"读取配置错误: {e.__class__.__name__}: {e}"
             logger.exception(msg)
             return
         else:
-            logger.info(f"载入配置: [green]{self.config_file}")
+            logger.info(f"载入配置: [green]{self._config_file}")
 
-    def save(self) -> None:
+    def _save(self) -> None:
         """保存配置到文件."""
         try:
-            with self.config_file.open("wb") as f:
+            with self._config_file.open("wb") as f:
                 tomli_w.dump(self._props, f)
         except Exception as e:
             msg = f"保存配置错误: {e.__class__.__name__!s}: {e!s}"
             logger.exception(msg)
         else:
-            logger.info(f"保存配置: [green]{self.config_file}")
+            logger.info(f"保存配置: [green]{self._config_file}")

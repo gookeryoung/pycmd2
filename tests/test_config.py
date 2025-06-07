@@ -32,10 +32,10 @@ def test_config() -> None:
     assert conf.NAME == "test"
 
     config_file = cli.settings_dir / "example.toml"
-    assert config_file == conf.config_file
+    assert config_file == conf._config_file  # noqa: SLF001
 
     assert not config_file.exists()
-    conf.save()
+    conf._save()  # noqa: SLF001
     assert config_file.exists()
 
 
@@ -53,7 +53,7 @@ def test_config_load_error(caplog: pytest.LogCaptureFixture) -> None:
     config_file.write_text("INVALID TOML CONTENT")
 
     conf = ExampleConfig()
-    conf.load()
+    conf._load()  # noqa: SLF001
 
     assert "读取配置错误" in caplog.text
     assert "Expected '=' after a key in a key/value pair" in caplog.text
@@ -67,5 +67,5 @@ def test_config_save_error(
     mocker.patch("pycmd2.common.cli.Client.settings_dir", invalid_path)
 
     conf = ExampleConfig()
-    conf.save()
-    assert "保存配置错误" in caplog.text
+    conf._save()  # noqa: SLF001
+    assert "未找到配置文件" in caplog.text

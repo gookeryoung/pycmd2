@@ -205,8 +205,10 @@ def _clean() -> None:
     remove_func = partial(shutil.rmtree, ignore_errors=True)
 
     # 移除待清理目录
-    cli.run(remove_func, spec_dirs)
-    cli.run(remove_func, cache_dirs)
+    if spec_dirs:
+        cli.run(remove_func, spec_dirs)
+    if cache_dirs:
+        cli.run(remove_func, cache_dirs)
 
 
 class CleanOption(MakeOption):
