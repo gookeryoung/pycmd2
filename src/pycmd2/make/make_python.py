@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 from urllib.request import pathname2url
 
 from typer import Argument
+from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 from pycmd2.git.git_push_all import main as git_push_all
@@ -431,7 +432,10 @@ class PyprojectMaker:
 
 @cli.app.command()
 def main(
-    optstr: str = Argument(help=f"构建选项: {PyprojectMaker.options_list()}"),
+    optstr: Annotated[
+        str,
+        Argument(help=f"构建选项: {PyprojectMaker.options_list()}"),
+    ],
 ) -> None:
     pm = PyprojectMaker()
     pm.call_option_str(optstr)
