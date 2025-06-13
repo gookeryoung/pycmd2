@@ -121,5 +121,3 @@ class TomlConfigMixin:
         except Exception as e:
             msg = f"保存配置错误: {e.__class__.__name__!s}: {e!s}"
             logger.exception(msg)
-        else:
-            logger.info(f"保存配置: [green]{self._config_file}")

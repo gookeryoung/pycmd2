@@ -142,7 +142,6 @@ def test_main_with_no_files(
         assert "[*] 未发现待合并文件, 退出..." in caplog.text
 
 
-@pytest.mark.slow
 def test_merge_file_info(mock_cli: MagicMock, tmp_path: Path) -> None:
     # Test merge_file_info method
     pdf_info = PdfFileInfo(
