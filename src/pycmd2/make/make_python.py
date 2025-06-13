@@ -232,17 +232,11 @@ class CoverageOption(MakeOption):
 
     name = "coverage"
     desc = "测试覆盖率检查"
-    options: ClassVar = []
     commands: ClassVar = [
         "sync",
         [
-            "coverage",
-            "run",
-            "--source",
-            MakeOption.project_name(),
-            "-m",
             "pytest",
-            *options,
+            "--cov",
         ],
         ["coverage", "report", "-m"],
         ["coverage", "html"],
@@ -255,7 +249,17 @@ class CoverageSlowOption(CoverageOption):
 
     name = "coverage-slow"
     desc = "测试覆盖率检查, 包含slow测试项目"
-    options: ClassVar = ["--runslow"]
+    commands: ClassVar = [
+        "sync",
+        [
+            "pytest",
+            "--cov",
+            "--runslow",
+        ],
+        ["coverage", "report", "-m"],
+        ["coverage", "html"],
+        _browse_coverage,
+    ]
 
 
 class DistributionOption(MakeOption):

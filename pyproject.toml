@@ -138,6 +138,9 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 filterwarnings = ["error"]
+markers = [
+   "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
 
 # ------------------------ ruff ------------------------- #
 [tool.ruff]

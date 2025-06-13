@@ -7,10 +7,48 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 from src.pycmd2.office.pdf_merge import main
 from src.pycmd2.office.pdf_merge import PdfFileInfo
 from src.pycmd2.office.pdf_merge import search_directory
+
+
+@pytest.fixture(autouse=True, scope="module")
+def generate_pdf_files() -> None:
+    def create_pdf(filename: str, text: str) -> None:
+        c = canvas.Canvas(filename, pagesize=letter)
+        c.drawString(100, 100, text)
+        c.save()
+
+    def generate_test_files() -> None:
+        # Create test directory structure
+        Path("tests/office/test_pdf_merge/test_dir1").mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+        Path("tests/office/test_pdf_merge/test_dir1/subdir").mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        # Create test PDF files
+        create_pdf("tests/office/test_pdf_merge/top_level.pdf", "Top level PDF")
+        create_pdf(
+            "tests/office/test_pdf_merge/test_dir1/file1.pdf",
+            "First level PDF 1",
+        )
+        create_pdf(
+            "tests/office/test_pdf_merge/test_dir1/file2.pdf",
+            "First level PDF 2",
+        )
+        create_pdf(
+            "tests/office/test_pdf_merge/test_dir1/subdir/file3.pdf",
+            "Second level PDF",
+        )
+
+    generate_test_files()
 
 
 @pytest.fixture
@@ -104,6 +142,7 @@ def test_main_with_no_files(
         assert "[*] 未发现待合并文件, 退出..." in caplog.text
 
 
+@pytest.mark.slow
 def test_merge_file_info(mock_cli: MagicMock, tmp_path: Path) -> None:
     # Test merge_file_info method
     pdf_info = PdfFileInfo(
