@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from typer import Argument
 from typing_extensions import Annotated
@@ -10,9 +10,6 @@ from typing_extensions import Annotated
 from pycmd2.common.cli import get_client
 from pycmd2.pip.conf import conf
 from pycmd2.pip.pip_uninstall import pip_uninstall
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 cli = get_client()
 

@@ -7,16 +7,13 @@ from __future__ import annotations
 
 import re
 import time
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from typer import Argument
 from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 from pycmd2.common.config import TomlConfigMixin
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 class FileDateConfig(TomlConfigMixin):

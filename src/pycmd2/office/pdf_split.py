@@ -4,16 +4,13 @@ from __future__ import annotations
 
 import logging
 from functools import partial
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import pypdf
 from typer import Argument
 
 from pycmd2.common.cli import get_client
 from pycmd2.office.pdf_crypt import list_pdf
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 cli = get_client(help_doc="pdf 分割工具.")
 logger = logging.getLogger(__name__)

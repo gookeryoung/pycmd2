@@ -11,12 +11,10 @@ try:
 except ModuleNotFoundError:
     import tomli as tomllib
 
-from typing import TYPE_CHECKING
+
+from pathlib import Path
 
 import tomli_w
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 __all__ = [
     "TomlConfigMixin",

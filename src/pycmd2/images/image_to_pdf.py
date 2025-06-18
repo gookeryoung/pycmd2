@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from PIL import Image
 from typer import Argument
@@ -13,9 +13,6 @@ from typing_extensions import Annotated
 from pycmd2.common.cli import get_client
 
 from .image_gray import is_valid_image
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 cli = get_client(help_doc="图片转化 pdf 工具.")
 logger = logging.getLogger(__name__)

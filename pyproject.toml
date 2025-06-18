@@ -1,33 +1,29 @@
 # -------------------- build-system --------------------- #
 
 [build-system]
-requires = ["hatchling"]
 build-backend = "hatchling.build"
+requires = ["hatchling"]
 
 [project]
-name = "pycmd2"
-version = "0.4.14"
-description = "Command tools build with python."
-readme = "README.rst"
-authors = [
-  {name = "gooker_young", email = "gooker_young@qq.com"}
-]
-maintainers = [
-  {name = "gooker_young", email = "gooker_young@qq.com"}
-]
-requires-python = ">=3.8"
+authors = [{ name = "gooker_young", email = "gooker_young@qq.com" }]
+classifiers = []
 dependencies = [
   "paramiko>=3.5.1",
   "pillow>=10",
   "pypdf>=5.4.0",
   "pyside2>=5.15.2.1",
   "rich>=13.9.4",
-  "tomli>=2.2.1",
   "tomli-w>=1.0.0",
+  "tomli>=2.2.1",
   "typer>=0.15.1",
 ]
-classifiers = []
-license = {text = "MIT license"}
+description = "Command tools build with python."
+license = { text = "MIT license" }
+maintainers = [{ name = "gooker_young", email = "gooker_young@qq.com" }]
+name = "pycmd2"
+readme = "README.rst"
+requires-python = ">=3.8"
+version = "0.4.14"
 
 [project.scripts]
 # 自身命令
@@ -58,8 +54,8 @@ imggry = "pycmd2.images.image_gray:cli.app"
 
 # llama commands
 llmcli = "pycmd2.llama.llama_client:main"
-llmsvr = "pycmd2.llama.llama_server:main"
 llmqnt = "pycmd2.llama.llama_quantize:main"
+llmsvr = "pycmd2.llama.llama_server:main"
 
 # make commands
 mkp = "pycmd2.make.make_python:cli.app"
@@ -76,10 +72,10 @@ pdfspl = "pycmd2.office.pdf_split:cli.app"
 # pip commands
 pipd = "pycmd2.pip.pip_download:cli.app"
 pipdr = "pycmd2.pip.pip_download_req:cli.app"
+pipf = "pycmd2.pip.pip_freeze:cli.app"
 pipi = "pycmd2.pip.pip_install:cli.app"
 pipio = "pycmd2.pip.pip_install_offline:cli.app"
 pipir = "pycmd2.pip.pip_install_req:cli.app"
-pipf = "pycmd2.pip.pip_freeze:cli.app"
 pipr = "pycmd2.pip.pip_reinstall:cli.app"
 pipu = "pycmd2.pip.pip_uninstall:cli.app"
 pipur = "pycmd2.pip.pip_uninstall_req:cli.app"
@@ -94,9 +90,9 @@ taskk = "pycmd2.task.task_kill:cli.app"
 videoconv = "pycmd2.video.video_converter:main"
 
 [project.urls]
-Repository = "https://gitee.com/gooker_young/pycmd2"
 Documentation = "https://pycmd2.readthedocs.io/zh-cn/stable/"
 Issues = "https://gitee.com/gooker_young/pycmd2/issues"
+Repository = "https://gitee.com/gooker_young/pycmd2"
 
 # ---------------------- coverage ----------------------- #
 [tool.coverage]
@@ -104,8 +100,8 @@ Issues = "https://gitee.com/gooker_young/pycmd2/issues"
 exclude_lines = ["coverage: ignore", "def main", "if __name__ == .__main__.:"]
 
 [tool.coverage.run]
+omit = ["*/examples/*", "*/tests/*"]
 source = ["src/pycmd2"]
-omit = ["*/tests/*", "*/examples/*"]
 
 # -------------------- hatch-version -------------------- #
 [tool.hatch]
@@ -115,108 +111,106 @@ path = "src/pycmd2/__init__.py"
 # ------------------------ mypy ------------------------- #
 [tool.mypy]
 files = "."
-strict = true
 pretty = true
 show_error_codes = true
-warn_unreachable = true
+strict = true
 warn_no_return = true
+warn_unreachable = true
 
 [[tool.mypy.overrides]]
-module = [
-  "tests.*",
-  "asgiref.*",
-  "dotenv.*",
-  "cryptography.*",
-  "importlib_metadata"
-]
 allow_untyped_defs = true
 disable_error_code = "attr-defined"
 ignore_missing_imports = true
+module = [
+  "asgiref.*",
+  "cryptography.*",
+  "dotenv.*",
+  "importlib_metadata",
+  "tests.*",
+]
 
 # ----------------------- pytest ------------------------ #
 [tool.pytest]
 [tool.pytest.ini_options]
-testpaths = ["tests"]
 filterwarnings = ["error"]
-markers = [
-   "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-]
+markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
+testpaths = ["tests"]
 
 # ------------------------ ruff ------------------------- #
 [tool.ruff]
-line-length = 80
+exclude = ["**/*_rc.py", "**/ui_*.py", "docs/*.py"]
 fix = true
-unsafe-fixes = true
-show-fixes = true
+line-length = 80
 output-format = "full"
-exclude = ["**/ui_*.py", "**/*_rc.py", "docs/*.py"]
-target-version = "py38"
 preview = true
+show-fixes = true
+target-version = "py38"
+unsafe-fixes = true
 
 [tool.ruff.lint]
 select = [
-  "A",      # flake8-builtins
-  "ANN",    # flake8-annotations
-  "ARG",    # flake8-arguments
-  "ASYNC",  # flake8-async
-  "B",      # flake8-bugbear
-  "BLE",    # flake8-blind-except
-  "C",      # flake8-comprehensions
-  "C4",     # flake8-comprehensions
-  "COM",    # flake8-commas
+  "A",     # flake8-builtins
+  "ANN",   # flake8-annotations
+  "ARG",   # flake8-arguments
+  "ASYNC", # flake8-async
+  "B",     # flake8-bugbear
+  "BLE",   # flake8-blind-except
+  "C",     # flake8-comprehensions
+  "C4",    # flake8-comprehensions
+  "COM",   # flake8-commas
   #"CPY",    # flake8-copyright
-  "DJ",     # flake8-django
-  "DTZ",    # flake8-datetimez
-  "EM",     # flake8-errmsg
-  "EXE",    # flake8-executable
-  "FA",     # flake8-future-annotations
-  "FBT",    # flake8-boolean-trap
-  "FIX",    # flake8-fixme
+  "DJ",  # flake8-django
+  "DTZ", # flake8-datetimez
+  "EM",  # flake8-errmsg
+  "EXE", # flake8-executable
+  "FA",  # flake8-future-annotations
+  "FBT", # flake8-boolean-trap
+  "FIX", # flake8-fixme
   #"G",      # flake8-logging-format
-  "ICN",    # flake8-import-conventions
-  "INT",    # flake8-gettext
-  "INP",    # flake8-no-pep420
-  "ISC",    # flake8-implicit-str-concat
-  "LOG",    # flake8-logging
-  "PIE",    # flake8-pie
-  "PT",     # flake8-pytest-style
-  "PTH",    # flake8-use-pathlib
-  "PYI",    # flake8-pyi
-  "Q",      # flake8-quotes
-  "RET",    # flake8-return
-  "RSE",    # flake8-raise
+  "ICN", # flake8-import-conventions
+  "INP", # flake8-no-pep420
+  "INT", # flake8-gettext
+  "ISC", # flake8-implicit-str-concat
+  "LOG", # flake8-logging
+  "PIE", # flake8-pie
+  "PT",  # flake8-pytest-style
+  "PTH", # flake8-use-pathlib
+  "PYI", # flake8-pyi
+  "Q",   # flake8-quotes
+  "RET", # flake8-return
+  "RSE", # flake8-raise
   #"S",      # flake8-bandit
-  "SIM",    # flake8-simplify
-  "SLF",    # flake8-self
-  "SLOT",   # flake8-slots
-  "T10",    # flake8-debugger
-  "T20",    # flake8-print
-  "TC",     # flake8-type-checking
-  "TD",     # flake8-todo
-  "TID",    # flake8-tidy-imports
-  "YTT",    # flake8-2020
+  "SIM",  # flake8-simplify
+  "SLF",  # flake8-self
+  "SLOT", # flake8-slots
+  "T10",  # flake8-debugger
+  "T20",  # flake8-print
+  #"TC",   # flake8-type-checking
+  "TD",  # flake8-todo
+  "TID", # flake8-tidy-imports
+  "YTT", # flake8-2020
 
-  "AIR",    # Airflow
-  "C90",    # mccabe
-  "D",      # pydocstyle (文档字符串)
-  "DOC",    # docstrings
-  "E",      # Pycodestyle 错误
-  "ERA",    # Eradicate
-  "F",      # Pyflakes
-  "FAST",   # FastAPI
-  "FLY",    # flynt
-  "FURB",   # refurb
-  "I",      # isort (导入排序)
-  "N",      # pep8-naming
-  "NPY",    # numpy-specific
-  "PD",     # pandas-set
-  "PERF",   # perflint
-  "PGH",    # pygrep-hooks
-  "PL",     # Pylint
-  "RUF",    # Ruff 特有规则
-  "TRY",    # tryceratops
-  "UP",     # pyupgrade (现代化语法)
-  "W",      # Pycodestyle 警告
+  "AIR",  # Airflow
+  "C90",  # mccabe
+  "D",    # pydocstyle (文档字符串)
+  "DOC",  # docstrings
+  "E",    # Pycodestyle 错误
+  "ERA",  # Eradicate
+  "F",    # Pyflakes
+  "FAST", # FastAPI
+  "FLY",  # flynt
+  "FURB", # refurb
+  "I",    # isort (导入排序)
+  "N",    # pep8-naming
+  "NPY",  # numpy-specific
+  "PD",   # pandas-set
+  "PERF", # perflint
+  "PGH",  # pygrep-hooks
+  "PL",   # Pylint
+  "RUF",  # Ruff 特有规则
+  "TRY",  # tryceratops
+  "UP",   # pyupgrade (现代化语法)
+  "W",    # Pycodestyle 警告
 ]
 
 # 忽略的规则
@@ -225,7 +219,7 @@ ignore = [
   "D103",
   "D104",
   "D107",
-  "D203", # D 规则中与 Black 冲突的部分
+  "D203",    # D 规则中与 Black 冲突的部分
   "N802",
   "PLR0915",
   "PLR6301",
@@ -233,9 +227,9 @@ ignore = [
 
 # 格式化配置 (Ruff 的格式化器)
 [tool.ruff.format]
-quote-style = "double"
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
+quote-style = "double"
 
 # 导入排序配置
 [tool.ruff.lint.isort]
@@ -243,7 +237,7 @@ force-single-line = true
 order-by-type = false
 
 [tool.ruff.lint.pydocstyle]
-convention = "google"  # 可选: "pep257", "numpy", "google"
+convention = "google" # 可选: "pep257", "numpy", "google"
 
 # ----------------------- uv-dependencies ------------------------ #
 [tool.uv]
@@ -252,19 +246,19 @@ dev-dependencies = [
   "hatch>=1.14.1",
   "pip>=25.0.1",
   "pre-commit>=3.5.0",
+  "pycmd2",
   "pytest-benchmark>=4.0.0",
   "pytest-cov>=5.0.0",
   "pytest-html>=4.1.1",
   "pytest-mock>=3.14.0",
   "pytest>=8.3.4",
+  "reportlab>=4.4.1",
   "ruff>=0.11.12",
   "sphinx-autobuild>=2021.3.14",
   "sphinx-rtd-theme",
-  "tox>=4.24.1",
   "tox-uv>=1.13.1",
+  "tox>=4.24.1",
   "wheel>=0.45.1",
-  "pycmd2",
-  "reportlab>=4.4.1",
 ]
 
 [tool.uv.sources]

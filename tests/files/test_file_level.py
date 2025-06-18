@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import pytest
+from pytest_mock import MockerFixture
 
 from src.pycmd2.files.file_level import add_level_mark
 from src.pycmd2.files.file_level import FileLevelConfig
@@ -10,11 +11,6 @@ from src.pycmd2.files.file_level import main
 from src.pycmd2.files.file_level import remove_level_and_digital_mark
 from src.pycmd2.files.file_level import remove_marks
 from src.pycmd2.files.file_level import rename
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from pytest_mock import MockerFixture
 
 
 @pytest.fixture

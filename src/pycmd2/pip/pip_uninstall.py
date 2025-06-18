@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from typer import Argument
 
 from pycmd2.common.cli import get_client
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 cli = get_client()
 

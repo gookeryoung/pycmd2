@@ -11,10 +11,10 @@ import re
 import shutil
 import webbrowser
 from functools import partial
+from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import ClassVar
-from typing import TYPE_CHECKING
 from urllib.request import pathname2url
 
 from typer import Argument
@@ -22,9 +22,6 @@ from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 from pycmd2.git.git_push_all import main as git_push_all
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 try:
     import tomllib  # type: ignore[import]

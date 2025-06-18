@@ -5,15 +5,12 @@ from __future__ import annotations
 import dataclasses
 import logging
 from functools import lru_cache
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import pypdf
 
 from pycmd2.common.cli import get_client
 from pycmd2.office.pdf_crypt import is_encrypted
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 cli = get_client(help_doc="pdf 合并工具.")
 logger = logging.getLogger(__name__)
