@@ -9,6 +9,7 @@ import logging
 import typing
 from functools import partial
 from typing import ClassVar
+from typing import List
 
 from typer import Argument
 from typing_extensions import Annotated
@@ -115,7 +116,7 @@ def rename(
 
 @cli.app.command()
 def main(
-    targets: Annotated[list[Path], Argument(help="目标文件或目录")],
+    targets: Annotated[List[Path], Argument(help="目标文件或目录")],
     level: Annotated[int, Argument(help="文件级别")] = 0,
 ) -> None:
     rename_func = partial(rename, level=level)

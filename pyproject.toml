@@ -223,6 +223,7 @@ ignore = [
   "N802",
   "PLR0915",
   "PLR6301",
+  "UP006",   # pyupgrade
 ]
 
 # 格式化配置 (Ruff 的格式化器)

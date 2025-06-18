@@ -8,6 +8,7 @@ from __future__ import annotations
 import re
 import time
 from pathlib import Path
+from typing import List
 
 from typer import Argument
 from typing_extensions import Annotated
@@ -90,6 +91,6 @@ def rename_target(
 
 @cli.app.command()
 def main(
-    targets: Annotated[list[Path], Argument(help="输入文件清单")],
+    targets: Annotated[List[Path], Argument(help="输入文件清单")],
 ) -> None:
     cli.run(rename_target, targets)
