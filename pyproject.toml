@@ -23,7 +23,7 @@ maintainers = [{ name = "gooker_young", email = "gooker_young@qq.com" }]
 name = "pycmd2"
 readme = "README.rst"
 requires-python = ">=3.8"
-version = "0.4.17"
+version = "0.4.18"
 
 [project.scripts]
 # 自身命令
