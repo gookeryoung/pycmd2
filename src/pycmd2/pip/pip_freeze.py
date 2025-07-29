@@ -5,11 +5,15 @@
 
 from __future__ import annotations
 
+import logging
 import subprocess
 
 from pycmd2.common.cli import get_client
 
+__version__ = "0.1.1"
+
 cli = get_client()
+logger = logging.getLogger(__name__)
 
 
 def check_uv_callable() -> bool | None:
@@ -40,7 +44,9 @@ def pip_freeze() -> None:
 
 @cli.app.command()
 def main() -> None:
-    """主函数."""
+    """默认调用."""
+    logger.info(f"pipf {__version__}")
+
     if check_uv_callable():
         # 使用 uv 调用 pip freeze
         # 这样可以避免在某些环境中 pip freeze 的输出被截断
