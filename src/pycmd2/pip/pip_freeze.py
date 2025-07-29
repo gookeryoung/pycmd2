@@ -10,7 +10,8 @@ import subprocess
 
 from pycmd2.common.cli import get_client
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
+__build_date__ = "2025-07-29"
 
 cli = get_client()
 logger = logging.getLogger(__name__)
@@ -39,7 +40,7 @@ def check_uv_callable() -> bool | None:
 @cli.app.command()
 def main() -> None:
     """默认调用."""
-    logger.info(f"pipf {__version__}")
+    logger.info(f"pipf {__version__}, 构建日期: {__build_date__}")
 
     options = r' | grep -v "^\-e" '
 
