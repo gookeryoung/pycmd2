@@ -29,6 +29,9 @@ except ModuleNotFoundError:
     import tomli as tomllib
 
 
+__version__ = "0.1.2"
+__build_date__ = "2025-08-02"
+
 cli = get_client()
 logger = logging.getLogger(__name__)
 
@@ -151,7 +154,7 @@ class BumpPublishOption(MakeOption):
 
     name = "bump and publish"
     desc = "执行版本更新、构建以及推送等系列操作"
-    commands: ClassVar = ["bump", "pub"]
+    commands: ClassVar = ["bump", ["gitc", "-f"], "pub"]
 
 
 class BumpOption(MakeOption):
@@ -449,5 +452,7 @@ def main(
         Argument(help=f"构建选项: {PyprojectMaker.options_list()}"),
     ],
 ) -> None:
+    logger.info(f"mkp {__version__}, 构建日期: {__build_date__}")
+
     pm = PyprojectMaker()
     pm.call_option_str(optstr)
