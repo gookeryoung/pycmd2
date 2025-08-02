@@ -154,7 +154,7 @@ class BumpPublishOption(MakeOption):
 
     name = "bump and publish"
     desc = "执行版本更新、构建以及推送等系列操作"
-    commands: ClassVar = ["bump", ["gitc", "-f"], "pub"]
+    commands: ClassVar = ["bump", "pub"]
 
 
 class BumpOption(MakeOption):
@@ -329,6 +329,7 @@ class PublishOption(MakeOption):
     commands: ClassVar = [
         "dist",
         ["hatch", "publish"],
+        ["gitc", "-f"],
         git_push_all,
     ]
 
