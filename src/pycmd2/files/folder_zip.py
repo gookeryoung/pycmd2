@@ -63,3 +63,5 @@ def main(
 
     if dirs:
         cli.run(zip_folder, dirs)
+    else:
+        logger.info("没有待处理的目录.")
