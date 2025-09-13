@@ -1,11 +1,9 @@
-import pathlib
 import sys
 
 from PySide2.QtCore import Qt
 from PySide2.QtCore import QTime
 from PySide2.QtCore import QTimer
-from PySide2.QtCore import QUrl
-from PySide2.QtMultimedia import QSoundEffect
+from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QApplication
 from PySide2.QtWidgets import QCheckBox
 from PySide2.QtWidgets import QHBoxLayout
@@ -17,13 +15,76 @@ from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
 
 
-class AlarmClock(QMainWindow):
-    """Alarm clock GUI application."""
+class DigitalClock(QLabel):
+    """炫酷的数字时钟显示."""
 
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("闹钟")
-        self.setGeometry(100, 100, 300, 200)
+        self._setup_ui()
+
+    def _setup_ui(self) -> None:
+        # 设置字体和样式
+        font = QFont("Arial", 36, QFont.Bold)  # type: ignore # noqa: PGH003
+        self.setFont(font)
+
+        # 设置文本颜色和对齐方式
+        self.setStyleSheet("""
+            color: #00ff00;
+            background-color: black;
+            border: 2px solid #00aa00;
+            border-radius: 10px;
+            padding: 10px;
+        """)
+        # 使用 int() 转换来避免类型检查错误
+        self.setAlignment(Qt.AlignCenter)  # type: ignore # noqa: PGH003
+        # 设置最小尺寸
+        self.setMinimumHeight(100)
+
+
+class AlarmClock(QMainWindow):
+    """Alarm clock GUI."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.setWindowTitle("炫酷数字闹钟")
+        self.setGeometry(100, 100, 400, 300)
+
+        # 设置窗口样式
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #2b2b2b;
+            }
+            QLabel {
+                color: #ffffff;
+                font-size: 14px;
+            }
+            QPushButton {
+                background-color: #3a3a3a;
+                color: white;
+                border: 1px solid #5a5a5a;
+                padding: 8px;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #4a4a4a;
+            }
+            QPushButton:disabled {
+                background-color: #2a2a2a;
+                color: #6a6a6a;
+            }
+            QCheckBox {
+                color: white;
+                font-size: 14px;
+            }
+            QTimeEdit {
+                background-color: #3a3a3a;
+                color: white;
+                border: 1px solid #5a5a5a;
+                padding: 5px;
+                font-size: 14px;
+            }
+        """)
 
         # 创建中心部件
         central_widget = QWidget()
@@ -31,19 +92,17 @@ class AlarmClock(QMainWindow):
 
         # 创建布局
         main_layout = QVBoxLayout()
+        main_layout.setSpacing(20)
         central_widget.setLayout(main_layout)
 
-        # 当前时间显示
-        self.current_time_label = QLabel()
-        self.current_time_label.setStyleSheet(
-            "font-size: 20px; font-weight: bold;",
-        )
-        self.current_time_label.setAlignment(Qt.AlignCenter)  # type: ignore  # noqa: PGH003
-        main_layout.addWidget(self.current_time_label)
+        # 炫酷数字时钟显示
+        self.digital_clock = DigitalClock()
+        main_layout.addWidget(self.digital_clock)
 
         # 闹钟时间设置
         time_layout = QHBoxLayout()
         time_label = QLabel("闹钟时间:")
+        time_label.setStyleSheet("color: white; font-size: 16px;")
         self.alarm_time_edit = QTimeEdit()
         self.alarm_time_edit.setDisplayFormat("HH:mm:ss")
         self.alarm_time_edit.setTime(
@@ -60,9 +119,9 @@ class AlarmClock(QMainWindow):
         # 控制按钮
         button_layout = QHBoxLayout()
         self.set_alarm_button = QPushButton("设置闹钟")
-        self.set_alarm_button.clicked.connect(self.set_alarm)  # type: ignore  # noqa: PGH003
+        self.set_alarm_button.clicked.connect(self.set_alarm)  # type: ignore # noqa: PGH003
         self.cancel_alarm_button = QPushButton("取消闹钟")
-        self.cancel_alarm_button.clicked.connect(self.cancel_alarm)  # type: ignore  # noqa: PGH003
+        self.cancel_alarm_button.clicked.connect(self.cancel_alarm)  # type: ignore # noqa: PGH003
         self.cancel_alarm_button.setEnabled(False)
         button_layout.addWidget(self.set_alarm_button)
         button_layout.addWidget(self.cancel_alarm_button)
@@ -70,22 +129,18 @@ class AlarmClock(QMainWindow):
 
         # 状态显示
         self.status_label = QLabel("闹钟未设置")
-        self.status_label.setAlignment(Qt.AlignCenter)  # type: ignore  # noqa: PGH003
+        self.status_label.setAlignment(Qt.AlignCenter)  # type: ignore # noqa: PGH003
+        self.status_label.setStyleSheet("color: #aaaaaa; font-size: 16px;")
         main_layout.addWidget(self.status_label)
-
-        # 闹钟声音文件路径, 使用系统提示音
-        self.sound_effect = QSoundEffect()
-        # 使用系统默认提示音
-        self.sound_effect.setSource(QUrl.fromLocalFile(self.get_system_sound()))
 
         # 定时器更新当前时间
         self.current_time_timer = QTimer()
-        self.current_time_timer.timeout.connect(self.update_current_time)  # type: ignore  # noqa: PGH003
+        self.current_time_timer.timeout.connect(self.update_current_time)  # type: ignore # noqa: PGH003
         self.current_time_timer.start(1000)  # 每秒更新一次
 
         # 闹钟定时器
         self.alarm_timer = QTimer()
-        self.alarm_timer.timeout.connect(self.check_alarm)  # type: ignore  # noqa: PGH003
+        self.alarm_timer.timeout.connect(self.check_alarm)  # type: ignore # noqa: PGH003
 
         # 更新当前时间显示
         self.update_current_time()
@@ -94,29 +149,29 @@ class AlarmClock(QMainWindow):
         self.alarm_set = False
         self.alarm_time: QTime = QTime()  # 明确类型
 
-    def get_system_sound(self) -> str:
-        """Get system sound file path.
-
-        Returns:
-            str: System sound file path.
-        """
-        # 在Windows系统上使用默认提示音
-        if sys.platform == "win32":
-            # Windows系统提示音路径
-            return (
-                "C:/Windows/Media/Alarm01.wav"
-                if pathlib.Path("C:/Windows/Media/Alarm01.wav").exists()
-                else ""
-            )
-        # 其他系统返回空
-        return ""
-
     def update_current_time(self) -> None:
         """更新当前时间显示."""
         current_time = QTime.currentTime()
-        self.current_time_label.setText(
-            f"当前时间: {current_time.toString('HH:mm:ss')}",
-        )
+        time_str = current_time.toString("HH:mm:ss")
+        self.digital_clock.setText(time_str)
+
+        # 添加闪烁效果
+        if current_time.second() % 2 == 0:
+            self.digital_clock.setStyleSheet("""
+                color: #00ff00;
+                background-color: black;
+                border: 2px solid #00aa00;
+                border-radius: 10px;
+                padding: 10px;
+            """)
+        else:
+            self.digital_clock.setStyleSheet("""
+                color: #00cc00;
+                background-color: black;
+                border: 2px solid #008800;
+                border-radius: 10px;
+                padding: 10px;
+            """)
 
     def set_alarm(self) -> None:
         """设置闹钟."""
@@ -128,6 +183,9 @@ class AlarmClock(QMainWindow):
         self.status_label.setText(
             f"闹钟已设置: {self.alarm_time.toString('HH:mm:ss')}",
         )
+        self.status_label.setStyleSheet(
+            "color: #00ff00; font-size: 16px; font-weight: bold;",
+        )
 
     def cancel_alarm(self) -> None:
         """取消闹钟."""
@@ -136,9 +194,7 @@ class AlarmClock(QMainWindow):
         self.set_alarm_button.setEnabled(True)
         self.cancel_alarm_button.setEnabled(False)
         self.status_label.setText("闹钟已取消")
-        # 停止播放声音
-        if self.sound_effect.isPlaying():
-            self.sound_effect.stop()
+        self.status_label.setStyleSheet("color: #aaaaaa; font-size: 16px;")
 
     def check_alarm(self) -> None:
         """检查是否到达闹钟时间."""
@@ -151,16 +207,21 @@ class AlarmClock(QMainWindow):
             and current_time.minute() == self.alarm_time.minute()
             and current_time.second() == self.alarm_time.second()
         ):
-            # 播放闹钟声音
-            if (
-                not self.sound_effect.isPlaying()
-                and self.sound_effect.source().toString()
-            ):
-                self.sound_effect.setLoopCount(-1)  # -1 表示无限循环播放
-                self.sound_effect.play()
-
             # 显示提醒消息
-            self.status_label.setText("闹钟响了!")
+            self.status_label.setText("⏰ 闹钟响了!⏰")
+            self.status_label.setStyleSheet(
+                "color: #ff5555; font-size: 18px; font-weight: bold;",
+            )
+
+            # 添加闪烁效果
+            self.status_label.setStyleSheet("""
+                color: #ff0000;
+                font-size: 18px;
+                font-weight: bold;
+                background-color: #330000;
+                border-radius: 5px;
+                padding: 5px;
+            """)
 
             # 如果不重复则取消闹钟
             if not self.repeat_checkbox.isChecked():
