@@ -1,0 +1,7 @@
+[project]
+dependencies = ["pyside2>=5.15.2.1"]
+description = "Add your description here"
+name = "alarmclock"
+readme = "README.md"
+requires-python = ">=3.8"
+version = "0.1.0"

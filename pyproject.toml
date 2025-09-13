@@ -48,6 +48,26 @@ gitre = "pycmd2.git.git_restart_tgitcache:cli.app"
 # make commands
 mkp = "pycmd2.make.make_python:cli.app"
 
+# network commands
+ssh-copy-id = "pycmd2.network.ssh_copy_id:cli.app"
+
+# [gui]
+alarmclk = "pycmd2.system.alarmclock.cli:main"
+checksum = "pycmd2.files.checksum.checksum:main"
+img2pdf = "pycmd2.images.image_to_pdf:cli.app"
+imggry = "pycmd2.images.image_gray:cli.app"
+
+# llama commands
+llmcli = "pycmd2.llama.llama_client:main"
+llmqnt = "pycmd2.llama.llama_quantize:main"
+llmsvr = "pycmd2.llama.llama_server:main"
+
+# office commands
+mindnote = "pycmd2.office.mindnote.cli:main"
+pdfc = "pycmd2.office.pdf_crypt:cli.app"
+pdfmrg = "pycmd2.office.pdf_merge:cli.app"
+pdfspl = "pycmd2.office.pdf_split:cli.app"
+
 # pip commands
 pipd = "pycmd2.pip.pip_download:cli.app"
 pipdr = "pycmd2.pip.pip_download_req:cli.app"
@@ -65,30 +85,8 @@ wch = "pycmd2.system.which:cli.app"
 # task commands
 taskk = "pycmd2.task.task_kill:cli.app"
 
-# network commands
-ssh-copy-id = "pycmd2.network.ssh_copy_id:cli.app"
-
-# [office]
-img2pdf = "pycmd2.images.image_to_pdf:cli.app"
-imggry = "pycmd2.images.image_gray:cli.app"
-
-pdfc = "pycmd2.office.pdf_crypt:cli.app"
-pdfmrg = "pycmd2.office.pdf_merge:cli.app"
-pdfspl = "pycmd2.office.pdf_split:cli.app"
-
 # video
 videoconv = "pycmd2.video.video_converter:main"
-
-# [gui]
-checksum = "pycmd2.files.checksum.checksum:main"
-
-# llama commands
-llmcli = "pycmd2.llama.llama_client:main"
-llmqnt = "pycmd2.llama.llama_quantize:main"
-llmsvr = "pycmd2.llama.llama_server:main"
-
-# office commands
-mindnote = "pycmd2.office.mindnote.cli:main"
 
 [project.urls]
 Documentation = "https://pycmd2.readthedocs.io/zh-cn/stable/"
