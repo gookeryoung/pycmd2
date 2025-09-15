@@ -1,11 +1,14 @@
 import sys
 
+from PySide2.QtCore import QSize
 from PySide2.QtCore import Qt
 from PySide2.QtCore import QTime
 from PySide2.QtCore import QTimer
+from PySide2.QtGui import QCloseEvent
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QApplication
 from PySide2.QtWidgets import QCheckBox
+from PySide2.QtWidgets import QDialog
 from PySide2.QtWidgets import QHBoxLayout
 from PySide2.QtWidgets import QLabel
 from PySide2.QtWidgets import QMainWindow
@@ -13,6 +16,27 @@ from PySide2.QtWidgets import QPushButton
 from PySide2.QtWidgets import QTimeEdit
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
+
+from pycmd2.common.cli import get_client
+from pycmd2.common.config import TomlConfigMixin
+from pycmd2.common.gui import setup_pyside2_env
+
+setup_pyside2_env(enable_high_dpi=True)
+
+
+class AlarmClockConfig(TomlConfigMixin):
+    """闹钟配置项."""
+
+    FONT_FAMILY: str = "Conslas"
+    FONT_SIZE: int = 72
+    FONT_BOLD: bool = True
+
+    MESSAGE_TITLE = "闹钟提醒!"
+    MESSAGE_CONTENT: str = "⏰ 时间到了!"
+
+
+cli = get_client()
+conf = AlarmClockConfig()
 
 
 class DigitalClock(QLabel):
@@ -24,7 +48,11 @@ class DigitalClock(QLabel):
 
     def _setup_ui(self) -> None:
         # 设置字体和样式
-        font = QFont("Arial", 36, QFont.Bold)  # type: ignore # noqa: PGH003
+        font = QFont(
+            conf.FONT_FAMILY,
+            conf.FONT_SIZE,
+            QFont.Weight.Bold if conf.FONT_BOLD else QFont.Weight.Normal,  # type: ignore  # noqa: PGH003
+        )
         self.setFont(font)
 
         # 设置文本颜色和对齐方式
@@ -39,6 +67,80 @@ class DigitalClock(QLabel):
         self.setAlignment(Qt.AlignCenter)  # type: ignore # noqa: PGH003
         # 设置最小尺寸
         self.setMinimumHeight(100)
+
+
+class AlarmDialog(QDialog):
+    """闹钟提醒对话框."""
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.setWindowTitle(conf.MESSAGE_TITLE)
+        self.setModal(True)
+        self.setWindowFlags(
+            self.windowFlags() | Qt.WindowStaysOnTopHint | Qt.WindowType.Dialog,  # type: ignore  # noqa: PGH003
+        )
+        self.setFixedSize(QSize(400, 240))
+
+        layout = QVBoxLayout()
+        message_label = QLabel(conf.MESSAGE_CONTENT)
+        message_label.setStyleSheet("""
+            color: red;
+            font-size: 24px;
+        """)
+        message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore  # noqa: PGH003
+
+        close_button = QPushButton("关闭闹钟")
+        close_button.clicked.connect(self.accept)  # type: ignore  # noqa: PGH003
+
+        layout.addWidget(message_label)
+        layout.addWidget(close_button)
+        self.setLayout(layout)
+
+        # 阻止用户通过其他方式关闭对话框, 确保只能点击按钮
+        self.setWindowFlag(Qt.WindowCloseButtonHint, False)  # type: ignore  # noqa: FBT003, PGH003
+
+        # 闪烁控制变量和定时器
+        self.blink_timer = QTimer(self)
+        self.blink_timer.timeout.connect(self.update_blink)  # type: ignore  # noqa: PGH003
+        self.blink_state = False
+        self.blink_style = "color"  # 可选 'color' 或 'opacity'
+
+        # 初始化样式
+        self.original_style = self.styleSheet()
+        self.blink_colors = [
+            "background-color: red;",
+            "background-color: yellow;",
+        ]  # 红黄交替
+        self.blink_timer.start(500)  # 每500毫秒闪烁一次
+
+    def update_blink(self) -> None:
+        """定时器超时, 更新闪烁状态."""
+        if self.blink_style == "color":
+            # 颜色闪烁逻辑
+            current_style = (
+                self.blink_colors[0]
+                if self.blink_state
+                else self.blink_colors[1]
+            )
+            self.setStyleSheet(current_style)
+        elif self.blink_style == "opacity":
+            # 透明度闪烁逻辑 - 注意: 某些系统可能不完全支持窗口透明度
+            new_opacity = 0.3 if self.blink_state else 1.0
+            self.setWindowOpacity(new_opacity)
+
+        self.blink_state = not self.blink_state  # 切换状态
+
+    def stop_blinking(self) -> None:
+        """停止闪烁, 恢复原有样式."""
+        self.blink_timer.stop()
+        self.setStyleSheet(self.original_style)  # 恢复原有样式
+        self.setWindowOpacity(1.0)  # 确保透明度恢复
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        """重写关闭事件, 确保定时器停止."""
+        self.stop_blinking()
+        super().closeEvent(event)
 
 
 class AlarmClock(QMainWindow):
@@ -208,6 +310,9 @@ class AlarmClock(QMainWindow):
             and current_time.second() == self.alarm_time.second()
         ):
             # 显示提醒消息
+            dialog = AlarmDialog()
+            dialog.exec_()
+
             self.status_label.setText("⏰ 闹钟响了!⏰")
             self.status_label.setStyleSheet(
                 "color: #ff5555; font-size: 18px; font-weight: bold;",
@@ -229,8 +334,6 @@ class AlarmClock(QMainWindow):
 
 
 def main() -> None:
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)  # type: ignore  # noqa: PGH003
-
     app = QApplication(sys.argv)
     window = AlarmClock()
     window.show()

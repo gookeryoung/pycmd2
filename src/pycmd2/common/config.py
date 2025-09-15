@@ -83,6 +83,8 @@ class TomlConfigMixin:
             if not attr.startswith("_") and not callable(getattr(self, attr))
         }
 
+        logger.info(f"获取属性: {self._props}")
+
         # 写入配置数据到实例
         if self._config:
             for attr in self._props:
