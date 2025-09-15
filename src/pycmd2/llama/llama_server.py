@@ -7,6 +7,7 @@ from typing import ClassVar
 
 from PySide2.QtCore import QProcess
 from PySide2.QtCore import QTextStream
+from PySide2.QtCore import QUrl
 from PySide2.QtGui import QBrush
 from PySide2.QtGui import QColor
 from PySide2.QtGui import QDesktopServices
@@ -58,7 +59,7 @@ class LlamaServerGUI(QMainWindow):
         self.setWindowTitle(conf.TITLE)
         self.resize(*conf.WIN_SIZE)
 
-        self.process = None
+        self.process: QProcess
         self.init_ui()
         self.setup_process()
 
@@ -85,7 +86,7 @@ class LlamaServerGUI(QMainWindow):
 
         model_path_layout.addWidget(self.model_path_input)
         self.load_model_btn = QPushButton("浏览...")
-        self.load_model_btn.clicked.connect(self.on_load_model)
+        self.load_model_btn.clicked.connect(self.on_load_model)  # type: ignore  # noqa: PGH003
         model_path_layout.addWidget(self.load_model_btn)
         config_layout.addLayout(model_path_layout)
 
@@ -111,10 +112,10 @@ class LlamaServerGUI(QMainWindow):
         # 控制按钮
         control_layout = QHBoxLayout()
         self.start_btn = QPushButton("启动服务器")
-        self.start_btn.clicked.connect(self.toggle_server)
+        self.start_btn.clicked.connect(self.toggle_server)  # type: ignore  # noqa: PGH003
         self.browser_btn = QPushButton("启动网页")
         self.browser_btn.setEnabled(False)
-        self.browser_btn.clicked.connect(self.on_start_browser)
+        self.browser_btn.clicked.connect(self.on_start_browser)  # type: ignore  # noqa: PGH003
         control_layout.addWidget(self.start_btn)
         control_layout.addWidget(self.browser_btn)
         main_layout.addLayout(control_layout)
@@ -124,7 +125,7 @@ class LlamaServerGUI(QMainWindow):
         output_layout = QVBoxLayout()
         self.output_area = QTextEdit()
         self.output_area.setReadOnly(True)
-        self.output_area.setLineWrapMode(QTextEdit.NoWrap)
+        self.output_area.setLineWrapMode(QTextEdit.NoWrap)  # type: ignore  # noqa: PGH003
 
         # 设置不同消息类型的颜色
         self.error_format = self.create_text_format(QColor(255, 0, 0))
@@ -155,9 +156,9 @@ class LlamaServerGUI(QMainWindow):
     def setup_process(self) -> None:
         """初始化进程."""
         self.process = QProcess(self)
-        self.process.readyReadStandardOutput.connect(self.handle_stdout)
-        self.process.readyReadStandardError.connect(self.handle_stderr)
-        self.process.finished.connect(self.on_process_finished)
+        self.process.readyReadStandardOutput.connect(self.handle_stdout)  # type: ignore  # noqa: PGH003
+        self.process.readyReadStandardError.connect(self.handle_stderr)  # type: ignore  # noqa: PGH003
+        self.process.finished.connect(self.on_process_finished)  # type: ignore  # noqa: PGH003
 
     def on_load_model(self) -> None:
         """选择模型文件."""
@@ -201,7 +202,7 @@ class LlamaServerGUI(QMainWindow):
         try:
             self.process.start(cmd[0], cmd[1:])
             self.update_ui_state(running=True)
-        except QProcess.ProcessError as e:
+        except QProcess.ProcessError as e:  # type: ignore  # noqa: PGH003
             self.append_output(f"启动失败: {e!s}", self.error_format)
 
     def stop_server(self) -> None:
@@ -215,7 +216,7 @@ class LlamaServerGUI(QMainWindow):
     @staticmethod
     def on_start_browser() -> None:
         """启动网页."""
-        QDesktopServices.openUrl(f"{conf.URL}:{conf.LISTEN_PORT}")
+        QDesktopServices.openUrl(QUrl(f"{conf.URL}:{conf.LISTEN_PORT}"))
 
     def on_process_finished(self, exit_code: int, exit_status: int) -> None:
         """进程结束."""
@@ -244,7 +245,7 @@ class LlamaServerGUI(QMainWindow):
     ) -> None:
         """追加输出."""
         cursor: QTextCursor = self.output_area.textCursor()
-        cursor.movePosition(QTextCursor.End)
+        cursor.movePosition(QTextCursor.MoveOperation.End)
 
         if text_format:
             cursor.setCharFormat(text_format)
