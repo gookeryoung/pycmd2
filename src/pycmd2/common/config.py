@@ -99,6 +99,12 @@ class TomlConfigMixin:
         # 保存配置数据到文件
         atexit.register(self._save)
 
+    def setattr(self, attr: str, value: object) -> None:
+        """设置属性."""
+        if attr in self._props:
+            logger.info(f"设置属性: {attr} = {value}")
+            self._props[attr] = value
+
     def _load(self) -> None:
         """从文件载入配置."""
         if not self._config_file.exists():
@@ -119,6 +125,8 @@ class TomlConfigMixin:
         """保存配置到文件."""
         try:
             with self._config_file.open("wb") as f:
+                logger.info(f"保存配置: [green]{self._config_file}")
+                logger.info(f"配置项: {self._props}")
                 tomli_w.dump(self._props, f)
         except Exception as e:
             msg = f"保存配置错误: {e.__class__.__name__!s}: {e!s}"

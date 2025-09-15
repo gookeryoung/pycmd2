@@ -168,8 +168,9 @@ class LlamaServerGUI(QMainWindow):
             conf.MODEL_PATH,
             "模型文件 (*.bin *.gguf)",
         )
+
         if path:
-            conf.MODEL_PATH = path
+            conf.setattr("MODEL_PATH", path)
             self.model_path_input.setText(os.path.normpath(path))
 
     def toggle_server(self) -> None:
