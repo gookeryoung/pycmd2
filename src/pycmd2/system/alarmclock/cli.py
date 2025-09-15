@@ -229,6 +229,8 @@ class AlarmClock(QMainWindow):
 
 
 def main() -> None:
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)  # type: ignore  # noqa: PGH003
+
     app = QApplication(sys.argv)
     window = AlarmClock()
     window.show()
