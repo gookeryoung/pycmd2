@@ -8,6 +8,7 @@ from __future__ import annotations
 import logging
 import typing
 from functools import partial
+from pathlib import Path
 from typing import ClassVar
 from typing import List
 
@@ -16,9 +17,6 @@ from typing_extensions import Annotated
 
 from pycmd2.common.cli import get_client
 from pycmd2.common.config import TomlConfigMixin
-
-if typing.TYPE_CHECKING:
-    from pathlib import Path
 
 
 class FileLevelConfig(TomlConfigMixin):
@@ -53,6 +51,11 @@ def remove_marks(
     filename: str,
     marks: list[str],
 ) -> str:
+    """移除文件名中的标记符.
+
+    Returns:
+        移除标记符后的文件名.
+    """
     for mark in marks:
         pos = filename.find(mark)
         if pos != -1:
@@ -102,6 +105,7 @@ def add_level_mark(
     )
 
     if filepath.with_name(dst_name).exists():
+        logger.info(f"[{dst_name}] already exists.")
         return add_level_mark(filepath, filelevel, suffix + 1)
     logger.info(f"rename [{filepath.name}] to [{dst_name}].")
     return filepath.with_name(dst_name)

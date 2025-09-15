@@ -64,6 +64,8 @@ class TomlConfigMixin:
 
     def __init__(self) -> None:
         cls_name = to_snake_case(type(self).__name__).replace("_config", "")
+        self.NAME = cls_name if not self.NAME else self.NAME
+
         self._config_file: Path = cli.settings_dir / f"{cls_name}.toml"
         self._config = {}
 
