@@ -1,11 +1,14 @@
+from __future__ import annotations
+
+import logging
 import sys
+from typing import ClassVar
 
 from PySide2.QtCore import QSize
 from PySide2.QtCore import Qt
 from PySide2.QtCore import QTime
 from PySide2.QtCore import QTimer
 from PySide2.QtGui import QCloseEvent
-from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QApplication
 from PySide2.QtWidgets import QCheckBox
 from PySide2.QtWidgets import QDialog
@@ -27,16 +30,22 @@ setup_pyside2_env(enable_high_dpi=True)
 class AlarmClockConfig(TomlConfigMixin):
     """闹钟配置项."""
 
-    FONT_FAMILY: str = "Conslas"
-    FONT_SIZE: int = 72
-    FONT_BOLD: bool = True
+    DIGITAL_FONT: str = "bold italic 81px 'Consolas'"
+    DIGITAL_BORDER_COLORS: ClassVar[list[str]] = [
+        "#00aa00",
+        "#eecc00",
+        "#aa00aa",
+    ]
+    DIGITAL_TIMER_FORMAT: str = "HH:mm:ss"
+    DIGITAL_UPDATE_INTERVAL: int = 1000
 
-    MESSAGE_TITLE = "闹钟提醒!"
+    MESSAGE_TITLE: str = "闹钟提醒!"
     MESSAGE_CONTENT: str = "⏰ 时间到了!"
 
 
 cli = get_client()
 conf = AlarmClockConfig()
+logger = logging.getLogger(__name__)
 
 
 class DigitalClock(QLabel):
@@ -44,29 +53,38 @@ class DigitalClock(QLabel):
 
     def __init__(self) -> None:
         super().__init__()
-        self._setup_ui()
 
-    def _setup_ui(self) -> None:
-        # 设置字体和样式
-        font = QFont(
-            conf.FONT_FAMILY,
-            conf.FONT_SIZE,
-            QFont.Weight.Bold if conf.FONT_BOLD else QFont.Weight.Normal,  # type: ignore  # noqa: PGH003
-        )
-        self.setFont(font)
-
-        # 设置文本颜色和对齐方式
-        self.setStyleSheet("""
-            color: #00ff00;
-            background-color: black;
-            border: 2px solid #00aa00;
-            border-radius: 10px;
-            padding: 10px;
-        """)
-        # 使用 int() 转换来避免类型检查错误
         self.setAlignment(Qt.AlignCenter)  # type: ignore # noqa: PGH003
-        # 设置最小尺寸
-        self.setMinimumHeight(100)
+
+        self.update_current_time()
+
+        # 定时器更新当前时间
+        self.current_time_timer = QTimer()
+        self.current_time_timer.timeout.connect(self.update_current_time)  # type: ignore # noqa: PGH003
+        self.current_time_timer.start(
+            conf.DIGITAL_UPDATE_INTERVAL,
+        )  # 每秒更新一次
+
+    def update_current_time(self) -> None:
+        """更新当前时间显示."""
+        current_time = QTime.currentTime()
+        time_str = current_time.toString(conf.DIGITAL_TIMER_FORMAT)
+        self.setText(time_str)
+
+        logger.info(f"更新时间: {time_str}")
+
+        # 添加闪烁效果
+        for i, color in enumerate(conf.DIGITAL_BORDER_COLORS):
+            if current_time.second() % len(conf.DIGITAL_BORDER_COLORS) == i:
+                self.setStyleSheet(f"""
+                    font: {conf.DIGITAL_FONT}px;
+                    color: #00ff00;
+                    background-color: black;
+                    border: 2px dashed {color};
+                    border-radius: 10px;
+                    padding: 10px;
+                """)
+                break
 
 
 class AlarmDialog(QDialog):
@@ -235,45 +253,13 @@ class AlarmClock(QMainWindow):
         self.status_label.setStyleSheet("color: #aaaaaa; font-size: 16px;")
         main_layout.addWidget(self.status_label)
 
-        # 定时器更新当前时间
-        self.current_time_timer = QTimer()
-        self.current_time_timer.timeout.connect(self.update_current_time)  # type: ignore # noqa: PGH003
-        self.current_time_timer.start(1000)  # 每秒更新一次
-
         # 闹钟定时器
         self.alarm_timer = QTimer()
         self.alarm_timer.timeout.connect(self.check_alarm)  # type: ignore # noqa: PGH003
 
-        # 更新当前时间显示
-        self.update_current_time()
-
         # 闹钟状态
         self.alarm_set = False
         self.alarm_time: QTime = QTime()  # 明确类型
-
-    def update_current_time(self) -> None:
-        """更新当前时间显示."""
-        current_time = QTime.currentTime()
-        time_str = current_time.toString("HH:mm:ss")
-        self.digital_clock.setText(time_str)
-
-        # 添加闪烁效果
-        if current_time.second() % 2 == 0:
-            self.digital_clock.setStyleSheet("""
-                color: #00ff00;
-                background-color: black;
-                border: 2px solid #00aa00;
-                border-radius: 10px;
-                padding: 10px;
-            """)
-        else:
-            self.digital_clock.setStyleSheet("""
-                color: #00cc00;
-                background-color: black;
-                border: 2px solid #008800;
-                border-radius: 10px;
-                padding: 10px;
-            """)
 
     def set_alarm(self) -> None:
         """设置闹钟."""
