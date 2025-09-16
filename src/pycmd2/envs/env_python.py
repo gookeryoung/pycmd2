@@ -17,9 +17,9 @@ BASHRC_PATH = cli.home / ".bashrc"
 
 # pip 配置信息
 PIP_CONF_CONTENT = """[global]
-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+index-url = http://mirrors.aliyun.com/pypi/simple/
 [install]
-trusted-host = tuna.tsinghua.edu.cn
+trusted-host = mirrors.aliyun.com
 """
 
 
@@ -49,7 +49,7 @@ def add_env_to_bashrc(
 
     Parameters:
         variable: 变量名 (如 "UV_INDEX_URL")
-        value: 变量值 (如 "https://pypi.tuna.tsinghua.edu.cn/simple")
+        value: 变量值 (如 "http://mirrors.aliyun.com/pypi/simple/")
         comment: 可选注释说明
         override: 是否覆盖已有配置 (默认: False)
 
@@ -112,8 +112,8 @@ def setup_uv(*, override: bool = True) -> None:
     logger.info("配置 [purple bold]uv 环境变量")
 
     uv_envs = {
-        "UV_INDEX_URL": "https://pypi.tuna.tsinghua.edu.cn/simple",
-        "UV_DEFALT_INDEX": "https://pypi.tuna.tsinghua.edu.cn/simple",
+        "UV_INDEX_URL": "http://mirrors.aliyun.com/pypi/simple/",
+        "UV_DEFALT_INDEX": "http://mirrors.aliyun.com/pypi/simple/",
         "UV_HTTP_TIMEOUT": 60,
         "UV_LINK_MODE": "copy",
     }
