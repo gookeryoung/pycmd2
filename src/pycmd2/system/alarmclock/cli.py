@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import logging
 import sys
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from typing import ClassVar
 
 from PySide2.QtCore import QSize
@@ -31,6 +34,7 @@ class AlarmClockConfig(TomlConfigMixin):
     """闹钟配置项."""
 
     DIGITAL_FONT: str = "bold italic 81px 'Consolas'"
+    DIGITAL_COLOR: str = "#ccee00"
     DIGITAL_BORDER_COLORS: ClassVar[list[str]] = [
         "#00aa00",
         "#eecc00",
@@ -55,30 +59,25 @@ class DigitalClock(QLabel):
         super().__init__()
 
         self.setAlignment(Qt.AlignCenter)  # type: ignore # noqa: PGH003
-
-        self.update_current_time()
+        self.update_time()
 
         # 定时器更新当前时间
-        self.current_time_timer = QTimer()
-        self.current_time_timer.timeout.connect(self.update_current_time)  # type: ignore # noqa: PGH003
-        self.current_time_timer.start(
-            conf.DIGITAL_UPDATE_INTERVAL,
-        )  # 每秒更新一次
+        self._timer = QTimer()
+        self._timer.timeout.connect(self.update_time)  # type: ignore # noqa: PGH003
+        self._timer.start(conf.DIGITAL_UPDATE_INTERVAL)  # 每秒更新一次
 
-    def update_current_time(self) -> None:
+    def update_time(self) -> None:
         """更新当前时间显示."""
-        current_time = QTime.currentTime()
-        time_str = current_time.toString(conf.DIGITAL_TIMER_FORMAT)
-        self.setText(time_str)
-
-        logger.info(f"更新时间: {time_str}")
+        current = datetime.now(timezone.utc) + timedelta(hours=8)  # 北京时间
+        self.setText(current.strftime(conf.DIGITAL_TIMER_FORMAT))
+        logger.info(f"更新时间: {current}")
 
         # 添加闪烁效果
         for i, color in enumerate(conf.DIGITAL_BORDER_COLORS):
-            if current_time.second() % len(conf.DIGITAL_BORDER_COLORS) == i:
+            if current.second % len(conf.DIGITAL_BORDER_COLORS) == i:
                 self.setStyleSheet(f"""
-                    font: {conf.DIGITAL_FONT}px;
-                    color: #00ff00;
+                    font: {conf.DIGITAL_FONT};
+                    color: {conf.DIGITAL_COLOR};
                     background-color: black;
                     border: 2px dashed {color};
                     border-radius: 10px;
