@@ -6,6 +6,7 @@ import sys
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from functools import partial
 from typing import ClassVar
 
 from PySide2.QtCore import QSize
@@ -30,9 +31,14 @@ from pycmd2.common.gui import setup_pyside2_env
 
 setup_pyside2_env(enable_high_dpi=True)
 
+__version__ = "0.1.2"
+__build_date__ = "2025-09-16"
+
 
 class AlarmClockConfig(TomlConfigMixin):
     """闹钟配置项."""
+
+    ALARM_CLOCK_TITLE = "数字闹钟"
 
     DIGITAL_FONT: str = "bold italic 81px 'Consolas'"
     DIGITAL_COLOR: str = "#ccee00"
@@ -45,8 +51,18 @@ class AlarmClockConfig(TomlConfigMixin):
     DIGITAL_TIMER_FORMAT: str = "%H:%M:%S"
     DIGITAL_UPDATE_INTERVAL: int = 1000
 
-    MESSAGE_TITLE: str = "闹钟提醒!"
-    MESSAGE_CONTENT: str = "⏰ 时间到了!"
+    BLINK_TITLE: str = "闹钟提醒!"
+    BLINK_CONTENT: str = "⏰ 时间到了!"
+    BLINK_TYPE: str = "color"  # 可选 'color' 或 'opacity'
+    BLINK_BG_COLORS: ClassVar[list[str]] = [
+        "#baf1ba",
+        "#f8ccc3",
+        "#aab4f0",
+        "#efaec0",
+    ]
+    BLINK_INTERVAL: ClassVar[int] = 300  # ms
+
+    DELAY_STEPS: ClassVar[list[int]] = [1, 5, 10, 15, 30, 60]  # 分钟
 
 
 cli = get_client()
@@ -57,8 +73,8 @@ logger = logging.getLogger(__name__)
 class DigitalClock(QLabel):
     """炫酷的数字时钟显示."""
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
 
         self.setAlignment(Qt.AlignCenter)  # type: ignore # noqa: PGH003
 
@@ -91,13 +107,13 @@ class DigitalClock(QLabel):
         """)
 
 
-class AlarmDialog(QDialog):
+class BlinkDialog(QDialog):
     """闹钟提醒对话框."""
 
     def __init__(self) -> None:
         super().__init__()
 
-        self.setWindowTitle(conf.MESSAGE_TITLE)
+        self.setWindowTitle(conf.BLINK_TITLE)
         self.setModal(True)
         self.setWindowFlags(
             self.windowFlags() | Qt.WindowStaysOnTopHint | Qt.WindowType.Dialog,  # type: ignore  # noqa: PGH003
@@ -105,17 +121,17 @@ class AlarmDialog(QDialog):
         self.setFixedSize(QSize(400, 240))
 
         layout = QVBoxLayout()
-        message_label = QLabel(conf.MESSAGE_CONTENT)
-        message_label.setStyleSheet("""
+        msg_label = QLabel(conf.BLINK_CONTENT)
+        msg_label.setStyleSheet("""
             color: red;
             font-size: 24px;
         """)
-        message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore  # noqa: PGH003
+        msg_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore  # noqa: PGH003
 
         close_button = QPushButton("关闭闹钟")
         close_button.clicked.connect(self.accept)  # type: ignore  # noqa: PGH003
 
-        layout.addWidget(message_label)
+        layout.addWidget(msg_label)
         layout.addWidget(close_button)
         self.setLayout(layout)
 
@@ -126,27 +142,20 @@ class AlarmDialog(QDialog):
         self.blink_timer = QTimer(self)
         self.blink_timer.timeout.connect(self.update_blink)  # type: ignore  # noqa: PGH003
         self.blink_state = False
-        self.blink_style = "color"  # 可选 'color' 或 'opacity'
+        self.blink_type = conf.BLINK_TYPE
 
         # 初始化样式
-        self.original_style = self.styleSheet()
-        self.blink_colors = [
-            "background-color: red;",
-            "background-color: yellow;",
-        ]  # 红黄交替
-        self.blink_timer.start(500)  # 每500毫秒闪烁一次
+        self.bg_color = random.choice(conf.BLINK_BG_COLORS)
+        self.origin_style = self.styleSheet()
+        self.blink_timer.start(conf.BLINK_INTERVAL)
 
     def update_blink(self) -> None:
         """定时器超时, 更新闪烁状态."""
-        if self.blink_style == "color":
+        if self.blink_type == "color":
             # 颜色闪烁逻辑
-            current_style = (
-                self.blink_colors[0]
-                if self.blink_state
-                else self.blink_colors[1]
-            )
-            self.setStyleSheet(current_style)
-        elif self.blink_style == "opacity":
+            colors = [_ for _ in conf.BLINK_BG_COLORS[:] if _ != self.bg_color]
+            self.setStyleSheet(f"background-color: {random.choice(colors)}")
+        elif self.blink_type == "opacity":
             # 透明度闪烁逻辑 - 注意: 某些系统可能不完全支持窗口透明度
             new_opacity = 0.3 if self.blink_state else 1.0
             self.setWindowOpacity(new_opacity)
@@ -156,7 +165,7 @@ class AlarmDialog(QDialog):
     def stop_blinking(self) -> None:
         """停止闪烁, 恢复原有样式."""
         self.blink_timer.stop()
-        self.setStyleSheet(self.original_style)  # 恢复原有样式
+        self.setStyleSheet(self.origin_style)  # 恢复原有样式
         self.setWindowOpacity(1.0)  # 确保透明度恢复
 
     def closeEvent(self, event: QCloseEvent) -> None:
@@ -170,8 +179,16 @@ class AlarmClock(QMainWindow):
 
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("炫酷数字闹钟")
-        self.setGeometry(100, 100, 400, 300)
+        self.setWindowTitle(f"{conf.ALARM_CLOCK_TITLE} v{__version__}")
+        self.setGeometry(
+            QApplication.desktop().screenGeometry().center().x()
+            - self.width() // 4,
+            QApplication.desktop().screenGeometry().center().y()
+            - self.height() // 2,
+            self.width(),
+            self.height(),
+        )
+        self.adjustSize()
 
         # 设置窗口样式
         self.setStyleSheet("""
@@ -220,7 +237,7 @@ class AlarmClock(QMainWindow):
         central_widget.setLayout(main_layout)
 
         # 炫酷数字时钟显示
-        self.digital_clock = DigitalClock()
+        self.digital_clock = DigitalClock(parent=self)
         main_layout.addWidget(self.digital_clock)
 
         # 闹钟时间设置
@@ -230,11 +247,23 @@ class AlarmClock(QMainWindow):
         self.alarm_time_edit = QTimeEdit()
         self.alarm_time_edit.setDisplayFormat("HH:mm:ss")
         self.alarm_time_edit.setTime(
-            QTime.currentTime().addSecs(60),
-        )  # 默认设置为1分钟后
+            QTime.currentTime().addSecs(conf.DELAY_STEPS[0] * 60),
+        )
+
         time_layout.addWidget(time_label)
         time_layout.addWidget(self.alarm_time_edit)
         main_layout.addLayout(time_layout)
+
+        delay_layout = QHBoxLayout()
+        delay_label = QLabel("延时(分钟):")
+        delay_label.setStyleSheet("color: white; font-size: 16px;")
+        delay_layout.addWidget(delay_label)
+        for minutes in conf.DELAY_STEPS:
+            button = QPushButton(str(minutes))
+            button.setStyleSheet("color: white; font-size: 16px;")
+            button.clicked.connect(partial(self.set_delay, minutes))  # type: ignore # noqa: PGH003
+            delay_layout.addWidget(button)
+        main_layout.addLayout(delay_layout)
 
         # 重复选项
         self.repeat_checkbox = QCheckBox("重复")
@@ -264,6 +293,12 @@ class AlarmClock(QMainWindow):
         # 闹钟状态
         self.alarm_set = False
         self.alarm_time: QTime = QTime()  # 明确类型
+
+    def set_delay(self, minutes: int) -> None:
+        """设置延时闹钟."""
+        self.alarm_time_edit.setTime(
+            QTime.currentTime().addSecs(minutes * 60),
+        )
 
     def set_alarm(self) -> None:
         """设置闹钟."""
@@ -300,7 +335,7 @@ class AlarmClock(QMainWindow):
             and current_time.second() == self.alarm_time.second()
         ):
             # 显示提醒消息
-            dialog = AlarmDialog()
+            dialog = BlinkDialog()
             dialog.exec_()
 
             self.status_label.setText("⏰ 闹钟响了!⏰")

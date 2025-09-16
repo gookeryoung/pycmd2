@@ -112,9 +112,6 @@ source = ["src/pycmd2"]
 path = "src/pycmd2/__init__.py"
 
 # ----------------------- pytest ------------------------ #
-[tool.pytest]
-addopts = ["--n auto --dist=loadfile"]
-
 [tool.pytest.ini_options]
 filterwarnings = ["error"]
 markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
