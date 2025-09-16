@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import random
 import sys
 from datetime import datetime
 from datetime import timedelta
@@ -39,8 +40,9 @@ class AlarmClockConfig(TomlConfigMixin):
         "#00aa00",
         "#eecc00",
         "#aa00aa",
+        "#c0e0b0",
     ]
-    DIGITAL_TIMER_FORMAT: str = "HH:mm:ss"
+    DIGITAL_TIMER_FORMAT: str = "%H:%M:%S"
     DIGITAL_UPDATE_INTERVAL: int = 1000
 
     MESSAGE_TITLE: str = "闹钟提醒!"
@@ -59,12 +61,15 @@ class DigitalClock(QLabel):
         super().__init__()
 
         self.setAlignment(Qt.AlignCenter)  # type: ignore # noqa: PGH003
-        self.update_time()
+
+        self._color = conf.DIGITAL_BORDER_COLORS[0]
 
         # 定时器更新当前时间
         self._timer = QTimer()
         self._timer.timeout.connect(self.update_time)  # type: ignore # noqa: PGH003
         self._timer.start(conf.DIGITAL_UPDATE_INTERVAL)  # 每秒更新一次
+
+        self.update_time()
 
     def update_time(self) -> None:
         """更新当前时间显示."""
@@ -73,17 +78,17 @@ class DigitalClock(QLabel):
         logger.info(f"更新时间: {current}")
 
         # 添加闪烁效果
-        for i, color in enumerate(conf.DIGITAL_BORDER_COLORS):
-            if current.second % len(conf.DIGITAL_BORDER_COLORS) == i:
-                self.setStyleSheet(f"""
-                    font: {conf.DIGITAL_FONT};
-                    color: {conf.DIGITAL_COLOR};
-                    background-color: black;
-                    border: 2px dashed {color};
-                    border-radius: 10px;
-                    padding: 10px;
-                """)
-                break
+        self._color = random.choice(
+            [_ for _ in conf.DIGITAL_BORDER_COLORS if _ != self._color],
+        )
+        self.setStyleSheet(f"""
+            font: {conf.DIGITAL_FONT};
+            color: {conf.DIGITAL_COLOR};
+            background-color: black;
+            border: 2px dashed {self._color};
+            border-radius: 10px;
+            padding: 10px;
+        """)
 
 
 class AlarmDialog(QDialog):

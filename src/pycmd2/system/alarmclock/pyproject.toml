@@ -1,5 +1,11 @@
 [project]
-dependencies = ["pyside2>=5.15.2.1"]
+dependencies = [
+    "click>=8.1.8",
+    "pycmd2>=0.4.26",
+    "pygments>=2.19.2",
+    "pyside2>=5.15.2.1",
+    "typing-extensions>=4.13.2",
+]
 description = "Add your description here"
 name = "alarmclock"
 readme = "README.md"

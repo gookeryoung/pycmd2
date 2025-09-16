@@ -16,19 +16,10 @@ logger = logging.getLogger(__name__)
 
 # pip 配置信息
 CARGO_CONF_CONTENT = """[source.crates-io]
-replace-with = 'rsproxy'
+replace-with = 'ustc'
 
-[source.rsproxy]
-registry = "https://rsproxy.cn/crates.io-index"
-
-[source.rsproxy-sparse]
-registry = "sparse+https://rsproxy.cn/index/"
-
-[registries.rsproxy]
-index = "https://rsproxy.cn/crates.io-index"
-
-[net]
-git-fetch-with-cli = true
+[source.ustc]
+registry = "https://mirrors.ustc.edu.cn/crates.io-index"
 """
 
 
@@ -36,8 +27,8 @@ def setup_rustup(*, override: bool = True) -> None:
     logger.info("配置 uv 环境变量")
 
     rustup_envs: dict[str, str] = {
-        "RUSTUP_UPDATE_ROOT": "https://rsproxy.cn",
-        "RUSTUP_DIST_SERVER": "https://pypi.tuna.tsinghua.edu.cn/simple",
+        "RUSTUP_UPDATE_ROOT": "https://mirrors.ustc.edu.cn/rust-static/rustup",
+        "RUSTUP_DIST_SERVER": "https://mirrors.ustc.edu.cn/rust-static",
     }
 
     if cli.is_windows:
