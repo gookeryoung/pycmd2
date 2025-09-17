@@ -239,6 +239,9 @@ dev = [
   { include-group = "test" },
 ]
 doc = ["sphinx-autobuild>=2021.3.14", "sphinx-rtd-theme>=3.0.2"]
+gui = [
+    "qdarkstyle>=3.2.3",
+]
 lint = ["ruff>=0.12.7"]
 test = [
   "pillow>=10.4.0",

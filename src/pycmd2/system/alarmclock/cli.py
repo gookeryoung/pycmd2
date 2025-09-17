@@ -9,6 +9,7 @@ from datetime import timezone
 from functools import partial
 from typing import ClassVar
 
+import qdarkstyle
 from PySide2.QtCore import QSize
 from PySide2.QtCore import Qt
 from PySide2.QtCore import QTime
@@ -360,6 +361,7 @@ class AlarmClock(QMainWindow):
 
 def main() -> None:
     app = QApplication(sys.argv)
+    app.setStyleSheet(qdarkstyle.load_stylesheet_pyside2())
     window = AlarmClock()
     window.show()
     sys.exit(app.exec_())
