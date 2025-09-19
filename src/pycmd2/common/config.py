@@ -1,10 +1,12 @@
 import atexit
-import logging
 import re
 import shutil
 from dataclasses import dataclass
 
+from rich.console import Console
+
 from pycmd2.common.cli import get_client
+from pycmd2.logger import Logger
 
 try:
     import tomllib  # type: ignore[import]
@@ -23,7 +25,7 @@ __all__ = [
 ]
 
 cli = get_client()
-logger = logging.getLogger(__name__)
+logger = Logger.get_instance(__name__)
 
 
 def clear_config() -> None:
@@ -77,57 +79,60 @@ class TomlConfigMixin:
         self._load()
 
         # 获取属性
-        self._props = {
+        self._attrs = {
             attr: getattr(self, attr)
             for attr in dir(self)
             if not attr.startswith("_") and not callable(getattr(self, attr))
         }
 
-        logger.info(f"获取属性: {self._props}")
+        logger.info(f"Getting attributes: {self._attrs}")
 
         # 写入配置数据到实例
         if self._config:
-            for attr in self._props:
+            for attr in self._attrs:
                 if attr in self._config and self._config[attr] != getattr(
                     self,
                     attr,
                 ):
-                    logger.info(f"设置属性: {attr} = {self._config[attr]}")
+                    logger.info(
+                        f"Setting attributes: {attr} = {self._config[attr]}",
+                    )
                     setattr(self, attr, self._config[attr])
-                    self._props[attr] = self._config[attr]
+                    self._attrs[attr] = self._config[attr]
 
         # 保存配置数据到文件
         atexit.register(self._save)
 
     def setattr(self, attr: str, value: object) -> None:
         """设置属性."""
-        if attr in self._props:
-            logger.info(f"设置属性: {attr} = {value}")
-            self._props[attr] = value
+        if attr in self._attrs:
+            logger.info(f"Setting attributes: {attr} = {value}")
+            self._attrs[attr] = value
 
     def _load(self) -> None:
         """从文件载入配置."""
         if not self._config_file.exists():
-            logger.error(f"未找到配置文件: {self._config_file}")
+            logger.error(f"Config file not found: {self._config_file}")
             return
 
         try:
             with self._config_file.open("rb") as f:
                 self._config = tomllib.load(f)
         except Exception as e:
-            msg = f"读取配置错误: {e.__class__.__name__}: {e}"
+            msg = f"Read config error: {e.__class__.__name__}: {e}"
             logger.exception(msg)
             return
         else:
-            logger.info(f"载入配置: [green]{self._config_file}")
+            logger.info(f"Load config: [green]{self._config_file}")
 
     def _save(self) -> None:
         """保存配置到文件."""
         try:
             with self._config_file.open("wb") as f:
-                logger.info(f"保存配置: [green]{self._config_file}")
-                logger.info(f"配置项: {self._props}")
-                tomli_w.dump(self._props, f)
+                console = Console()
+                console.print(f"Save configs: {self._config_file}")
+                console.print(f"Configurations: {self._attrs}")
+                tomli_w.dump(self._attrs, f)
         except Exception as e:
             msg = f"保存配置错误: {e.__class__.__name__!s}: {e!s}"
             logger.exception(msg)
