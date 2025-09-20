@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import ClassVar
 
 from pycmd2.common.cli import get_client
-from pycmd2.common.config import TomlConfigMixin
+from pycmd2.config import TomlConfigMixin
 
 cli = get_client()
 

@@ -1,6 +1,6 @@
 import pytest
 
-from pycmd2.common.config import TomlConfigMixin
+from pycmd2.config import TomlConfigMixin
 
 __all__ = [
     "example_config",

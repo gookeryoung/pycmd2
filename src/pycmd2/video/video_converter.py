@@ -19,7 +19,7 @@ from PySide2.QtWidgets import QPushButton
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
 
-from pycmd2.common.config import TomlConfigMixin
+from pycmd2.config import TomlConfigMixin
 
 
 class VideoConverterConfig(TomlConfigMixin):

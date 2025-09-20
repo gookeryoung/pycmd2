@@ -27,8 +27,8 @@ from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
 
 from pycmd2.common.cli import get_client
-from pycmd2.common.config import TomlConfigMixin
 from pycmd2.common.gui import setup_pyside2_env
+from pycmd2.config import TomlConfigMixin
 
 setup_pyside2_env()
 
