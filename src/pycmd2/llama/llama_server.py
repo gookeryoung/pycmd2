@@ -98,6 +98,7 @@ class LlamaServerGUI(QMainWindow):
         self.port_spin.setRange(*conf.LISTEN_PORT_RNG)
         self.port_spin.setValue(conf.LISTEN_PORT)
         params_layout.addWidget(self.port_spin)
+        self.port_spin.valueChanged.connect(self.on_config_changed)  # type: ignore  # noqa: PGH003
 
         params_layout.addWidget(QLabel("线程数:"))
         self.threads_spin = QSpinBox()
@@ -105,6 +106,7 @@ class LlamaServerGUI(QMainWindow):
         self.threads_spin.setValue(conf.THREAD_COUNT)
         params_layout.addWidget(self.threads_spin)
         config_layout.addLayout(params_layout)
+        self.threads_spin.valueChanged.connect(self.on_config_changed)  # type: ignore  # noqa: PGH003
 
         config_group.setLayout(config_layout)
         main_layout.addWidget(config_group)
@@ -159,6 +161,13 @@ class LlamaServerGUI(QMainWindow):
         self.process.readyReadStandardOutput.connect(self.handle_stdout)  # type: ignore  # noqa: PGH003
         self.process.readyReadStandardError.connect(self.handle_stderr)  # type: ignore  # noqa: PGH003
         self.process.finished.connect(self.on_process_finished)  # type: ignore  # noqa: PGH003
+
+    def on_config_changed(self) -> None:
+        """配置项改变."""
+        conf.setattr("MODEL_PATH", self.model_path_input.text().strip())
+        conf.setattr("LISTEN_PORT", self.port_spin.value())
+        conf.setattr("THREAD_COUNT", self.threads_spin.value())
+        conf.save()
 
     def on_load_model(self) -> None:
         """选择模型文件."""
