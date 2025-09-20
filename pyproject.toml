@@ -63,6 +63,7 @@ llmqnt = "pycmd2.llama.llama_quantize:main"
 llmsvr = "pycmd2.llama.llama_server:main"
 
 # office commands
+docdiff = "pycmd2.office.doc_diff:cli.app"
 mindnote = "pycmd2.office.mindnote.cli:main"
 pdfc = "pycmd2.office.pdf_crypt:cli.app"
 pdfmrg = "pycmd2.office.pdf_merge:cli.app"
@@ -95,7 +96,11 @@ Repository = "https://gitee.com/gooker_young/pycmd2"
 
 [project.optional-dependencies]
 gui = ["pyside2>=5.15.2.1"]
-office = ["pillow>=10", "pypdf>=5.9.0"]
+office = [
+  "pillow>=10",
+  "pypdf>=5.9.0",
+  "pywin32>=311; platform_system == 'Windows'",
+]
 
 # ---------------------- coverage ----------------------- #
 [tool.coverage]
@@ -239,9 +244,7 @@ dev = [
   { include-group = "test" },
 ]
 doc = ["sphinx-autobuild>=2021.3.14", "sphinx-rtd-theme>=3.0.2"]
-gui = [
-    "qdarkstyle>=3.2.3",
-]
+gui = ["pywin32>=311", "qdarkstyle>=3.2.3"]
 lint = ["ruff>=0.12.7"]
 test = [
   "pillow>=10.4.0",

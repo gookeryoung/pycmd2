@@ -15,9 +15,9 @@ class PipConfig(TomlConfigMixin):
 
     TRUSTED_PIP_URL: ClassVar[list[str]] = [
         "--trusted-host",
-        "pypi.tuna.tsinghua.edu.cn",
+        "mirrors.aliyun.com",
         "-i",
-        "https://pypi.tuna.tsinghua.edu.cn/simple/",
+        "http://mirrors.aliyun.com/pypi/simple/",
     ]
 
 

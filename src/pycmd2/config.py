@@ -71,25 +71,29 @@ class TomlConfigMixin:
         logger.info(f"Compare attributes from default: [u]{self._cls_attrs}")
 
         # 写入配置数据到实例
-        if self._file_attrs:
-            diff_attrs: list[AttributeDiff] = [
-                AttributeDiff(
-                    attr,
-                    file_value=self._file_attrs[attr],
-                    cls_value=getattr(self, attr),
-                )
-                for attr in self._cls_attrs
-                if attr in self._file_attrs
-                and self._file_attrs[attr] != getattr(self, attr)
-            ]
+        diff_attrs: list[AttributeDiff] = [
+            AttributeDiff(
+                attr,
+                file_value=self._file_attrs[attr],
+                cls_value=getattr(self, attr),
+            )
+            for attr in self._cls_attrs
+            if attr in self._file_attrs
+            and self._file_attrs[attr] != getattr(self, attr)
+        ]
+        if diff_attrs:
             logger.info(f"Diff attributes: [u]{diff_attrs}")
             for diff in diff_attrs:
                 logger.info(
-                    f"Setting attributes: [u]{diff.attr} = "
+                    f"Setting attributes: [u green]{diff.attr} = "
                     f"{self._file_attrs[diff.attr]}",
                 )
                 setattr(self, diff.attr, diff.file_value)
                 self._cls_attrs[diff.attr] = diff.file_value
+        else:
+            logger.info(
+                "No difference between config file and class attributes.",
+            )
 
         # 保存配置数据到文件
         atexit.register(self.save)
