@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""Usage: Find executable matches in system path.
+
+Command: wch
+"""
+
 from __future__ import annotations
 
 import logging

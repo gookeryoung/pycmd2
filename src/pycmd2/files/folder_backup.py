@@ -1,6 +1,6 @@
-"""功能: 将其压缩成 zip 文件存储在指定的目标文件夹中.
+"""功能: 压缩为 zip 文件存储在指定文件夹.
 
-命令: folderback [DIRECTORY] --dest [DESTINATION] --max [MAX_FILE_COUNT]
+命令: folderback [DIR] --dest [DEST] --max [N]
 """
 
 import logging
