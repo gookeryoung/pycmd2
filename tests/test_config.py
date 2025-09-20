@@ -7,7 +7,7 @@ from pycmd2.common.cli import get_client
 from pycmd2.config import TomlConfigMixin
 
 
-class ExampleConfig(TomlConfigMixin):
+class ExampleTestConfig(TomlConfigMixin):
     """Example config class."""
 
     NAME = "test"
@@ -24,41 +24,39 @@ class TestConfig:
     @pytest.fixture(autouse=True)
     def fixture_clear_config(self) -> None:
         """Clear config files before each test."""
-        config_files = list(cli.settings_dir.glob("*.toml"))
-        for config_file in config_files:
-            config_file.unlink()
+        ExampleTestConfig.clear()
 
     def test_config(self) -> None:
         """Test config class."""
-        conf = ExampleConfig()
+        conf = ExampleTestConfig()
         assert conf.FOO == "bar"
         assert conf.BAZ == "qux"
         assert conf.NAME == "test"
 
-        config_file = cli.settings_dir / "example.toml"
+        config_file = cli.settings_dir / "example_test.toml"
         assert config_file == conf._config_file  # noqa: SLF001
 
         assert not config_file.exists()
-        conf._save()  # noqa: SLF001
+        conf.save()
         assert config_file.exists()
 
     def test_config_load(self) -> None:
         """Test config load."""
-        config_file = cli.settings_dir / "example.toml"
+        config_file = cli.settings_dir / "example_test.toml"
         config_file.write_text("FOO = '123'\nBAZ = ['123', '456']")
 
-        conf = ExampleConfig()
+        conf = ExampleTestConfig()
         assert conf.FOO == "123"
         assert conf.BAZ == ["123", "456"]
 
     def test_config_load_error(self, caplog: pytest.LogCaptureFixture) -> None:
         """Test config load error."""
         # 模拟文件存在但内容不是有效TOML的情况
-        config_file = cli.settings_dir / "example.toml"
+        config_file = cli.settings_dir / "example_test.toml"
         config_file.write_text("INVALID TOML CONTENT")
 
-        conf = ExampleConfig()
-        conf._load()  # noqa: SLF001
+        conf = ExampleTestConfig()
+        conf.load()
 
         assert "Read config error" in caplog.text
         assert "Expected '=' after a key in a key/value pair" in caplog.text
@@ -72,6 +70,6 @@ class TestConfig:
         invalid_path = Path("C:") if cli.is_windows else "/root/readonly"
         mocker.patch("pycmd2.common.cli.Client.settings_dir", invalid_path)
 
-        conf = ExampleConfig()
-        conf._save()  # noqa: SLF001
+        conf = ExampleTestConfig()
+        conf.save()
         assert "Config file not found" in caplog.text

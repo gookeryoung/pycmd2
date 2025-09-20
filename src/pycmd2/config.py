@@ -1,12 +1,11 @@
 import atexit
-import re
-import shutil
 from dataclasses import dataclass
 
 from rich.console import Console
 
 from pycmd2.common.cli import get_client
 from pycmd2.logger import Logger
+from pycmd2.utils import str_to_snake_case
 
 try:
     import tomllib  # type: ignore[import]
@@ -20,36 +19,10 @@ import tomli_w
 
 __all__ = [
     "TomlConfigMixin",
-    "clear_config",
-    "to_snake_case",
 ]
 
 cli = get_client()
 logger = Logger.get_instance(__name__)
-
-
-def clear_config() -> None:
-    """清除配置文件."""
-    if cli.settings_dir.exists():
-        shutil.rmtree(str(cli.settings_dir))
-
-
-def to_snake_case(name: str) -> str:
-    """将驼峰命名转换为下划线命名, 处理连续大写字母的情况.
-
-    Args:
-        name (str): 驼峰命名
-
-    Returns:
-        str: 下划线命名
-
-    E.g.: "HTTPRequest" -> "http_request"
-    """
-    name = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
-    name = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", name)
-    # 处理连续大写字母的情况
-    name = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", name)
-    return name.lower()
 
 
 @dataclass
@@ -65,7 +38,7 @@ class TomlConfigMixin:
     NAME: str = ""
 
     def __init__(self) -> None:
-        cls_name = to_snake_case(type(self).__name__).replace("_config", "")
+        cls_name = str_to_snake_case(type(self).__name__).replace("_config", "")
         self.NAME = cls_name if not self.NAME else self.NAME
 
         self._config_file: Path = cli.settings_dir / f"{cls_name}.toml"
@@ -76,7 +49,7 @@ class TomlConfigMixin:
             cli.settings_dir.mkdir(parents=True)
 
         # 载入配置
-        self._load()
+        self.load()
 
         # 获取属性
         self._attrs = {
@@ -101,7 +74,7 @@ class TomlConfigMixin:
                     self._attrs[attr] = self._config[attr]
 
         # 保存配置数据到文件
-        atexit.register(self._save)
+        atexit.register(self.save)
 
     def setattr(self, attr: str, value: object) -> None:
         """设置属性."""
@@ -109,7 +82,14 @@ class TomlConfigMixin:
             logger.info(f"Setting attributes: {attr} = {value}")
             self._attrs[attr] = value
 
-    def _load(self) -> None:
+    @staticmethod
+    def clear() -> None:
+        """Delete all config files."""
+        config_files = cli.settings_dir.glob("*.toml")
+        for config_file in config_files:
+            config_file.unlink()
+
+    def load(self) -> None:
         """从文件载入配置."""
         if not self._config_file.exists():
             logger.error(f"Config file not found: {self._config_file}")
@@ -125,14 +105,14 @@ class TomlConfigMixin:
         else:
             logger.info(f"Load config: [green]{self._config_file}")
 
-    def _save(self) -> None:
+    def save(self) -> None:
         """保存配置到文件."""
+        console = Console()
         try:
             with self._config_file.open("wb") as f:
-                console = Console()
                 console.print(f"Save configs: {self._config_file}")
                 console.print(f"Configurations: {self._attrs}")
                 tomli_w.dump(self._attrs, f)
-        except Exception as e:
-            msg = f"保存配置错误: {e.__class__.__name__!s}: {e!s}"
-            logger.exception(msg)
+        except PermissionError as e:
+            msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
+            console.print(msg)
