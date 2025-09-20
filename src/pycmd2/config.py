@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import atexit
 from dataclasses import dataclass
 
@@ -60,19 +62,13 @@ class TomlConfigMixin:
 
         # 创建父文件夹
         if not cli.settings_dir.exists():
+            logger.info(f"Creating settings directory: [u]{cli.settings_dir}")
             cli.settings_dir.mkdir(parents=True)
 
         # 载入配置
         self.load()
 
-        # 获取属性
-        self._cls_attrs = {
-            attr: getattr(self, attr)
-            for attr in dir(self)
-            if not attr.startswith("_") and not callable(getattr(self, attr))
-        }
-
-        logger.info(f"Getting attributes from default: [u]{self._cls_attrs}")
+        logger.info(f"Compare attributes from default: [u]{self._cls_attrs}")
 
         # 写入配置数据到实例
         if self._file_attrs:
@@ -99,10 +95,26 @@ class TomlConfigMixin:
         atexit.register(self.save)
 
     def setattr(self, attr: str, value: object) -> None:
-        """设置属性."""
+        """Set an attribute.
+
+        Raises:
+            AttributeError: If the attribute does not exist.
+        """
         if attr in self._cls_attrs:
             logger.info(f"Setting attributes: {attr} = {value}")
-            self._cls_attrs[attr] = value
+            setattr(self, attr, value)
+        else:
+            msg = f"Attribute {attr} not found in {self.__class__.__name__}."
+            raise AttributeError(msg)
+
+    @property
+    def _cls_attrs(self) -> dict[str, object]:
+        """Get all attributes of the class."""
+        return {
+            attr: getattr(self, attr)
+            for attr in dir(self.__class__)
+            if not attr.startswith("_") and not callable(getattr(self, attr))
+        }
 
     @staticmethod
     def clear() -> None:
@@ -113,7 +125,7 @@ class TomlConfigMixin:
 
     def load(self) -> None:
         """从文件载入配置."""
-        if not self._config_file.exists():
+        if not self._config_file.is_file() or not self._config_file.exists():
             logger.error(f"Config file not found: {self._config_file}")
             return
 
