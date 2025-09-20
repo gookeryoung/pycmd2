@@ -5,26 +5,34 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import ClassVar
 
 from pycmd2 import __build_date__
 from pycmd2 import __version__
 from pycmd2.common.cli import get_client
+from pycmd2.config import TomlConfigMixin
+
+
+class Pycmd2Config(TomlConfigMixin):
+    """Pycmd2 config."""
+
+    COMMAND_ALIGN: int = 18
+    INVALID_ENTRY_PREFIXES: ClassVar[list[str]] = [".", "~", "_"]
+    IGNORE_DIRS: ClassVar[list[str]] = [
+        "__pycache__",
+        "build",
+        "dist",
+        "venv",
+        "node_modules",
+        "target",
+        "site-packages",
+    ]
+
 
 cli = get_client()
-logger = logging.getLogger(__name__)
+conf = Pycmd2Config()
 
-INVALID_ENTRY_PREFIXES = [
-    "_",
-    ".",
-]
-IGNORE_DIRS = [
-    "__pycache__",
-    "build",
-    "dist",
-    "venv",
-    "node_modules",
-    "site-packages",
-]
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -39,11 +47,11 @@ class CommandEntry:
 
     def __str__(self) -> str:
         """Return entry string."""
-        return f"{self.name:<20} - {self.doc}"
+        return f"[green]{self.name:<20}[/] - [u purple]{self.doc}"
 
 
 def _is_valid_entry(entry: Path) -> bool:
-    if any(entry.name.startswith(x) for x in INVALID_ENTRY_PREFIXES):
+    if any(entry.name.startswith(x) for x in conf.INVALID_ENTRY_PREFIXES):
         return False
 
     if entry.is_file() and entry.suffix in {".py", ".pyw"}:
@@ -51,7 +59,7 @@ def _is_valid_entry(entry: Path) -> bool:
 
     return bool(
         entry.is_dir()
-        and entry.name not in IGNORE_DIRS
+        and entry.name not in conf.IGNORE_DIRS
         and (entry / "__init__.py").exists(),
     )
 
