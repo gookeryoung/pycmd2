@@ -4,6 +4,7 @@ dependencies = [
     "pycmd2>=0.4.26",
     "pygments>=2.19.2",
     "pyside2>=5.15.2.1",
+    "qdarkstyle>=3.2.3",
     "typing-extensions>=4.13.2",
 ]
 description = "Add your description here"

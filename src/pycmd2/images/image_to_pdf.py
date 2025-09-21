@@ -1,4 +1,7 @@
-"""功能: 将当前路径下所有图片合并为pdf文件."""
+"""功能: 将当前路径下所有图片合并为pdf文件.
+
+命令: img2pdf [--normalize]
+"""
 
 from __future__ import annotations
 
@@ -33,14 +36,15 @@ logger = logging.getLogger(__name__)
 class ImageProcessor:
     """Processor for image files."""
 
-    def __init__(self, root_dir: Path) -> None:
+    def __init__(self, root_dir: Path, dpi: int) -> None:
         self.root_dir = root_dir
+        self.dpi = dpi
         self.converted_images: list[Image.Image] = []
 
     @property
     def size(self) -> tuple[int, int]:
         """Get page size."""
-        return (int(8.27 * conf.DPI), int(11.69 * conf.DPI))
+        return (int(8.27 * self.dpi), int(11.69 * self.dpi))
 
     def _convert(
         self,
@@ -120,6 +124,8 @@ class ImageProcessor:
 
     def convert_images(self, *, normalize: bool = True) -> None:
         """Convert and merge all images into a single PDF file."""
+        logger.info(f"Start converting, using dpi={self.dpi}")
+
         image_files = sorted(
             entry for entry in self.root_dir.iterdir() if is_valid_image(entry)
         )
@@ -158,6 +164,13 @@ def main(
             help="是否进行图片尺寸归一化处理",
         ),
     ] = True,
+    dpi: Annotated[
+        int,
+        Option(
+            "--dpi",
+            help="图片分辨率",
+        ),
+    ] = conf.DPI,
 ) -> None:
-    proc = ImageProcessor(root_dir=directory)
+    proc = ImageProcessor(root_dir=directory, dpi=dpi)
     proc.convert_images(normalize=normalize)
