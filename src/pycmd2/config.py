@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import atexit
+import logging
 from dataclasses import dataclass
 
-from rich.console import Console
-
 from pycmd2.client import get_client
-from pycmd2.logger import Logger
 from pycmd2.utils import str_to_snake_case
 
 try:
@@ -24,7 +22,7 @@ __all__ = [
 ]
 
 cli = get_client()
-logger = Logger.get_instance(__name__)
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -47,9 +45,12 @@ class TomlConfigMixin:
 
     NAME: str = ""
 
-    SHOW_LOGGING: bool = True
+    def __init__(self, *, show_logging: bool = True) -> None:
+        if show_logging:
+            logger.setLevel(logging.DEBUG)
+        else:
+            logger.setLevel(logging.INFO)
 
-    def __init__(self) -> None:
         cls_name = str_to_snake_case(type(self).__name__).replace("_config", "")
         self.NAME = cls_name if not self.NAME else self.NAME
 
@@ -57,19 +58,17 @@ class TomlConfigMixin:
         self._file_attrs = {}
 
         if not cli.settings_dir.exists():
-            if self.SHOW_LOGGING:
-                logger.info(
-                    f"Creating settings directory: [u]{cli.settings_dir}",
-                )
+            logger.debug(
+                f"Creating settings directory: [u]{cli.settings_dir}",
+            )
 
             cli.settings_dir.mkdir(parents=True)
 
         self.load()
 
-        if self.SHOW_LOGGING:
-            logger.info(
-                f"Compare attributes from default: [u]{self._cls_attrs}",
-            )
+        logger.debug(
+            f"Compare attributes from default: [u]{self._cls_attrs}",
+        )
 
         diff_attrs: list[AttributeDiff] = [
             AttributeDiff(
@@ -82,20 +81,18 @@ class TomlConfigMixin:
             and self._file_attrs[attr] != getattr(self, attr)
         ]
         if diff_attrs:
-            if self.SHOW_LOGGING:
-                logger.info(f"Diff attributes: [u]{diff_attrs}")
+            logger.debug(f"Diff attributes: [u]{diff_attrs}")
 
             for diff in diff_attrs:
-                if self.SHOW_LOGGING:
-                    logger.info(
-                        f"Setting attributes: [u green]{diff.attr} = "
-                        f"{self._file_attrs[diff.attr]}",
-                    )
+                logger.debug(
+                    f"Setting attributes: [u green]{diff.attr} = "
+                    f"{self._file_attrs[diff.attr]}",
+                )
 
                 setattr(self, diff.attr, diff.file_value)
                 self._cls_attrs[diff.attr] = diff.file_value
-        elif self.SHOW_LOGGING:
-            logger.info(
+        else:
+            logger.debug(
                 "No difference between config file and class attributes.",
             )
 
@@ -108,8 +105,7 @@ class TomlConfigMixin:
             AttributeError: If the attribute does not exist.
         """
         if attr in self._cls_attrs:
-            if self.SHOW_LOGGING:
-                logger.info(f"Setting attributes: {attr} = {value}")
+            logger.debug(f"Setting attributes: {attr} = {value}")
 
             setattr(self, attr, value)
         else:
@@ -135,33 +131,26 @@ class TomlConfigMixin:
     def load(self) -> None:
         """Load config from file."""
         if not self._config_file.is_file() or not self._config_file.exists():
-            if self.SHOW_LOGGING:
-                logger.error(f"Config file not found: {self._config_file}")
+            logger.error(f"Config file not found: {self._config_file}")
             return
 
         try:
             with self._config_file.open("rb") as f:
                 self._file_attrs = tomllib.load(f)
         except Exception as e:
-            if self.SHOW_LOGGING:
-                msg = f"Read config error: {e.__class__.__name__}: {e}"
-                logger.exception(msg)
+            msg = f"Read config error: {e.__class__.__name__}: {e}"
+            logger.exception(msg)
             return
         else:
-            if self.SHOW_LOGGING:
-                logger.info(f"Load config: [u green]{self._config_file}")
+            logger.debug(f"Load config: [u green]{self._config_file}")
 
     def save(self) -> None:
         """Save config to file."""
-        console = Console()
-
         try:
             with self._config_file.open("wb") as f:
-                if self.SHOW_LOGGING:
-                    console.print(f"Save config to: [u]{self._config_file}")
-                    console.print(f"Configurations: {self._cls_attrs}")
+                logger.debug(f"Save config to: [u]{self._config_file}")
+                logger.debug(f"Configurations: {self._cls_attrs}")
                 tomli_w.dump(self._cls_attrs, f)
         except PermissionError as e:
-            if self.SHOW_LOGGING:
-                msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
-                console.print(msg)
+            msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
+            logger.exception(msg)
