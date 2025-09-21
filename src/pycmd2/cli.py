@@ -16,6 +16,8 @@ from pycmd2.config import TomlConfigMixin
 class Pycmd2Config(TomlConfigMixin):
     """Pycmd2 config."""
 
+    SHOW_LOGGING = False
+
     COMMAND_ALIGN: int = 18
     INVALID_ENTRY_PREFIXES: ClassVar[list[str]] = [".", "~", "_"]
     IGNORE_DIRS: ClassVar[list[str]] = [

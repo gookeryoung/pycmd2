@@ -43,15 +43,11 @@ class AttributeDiff:
 
 @dataclass
 class TomlConfigMixin:
-    """Toml配置管理器基类.
-
-    1. 通过继承该类, 可以方便地管理配置文件
-    2. 通过重写 _load 和 _save 方法, 可以自定义配置文件的载入和保存方式
-    3. 通过重写 _props 属性, 可以自定义配置文件中保存的属性
-    4. 通过重写 NAME 属性, 可以自定义配置文件名
-    """
+    """Base class for toml config mixin."""
 
     NAME: str = ""
+
+    SHOW_LOGGING: bool = True
 
     def __init__(self) -> None:
         cls_name = str_to_snake_case(type(self).__name__).replace("_config", "")
@@ -60,17 +56,21 @@ class TomlConfigMixin:
         self._config_file: Path = cli.settings_dir / f"{cls_name}.toml"
         self._file_attrs = {}
 
-        # 创建父文件夹
         if not cli.settings_dir.exists():
-            logger.info(f"Creating settings directory: [u]{cli.settings_dir}")
+            if self.SHOW_LOGGING:
+                logger.info(
+                    f"Creating settings directory: [u]{cli.settings_dir}",
+                )
+
             cli.settings_dir.mkdir(parents=True)
 
-        # 载入配置
         self.load()
 
-        logger.info(f"Compare attributes from default: [u]{self._cls_attrs}")
+        if self.SHOW_LOGGING:
+            logger.info(
+                f"Compare attributes from default: [u]{self._cls_attrs}",
+            )
 
-        # 写入配置数据到实例
         diff_attrs: list[AttributeDiff] = [
             AttributeDiff(
                 attr,
@@ -82,20 +82,23 @@ class TomlConfigMixin:
             and self._file_attrs[attr] != getattr(self, attr)
         ]
         if diff_attrs:
-            logger.info(f"Diff attributes: [u]{diff_attrs}")
+            if self.SHOW_LOGGING:
+                logger.info(f"Diff attributes: [u]{diff_attrs}")
+
             for diff in diff_attrs:
-                logger.info(
-                    f"Setting attributes: [u green]{diff.attr} = "
-                    f"{self._file_attrs[diff.attr]}",
-                )
+                if self.SHOW_LOGGING:
+                    logger.info(
+                        f"Setting attributes: [u green]{diff.attr} = "
+                        f"{self._file_attrs[diff.attr]}",
+                    )
+
                 setattr(self, diff.attr, diff.file_value)
                 self._cls_attrs[diff.attr] = diff.file_value
-        else:
+        elif self.SHOW_LOGGING:
             logger.info(
                 "No difference between config file and class attributes.",
             )
 
-        # 保存配置数据到文件
         atexit.register(self.save)
 
     def setattr(self, attr: str, value: object) -> None:
@@ -105,7 +108,9 @@ class TomlConfigMixin:
             AttributeError: If the attribute does not exist.
         """
         if attr in self._cls_attrs:
-            logger.info(f"Setting attributes: {attr} = {value}")
+            if self.SHOW_LOGGING:
+                logger.info(f"Setting attributes: {attr} = {value}")
+
             setattr(self, attr, value)
         else:
             msg = f"Attribute {attr} not found in {self.__class__.__name__}."
@@ -128,29 +133,35 @@ class TomlConfigMixin:
             config_file.unlink()
 
     def load(self) -> None:
-        """从文件载入配置."""
+        """Load config from file."""
         if not self._config_file.is_file() or not self._config_file.exists():
-            logger.error(f"Config file not found: {self._config_file}")
+            if self.SHOW_LOGGING:
+                logger.error(f"Config file not found: {self._config_file}")
+
             return
 
         try:
             with self._config_file.open("rb") as f:
                 self._file_attrs = tomllib.load(f)
         except Exception as e:
-            msg = f"Read config error: {e.__class__.__name__}: {e}"
-            logger.exception(msg)
+            if self.SHOW_LOGGING:
+                msg = f"Read config error: {e.__class__.__name__}: {e}"
+                logger.exception(msg)
             return
         else:
-            logger.info(f"Load config: [u green]{self._config_file}")
+            if self.SHOW_LOGGING:
+                logger.info(f"Load config: [u green]{self._config_file}")
 
     def save(self) -> None:
-        """保存配置到文件."""
+        """Save config to file."""
         console = Console()
         try:
             with self._config_file.open("wb") as f:
-                console.print(f"Save config to: [u]{self._config_file}")
-                console.print(f"Configurations: {self._cls_attrs}")
+                if self.SHOW_LOGGING:
+                    console.print(f"Save config to: [u]{self._config_file}")
+                    console.print(f"Configurations: {self._cls_attrs}")
                 tomli_w.dump(self._cls_attrs, f)
         except PermissionError as e:
-            msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
-            console.print(msg)
+            if self.SHOW_LOGGING:
+                msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
+                console.print(msg)
