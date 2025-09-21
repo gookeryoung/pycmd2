@@ -20,7 +20,7 @@ from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
 
 
-class ImageToGrayConfig(TomlConfigMixin):
+class ImageGrayConfig(TomlConfigMixin):
     """ImageToGray config."""
 
     GRAYSCALE_THRESHOLD: int = 128
@@ -36,7 +36,7 @@ class ImageToGrayConfig(TomlConfigMixin):
 
 
 cli = get_client(help_doc="图片转换工具.")
-conf = ImageToGrayConfig()
+conf = ImageGrayConfig()
 logger = logging.getLogger(__name__)
 
 
