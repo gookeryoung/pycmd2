@@ -56,10 +56,8 @@ class ImageProcessor:
         """
         image = Image.open(str(filepath))
 
-        # 自动旋转图片以校正方向
-        image = self._auto_rotate_image(image)
-
         if normalize:
+            image = self._auto_rotate_image(image)
             image = self._auto_scale_image(image)
             image.thumbnail(self.size, Resampling.LANCZOS)
 
