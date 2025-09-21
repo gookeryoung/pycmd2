@@ -120,7 +120,7 @@ class ImageProcessor:
             image = image.resize(new_size, Resampling.LANCZOS)
         return image
 
-    def convert_images(self, *, normalize: bool) -> None:
+    def convert_images(self, *, normalize: bool = True) -> None:
         """Convert and merge all images into a single PDF file."""
         image_files = sorted(
             entry for entry in self.root_dir.iterdir() if is_valid_image(entry)
