@@ -49,6 +49,18 @@ def pytest_runtest_makereport(
             slow_tests.append((item.name, runtime))
 
 
+def pytest_sessionstart(session: pytest.Session) -> None:  # noqa: ARG001
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s %(levelname)s %(message)s",
+        filename="test_session.log",
+        filemode="w",
+    )
+
+
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:  # noqa: ARG001
     if slow_tests:
         logger.info("\n慢测试报告:")

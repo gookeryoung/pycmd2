@@ -148,9 +148,10 @@ class TomlConfigMixin:
         """Save config to file."""
         try:
             with self._config_file.open("wb") as f:
-                logger.debug(f"Save config to: [u]{self._config_file}")
-                logger.debug(f"Configurations: {self._cls_attrs}")
                 tomli_w.dump(self._cls_attrs, f)
+
+            logger.debug(f"Save config to: [u]{self._config_file}")
+            logger.debug(f"Configurations: {self._cls_attrs}")
         except PermissionError as e:
             msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
             logger.exception(msg)
