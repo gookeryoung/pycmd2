@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 import pytest
 from PIL import Image
+from pypdf import PdfReader
 
 from pycmd2.images.image_to_pdf import ImageProcessor
 
@@ -79,6 +80,11 @@ class TestImageProcessor:
         output_pdf = fixture_tmpdir / f"{fixture_tmpdir.name}.pdf"
         assert output_pdf.exists()
         assert output_pdf.suffix == ".pdf"
+        assert 0 < output_pdf.stat().st_size < 1024 * 1024
+
+        with output_pdf.open("rb") as f:
+            reader = PdfReader(f)
+            assert len(reader.pages) == filecount
 
     @patch("pycmd2.images.image_to_pdf.is_valid_image", return_value=True)
     def test_image_processor_with_no_images(
