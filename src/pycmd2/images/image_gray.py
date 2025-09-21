@@ -110,7 +110,7 @@ def convert_img(
     if not img_path.exists():
         raise FileNotFoundError(img_path)
 
-    logger.info(f"[*] 开始转换图片[{img_path.name}]")
+    logger.info(f"Start converting: [u]{img_path.name}")
     img = Image.open(img_path.as_posix())
     img_conv = img.convert("L")
 
@@ -129,12 +129,12 @@ def convert_img(
 
     new_img_path = img_path.with_name(img_path.stem + "_conv.png")
     img_conv.save(new_img_path, optimize=True, quality=90)
-    logger.info(f"[*] 转换图片[{img_path.name}]->[{new_img_path.name}]")
+    logger.info(f"Contert finished: {img_path.name}->{new_img_path.name}")
 
 
 @cli.app.command()
 def main(
-    width: Annotated[int, Argument(help="缩放尺寸宽度")],
+    width: Annotated[int, Argument(help="缩放尺寸宽度")] = 0,
     *,
     black: Annotated[bool, Option(help="黑白模式")] = False,
 ) -> None:
