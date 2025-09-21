@@ -11,10 +11,9 @@ from typer import Argument
 from typing_extensions import Annotated
 
 from pycmd2.cli import get_client
+from pycmd2.images.image_gray import is_valid_image
 
-from .image_gray import is_valid_image
-
-cli = get_client(help_doc="图片转化 pdf 工具.")
+cli = get_client(help_doc="Convert images to pdf.")
 logger = logging.getLogger(__name__)
 
 
@@ -30,27 +29,28 @@ class ImageProcessor:
         self,
         filepath: Path,
     ) -> None:
-        """合并所有图片为pdf.
+        """Convert image to pdf.
 
         Args:
-            filepath (Path): 图片文件路径
+            filepath (Path): image file path
         """
         converted_image = Image.open(str(filepath)).convert("RGB")
-        self.converted_images.append(converted_image)
+        if converted_image:
+            self.converted_images.append(converted_image)
 
     def convert_images(self) -> None:
-        """合并所有图片为pdf."""
+        """Convert and merge all images into a single PDF file."""
         image_files = sorted(
-            _ for _ in self.root_dir.iterdir() if is_valid_image(_)
+            entry for entry in self.root_dir.iterdir() if is_valid_image(entry)
         )
         if not image_files:
-            logger.error(f"路径[{self.root_dir}]下未找到图片文件.")
+            logger.error(f"No image file found in: {self.root_dir}")
             return
 
         cli.run(self._convert, image_files)
 
         if not self.converted_images:
-            logger.error(f"[*] 路径[{self.root_dir}]下未找到图片文件.")
+            logger.error(f"No converted image file found in: {self.root_dir}")
             return
 
         output_pdf = self.root_dir / f"{self.root_dir.name}.pdf"
@@ -61,7 +61,7 @@ class ImageProcessor:
             save_all=True,
             append_images=self.converted_images[1:],
         )
-        logger.info(f"[*] 创建PDF文件[{output_pdf.name}]成功!")
+        logger.info(f"Create pdf file: [u green]{output_pdf}")
 
 
 @cli.app.command()
