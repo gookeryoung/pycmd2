@@ -3,8 +3,6 @@ from __future__ import annotations
 import atexit
 from dataclasses import dataclass
 
-from rich.console import Console
-
 from pycmd2.client import get_client
 from pycmd2.logger import Logger
 from pycmd2.utils import str_to_snake_case
@@ -153,14 +151,13 @@ class TomlConfigMixin:
 
     def save(self) -> None:
         """Save config to file."""
-        console = Console()
         try:
             with self._config_file.open("wb") as f:
                 if self.SHOW_LOGGING:
-                    console.print(f"Save config to: [u]{self._config_file}")
-                    console.print(f"Configurations: {self._cls_attrs}")
+                    logger.info(f"Save config to: [u]{self._config_file}")
+                    logger.info(f"Configurations: {self._cls_attrs}")
                 tomli_w.dump(self._cls_attrs, f)
         except PermissionError as e:
             if self.SHOW_LOGGING:
                 msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
-                console.print(msg)
+                logger.exception(msg)

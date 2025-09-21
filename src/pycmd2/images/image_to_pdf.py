@@ -51,6 +51,9 @@ class ImageProcessor:
         """
         image = Image.open(str(filepath))
 
+        # Rotate image if it is landscape
+        image = self._auto_rotate_image(image)
+
         if normalize:
             image.thumbnail(conf.PAGE_SIZE, Image.LANCZOS)  # type: ignore  # noqa: PGH003
             converted_image = Image.new(
@@ -70,6 +73,20 @@ class ImageProcessor:
 
         if image:
             self.converted_images.append(converted_image.convert("RGB"))
+
+    def _auto_rotate_image(self, image: Image.Image) -> Image.Image:
+        """自动旋转图片以校正方向.
+
+        Args:
+            image: PIL Image对象
+
+        Returns:
+            旋转后的Image对象
+        """
+        width, height = image.size
+        if width > height:
+            image = image.rotate(90, expand=True)
+        return image
 
     def convert_images(self, *, normalize: bool) -> None:
         """Convert and merge all images into a single PDF file."""
