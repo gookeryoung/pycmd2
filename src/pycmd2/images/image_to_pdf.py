@@ -8,6 +8,7 @@ from functools import partial
 from pathlib import Path
 
 from PIL import Image
+from PIL.Image import Resampling
 from typer import Argument
 from typer import Option
 from typing_extensions import Annotated
@@ -20,8 +21,7 @@ from pycmd2.images.image_gray import is_valid_image
 class ImageToPdfConfig(TomlConfigMixin):
     """Configuration for image to pdf."""
 
-    DPI: int = 120
-    PAGE_SIZE: tuple[int, int] = (int(8.27 * DPI), int(11.69 * DPI))
+    DPI: int = 300
 
 
 cli = get_client(help_doc="Convert images to pdf.")
@@ -37,6 +37,11 @@ class ImageProcessor:
         self.root_dir = root_dir
         self.converted_images: list[Image.Image] = []
 
+    @property
+    def size(self) -> tuple[int, int]:
+        """Get page size."""
+        return (int(8.27 * conf.DPI), int(11.69 * conf.DPI))
+
     def _convert(
         self,
         filepath: Path,
@@ -51,21 +56,23 @@ class ImageProcessor:
         """
         image = Image.open(str(filepath))
 
-        # Rotate image if it is landscape
+        # 自动旋转图片以校正方向
         image = self._auto_rotate_image(image)
 
         if normalize:
-            image.thumbnail(conf.PAGE_SIZE, Image.LANCZOS)  # type: ignore  # noqa: PGH003
+            image = self._auto_scale_image(image)
+            image.thumbnail(self.size, Resampling.LANCZOS)
+
             converted_image = Image.new(
                 "RGB",
-                conf.PAGE_SIZE,
+                self.size,
                 (255, 255, 255),
             )
             converted_image.paste(
                 image,
                 (
-                    (conf.PAGE_SIZE[0] - image.size[0]) // 2,
-                    (conf.PAGE_SIZE[1] - image.size[1]) // 2,
+                    (self.size[0] - image.size[0]) // 2,
+                    (self.size[1] - image.size[1]) // 2,
                 ),
             )
         else:
@@ -86,6 +93,31 @@ class ImageProcessor:
         width, height = image.size
         if width > height:
             image = image.rotate(90, expand=True)
+
+        return image
+
+    def _auto_scale_image(self, image: Image.Image) -> Image.Image:
+        """自动缩放图片.
+
+        Args:
+            image: PIL Image对象
+
+        Returns:
+            缩放后的Image对象
+        """
+        if image.size[0] < self.size[0] or image.size[1] < self.size[1]:
+            scale_w = self.size[0] / image.size[0]
+            scale_h = self.size[1] / image.size[1]
+            scale = max(
+                scale_w,
+                scale_h,
+            )
+
+            new_size = (
+                int(image.size[0] * scale),
+                int(image.size[1] * scale),
+            )
+            image = image.resize(new_size, Resampling.LANCZOS)
         return image
 
     def convert_images(self, *, normalize: bool) -> None:
