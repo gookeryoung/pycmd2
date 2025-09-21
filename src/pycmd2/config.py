@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import atexit
 import logging
+import re
 from dataclasses import dataclass
 
 from pycmd2.client import get_client
-from pycmd2.utils import str_to_snake_case
 
 try:
     import tomllib  # type: ignore[import]
@@ -39,6 +39,24 @@ class AttributeDiff:
         return hash((self.attr, str(self.file_value), str(self.cls_value)))
 
 
+def _to_snake_case(name: str) -> str:
+    """将驼峰命名转换为下划线命名, 处理连续大写字母的情况.
+
+    Args:
+        name (str): 驼峰命名
+
+    Returns:
+        str: 下划线命名
+
+    E.g.: "HTTPRequest" -> "http_request"
+    """
+    name = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
+    name = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", name)
+    # 处理连续大写字母的情况
+    name = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", name)
+    return name.lower()
+
+
 @dataclass
 class TomlConfigMixin:
     """Base class for toml config mixin."""
@@ -51,7 +69,7 @@ class TomlConfigMixin:
         else:
             logger.setLevel(logging.INFO)
 
-        cls_name = str_to_snake_case(type(self).__name__).replace("_config", "")
+        cls_name = _to_snake_case(type(self).__name__).replace("_config", "")
         self.NAME = cls_name if not self.NAME else self.NAME
 
         self._config_file: Path = cli.settings_dir / f"{cls_name}.toml"
