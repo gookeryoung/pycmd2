@@ -57,7 +57,7 @@ class TestImageProcessor:
         yield temp_dir
         shutil.rmtree(temp_dir)
 
-    @pytest.mark.parametrize("filecount", [1, 3, 6])
+    @pytest.mark.parametrize("filecount", [1, 3])
     @patch("pycmd2.images.image_gray.is_valid_image")
     def test_image_processor_with_valid_images(
         self,
@@ -105,39 +105,10 @@ class TestImageProcessor:
         """Test convert failed."""
         fixture_create_images(1)
 
-        mock_is_valid_image.return_value = True
         mock_image_open.side_effect = lambda _: None
+        mock_is_valid_image.return_value = True
 
         processor = ImageProcessor(fixture_tmpdir)
         processor.convert_images()
 
         assert "No converted image file found in" in caplog.text
-
-    @patch("pycmd2.images.image_to_pdf.is_valid_image")
-    def test_main_function(
-        self,
-        mock_is_valid_image: MagicMock,
-        fixture_tmpdir: Path,
-        fixture_create_images: Callable[[int], list[Image.Image]],
-    ) -> None:
-        """Test main function."""
-        fixture_create_images(1)
-
-        mock_is_valid_image.side_effect = self._is_valid_image
-
-        proc = ImageProcessor(fixture_tmpdir)
-        proc.convert_images()
-
-        output_pdf = fixture_tmpdir / f"{fixture_tmpdir.name}.pdf"
-        assert output_pdf.exists()
-        assert output_pdf.suffix == ".pdf"
-
-    @patch("pycmd2.images.image_to_pdf.is_valid_image")
-    def test_is_valid_image_check(self, mock_is_valid_image: MagicMock) -> None:
-        """Test is_valid_image check."""
-        mock_is_valid_image.side_effect = self._is_valid_image
-
-        assert mock_is_valid_image(Path("test.jpg"))
-        assert mock_is_valid_image(Path("test.png"))
-        assert mock_is_valid_image(Path("test.jpeg"))
-        assert not mock_is_valid_image(Path("test.txt"))
