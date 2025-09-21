@@ -98,6 +98,7 @@ Repository = "https://gitee.com/gooker_young/pycmd2"
 all = ["pycmd2[gui,office]"]
 gui = ["pyside2>=5.15.2.1", "qdarkstyle>=3.2.3"]
 office = [
+  "numpy>=1.24.4",
   "pillow>=10",
   "pypdf>=5.9.0",
   "pywin32>=311; platform_system == 'Windows'",
