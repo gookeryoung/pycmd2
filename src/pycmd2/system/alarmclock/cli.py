@@ -28,9 +28,6 @@ from PySide2.QtWidgets import QWidget
 
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
-from pycmd2.gui import setup_pyside2_env
-
-setup_pyside2_env(enable_high_dpi=True)
 
 __version__ = "0.1.2"
 __build_date__ = "2025-09-16"
@@ -66,7 +63,7 @@ class AlarmClockConfig(TomlConfigMixin):
     DELAY_STEPS: ClassVar[list[int]] = [1, 5, 10, 15, 30, 60]  # 分钟
 
 
-cli = get_client()
+cli = get_client(enable_qt=True, enable_high_dpi=True)
 conf = AlarmClockConfig()
 logger = logging.getLogger(__name__)
 

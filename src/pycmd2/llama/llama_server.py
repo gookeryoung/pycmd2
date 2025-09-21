@@ -28,9 +28,6 @@ from PySide2.QtWidgets import QWidget
 
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
-from pycmd2.gui import setup_pyside2_env
-
-setup_pyside2_env()
 
 
 class LlmServerConfig(TomlConfigMixin):
@@ -47,7 +44,7 @@ class LlmServerConfig(TomlConfigMixin):
     THREAD_COUNT: int = 4
 
 
-cli = get_client()
+cli = get_client(enable_qt=True, enable_high_dpi=False)
 conf = LlmServerConfig()
 
 

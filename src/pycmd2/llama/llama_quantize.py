@@ -25,10 +25,9 @@ from PySide2.QtWidgets import QTextEdit
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
 
-from pycmd2.gui import setup_pyside2_env
+from pycmd2.client import get_client
 
-setup_pyside2_env()
-
+cli = get_client(enable_qt=True, enable_high_dpi=True)
 logger = logging.getLogger(__name__)
 
 

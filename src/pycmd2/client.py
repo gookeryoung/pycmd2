@@ -39,12 +39,36 @@ def _log_stream(
     stream.close()
 
 
+def _setup_pyside2(*, enable_high_dpi: bool = False) -> None:
+    """初始化 PySide2 环境."""
+    import os  # noqa: PLC0415
+
+    import PySide2  # noqa: PLC0415
+
+    qt_dir = Path(PySide2.__file__).parent
+    plugin_path = qt_dir / "plugins" / "platforms"
+    os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = str(plugin_path)
+
+    if enable_high_dpi:
+        os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
+
+
 class Client:
     """命令工具."""
 
-    def __init__(self, app: typer.Typer, console: Console) -> None:
+    def __init__(
+        self,
+        app: typer.Typer,
+        console: Console,
+        *,
+        enable_qt: bool = False,
+        enable_high_dpi: bool = False,
+    ) -> None:
         self.app = app
         self.console = console
+
+        if enable_qt:
+            _setup_pyside2(enable_high_dpi=enable_high_dpi)
 
     @property
     def cwd(self) -> Path:
@@ -176,11 +200,16 @@ class Client:
 
 def get_client(
     help_doc: str = "",
+    *,
+    enable_qt: bool = False,
+    enable_high_dpi: bool = False,
 ) -> Client:
     """创建 cli 程序.
 
     Args:
         help_doc (str, optional): 描述文件
+        enable_qt (bool, optional): 是否启用 Qt. Defaults to False.
+        enable_high_dpi (bool, optional): 是否启用高 DPI. Defaults to False.
 
     Returns:
         Client: 获取实例
@@ -194,4 +223,6 @@ def get_client(
     return Client(
         app=typer.Typer(help=help_doc),
         console=Console(),
+        enable_qt=enable_qt,
+        enable_high_dpi=enable_high_dpi,
     )
