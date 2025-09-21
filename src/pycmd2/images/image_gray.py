@@ -3,10 +3,13 @@
 命令: imgr [-b?] -w [width?] -d [directory?]
 """
 
+from __future__ import annotations
+
 import logging
 import pathlib
 from functools import partial
 from pathlib import Path
+from typing import ClassVar
 
 from PIL import Image
 from typer import Argument
@@ -14,10 +17,26 @@ from typer import Option
 from typing_extensions import Annotated
 
 from pycmd2.client import get_client
+from pycmd2.config import TomlConfigMixin
 
-GRAYSCALE_THRESHOLD = 128  # 灰度阈值, 用于黑白模式下的二值化处理
+
+class ImageToGrayConfig(TomlConfigMixin):
+    """ImageToGray config."""
+
+    GRAYSCALE_THRESHOLD: int = 128
+    EXTENSIONS: ClassVar[list[str]] = [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".gif",
+        ".bmp",
+        ".tiff",
+        ".webp",
+    ]
+
 
 cli = get_client(help_doc="图片转换工具.")
+conf = ImageToGrayConfig()
 logger = logging.getLogger(__name__)
 
 
@@ -37,9 +56,8 @@ def is_valid_image(file_path: Path) -> bool:  # noqa: PLR0911
         return False
 
     # 第一层: 扩展名校验(快速过滤).
-    img_exts = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
     ext = file_path.suffix.lower()
-    if ext not in img_exts:
+    if ext not in set(conf.EXTENSIONS):
         return False
 
     # 第二层: 文件头校验(魔数校验).
@@ -98,7 +116,7 @@ def convert_img(
 
     if black_mode:
         img_conv = img_conv.point(
-            lambda x: 0 if x < GRAYSCALE_THRESHOLD else 255,
+            lambda x: 0 if x < conf.GRAYSCALE_THRESHOLD else 255,
             "1",
         )
 
@@ -106,7 +124,7 @@ def convert_img(
         new_height = int(width / img_conv.width * img_conv.height)
         img_conv = img_conv.resize(
             (width, new_height),
-            resample=Image.LANCZOS,
+            resample=Image.LANCZOS,  # type: ignore  # noqa: PGH003
         )
 
     new_img_path = img_path.with_name(img_path.stem + "_conv.png")
