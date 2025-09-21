@@ -9,7 +9,7 @@ from pathlib import Path
 import pypdf
 from typer import Argument
 
-from pycmd2.cli import get_client
+from pycmd2.client import get_client
 from pycmd2.office.pdf_crypt import list_pdf
 
 cli = get_client(help_doc="pdf 分割工具.")

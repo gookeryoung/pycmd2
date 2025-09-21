@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from rich.console import Console
 
-from pycmd2.cli import get_client
+from pycmd2.client import get_client
 from pycmd2.logger import Logger
 from pycmd2.utils import str_to_snake_case
 
@@ -137,7 +137,6 @@ class TomlConfigMixin:
         if not self._config_file.is_file() or not self._config_file.exists():
             if self.SHOW_LOGGING:
                 logger.error(f"Config file not found: {self._config_file}")
-
             return
 
         try:

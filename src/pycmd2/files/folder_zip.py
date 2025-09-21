@@ -12,7 +12,7 @@ from typer import Argument
 from typer import Option
 from typing_extensions import Annotated
 
-from pycmd2.cli import get_client
+from pycmd2.client import get_client
 
 cli = get_client(help_doc="目录压缩工具.")
 logger = logging.getLogger(__name__)

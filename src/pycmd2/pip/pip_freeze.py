@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 import subprocess
 
-from pycmd2.cli import get_client
+from pycmd2.client import get_client
 
 __version__ = "0.1.2"
 __build_date__ = "2025-07-29"

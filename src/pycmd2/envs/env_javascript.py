@@ -7,7 +7,7 @@ import logging
 from typer import Argument
 from typing_extensions import Annotated
 
-from pycmd2.cli import get_client
+from pycmd2.client import get_client
 
 cli = get_client()
 logger = logging.getLogger(__name__)

@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.cli import get_client
+from pycmd2.client import get_client
 from pycmd2.config import AttributeDiff
 from pycmd2.config import TomlConfigMixin
 

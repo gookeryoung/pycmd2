@@ -4,7 +4,7 @@ import logging
 import shutil
 import subprocess
 
-from pycmd2.cli import get_client
+from pycmd2.client import get_client
 
 cli = get_client()
 logger = logging.getLogger(__name__)

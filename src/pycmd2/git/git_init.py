@@ -5,7 +5,7 @@
 
 import os
 
-from pycmd2.cli import get_client
+from pycmd2.client import get_client
 
 cli = get_client()
 

@@ -8,7 +8,7 @@ import logging
 from typer import Option
 from typing_extensions import Annotated
 
-from pycmd2.cli import get_client
+from pycmd2.client import get_client
 from pycmd2.git.git_push_all import check_git_status
 
 __version__ = "0.1.1"

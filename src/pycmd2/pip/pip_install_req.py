@@ -1,6 +1,6 @@
 """功能: pip 安装库到本地, 使用 requirements 内容."""
 
-from pycmd2.cli import get_client
+from pycmd2.client import get_client
 from pycmd2.pip.conf import conf
 
 cli = get_client()

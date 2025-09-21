@@ -1,6 +1,6 @@
 """功能: 重新启动 TGitCache.exe, 刷新缓存."""
 
-from pycmd2.cli import get_client
+from pycmd2.client import get_client
 
 cli = get_client()
 

@@ -4,22 +4,34 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from functools import partial
 from pathlib import Path
 
 from PIL import Image
 from typer import Argument
+from typer import Option
 from typing_extensions import Annotated
 
-from pycmd2.cli import get_client
+from pycmd2.client import get_client
+from pycmd2.config import TomlConfigMixin
 from pycmd2.images.image_gray import is_valid_image
 
+
+class ImageToPdfConfig(TomlConfigMixin):
+    """Configuration for image to pdf."""
+
+    DPI: int = 120
+    PAGE_SIZE: tuple[int, int] = (int(8.27 * DPI), int(11.69 * DPI))
+
+
 cli = get_client(help_doc="Convert images to pdf.")
+conf = ImageToPdfConfig()
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class ImageProcessor:
-    """图片处理类."""
+    """Processor for image files."""
 
     def __init__(self, root_dir: Path) -> None:
         self.root_dir = root_dir
@@ -28,17 +40,38 @@ class ImageProcessor:
     def _convert(
         self,
         filepath: Path,
+        *,
+        normalize: bool = True,
     ) -> None:
         """Convert image to pdf.
 
         Args:
             filepath (Path): image file path
+            normalize (bool, optional): normalize image. Defaults to True.
         """
-        converted_image = Image.open(str(filepath)).convert("RGB")
-        if converted_image:
-            self.converted_images.append(converted_image)
+        image = Image.open(str(filepath))
 
-    def convert_images(self) -> None:
+        if normalize:
+            image.thumbnail(conf.PAGE_SIZE, Image.LANCZOS)  # type: ignore  # noqa: PGH003
+            converted_image = Image.new(
+                "RGB",
+                conf.PAGE_SIZE,
+                (255, 255, 255),
+            )
+            converted_image.paste(
+                image,
+                (
+                    (conf.PAGE_SIZE[0] - image.size[0]) // 2,
+                    (conf.PAGE_SIZE[1] - image.size[1]) // 2,
+                ),
+            )
+        else:
+            converted_image = image
+
+        if image:
+            self.converted_images.append(converted_image.convert("RGB"))
+
+    def convert_images(self, *, normalize: bool) -> None:
         """Convert and merge all images into a single PDF file."""
         image_files = sorted(
             entry for entry in self.root_dir.iterdir() if is_valid_image(entry)
@@ -47,7 +80,7 @@ class ImageProcessor:
             logger.error(f"No image file found in: {self.root_dir}")
             return
 
-        cli.run(self._convert, image_files)
+        cli.run(partial(self._convert, normalize=normalize), image_files)
 
         if not self.converted_images:
             logger.error(f"No converted image file found in: {self.root_dir}")
@@ -70,6 +103,14 @@ def main(
         Path,
         Argument(help="图片文件夹路径"),
     ] = cli.cwd,
+    *,
+    normalize: Annotated[
+        bool,
+        Option(
+            "--normalize",
+            help="是否进行图片尺寸归一化处理",
+        ),
+    ] = True,
 ) -> None:
     proc = ImageProcessor(root_dir=directory)
-    proc.convert_images()
+    proc.convert_images(normalize=normalize)
