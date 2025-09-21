@@ -9,7 +9,7 @@ from pathlib import Path
 import pypdf
 from typer import Argument
 
-from pycmd2.common.cli import get_client
+from pycmd2.cli import get_client
 
 cli = get_client(help_doc="pdf 加密/解密工具.")
 logger = logging.getLogger(__name__)

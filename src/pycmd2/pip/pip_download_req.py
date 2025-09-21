@@ -3,7 +3,7 @@
 命令: pipdr
 """
 
-from pycmd2.common.cli import get_client
+from pycmd2.cli import get_client
 
 from .conf import conf
 

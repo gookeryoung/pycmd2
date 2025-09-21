@@ -13,7 +13,7 @@ from typing import List
 from typer import Argument
 from typing_extensions import Annotated
 
-from pycmd2.common.cli import get_client
+from pycmd2.cli import get_client
 from pycmd2.config import TomlConfigMixin
 
 

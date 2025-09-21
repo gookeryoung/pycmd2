@@ -10,7 +10,7 @@ from PIL import Image
 from typer import Argument
 from typing_extensions import Annotated
 
-from pycmd2.common.cli import get_client
+from pycmd2.cli import get_client
 
 from .image_gray import is_valid_image
 

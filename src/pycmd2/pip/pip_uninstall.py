@@ -6,7 +6,7 @@ from pathlib import Path
 
 from typer import Argument
 
-from pycmd2.common.cli import get_client
+from pycmd2.cli import get_client
 
 cli = get_client()
 

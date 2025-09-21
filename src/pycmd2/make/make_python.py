@@ -20,7 +20,7 @@ from urllib.request import pathname2url
 from typer import Argument
 from typing_extensions import Annotated
 
-from pycmd2.common.cli import get_client
+from pycmd2.cli import get_client
 from pycmd2.git.git_push_all import main as git_push_all
 
 try:

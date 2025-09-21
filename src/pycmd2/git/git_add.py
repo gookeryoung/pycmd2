@@ -11,7 +11,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from pycmd2.common.cli import get_client
+from pycmd2.cli import get_client
 
 cli = get_client()
 logger = logging.getLogger(__name__)

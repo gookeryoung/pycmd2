@@ -8,7 +8,7 @@ import platform
 from typer import Option
 from typing_extensions import Annotated
 
-from pycmd2.common.cli import get_client
+from pycmd2.cli import get_client
 from pycmd2.envs.env_python import add_env_to_bashrc
 
 cli = get_client()

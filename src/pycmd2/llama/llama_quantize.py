@@ -25,7 +25,7 @@ from PySide2.QtWidgets import QTextEdit
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
 
-from pycmd2.common.gui import setup_pyside2_env
+from pycmd2.gui import setup_pyside2_env
 
 setup_pyside2_env()
 

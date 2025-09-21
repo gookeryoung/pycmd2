@@ -13,7 +13,7 @@ from typer import Argument
 from typer import Option
 from typing_extensions import Annotated
 
-from pycmd2.common.cli import get_client
+from pycmd2.cli import get_client
 
 GRAYSCALE_THRESHOLD = 128  # 灰度阈值, 用于黑白模式下的二值化处理
 

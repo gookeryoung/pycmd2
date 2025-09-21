@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from rich.console import Console
 
-from pycmd2.common.cli import get_client
+from pycmd2.cli import get_client
 from pycmd2.logger import Logger
 from pycmd2.utils import str_to_snake_case
 
