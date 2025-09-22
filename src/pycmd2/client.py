@@ -113,12 +113,15 @@ class Client:
         t0 = perf_counter()
         returns: list[concurrent.futures.Future[Any]] = []
 
-        logger.info(f"启动线程, 目标参数: [green]{len(args)}[/] 个")
+        logger.info(f"Start threads, targets: [green]{len(args)}[/]")
         with concurrent.futures.ThreadPoolExecutor() as t:
             for arg in args:
-                logger.info(f"开始处理: [green bold]{arg!s}")
+                logger.info(f"Start Processing: [green bold]{arg!s}")
                 returns.append(t.submit(func, arg))
-        logger.info(f"关闭线程, 用时: [green bold]{perf_counter() - t0:.4f}s.")
+        logger.info(
+            f"Close threads, time used: "
+            f"[green bold]{perf_counter() - t0:.4f}s.",
+        )
 
     @staticmethod
     def run_cmd(

@@ -35,54 +35,58 @@ class ImageGrayConfig(TomlConfigMixin):
     ]
 
 
-cli = get_client(help_doc="图片转换工具.")
+cli = get_client(help_doc="Convert image to grayscale.")
 conf = ImageGrayConfig()
 logger = logging.getLogger(__name__)
 
+# Magic numbers for image file header.
+_MAGIC_NUMBERS: dict[str, bytes] = {
+    "jpeg": b"\xff\xd8\xff",
+    "png": b"\x89PNG\r\n\x1a\n",
+    "gif": b"GIF87a",
+    "bmp": b"BM",
+    "webp": b"RIFF....WEBP",
+    "tiff": b"II*\x00",
+    "ico": b"ICON",
+    "svg": b"<svg",
+}
+
 
 def is_valid_image(file_path: Path) -> bool:  # noqa: PLR0911
-    """综合校验文件是否为有效图片(支持 JPEG/PNG/GIF/BMP 等常见格式).
+    """Validate image file.
 
     Arguments:
-        file_path: 待校验文件路径
+        file_path: image file path
 
     Returns:
-        bool: 是否为有效图片
+        bool: if the file is valid image file
     """
-    # 基础校验: 文件存在性及大小.
+    # Basic validation.
     if not file_path.exists():
         return False
     if file_path.stat().st_size == 0:
         return False
 
-    # 第一层: 扩展名校验(快速过滤).
+    # Extension validation.
     ext = file_path.suffix.lower()
     if ext not in set(conf.EXTENSIONS):
         return False
 
-    # 第二层: 文件头校验(魔数校验).
-    magic_numbers = {
-        b"\xff\xd8\xff": "jpeg",  # JPEG
-        b"\x89PNG\r\n\x1a\n": "png",
-        b"GIF87a": "gif",
-        b"GIF89a": "gif",
-        b"BM": "bmp",
-        b"RIFF....WEBP": "webp",  # 实际需更精确判断
-    }
+    # File header validation.
     try:
         with file_path.open("rb") as f:
             header = f.read(12)
-            if not any(header.startswith(k) for k in magic_numbers):
+            if not any(header.startswith(k) for k in _MAGIC_NUMBERS.values()):
                 return False
     except OSError:
         return False
 
-    # 第三层: 图像完整性验证.
+    # Image format validation.
     try:
         with Image.open(file_path) as img:
             img.verify()
             if img.format and img.format.lower() not in list(
-                magic_numbers.values(),
+                _MAGIC_NUMBERS.keys(),
             ):
                 return False
     except (OSError, SyntaxError, ValueError):
@@ -139,11 +143,17 @@ def main(
     black: Annotated[bool, Option(help="黑白模式")] = False,
 ) -> None:
     image_files = [
-        _ for _ in pathlib.Path(cli.cwd).glob("*.*") if is_valid_image(_)
+        f
+        for f in pathlib.Path(cli.cwd).glob("*.*")
+        if is_valid_image(f) and not f.stem.endswith("_conv")
     ]
     if not image_files:
-        logger.error("未找到待处理图片文件")
+        logger.error(f"No image file found in current directory: {cli.cwd}.")
         return
 
+    logger.info(
+        f"Found {len(image_files)} image files"
+        f": {[f.name for f in image_files]}",
+    )
     conver_func = partial(convert_img, black_mode=black, width=width)
     cli.run(conver_func, image_files)
