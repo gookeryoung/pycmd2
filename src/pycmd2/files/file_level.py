@@ -1,6 +1,6 @@
 """功能: 重命名文件级别后缀.
 
-用法: filelevel -f FILES [FILES ...] -l level
+用法: filelvl [OPTIONS] TARGETS...
 """
 
 from __future__ import annotations
@@ -13,16 +13,14 @@ from pathlib import Path
 from typing import ClassVar
 from typing import List
 
-from typer import Argument
-from typer import Option
-from typing_extensions import Annotated
+import typer
 
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
 
 
 class FileLevelConfig(TomlConfigMixin):
-    """文件级别配置."""
+    """File level config."""
 
     LEVELS: ClassVar[dict[str, str]] = {
         "0": "",
@@ -119,8 +117,12 @@ class FileProcessor:
 
 @cli.app.command()
 def main(
-    targets: Annotated[List[Path], Argument(help="目标文件或目录")],
-    level: Annotated[int, Option(help="文件级别")] = 0,
+    targets: List[Path] = typer.Argument(help="Input file list."),  # noqa: B008
+    level: int = typer.Option(
+        0,
+        help="File level, set 1-4 for different levels, 0 for clear level.",
+    ),
 ) -> None:
+    """Rename file level."""
     rename_targets = [FileProcessor(t, t.stem) for t in targets]
     cli.run(partial(FileProcessor.rename, level=level), rename_targets)
