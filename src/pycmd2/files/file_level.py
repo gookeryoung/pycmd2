@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import logging
 import typing
+import uuid
+from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 from typing import ClassVar
@@ -30,6 +32,7 @@ class FileLevelConfig(TomlConfigMixin):
         "4": "CLA",
     }
     BRACKETS: ClassVar[list[str]] = [" ([_（【-", " )]_）】"]  # noqa: RUF001
+    MARK_BRACKETS: ClassVar[list[str]] = ["(", ")"]
 
 
 cli = get_client()
@@ -44,78 +47,72 @@ class FileLevel(typing.NamedTuple):
     names: list[str]
 
 
-levels = [FileLevel(int(c), n.split(",")) for c, n in conf.LEVELS.items()]
+LEVELS = [FileLevel(int(c), n.split(",")) for c, n in conf.LEVELS.items()]
 
 
-def remove_marks(
-    filename: str,
-    marks: list[str],
-) -> str:
-    """移除文件名中的标记符.
+@dataclass
+class FileRenameTarget:
+    """Rename target."""
 
-    Returns:
-        移除标记符后的文件名.
-    """
-    for mark in marks:
-        pos = filename.find(mark)
-        if pos != -1:
-            b, e = pos - 1, pos + len(mark)
-            if b >= 0 and e <= len(filename) - 1:
-                if (
-                    filename[b] not in conf.BRACKETS[0]
-                    or filename[e] not in conf.BRACKETS[1]
-                ):
-                    return filename[:e] + remove_marks(filename[e:], marks)
-                filename = filename.replace(filename[b : e + 1], "")
-                return remove_marks(filename, marks)
-    return filename
+    src: Path
+    filestem: str
 
+    def rename(self, level: int = 0) -> None:
+        """Rename file."""
+        # Remove all file level marks.
+        for file_level in LEVELS[1:]:
+            self._remove_marks(marks=file_level.names)
 
-def remove_level_and_digital_mark(
-    filename: str,
-) -> str:
-    for file_level in levels[1:]:
-        filename = remove_marks(filename, file_level.names)
+        # Remove all digital marks.
+        self._remove_marks(marks=list("".join([str(x) for x in range(1, 10)])))
 
-    return remove_marks(
-        filename,
-        list("".join([str(x) for x in range(1, 10)])),
-    )
+        # Add level mark.
+        self._add_level_mark(level=level)
 
+        # Rename file
+        self.src.rename(self.filestem + self.src.suffix)
 
-def add_level_mark(
-    filepath: Path,
-    filelevel: int,
-    suffix: int,
-) -> Path:
-    cleared_stem = remove_level_and_digital_mark(filepath.stem)
-    dst_stem = (
-        f"{cleared_stem}({levels[filelevel].names[0]})"
-        if filelevel
-        else cleared_stem
-    )
+    def _add_level_mark(self, level: int) -> None:
+        level_str = conf.LEVELS.setdefault(str(level), "").split(",")[0]
+        if not level_str:
+            logger.error(f"Invalid level: [red]{level}")
+            return
 
-    if dst_stem == filepath.stem:
-        logger.info(f"destination stem [{dst_stem}] equals to current.")
-        return filepath
-    dst_name = (
-        f"{dst_stem}({suffix}){filepath.suffix}"
-        if suffix
-        else f"{dst_stem}{filepath.suffix}"
-    )
+        suffix = level_str.join(conf.MARK_BRACKETS)
+        self.filestem = f"{self.filestem}{suffix}"
+        if self.filestem == self.src.stem:
+            logger.error(f"[red]{self.filestem}[/] equals to original.")
+            return
 
-    if filepath.with_name(dst_name).exists():
-        logger.info(f"[{dst_name}] already exists.")
-        return add_level_mark(filepath, filelevel, suffix + 1)
-    logger.info(f"rename [{filepath.name}] to [{dst_name}].")
-    return filepath.with_name(dst_name)
+        dst_path = self.src.with_name(self.filestem + self.src.suffix)
+        if dst_path.exists():
+            logger.error(
+                f"[red]{dst_path.name}[/] already exists, add unique id.",
+            )
+            self.filestem += str(uuid.uuid4()).join(conf.MARK_BRACKETS)
+            self._add_level_mark(level)
 
+    def _remove_marks(self, marks: list[str]) -> None:
+        """Remove marks from filename."""
+        for mark in marks:
+            self._remove_mark(mark=mark)
 
-def rename(
-    target: Path,
-    level: int,
-) -> None:
-    target.rename(add_level_mark(target, level, 0))
+    def _remove_mark(self, mark: str) -> None:
+        """Remove mark from filename."""
+        pos = self.filestem.find(mark)
+        if pos == -1:
+            logger.debug(f"[u]{mark}[/] not found in: {self.filestem}.")
+            return
+
+        b, e = pos - 1, pos + len(mark)
+        if b >= 0 and e <= len(self.filestem) - 1:
+            if (
+                self.filestem[b] not in conf.BRACKETS[0]
+                or self.filestem[e] not in conf.BRACKETS[1]
+            ):
+                return
+            self.filestem = self.filestem.replace(self.filestem[b : e + 1], "")
+            self._remove_mark(mark=mark)
 
 
 @cli.app.command()
@@ -123,5 +120,5 @@ def main(
     targets: Annotated[List[Path], Argument(help="目标文件或目录")],
     level: Annotated[int, Argument(help="文件级别")] = 0,
 ) -> None:
-    rename_func = partial(rename, level=level)
-    cli.run(rename_func, targets)
+    rename_targets = [FileRenameTarget(t, t.stem) for t in targets]
+    cli.run(partial(FileRenameTarget.rename, level=level), rename_targets)
