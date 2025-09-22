@@ -69,18 +69,18 @@ class FileProcessor:
         """Add level mark to filename, must be 1-4."""
         levelstr = conf.LEVELS.setdefault(str(level), "").split(",")[0]
         if not levelstr:
-            logger.debug(f"Invalid level: {level}.")
+            logger.warning(f"Invalid level: {level}, skip.")
             return
 
         suffix = levelstr.join(conf.MARK_BRACKETS)
         self.filestem = f"{self.filestem}{suffix}"
         if self.filestem == self.src.stem:
-            logger.error(f"[red]{self.filestem}[/] equals to original.")
+            logger.error(f"[red]{self.filestem}[/] equals to original, skip.")
             return
 
         dst_path = self.src.with_name(self.filestem + self.src.suffix)
         if dst_path.exists():
-            logger.error(
+            logger.warning(
                 f"[red]{dst_path.name}[/] already exists, add unique id.",
             )
             self.filestem += str(uuid.uuid4()).join(conf.MARK_BRACKETS)
@@ -117,10 +117,10 @@ class FileProcessor:
 
 @cli.app.command()
 def main(
-    targets: List[Path] = typer.Argument(help="Input file list."),  # noqa: B008
+    targets: List[Path] = typer.Argument(help="Input file list"),  # noqa: B008
     level: int = typer.Option(
         0,
-        help="File level, set 1-4 for different levels, 0 for clear level.",
+        help="File level, set 1-4 for different levels, 0 for clear level",
     ),
 ) -> None:
     """Rename file level."""
