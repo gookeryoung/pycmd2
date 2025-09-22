@@ -5,20 +5,22 @@
 
 from __future__ import annotations
 
+import logging
 import re
 import time
+import uuid
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
 from typer import Argument
-from typing_extensions import Annotated
 
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
 
 
 class FileDateConfig(TomlConfigMixin):
-    """配置项."""
+    """File date config."""
 
     DETECT_SEPERATORS: str = "-_#.~"
     SEPERATOR: str = "_"
@@ -26,71 +28,73 @@ class FileDateConfig(TomlConfigMixin):
 
 cli = get_client()
 conf = FileDateConfig()
+logger = logging.getLogger(__name__)
 
 
-def remove_date_prefix(
-    filename: str,
-) -> str:
-    """移除形式如 `YYYYMMDD` 的日期格式.
+@dataclass
+class FileDateProc:
+    """File date processor."""
 
-    Args:
-        filename (str): 原始文件名
+    src: Path
+    filestem: str = ""
 
-    Returns:
-        移除日期后文件名
+    @property
+    def _time_mark(self) -> str:
+        modified, created = self.src.stat().st_mtime, self.src.stat().st_ctime
+        return time.strftime(
+            "%Y%m%d",
+            time.localtime(max((modified, created))),
+        )
 
-    >>> remove_date_prefix("20211211_hello.txt")
-    'hello.txt'
-    >>> remove_date_prefix("20191112-my-file.xls")
-    'my-file.xls'
-    >>> remove_date_prefix("20201211my-file.xls")
-    'my-file.xls'
-    >>> remove_date_prefix("2022-my-file.xls")
-    '2022-my-file.xls'
-    """
-    pattern = re.compile(
-        r"(20|19)\d{2}((0[1-9])|(1[012]))((0[1-9])|([12]\d)|(3[01]))",
-    )
-    match = re.search(pattern, filename)
+    def rename(self) -> None:
+        """Rename file with time mark."""
+        self.filestem = self._remove_date_prefix(self.src.stem)
 
-    if not match:
-        return filename
+        target_path = self.src.with_name(
+            f"{self._time_mark}{conf.SEPERATOR}{self.filestem}{self.src.suffix}",
+        )
 
-    b, e = match.start(), match.end()
-    if b >= 1 and filename[b - 1] in conf.DETECT_SEPERATORS:
-        filename = filename.replace(filename[b - 1 : e], "")
-    elif e + 1 <= len(filename) - 1 and filename[e] in conf.DETECT_SEPERATORS:
-        filename = filename.replace(filename[b : e + 1], "")
-    else:
-        filename = filename.replace(filename[b:e], "")
-    return remove_date_prefix(filename)
+        if target_path == self.src:
+            logger.warning(f"{self.src} is the same as {target_path}, skip.")
+            return
 
+        if target_path.exists():
+            logger.warning(f"{target_path} exists, add unique suffix.")
+            target_path = target_path.with_name(
+                f"{target_path.stem}_{uuid.uuid4().hex}{target_path.suffix}",
+            )
 
-def rename_target(
-    filepath: Path,
-) -> tuple[str, str]:
-    """更新日期标识, 如果没有则创建, 按照 YYYYMMDD 格式.
+        logger.info(
+            f"Rename: [u green]{self.src}[white] -> [u purple]{target_path}",
+        )
+        self.src.rename(target_path)
 
-    Args:
-        filepath: 文件路径
+    @staticmethod
+    def _remove_date_prefix(filename: str) -> str:
+        pattern = re.compile(
+            r"(20|19)\d{2}((0[1-9])|(1[012]))((0[1-9])|([12]\d)|(3[01]))",
+        )
+        match = re.search(pattern, filename)
 
-    Returns:
-        修改后的路径
-    """
-    modified, created = filepath.stat().st_mtime, filepath.stat().st_ctime
-    time_mark = time.strftime(
-        "%Y%m%d",
-        time.localtime(max((modified, created))),
-    )
-    dst_name = filepath.with_name(
-        f"{time_mark}{conf.SEPERATOR}{remove_date_prefix(filepath.name)}",
-    )
-    filepath.rename(dst_name)
-    return filepath.name, dst_name.name
+        if not match:
+            return filename
+
+        b, e = match.start(), match.end()
+        if b >= 1 and filename[b - 1] in conf.DETECT_SEPERATORS:
+            filename = filename.replace(filename[b - 1 : e], "")
+        elif (
+            e + 1 <= len(filename) - 1 and filename[e] in conf.DETECT_SEPERATORS
+        ):
+            filename = filename.replace(filename[b : e + 1], "")
+        else:
+            filename = filename.replace(filename[b:e], "")
+        return FileDateProc._remove_date_prefix(filename)
 
 
 @cli.app.command()
 def main(
-    targets: Annotated[List[Path], Argument(help="输入文件清单")],
+    targets: List[Path] = Argument(help="Input file list"),  # noqa: B008
 ) -> None:
-    cli.run(rename_target, targets)
+    """Remove file date prefix, use lastest create/modify time as prefix."""
+    rename_targets = [FileDateProc(t) for t in targets]
+    cli.run(FileDateProc.rename, rename_targets)
