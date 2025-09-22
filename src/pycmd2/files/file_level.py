@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 import logging
-import typing
 import uuid
 from dataclasses import dataclass
 from functools import partial
@@ -15,6 +14,7 @@ from typing import ClassVar
 from typing import List
 
 from typer import Argument
+from typer import Option
 from typing_extensions import Annotated
 
 from pycmd2.client import get_client
@@ -40,18 +40,8 @@ conf = FileLevelConfig()
 logger = logging.getLogger(__name__)
 
 
-class FileLevel(typing.NamedTuple):
-    """文件级别定义."""
-
-    code: int
-    names: list[str]
-
-
-LEVELS = [FileLevel(int(c), n.split(",")) for c, n in conf.LEVELS.items()]
-
-
 @dataclass
-class FileRenameTarget:
+class FileProcessor:
     """Rename target."""
 
     src: Path
@@ -60,25 +50,31 @@ class FileRenameTarget:
     def rename(self, level: int = 0) -> None:
         """Rename file."""
         # Remove all file level marks.
-        for file_level in LEVELS[1:]:
-            self._remove_marks(marks=file_level.names)
+        for level_names in conf.LEVELS.values():
+            self._remove_marks(marks=level_names.split(","))
+        logger.info(f"After remove level marks: {self.filestem}")
 
         # Remove all digital marks.
         self._remove_marks(marks=list("".join([str(x) for x in range(1, 10)])))
+        logger.info(f"After remove digital marks: {self.filestem}")
 
         # Add level mark.
         self._add_level_mark(level=level)
+        logger.info(f"After add level mark: {self.filestem}")
 
         # Rename file
-        self.src.rename(self.filestem + self.src.suffix)
+        target_path = self.src.with_name(self.filestem + self.src.suffix)
+        logger.info(f"Rename: {self.src}->{target_path}")
+        self.src.rename(target_path)
 
     def _add_level_mark(self, level: int) -> None:
-        level_str = conf.LEVELS.setdefault(str(level), "").split(",")[0]
-        if not level_str:
-            logger.error(f"Invalid level: [red]{level}")
+        """Add level mark to filename, must be 1-4."""
+        levelstr = conf.LEVELS.setdefault(str(level), "").split(",")[0]
+        if not levelstr:
+            logger.debug(f"Invalid level: {level}.")
             return
 
-        suffix = level_str.join(conf.MARK_BRACKETS)
+        suffix = levelstr.join(conf.MARK_BRACKETS)
         self.filestem = f"{self.filestem}{suffix}"
         if self.filestem == self.src.stem:
             logger.error(f"[red]{self.filestem}[/] equals to original.")
@@ -95,30 +91,36 @@ class FileRenameTarget:
     def _remove_marks(self, marks: list[str]) -> None:
         """Remove marks from filename."""
         for mark in marks:
-            self._remove_mark(mark=mark)
+            self.filestem = self._remove_mark(self.filestem, mark)
 
-    def _remove_mark(self, mark: str) -> None:
-        """Remove mark from filename."""
-        pos = self.filestem.find(mark)
+    @staticmethod
+    def _remove_mark(stem: str, mark: str) -> str:
+        """Remove mark from filename.
+
+        Returns:
+            str: filestem without mark.
+        """
+        pos = stem.find(mark)
         if pos == -1:
-            logger.debug(f"[u]{mark}[/] not found in: {self.filestem}.")
-            return
+            logger.debug(f"[u]{mark}[/] not found in: {stem}.")
+            return stem
 
         b, e = pos - 1, pos + len(mark)
-        if b >= 0 and e <= len(self.filestem) - 1:
+        if b >= 0 and e <= len(stem) - 1:
             if (
-                self.filestem[b] not in conf.BRACKETS[0]
-                or self.filestem[e] not in conf.BRACKETS[1]
+                stem[b] not in conf.BRACKETS[0]
+                or stem[e] not in conf.BRACKETS[1]
             ):
-                return
-            self.filestem = self.filestem.replace(self.filestem[b : e + 1], "")
-            self._remove_mark(mark=mark)
+                return stem[:e] + FileProcessor._remove_mark(stem[e:], mark)
+            stem = stem.replace(stem[b : e + 1], "")
+            return FileProcessor._remove_mark(stem, mark)
+        return stem
 
 
 @cli.app.command()
 def main(
     targets: Annotated[List[Path], Argument(help="目标文件或目录")],
-    level: Annotated[int, Argument(help="文件级别")] = 0,
+    level: Annotated[int, Option(help="文件级别")] = 0,
 ) -> None:
-    rename_targets = [FileRenameTarget(t, t.stem) for t in targets]
-    cli.run(partial(FileRenameTarget.rename, level=level), rename_targets)
+    rename_targets = [FileProcessor(t, t.stem) for t in targets]
+    cli.run(partial(FileProcessor.rename, level=level), rename_targets)
