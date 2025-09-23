@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 class ImageProcessor:
     """Processor for image files."""
 
-    def __init__(self, root_dir: Path, dpi: int) -> None:
+    def __init__(self, root_dir: Path, dpi: int = conf.DPI) -> None:
         self.root_dir = root_dir
         self.dpi = dpi
         self.converted_images: list[Image.Image] = []
@@ -80,7 +80,7 @@ class ImageProcessor:
         else:
             converted_image = image
 
-        if image:
+        if converted_image:
             self.converted_images.append(converted_image.convert("RGB"))
 
     def _auto_rotate_image(self, image: Image.Image) -> Image.Image:
