@@ -23,10 +23,9 @@ requires-python = ">=3.8"
 version = "0.5.0"
 
 [project.scripts]
-# 自身命令
 pycmd2 = "pycmd2.cli:cli.app"
 
-# dev
+# dev-tools
 envjs = "pycmd2.dev.env_javascript:cli.app"
 envpy = "pycmd2.dev.env_python:cli.app"
 envrs = "pycmd2.dev.env_rust:cli.app"
@@ -49,11 +48,11 @@ ssh-copy-id = "pycmd2.dev.ssh_copy_id:cli.app"
 
 # office commands
 docdiff = "pycmd2.office.doc_diff:cli.app"
-img2pdf = "pycmd2.images.image_to_pdf:cli.app"
-imggry = "pycmd2.images.image_gray:cli.app"
-llmcli = "pycmd2.llama.llama_client:main"
-llmqnt = "pycmd2.llama.llama_quantize:main"
-llmsvr = "pycmd2.llama.llama_server:main"
+img2pdf = "pycmd2.office.image_to_pdf:cli.app"
+imggry = "pycmd2.office.image_gray:cli.app"
+llmcli = "pycmd2.office.llama_client:main"
+llmqnt = "pycmd2.office.llama_quantize:main"
+llmsvr = "pycmd2.office.llama_server:main"
 mindnote = "pycmd2.office.mindnote.cli:main"
 pdfc = "pycmd2.office.pdf_crypt:cli.app"
 pdfmrg = "pycmd2.office.pdf_merge:cli.app"

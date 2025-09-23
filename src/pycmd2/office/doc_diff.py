@@ -7,9 +7,8 @@ import time
 from pathlib import Path
 from typing import List
 
+import typer
 import win32com.client as win32
-from typer import Argument
-from typing_extensions import Annotated
 
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
@@ -82,8 +81,9 @@ def diff_doc(old: Path, new: Path) -> None:
 
 @cli.app.command()
 def main(
-    files: Annotated[List[Path], Argument(help="Input file list")],
+    files: List[Path] = typer.Argument(help="Input file list."),  # noqa: B008
 ) -> None:
+    """Compare two doc/docx files."""
     if len(files) < 2:  # noqa: PLR2004
         logger.error("Input file list must have at least 2 files.")
         return

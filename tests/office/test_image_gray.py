@@ -75,7 +75,7 @@ class TestImageGray:
     ) -> None:
         """Mock is_valid_image."""
         monkeypatch.setattr(
-            "pycmd2.images.image_gray.is_valid_image",
+            "pycmd2.office.image_gray.is_valid_image",
             self._is_valid_image,
         )
 
