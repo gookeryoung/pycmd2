@@ -26,68 +26,49 @@ version = "0.5.0"
 # 自身命令
 pycmd2 = "pycmd2.cli:cli.app"
 
-# [default]
-# envs commands
-envjs = "pycmd2.envs.env_javascript:cli.app"
-envpy = "pycmd2.envs.env_python:cli.app"
-envrs = "pycmd2.envs.env_rust:cli.app"
-
-# files commands
-filedate = "pycmd2.files.file_date:cli.app"
-filelvl = "pycmd2.files.file_level:cli.app"
-folderb = "pycmd2.files.folder_backup:cli.app"
-folderz = "pycmd2.files.folder_zip:cli.app"
-
-# git commands
-gitadd = "pycmd2.git.git_add:cli.app"
-gitc = "pycmd2.git.git_clean:cli.app"
-gitinit = "pycmd2.git.git_init:cli.app"
-gitpa = "pycmd2.git.git_push_all:cli.app"
-gitre = "pycmd2.git.git_restart_tgitcache:cli.app"
-
-# make commands
-mkp = "pycmd2.make.make_python:cli.app"
-
-# network commands
-ssh-copy-id = "pycmd2.network.ssh_copy_id:cli.app"
-
-# [gui]
-alarmclk = "pycmd2.system.alarmclock.cli:main"
-checksum = "pycmd2.files.checksum.checksum:main"
-img2pdf = "pycmd2.images.image_to_pdf:cli.app"
-imggry = "pycmd2.images.image_gray:cli.app"
-
-# llama commands
-llmcli = "pycmd2.llama.llama_client:main"
-llmqnt = "pycmd2.llama.llama_quantize:main"
-llmsvr = "pycmd2.llama.llama_server:main"
+# dev
+envjs = "pycmd2.dev.env_javascript:cli.app"
+envpy = "pycmd2.dev.env_python:cli.app"
+envrs = "pycmd2.dev.env_rust:cli.app"
+gitadd = "pycmd2.dev.git_add:cli.app"
+gitc = "pycmd2.dev.git_clean:cli.app"
+gitinit = "pycmd2.dev.git_init:cli.app"
+gitpa = "pycmd2.dev.git_push_all:cli.app"
+gitre = "pycmd2.dev.git_restart_tgitcache:cli.app"
+mkp = "pycmd2.dev.make_python:cli.app"
+pipd = "pycmd2.dev.pip_download:cli.app"
+pipdr = "pycmd2.dev.pip_download_req:cli.app"
+pipf = "pycmd2.dev.pip_freeze:cli.app"
+pipi = "pycmd2.dev.pip_install:cli.app"
+pipio = "pycmd2.dev.pip_install_offline:cli.app"
+pipir = "pycmd2.dev.pip_install_req:cli.app"
+pipr = "pycmd2.dev.pip_reinstall:cli.app"
+pipu = "pycmd2.dev.pip_uninstall:cli.app"
+pipur = "pycmd2.dev.pip_uninstall_req:cli.app"
+ssh-copy-id = "pycmd2.dev.ssh_copy_id:cli.app"
 
 # office commands
 docdiff = "pycmd2.office.doc_diff:cli.app"
+img2pdf = "pycmd2.images.image_to_pdf:cli.app"
+imggry = "pycmd2.images.image_gray:cli.app"
+llmcli = "pycmd2.llama.llama_client:main"
+llmqnt = "pycmd2.llama.llama_quantize:main"
+llmsvr = "pycmd2.llama.llama_server:main"
 mindnote = "pycmd2.office.mindnote.cli:main"
 pdfc = "pycmd2.office.pdf_crypt:cli.app"
 pdfmrg = "pycmd2.office.pdf_merge:cli.app"
 pdfspl = "pycmd2.office.pdf_split:cli.app"
-
-# pip commands
-pipd = "pycmd2.pip.pip_download:cli.app"
-pipdr = "pycmd2.pip.pip_download_req:cli.app"
-pipf = "pycmd2.pip.pip_freeze:cli.app"
-pipi = "pycmd2.pip.pip_install:cli.app"
-pipio = "pycmd2.pip.pip_install_offline:cli.app"
-pipir = "pycmd2.pip.pip_install_req:cli.app"
-pipr = "pycmd2.pip.pip_reinstall:cli.app"
-pipu = "pycmd2.pip.pip_uninstall:cli.app"
-pipur = "pycmd2.pip.pip_uninstall_req:cli.app"
+videoconv = "pycmd2.office.video_converter:main"
 
 # system commands
+alarmclk = "pycmd2.system.alarmclock.cli:main"
+checksum = "pycmd2.system.checksum.checksum:main"
+filedate = "pycmd2.system.file_date:cli.app"
+filelvl = "pycmd2.system.file_level:cli.app"
+folderb = "pycmd2.system.folder_backup:cli.app"
+folderz = "pycmd2.system.folder_zip:cli.app"
+taskk = "pycmd2.system.task_kill:cli.app"
 wch = "pycmd2.system.which:cli.app"
-
-# task commands
-taskk = "pycmd2.task.task_kill:cli.app"
-
-# video
-videoconv = "pycmd2.video.video_converter:main"
 
 [project.urls]
 Documentation = "https://pycmd2.readthedocs.io/zh-cn/stable/"
