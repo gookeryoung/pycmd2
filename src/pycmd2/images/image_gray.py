@@ -45,7 +45,7 @@ _MAGIC_NUMBERS: dict[str, bytes] = {
     "png": b"\x89PNG\r\n\x1a\n",
     "gif": b"GIF87a",
     "bmp": b"BM",
-    "webp": b"RIFF....WEBP",
+    "webp": b"RIFFf\x00\x00\x00WEBP",
     "tiff": b"II*\x00",
     "ico": b"ICON",
     "svg": b"<svg",
@@ -107,32 +107,31 @@ def convert_img(
         img_path: 待处理图片路径
         black_mode: 黑白模式
         width: 缩放尺寸宽度
-
-    Raises:
-        FileNotFoundError: 未找到待处理图片文件
     """
     if not img_path.exists():
-        raise FileNotFoundError(img_path)
+        logger.warning(f"File not found: {img_path}")
+        return
 
     logger.info(f"Start converting: [u]{img_path.name}")
-    img = Image.open(img_path.as_posix())
-    img_conv = img.convert("L")
+    with Image.open(img_path.as_posix()) as img:
+        img_conv = img.convert("L")
 
-    if black_mode:
-        img_conv = img_conv.point(
-            lambda x: 0 if x < conf.GRAYSCALE_THRESHOLD else 255,
-            "1",
-        )
+        if black_mode:
+            img_conv = img_conv.point(
+                lambda x: 0 if x < conf.GRAYSCALE_THRESHOLD else 255,
+                "1",
+            )
 
-    if width:
-        new_height = int(width / img_conv.width * img_conv.height)
-        img_conv = img_conv.resize(
-            (width, new_height),
-            resample=Image.LANCZOS,  # type: ignore  # noqa: PGH003
-        )
+        if width:
+            new_height = int(width / img_conv.width * img_conv.height)
+            img_conv = img_conv.resize(
+                (width, new_height),
+                resample=Image.LANCZOS,  # type: ignore  # noqa: PGH003
+            )
 
-    new_img_path = img_path.with_name(img_path.stem + "_conv.png")
-    img_conv.save(new_img_path, optimize=True, quality=90)
+        new_img_path = img_path.with_name(img_path.stem + "_conv.png")
+        img_conv.save(new_img_path, optimize=True, quality=90)
+
     logger.info(f"Contert finished: {img_path.name}->{new_img_path.name}")
 
 
