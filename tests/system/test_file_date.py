@@ -13,6 +13,9 @@ class TestFileDate:
         [
             ("20220101-hello.txt", "hello"),
             ("20191112-my-hello.txt", "my-hello"),
+            ("HELLO_20220101-hello.txt", "HELLO-hello"),
+            ("20220101-hello_20220113.txt", "hello"),
+            ("hello.txt", "hello"),
         ],
     )
     def test_remove_date_prefix(

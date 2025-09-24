@@ -70,25 +70,25 @@ class FileDateProc:
         self.src.rename(target_path)
 
     @staticmethod
-    def _remove_date_prefix(filename: str) -> str:
+    def _remove_date_prefix(filestem: str) -> str:
         pattern = re.compile(
             r"(20|19)\d{2}((0[1-9])|(1[012]))((0[1-9])|([12]\d)|(3[01]))",
         )
-        match = re.search(pattern, filename)
+        match = re.search(pattern, filestem)
 
         if not match:
-            return filename
+            logger.info(f"No date prefix found in: [u green]{filestem}")
+            return filestem
 
         b, e = match.start(), match.end()
-        if b >= 1 and filename[b - 1] in conf.DETECT_SEPERATORS:
-            filename = filename.replace(filename[b - 1 : e], "")
-        elif e + 1 <= len(filename) - 1 and (
-            filename[e] in conf.DETECT_SEPERATORS
+        if b >= 1 and filestem[b - 1] in conf.DETECT_SEPERATORS:
+            filestem = filestem.replace(filestem[b - 1 : e], "")
+        elif e + 1 <= len(filestem) - 1 and (
+            filestem[e] in conf.DETECT_SEPERATORS
         ):
-            filename = filename.replace(filename[b : e + 1], "")
-        else:
-            filename = filename.replace(filename[b:e], "")
-        return FileDateProc._remove_date_prefix(filename)
+            filestem = filestem.replace(filestem[b : e + 1], "")
+
+        return FileDateProc._remove_date_prefix(filestem)
 
 
 @cli.app.command()
