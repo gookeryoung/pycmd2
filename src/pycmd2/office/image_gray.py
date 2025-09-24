@@ -64,13 +64,17 @@ def is_valid_image(file_path: Path) -> bool:  # noqa: PLR0911
     """
     # Basic validation.
     if not file_path.exists():
+        logger.warning(f"File not found: {file_path}")
         return False
+
     if file_path.stat().st_size == 0:
+        logger.warning(f"Empty file: {file_path}")
         return False
 
     # Extension validation.
     ext = file_path.suffix.lower()
     if ext not in set(conf.EXTENSIONS):
+        logger.warning(f"Invalid image extension: {ext}, {file_path}")
         return False
 
     # File header validation.
@@ -78,6 +82,7 @@ def is_valid_image(file_path: Path) -> bool:  # noqa: PLR0911
         with file_path.open("rb") as f:
             header = f.read(12)
             if not any(header.startswith(k) for k in _MAGIC_NUMBERS.values()):
+                logger.warning(f"Invalid image header: {header}")
                 return False
     except OSError:
         return False
@@ -87,8 +92,10 @@ def is_valid_image(file_path: Path) -> bool:  # noqa: PLR0911
         with Image.open(file_path) as img:
             img.verify()
     except (OSError, SyntaxError, ValueError):
+        logger.warning(f"Read image failed: {file_path}")
         return False
 
+    logger.info(f"Valid image: {file_path}")
     return True
 
 
@@ -114,12 +121,14 @@ def convert_img(
         img_conv = img.convert("L")
 
         if black_mode:
+            logger.info(f"Convert to black and white mode: {img_path.name}")
             img_conv = img_conv.point(
                 lambda x: 0 if x < conf.GRAYSCALE_THRESHOLD else 255,
                 "1",
             )
 
         if width:
+            logger.info(f"Resize image: {img_path.name}")
             new_height = int(width / img_conv.width * img_conv.height)
             img_conv = img_conv.resize(
                 (width, new_height),

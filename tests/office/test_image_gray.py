@@ -2,19 +2,13 @@ from __future__ import annotations
 
 from enum import Enum
 from pathlib import Path
-from typing import Callable
-from typing import List
 from typing import NoReturn
-from typing import Tuple
 
 import pytest
 from PIL import Image
-from typing_extensions import TypeAlias
 
 from pycmd2.office.image_gray import convert_img
 from pycmd2.office.image_gray import is_valid_image
-
-ImageFunc: TypeAlias = Callable[[int, Tuple[int, int]], List[Image.Image]]
 
 
 class _WriteType(Enum):

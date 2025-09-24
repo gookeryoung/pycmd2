@@ -36,6 +36,8 @@ logger = logging.getLogger(__name__)
 class ImageProcessor:
     """Processor for image files."""
 
+    __slots__ = "converted_images", "dpi", "root_dir"
+
     def __init__(self, root_dir: Path, dpi: int = conf.DPI) -> None:
         self.root_dir = root_dir
         self.dpi = dpi
@@ -81,6 +83,7 @@ class ImageProcessor:
             converted_image = image
 
         if converted_image:
+            logger.debug(f"Convert image: [u green]{filepath} successfully")
             self.converted_images.append(converted_image.convert("RGB"))
 
     def _auto_rotate_image(self, image: Image.Image) -> Image.Image:

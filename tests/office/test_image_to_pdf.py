@@ -16,6 +16,7 @@ from pypdf import PdfReader
 from typing_extensions import TypeAlias
 
 from pycmd2.office.image_to_pdf import ImageProcessor
+from pycmd2.office.image_to_pdf import main
 
 ImageFunc: TypeAlias = Callable[[int, Tuple[int, int]], List[Image.Image]]
 
@@ -172,3 +173,18 @@ class TestImageProcessor:
 
         w, h = processor.converted_images[0].size
         assert h <= w
+
+    def test_main(
+        self,
+        fixture_create_images: ImageFunc,
+        fixture_tmpdir: Path,
+    ) -> None:
+        """Test main."""
+        fixture_create_images(3, (100, 100))
+
+        main(directory=fixture_tmpdir)
+
+        output_pdf = fixture_tmpdir / f"{fixture_tmpdir.name}.pdf"
+        assert output_pdf.exists()
+        assert output_pdf.suffix == ".pdf"
+        assert 0 < output_pdf.stat().st_size < 1024 * 1024
