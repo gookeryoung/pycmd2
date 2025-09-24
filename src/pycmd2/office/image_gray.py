@@ -41,6 +41,7 @@ logger = logging.getLogger(__name__)
 
 # Magic numbers for image file header.
 _MAGIC_NUMBERS: dict[str, bytes] = {
+    "jpg": b"\xff\xd8\xff",
     "jpeg": b"\xff\xd8\xff",
     "png": b"\x89PNG\r\n\x1a\n",
     "gif": b"GIF87a",
@@ -85,10 +86,6 @@ def is_valid_image(file_path: Path) -> bool:  # noqa: PLR0911
     try:
         with Image.open(file_path) as img:
             img.verify()
-            if img.format and img.format.lower() not in list(
-                _MAGIC_NUMBERS.keys(),
-            ):
-                return False
     except (OSError, SyntaxError, ValueError):
         return False
 
