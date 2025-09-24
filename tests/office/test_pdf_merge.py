@@ -7,8 +7,7 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+from fpdf import FPDF
 
 from src.pycmd2.office.pdf_merge import main
 from src.pycmd2.office.pdf_merge import PdfFileInfo
@@ -17,7 +16,7 @@ from src.pycmd2.office.pdf_merge import search_directory
 
 @pytest.fixture
 def test_dir() -> Path:
-    return Path(__file__).parent / "test_dir1"
+    return Path(__file__).parent / "test_pdf_merge" / "test_dir1"
 
 
 @pytest.fixture
@@ -37,9 +36,16 @@ class TestPDFMerge:
         """Generate test PDF files for merging."""
 
         def create_pdf(filename: str, text: str) -> None:
-            c = canvas.Canvas(filename, pagesize=letter)
-            c.drawString(100, 100, text)
-            c.save()
+            pdf = FPDF()
+            pdf.add_page()  # 添加一个页面
+            pdf.set_font("Arial", size=12)  # 设置字体
+            pdf.cell(
+                0,
+                10,
+                txt=text,  # type: ignore  # noqa: PGH003
+                ln=True,
+            )  # 添加文本
+            pdf.output(filename)  # 保存PDF
 
         def generate_test_files() -> None:
             # Create test directory structure
