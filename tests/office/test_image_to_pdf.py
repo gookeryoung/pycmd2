@@ -3,7 +3,6 @@ from __future__ import annotations
 import random
 import shutil
 import tempfile
-import uuid
 from pathlib import Path
 from typing import Callable
 from typing import Generator
@@ -21,40 +20,27 @@ from pycmd2.office.image_to_pdf import main
 ImageFunc: TypeAlias = Callable[[int, Tuple[int, int]], List[Image.Image]]
 
 
+_FORMATS = [".png", ".jpg", ".jpeg"]
+
+
 class TestImageProcessor:
     """Test for ImageProcessor."""
 
     def _is_valid_image(self, filepath: Path) -> bool:
-        return filepath.suffix.lower() in {".png", ".jpg", ".jpeg"}
+        return filepath.suffix.lower() in _FORMATS
 
-    @pytest.fixture
+    @pytest.fixture(autouse=True, scope="session")
     def fixture_create_images(
         self,
         fixture_tmpdir: Path,
-    ) -> ImageFunc:
-        """Get image file.
+    ) -> None:
+        """Get image file."""
+        for format_ in _FORMATS:
+            color = random.choice(["red", "green", "blue"])
+            image = Image.new("RGB", (10, 10), color)
+            image.save(fixture_tmpdir / f"test.{format_}")
 
-        Returns:
-            list[Image.Image]: image list
-        """
-
-        def get_image(
-            count: int,
-            size: tuple[int, int] = (100, 100),
-        ) -> List[Image.Image]:
-            images = []
-            for _ in range(count):
-                color = random.choice(["red", "green", "blue"])
-                suffix = random.choice(["png", "jpg", "jpeg"])
-                image = Image.new("RGB", size, color=color)
-                imagepath = fixture_tmpdir / f"test{uuid.uuid4()}.{suffix}"
-                image.save(imagepath)
-                images.append(image)
-            return images
-
-        return get_image
-
-    @pytest.fixture
+    @pytest.fixture(scope="session")
     def fixture_tmpdir(self) -> Generator[Path, None, None]:
         """Fixture for temporary directory.
 
@@ -76,20 +62,15 @@ class TestImageProcessor:
             self._is_valid_image,
         )
 
-    @pytest.mark.parametrize("filecount", [1, 3])
     def test_image_processor_with_valid_images(
         self,
-        filecount: int,
-        fixture_create_images: ImageFunc,
         fixture_tmpdir: Path,
     ) -> None:
         """Test ImageProcessor with valid images."""
-        fixture_create_images(filecount, (100, 100))
-
         processor = ImageProcessor(fixture_tmpdir)
         processor.convert_images()
 
-        assert len(processor.converted_images) == filecount
+        assert len(processor.images) == len(_FORMATS)
 
         output_pdf = fixture_tmpdir / f"{fixture_tmpdir.name}.pdf"
         assert output_pdf.exists()
@@ -98,15 +79,15 @@ class TestImageProcessor:
 
         with output_pdf.open("rb") as f:
             reader = PdfReader(f)
-            assert len(reader.pages) == filecount
+            assert len(reader.pages) == len(_FORMATS)
 
     def test_image_processor_with_no_images(
         self,
-        fixture_tmpdir: Path,
+        tmp_path: Path,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
         """Test ImageProcessor with no images."""
-        processor = ImageProcessor(fixture_tmpdir)
+        processor = ImageProcessor(tmp_path)
         processor.convert_images()
 
         assert "No image file found in" in caplog.text
@@ -114,13 +95,10 @@ class TestImageProcessor:
     def test_convert_failed(
         self,
         monkeypatch: pytest.MonkeyPatch,
-        fixture_create_images: ImageFunc,
         fixture_tmpdir: Path,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
         """Test convert failed."""
-        fixture_create_images(1, (100, 100))
-
         monkeypatch.setattr("PIL.Image.open", lambda _: None)
 
         processor = ImageProcessor(fixture_tmpdir)
@@ -140,16 +118,17 @@ class TestImageProcessor:
     def test_convert_image(
         self,
         image_size: tuple[int, int],
-        fixture_tmpdir: Path,
-        fixture_create_images: ImageFunc,
+        tmp_path: Path,
     ) -> None:
         """Test convert image."""
-        fixture_create_images(1, image_size)
+        image = Image.new("RGB", image_size, "red")
+        image_path = tmp_path / "test.png"
+        image.save(image_path)
 
-        processor = ImageProcessor(fixture_tmpdir)
+        processor = ImageProcessor(tmp_path)
         processor.convert_images()
 
-        w, h = processor.converted_images[0].size
+        w, h = processor.images[0].size
         assert h >= w
 
     @pytest.mark.parametrize(
@@ -162,26 +141,24 @@ class TestImageProcessor:
     def test_convert_image_not_normalized(
         self,
         image_size: tuple[int, int],
-        fixture_tmpdir: Path,
-        fixture_create_images: ImageFunc,
+        tmp_path: Path,
     ) -> None:
         """Test convert image."""
-        fixture_create_images(1, image_size)
+        image = Image.new("RGB", image_size, "red")
+        image_path = tmp_path / "test.png"
+        image.save(image_path)
 
-        processor = ImageProcessor(fixture_tmpdir)
+        processor = ImageProcessor(tmp_path)
         processor.convert_images(normalize=False)
 
-        w, h = processor.converted_images[0].size
+        w, h = processor.images[0].size
         assert h <= w
 
     def test_main(
         self,
-        fixture_create_images: ImageFunc,
         fixture_tmpdir: Path,
     ) -> None:
         """Test main."""
-        fixture_create_images(3, (100, 100))
-
         main(directory=fixture_tmpdir)
 
         output_pdf = fixture_tmpdir / f"{fixture_tmpdir.name}.pdf"

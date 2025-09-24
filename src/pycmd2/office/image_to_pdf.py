@@ -36,12 +36,12 @@ logger = logging.getLogger(__name__)
 class ImageProcessor:
     """Processor for image files."""
 
-    __slots__ = "converted_images", "dpi", "root_dir"
+    __slots__ = "dpi", "images", "root_dir"
 
     def __init__(self, root_dir: Path, dpi: int = conf.DPI) -> None:
         self.root_dir = root_dir
         self.dpi = dpi
-        self.converted_images: list[Image.Image] = []
+        self.images: list[Image.Image] = []
 
     @property
     def size(self) -> tuple[int, int]:
@@ -84,7 +84,7 @@ class ImageProcessor:
 
         if converted_image:
             logger.debug(f"Convert image: [u green]{filepath} successfully")
-            self.converted_images.append(converted_image.convert("RGB"))
+            self.images.append(converted_image.convert("RGB"))
 
     def _auto_rotate_image(self, image: Image.Image) -> Image.Image:
         """自动旋转图片以校正方向.
@@ -138,17 +138,21 @@ class ImageProcessor:
 
         cli.run(partial(self._convert, normalize=normalize), image_files)
 
-        if not self.converted_images:
+        if not self.images:
             logger.error(f"No converted image file found in: {self.root_dir}")
             return
 
+        self.save_pdf()
+
+    def save_pdf(self) -> None:
+        """Save converted images to a single PDF file."""
         output_pdf = self.root_dir / f"{self.root_dir.name}.pdf"
-        self.converted_images[0].save(
+        self.images[0].save(
             output_pdf,
             "PDF",
             resolution=100.0,
             save_all=True,
-            append_images=self.converted_images[1:],
+            append_images=self.images[1:],
         )
         logger.info(f"Create pdf file: [u green]{output_pdf}")
 
