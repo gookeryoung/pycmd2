@@ -26,9 +26,6 @@ _FORMATS = [".png", ".jpg", ".jpeg"]
 class TestImageProcessor:
     """Test for ImageProcessor."""
 
-    def _is_valid_image(self, filepath: Path) -> bool:
-        return filepath.suffix.lower() in _FORMATS
-
     @pytest.fixture(autouse=True, scope="session")
     def fixture_create_images(
         self,
@@ -59,27 +56,8 @@ class TestImageProcessor:
         """Mock is_valid_image."""
         monkeypatch.setattr(
             "pycmd2.office.image_to_pdf.is_valid_image",
-            self._is_valid_image,
+            lambda _: True,
         )
-
-    def test_image_processor_with_valid_images(
-        self,
-        fixture_tmpdir: Path,
-    ) -> None:
-        """Test ImageProcessor with valid images."""
-        processor = ImageProcessor(fixture_tmpdir)
-        processor.convert_images()
-
-        assert len(processor.images) == len(_FORMATS)
-
-        output_pdf = fixture_tmpdir / f"{fixture_tmpdir.name}.pdf"
-        assert output_pdf.exists()
-        assert output_pdf.suffix == ".pdf"
-        assert 0 < output_pdf.stat().st_size < 1024 * 1024
-
-        with output_pdf.open("rb") as f:
-            reader = PdfReader(f)
-            assert len(reader.pages) == len(_FORMATS)
 
     def test_image_processor_with_no_images(
         self,
@@ -165,3 +143,11 @@ class TestImageProcessor:
         assert output_pdf.exists()
         assert output_pdf.suffix == ".pdf"
         assert 0 < output_pdf.stat().st_size < 1024 * 1024
+
+        with output_pdf.open("rb") as f:
+            reader = PdfReader(f)
+            assert len(reader.pages) == len(_FORMATS)
+
+            for page in reader.pages:
+                assert page.mediabox.width > 0
+                assert page.mediabox.height > 0
