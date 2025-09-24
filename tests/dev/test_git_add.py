@@ -23,7 +23,7 @@ def mock_subprocess() -> Generator[MagicMock, None, None]:
 
 @pytest.fixture
 def mock_cli(tmp_path: Path) -> Generator[MagicMock, None, None]:
-    with patch("src.pycmd2.git.git_add.cli") as mock:
+    with patch("pycmd2.dev.git_add.cli") as mock:
         mock.cwd = str(tmp_path)
         mock.run_cmd = MagicMock()
         yield mock
@@ -78,12 +78,6 @@ def test_main_with_added_files(
 
     mock_os_chdir.assert_called_once_with(mock_cli.cwd)
     mock_cli.run_cmd.assert_any_call(["git", "add", "."])
-    # mock_cli.run_cmd.assert_any_call([
-    #     "git",
-    #     "commit",
-    #     "-m",
-    #     "新增文件: {'new'}",
-    # ])
 
     # 验证日志输出
     assert "新增的文件" in caplog.text
@@ -107,12 +101,6 @@ def test_main_with_modified_files(
     # 验证命令执行
     mock_os_chdir.assert_called_once_with(mock_cli.cwd)
     mock_cli.run_cmd.assert_any_call(["git", "add", "."])
-    # mock_cli.run_cmd.assert_any_call([
-    #     "git",
-    #     "commit",
-    #     "-m",
-    #     "修改文件: {'modified'}",
-    # ])
 
     # 验证日志输出
     assert "修改的文件" in caplog.text

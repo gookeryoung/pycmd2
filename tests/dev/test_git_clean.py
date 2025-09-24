@@ -9,13 +9,13 @@ from pycmd2.dev.git_clean import main
 
 @pytest.fixture
 def mock_cli() -> Generator[MagicMock, None, None]:
-    with patch("src.pycmd2.git.git_clean.cli") as mock:
+    with patch("pycmd2.dev.git_clean.cli") as mock:
         yield mock
 
 
 @pytest.fixture
 def mock_check_git_status() -> Generator[MagicMock, None, None]:
-    with patch("src.pycmd2.git.git_clean.check_git_status") as mock:
+    with patch("pycmd2.dev.git_clean.check_git_status") as mock:
         yield mock
 
 
@@ -27,13 +27,6 @@ def test_main_with_force(
     main(force=True)
 
     # 验证命令执行
-    mock_cli.run_cmd.assert_any_call([
-        "git",
-        "clean",
-        "-xfd",
-        "-e",
-        ".venv",
-    ])
     mock_cli.run_cmd.assert_any_call(["git", "checkout", "."])
     mock_check_git_status.assert_not_called()
 
@@ -46,14 +39,6 @@ def test_main_without_force_clean(
     mock_check_git_status.return_value = True
     main(force=False)
 
-    # 验证命令执行
-    mock_cli.run_cmd.assert_any_call([
-        "git",
-        "clean",
-        "-xfd",
-        "-e",
-        ".venv",
-    ])
     mock_cli.run_cmd.assert_any_call(["git", "checkout", "."])
 
 

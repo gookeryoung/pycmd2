@@ -12,7 +12,7 @@ from pycmd2.dev.git_push_all import push
 
 @pytest.fixture
 def mock_cli(mocker: MagicMock) -> MagicMock:
-    return mocker.patch("src.pycmd2.git.git_push_all.cli")
+    return mocker.patch("pycmd2.dev.git_push_all.cli")
 
 
 def test_get_cmd_full_path_success() -> None:

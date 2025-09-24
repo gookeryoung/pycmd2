@@ -10,7 +10,7 @@ from pycmd2.dev.git_init import main
 
 @pytest.fixture
 def mock_cli(tmp_path: Path) -> Generator[MagicMock, None, None]:
-    with patch("src.pycmd2.git.git_init.cli") as mock:
+    with patch("pycmd2.dev.git_init.cli") as mock:
         mock.cwd = str(tmp_path)
         yield mock
 

@@ -143,8 +143,12 @@ class TomlConfigMixin:
     def clear() -> None:
         """Delete all config files."""
         config_files = cli.settings_dir.glob("*.toml")
-        for config_file in config_files:
-            config_file.unlink()
+        try:
+            for config_file in config_files:
+                config_file.unlink(missing_ok=True)
+        except PermissionError as e:
+            msg = f"Clear config error: {e.__class__.__name__}: {e}"
+            logger.exception(msg)
 
     def load(self) -> None:
         """Load config from file."""
