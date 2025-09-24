@@ -46,7 +46,7 @@ class TestFileDate:
     ) -> None:
         """测试移除日期前缀功能冲突."""
         monkeypatch.setattr(
-            "pycmd2.files.file_date.FileDateProc._time_mark",
+            "pycmd2.system.file_date.FileDateProc._time_mark",
             "20220101",
         )
 
