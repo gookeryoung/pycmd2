@@ -57,3 +57,33 @@ class TestFileDate:
         t.rename()
 
         assert "is the same as" in caplog.text
+
+    @pytest.mark.parametrize(
+        ("oldfile", "newfile"),
+        [
+            ("hello.txt", "20220101_hello.txt"),
+            ("my-hello.xls", "20220101_my-hello.xls"),
+            ("sample.doc", "20220101_sample.doc"),
+        ],
+    )
+    def test_rename_target_exists(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        oldfile: str,
+        newfile: str,
+        tmp_path: Path,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """测试移除日期前缀功能冲突."""
+        monkeypatch.setattr(
+            "pycmd2.system.file_date.FileDateProc._time_mark",
+            "20220101",
+        )
+
+        (tmp_path / oldfile).touch()
+        (tmp_path / newfile).touch()
+
+        t = FileDateProc(tmp_path / oldfile)
+        t.rename()
+
+        assert "exists, add unique suffix." in caplog.text

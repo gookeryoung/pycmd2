@@ -82,8 +82,8 @@ class FileDateProc:
         b, e = match.start(), match.end()
         if b >= 1 and filename[b - 1] in conf.DETECT_SEPERATORS:
             filename = filename.replace(filename[b - 1 : e], "")
-        elif (
-            e + 1 <= len(filename) - 1 and filename[e] in conf.DETECT_SEPERATORS
+        elif e + 1 <= len(filename) - 1 and (
+            filename[e] in conf.DETECT_SEPERATORS
         ):
             filename = filename.replace(filename[b : e + 1], "")
         else:
