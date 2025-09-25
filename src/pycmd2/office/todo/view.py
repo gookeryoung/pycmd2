@@ -44,6 +44,7 @@ from PySide2.QtWidgets import QWidget
 from pycmd2.office.todo.config import conf
 from pycmd2.office.todo.todo_rc import *  # noqa: F403
 
+from .model import FilterMode
 from .model import TodoItem
 
 
@@ -407,7 +408,11 @@ class TodoView(QMainWindow):
         filter_layout = QHBoxLayout()
 
         self.filter_combo = QComboBox()
-        self.filter_combo.addItems(["全部", "未完成", "已完成"])
+        self.filter_combo.addItems([
+            FilterMode.All.value,
+            FilterMode.Pending.value,
+            FilterMode.Completed.value,
+        ])
         self.filter_combo.setStyleSheet(conf.STYLE_COMBOBOX)
         filter_layout.addWidget(QLabel("显示:"))
         filter_layout.addWidget(self.filter_combo)

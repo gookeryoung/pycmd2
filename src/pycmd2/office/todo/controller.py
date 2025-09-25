@@ -136,11 +136,10 @@ class TodoController:
 
     def _update_stats(self) -> None:
         """更新统计信息."""
-        total = self.model.get_count()
-        completed = self.model.get_completed_count()
-        pending = self.model.get_pending_count()
         self.view.stats_label.setText(
-            f"总计: {total} | 待完成: {pending} | 已完成: {completed}",
+            f"总计: {self.model.count} |"
+            f" 待完成: {self.model.pending_count} |"
+            f" 已完成: {self.model.completed_count}",
         )
 
     def get_data_file_path(self) -> str:

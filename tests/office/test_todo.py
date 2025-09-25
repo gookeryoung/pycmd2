@@ -40,7 +40,7 @@ class TestTodoItem:
             "category": category,
         }
 
-    def test_from_dict(self) -> None:
+    def test_from_dict(self, caplog: pytest.LogCaptureFixture) -> None:
         """Test from dict."""
         item = TodoItem.from_dict(
             {
@@ -58,3 +58,4 @@ class TestTodoItem:
         assert item.created_at.isoformat() == "2023-01-01T00:00:00"
         assert item.completed_at
         assert item.completed_at.isoformat() == "2023-01-01T00:00:00"
+        assert "Loaded item from dict" in caplog.text
