@@ -68,7 +68,7 @@ class TodoItemDelegate(QStyledItemDelegate):
             18,
             18,
         )
-        self._draw_checkbox(painter, checkbox_rect, completed)
+        self._draw_checkbox(painter, checkbox_rect, checked=completed)
 
         # 绘制文本
         text_left = checkbox_rect.right() + 10
@@ -403,7 +403,7 @@ class TodoView(QMainWindow):
             "编辑待办事项",
             "内容:",
             text=current_text,
-            echo=QInputDialog.Normal,  # type: ignore  # noqa: PGH003
+            echo=QLineEdit.EchoMode.Normal,
         )
         if ok and text:
             self.todo_list.model().setData(

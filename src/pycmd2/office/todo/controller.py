@@ -1,18 +1,22 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 from typing import List
 
 from PySide2.QtCore import QAbstractListModel
 from PySide2.QtCore import QModelIndex
-from PySide2.QtCore import QStandardPaths
 from PySide2.QtCore import Qt
+
+from pycmd2.office.todo.config import conf
 
 from .model import TodoItem
 from .model import TodoModel
 from .view import TodoView
+
+logger = logging.getLogger(__name__)
 
 
 class TodoListModel(QAbstractListModel):
@@ -198,6 +202,9 @@ class TodoController:
         # 连接视图信号
         self._connect_signals()
 
+        # 连接窗口关闭事件到保存数据
+        self.view.closeEvent = self._handle_close_event
+
         # 加载数据
         self.load_data()
 
@@ -262,21 +269,16 @@ class TodoController:
         Returns:
             str: 数据文件路径
         """
-        # 使用标准配置目录
-        config_path = QStandardPaths.writableLocation(
-            QStandardPaths.AppConfigLocation,  # type: ignore  # noqa: PGH003
-        )
-        if not config_path:
-            config_path = QStandardPaths.writableLocation(
-                QStandardPaths.DocumentsLocation,  # type: ignore  # noqa: PGH003
-            )
+        config_path = conf.data_dir() / "todo_data.json"
+        if not config_path.parent.exists():
+            logger.debug(f"Creating data directory: {config_path.parent}")
+            conf.data_dir().parent.mkdir(parents=True, exist_ok=True)
 
-        # 创建目录
-        Path(config_path).mkdir(parents=True, exist_ok=True)
-        return str(Path(config_path) / "todo_data.json")
+        return str(config_path)
 
     def save_data(self) -> None:
         """保存数据到文件."""
+        logger.info("Saving data to file.")
         try:
             data = {
                 "items": [item.to_dict() for item in self.model._items],  # noqa: SLF001
@@ -307,6 +309,11 @@ class TodoController:
                 self.model.data_changed.emit()  # type: ignore  # noqa: PGH003
         except Exception:  # noqa: BLE001
             pass
+
+    def _handle_close_event(self, event) -> None:
+        """处理窗口关闭事件，确保数据被保存."""
+        self.save_data()
+        event.accept()
 
     def show(self) -> None:
         """显示视图."""
