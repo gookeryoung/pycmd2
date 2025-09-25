@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from PySide2.QtCore import QModelIndex
 from PySide2.QtCore import QRect
 from PySide2.QtCore import QSize
@@ -35,6 +37,8 @@ from PySide2.QtWidgets import QWidget
 
 from pycmd2.office.todo.config import conf
 from pycmd2.office.todo.todo_rc import *  # noqa: F403
+
+logger = logging.getLogger(__name__)
 
 
 class TodoItemDelegate(QStyledItemDelegate):
@@ -408,6 +412,8 @@ class TodoView(QMainWindow):
 
     def set_item_priority(self, row: int, priority: int) -> None:
         """设置指定行项目的优先级."""
+        logger.info(f"Set item priority: {priority}, at row: {row}")
+
         model_index = self.todo_list.model().index(row, 0)
         self.todo_list.model().setData(model_index, priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
 
@@ -415,3 +421,6 @@ class TodoView(QMainWindow):
         """删除指定行的项目."""
         model = self.todo_list.model()
         model.removeRow(row)
+        logger.info(
+            f"Removed item at row: {row}, total items: {model.rowCount()}",
+        )
