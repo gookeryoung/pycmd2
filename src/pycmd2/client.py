@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import concurrent.futures
 import logging
+import os
 import platform
 import shutil
 import subprocess
@@ -83,6 +84,10 @@ class Client:
     @property
     def settings_dir(self) -> Path:
         """用户配置目录."""
+        env_path = os.environ.get("PYCMD2_HOME", None)
+        if env_path is not None:
+            return Path(env_path)
+
         return self.home / ".pycmd2"
 
     @property

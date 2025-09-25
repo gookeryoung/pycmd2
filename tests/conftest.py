@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import logging
+import os
+import tempfile
 
 import pytest
 
@@ -59,6 +61,9 @@ def pytest_sessionstart(session: pytest.Session) -> None:  # noqa: ARG001
         filename="test_session.log",
         filemode="w",
     )
+
+    # Make a temp directory for pycmd2, set PYCMD2_HOME to it
+    os.environ["PYCMD2_HOME"] = str(tempfile.mkdtemp("pycmd2_home"))
 
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:  # noqa: ARG001
