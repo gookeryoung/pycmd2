@@ -8,7 +8,6 @@ class TodoConfig(TomlConfigMixin):
 
     TITLE = "Todo"
 
-    _CWD = Path(__file__).parent
     _DATA_DIR = Path.home() / ".pycmd2" / "office" / "todo"
 
     def data_dir(self) -> Path:

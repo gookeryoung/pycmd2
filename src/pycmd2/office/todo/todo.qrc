@@ -1,0 +1,7 @@
+<RCC>
+<qresource prefix="/">
+    <file>./assets/done.svg</file>
+    <file>./assets/favicon.svg</file>
+    <file>./assets/todo.svg</file>
+</qresource>
+</RCC>

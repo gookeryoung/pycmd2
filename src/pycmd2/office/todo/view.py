@@ -9,8 +9,11 @@ from PySide2.QtGui import QColor
 from PySide2.QtGui import QContextMenuEvent
 from PySide2.QtGui import QFont
 from PySide2.QtGui import QFontMetrics
+from PySide2.QtGui import QIcon
+from PySide2.QtGui import QImage
 from PySide2.QtGui import QPainter
 from PySide2.QtGui import QPen
+from PySide2.QtWidgets import QAbstractItemView
 from PySide2.QtWidgets import QAction
 from PySide2.QtWidgets import QComboBox
 from PySide2.QtWidgets import QFrame
@@ -29,6 +32,9 @@ from PySide2.QtWidgets import QStyleOptionViewItem
 from PySide2.QtWidgets import QToolBar
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
+
+from pycmd2.office.todo.config import conf
+from pycmd2.office.todo.todo_rc import *  # noqa: F403
 
 
 class TodoItemDelegate(QStyledItemDelegate):
@@ -121,30 +127,14 @@ class TodoItemDelegate(QStyledItemDelegate):
         """绘制复选框."""
         painter.save()
 
-        # 绘制边框
-        pen = QPen(QColor("#757575"), 1.5)  # type: ignore  # noqa: PGH003
-        painter.setPen(pen)
-        painter.setBrush(QBrush(Qt.NoBrush))  # type: ignore  # noqa: PGH003
-        painter.drawRect(rect)
-
-        # 如果已选中, 绘制勾选标记
         if checked:
-            pen.setColor(QColor("#2196f3"))
-            pen.setWidth(2)
-            painter.setPen(pen)
-            painter.drawLine(
-                rect.left() + 4,
-                rect.top() + 8,
-                rect.left() + 7,
-                rect.top() + 12,
-            )
-            painter.drawLine(
-                rect.left() + 7,
-                rect.top() + 12,
-                rect.left() + 14,
-                rect.top() + 4,
-            )
+            img = QImage(":/assets/done.svg")
+        else:
+            img = QImage(":/assets/todo.svg")
 
+        img = img.scaledToWidth(20)
+
+        painter.drawImage(rect, img, img.rect())
         painter.restore()
 
     def _draw_priority_tag(
@@ -195,8 +185,10 @@ class TodoView(QMainWindow):
 
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("Todo List")
+        self.setWindowTitle(conf.TITLE)
         self.resize(500, 600)
+
+        self.setWindowIcon(QIcon(":/assets/favicon.svg"))
 
         # 创建中心部件
         central_widget = QWidget()
@@ -273,7 +265,6 @@ class TodoView(QMainWindow):
         """)
         filter_layout.addWidget(QLabel("显示:"))
         filter_layout.addWidget(self.filter_combo)
-
         filter_layout.addStretch()
 
         self.clear_completed_button = QPushButton("清除已完成")
@@ -312,6 +303,7 @@ class TodoView(QMainWindow):
         # 创建列表视图
         self.todo_list = QListView()
         self.todo_list.setItemDelegate(TodoItemDelegate(self.todo_list))
+        self.todo_list.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.todo_list.setStyleSheet("""
             QListView {
                 border: none;

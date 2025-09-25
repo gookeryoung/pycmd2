@@ -9,6 +9,7 @@ from typing import List
 from PySide2.QtCore import QAbstractListModel
 from PySide2.QtCore import QModelIndex
 from PySide2.QtCore import Qt
+from PySide2.QtGui import QCloseEvent
 
 from pycmd2.office.todo.config import conf
 
@@ -310,16 +311,11 @@ class TodoController:
         except Exception:  # noqa: BLE001
             pass
 
-    def _handle_close_event(self, event) -> None:
-        """处理窗口关闭事件，确保数据被保存."""
+    def _handle_close_event(self, event: QCloseEvent) -> None:
+        """处理窗口关闭事件, 确保数据被保存."""
         self.save_data()
         event.accept()
 
     def show(self) -> None:
         """显示视图."""
         self.view.show()
-
-    def close(self) -> None:
-        """关闭应用."""
-        self.save_data()
-        self.view.close()
