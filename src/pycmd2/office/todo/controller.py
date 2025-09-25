@@ -15,6 +15,7 @@ from pycmd2.office.todo.config import conf
 
 from .model import TodoItem
 from .model import TodoModel
+from .view import TodoItemDelegate
 from .view import TodoView
 
 logger = logging.getLogger(__name__)
@@ -200,6 +201,12 @@ class TodoController:
         # 设置视图的模型
         self.view.todo_list.setModel(self.list_model)
 
+        # 连接优先级调整信号
+        delegate = self.view.todo_list.itemDelegate()
+        if isinstance(delegate, TodoItemDelegate):
+            delegate.priority_up_clicked.connect(self._on_priority_up)  # type: ignore  # noqa: PGH003
+            delegate.priority_down_clicked.connect(self._on_priority_down)  # type: ignore  # noqa: PGH003
+
         # 连接视图信号
         self._connect_signals()
 
@@ -265,6 +272,24 @@ class TodoController:
             item = self.list_model.filtered_items[row]
             original_index = self.model._items.index(item)  # noqa: SLF001
             self.model.remove_item(original_index)
+
+    def _on_priority_up(self, index: QModelIndex) -> None:
+        """处理提高优先级."""
+        # 获取当前优先级
+        current_priority = self.list_model.data(index, Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
+        # 增加优先级, 最高为3
+        new_priority = min(current_priority + 1, 3)
+        # 更新优先级
+        self.list_model.setData(index, new_priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
+
+    def _on_priority_down(self, index: QModelIndex) -> None:
+        """处理降低优先级."""
+        # 获取当前优先级
+        current_priority = self.list_model.data(index, Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
+        # 降低优先级, 最低为0
+        new_priority = max(current_priority - 1, 0)
+        # 更新优先级
+        self.list_model.setData(index, new_priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
 
     def _update_stats(self) -> None:
         """更新统计信息."""

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 
+from PySide2.QtCore import QAbstractItemModel
+from PySide2.QtCore import QEvent
 from PySide2.QtCore import QModelIndex
 from PySide2.QtCore import QRect
 from PySide2.QtCore import QSize
@@ -14,6 +16,7 @@ from PySide2.QtGui import QFont
 from PySide2.QtGui import QFontMetrics
 from PySide2.QtGui import QIcon
 from PySide2.QtGui import QImage
+from PySide2.QtGui import QMouseEvent
 from PySide2.QtGui import QPainter
 from PySide2.QtGui import QPen
 from PySide2.QtWidgets import QAbstractItemView
@@ -45,11 +48,15 @@ logger = logging.getLogger(__name__)
 class TodoItemDelegate(QStyledItemDelegate):
     """自定义委托, 用于绘制待办事项项."""
 
+    # 定义优先级调整信号
+    priority_up_clicked = Signal(QModelIndex)
+    priority_down_clicked = Signal(QModelIndex)
+
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.hovered_row = -1
 
-    def paint(
+    def paint(  # noqa: PLR0914
         self,
         painter: QPainter,
         option: QStyleOptionViewItem,
@@ -83,7 +90,9 @@ class TodoItemDelegate(QStyledItemDelegate):
 
         # 绘制文本
         text_left = checkbox_rect.right() + 10
-        text_width = rect.width() - text_left - 60  # 为优先级标签留出空间
+        text_width = (
+            rect.width() - text_left - 100
+        )  # 为优先级标签和按钮留出空间
 
         # 根据完成状态设置字体样式
         font = painter.font()
@@ -110,12 +119,34 @@ class TodoItemDelegate(QStyledItemDelegate):
             elided_text,
         )
 
+        # 绘制优先级调整按钮
+        button_size = 20
+        buttons_y = rect.top() + (rect.height() - button_size) // 2
+
+        # 绘制降低优先级按钮 (-)
+        down_button_rect = QRect(
+            rect.right() - 60,
+            buttons_y,
+            button_size,
+            button_size,
+        )
+        self._draw_priority_button(painter, down_button_rect, "-")
+
+        # 绘制提高优先级按钮 (+)
+        up_button_rect = QRect(
+            rect.right() - 35,
+            buttons_y,
+            button_size,
+            button_size,
+        )
+        self._draw_priority_button(painter, up_button_rect, "+")
+
         # 绘制优先级标记
         if priority > 0:
             priority_rect = QRect(
-                rect.right() - 50,
+                rect.right() - 90,
                 rect.top() + (rect.height() - 20) // 2,
-                40,
+                25,
                 20,
             )
             self._draw_priority_tag(painter, priority_rect, priority)
@@ -171,6 +202,28 @@ class TodoItemDelegate(QStyledItemDelegate):
 
         painter.restore()
 
+    def _draw_priority_button(
+        self,
+        painter: QPainter,
+        rect: QRect,
+        text: str,
+    ) -> None:
+        """绘制优先级调整按钮."""
+        painter.save()
+
+        # 绘制按钮背景
+        painter.setPen(QPen(QColor("#bdbdbd")))  # type: ignore  # noqa: PGH003
+        painter.setBrush(QBrush(QColor("#f5f5f5")))  # type: ignore  # noqa: PGH003
+        painter.drawRoundedRect(rect, 3, 3)
+
+        # 绘制按钮文字
+        font = QFont("Arial", 10, QFont.Bold)  # type: ignore  # noqa: PGH003
+        painter.setFont(font)
+        painter.setPen(QColor("#212121"))
+        painter.drawText(rect, Qt.AlignCenter, text)  # type: ignore  # noqa: PGH003
+
+        painter.restore()
+
     def sizeHint(
         self,
         option: QStyleOptionViewItem,
@@ -183,6 +236,56 @@ class TodoItemDelegate(QStyledItemDelegate):
         """
         rect = QRect(option.rect)  # type: ignore  # noqa: PGH003
         return QSize(rect.width(), 40)
+
+    def editorEvent(
+        self,
+        event: QEvent,
+        model: QAbstractItemModel,
+        option: QStyleOptionViewItem,
+        index: QModelIndex,
+    ) -> bool:
+        """处理鼠标事件.
+
+        Returns:
+            bool: 处理成功返回True, 否则返回False.
+        """
+        if event.type() == QEvent.MouseButtonRelease and isinstance(
+            event,
+            QMouseEvent,
+        ):
+            # 获取项目矩形区域
+            rect = QRect(option.rect)  # type: ignore  # noqa: PGH003
+
+            # 计算按钮位置
+            button_size = 20
+            buttons_y = rect.top() + (rect.height() - button_size) // 2
+
+            # 降低优先级按钮区域
+            down_button_rect = QRect(
+                rect.right() - 60,
+                buttons_y,
+                button_size,
+                button_size,
+            )
+
+            # 提高优先级按钮区域
+            up_button_rect = QRect(
+                rect.right() - 35,
+                buttons_y,
+                button_size,
+                button_size,
+            )
+
+            # 检查点击位置
+            pos = event.pos()
+            if down_button_rect.contains(pos):
+                self.priority_down_clicked.emit(index)  # type: ignore  # noqa: PGH003
+                return True
+            if up_button_rect.contains(pos):
+                self.priority_up_clicked.emit(index)  # type: ignore  # noqa: PGH003
+                return True
+
+        return super().editorEvent(event, model, option, index)
 
 
 class TodoView(QMainWindow):
