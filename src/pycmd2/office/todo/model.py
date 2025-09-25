@@ -83,7 +83,7 @@ class TodoModel(QObject):
     def add_item(
         self,
         text: str,
-        priority: int = 0,
+        priority: int = 2,
         category: str = "",
     ) -> None:
         """添加新的待办事项."""

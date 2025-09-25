@@ -59,6 +59,11 @@ class TodoListModel(QAbstractListModel):
         else:  # 全部
             self.filtered_items = self.todo_model.get_items()
 
+        self.filtered_items = sorted(
+            self.filtered_items,
+            key=lambda item: -item.priority,
+        )
+
     def _on_data_changed(self) -> None:
         """处理模型数据变化."""
         self._update_filtered_items()
@@ -67,6 +72,7 @@ class TodoListModel(QAbstractListModel):
     def _on_item_added(self, index: int) -> None:
         """处理项目添加."""
         self._update_filtered_items()
+
         # 找到新项目在过滤列表中的位置
         if self.filter_mode == "全部":
             actual_index = index
@@ -253,6 +259,16 @@ class TodoController:
 
     def _on_item_clicked(self, index: QModelIndex) -> None:
         """处理列表项点击."""
+        # 添加一个标志来避免在处理优先级按钮时触发完成状态切换
+        # 检查是否是由于优先级按钮点击触发的
+        if (
+            hasattr(self, "_processing_priority_click")
+            and self._processing_priority_click
+        ):
+            # 重置标志
+            self._processing_priority_click = False
+            return
+
         # 切换完成状态
         current_state = self.list_model.data(index, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
         self.list_model.setData(index, not current_state, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
@@ -275,6 +291,8 @@ class TodoController:
 
     def _on_priority_up(self, index: QModelIndex) -> None:
         """处理提高优先级."""
+        # 设置标志以避免触发完成状态切换
+        self._processing_priority_click = True
         # 获取当前优先级
         current_priority = self.list_model.data(index, Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
         # 增加优先级, 最高为3
@@ -284,6 +302,8 @@ class TodoController:
 
     def _on_priority_down(self, index: QModelIndex) -> None:
         """处理降低优先级."""
+        # 设置标志以避免触发完成状态切换
+        self._processing_priority_click = True
         # 获取当前优先级
         current_priority = self.list_model.data(index, Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
         # 降低优先级, 最低为0

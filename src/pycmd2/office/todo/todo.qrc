@@ -1,7 +1,9 @@
 <RCC>
 <qresource prefix="/">
     <file>./assets/done.svg</file>
+    <file>./assets/downgrade.svg</file>
     <file>./assets/favicon.svg</file>
     <file>./assets/todo.svg</file>
+    <file>./assets/upgrade.svg</file>
 </qresource>
 </RCC>

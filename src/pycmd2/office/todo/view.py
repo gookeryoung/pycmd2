@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from enum import IntEnum
 
 from PySide2.QtCore import QAbstractItemModel
 from PySide2.QtCore import QEvent
@@ -42,6 +43,14 @@ from PySide2.QtWidgets import QWidget
 from pycmd2.office.todo.config import conf
 from pycmd2.office.todo.todo_rc import *  # noqa: F403
 
+
+class PriorityAction(IntEnum):
+    """Priority adjustment action."""
+
+    UPGRADE = 1
+    DOWNGRADE = 2
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -76,6 +85,9 @@ class TodoItemDelegate(QStyledItemDelegate):
         # 选中状态背景
         if option.state & QStyle.State_Selected:  # type: ignore  # noqa: PGH003
             painter.fillRect(rect, QColor("#e3f2fd"))
+        elif completed:
+            # 为已完成的项目设置浅绿色背景
+            painter.fillRect(rect, QColor("#e8f5e8"))
         elif self.hovered_row == index.row():
             painter.fillRect(rect, QColor("#f5f5f5"))
 
@@ -130,7 +142,11 @@ class TodoItemDelegate(QStyledItemDelegate):
             button_size,
             button_size,
         )
-        self._draw_priority_button(painter, down_button_rect, "-")
+        self._draw_priority_button(
+            painter,
+            down_button_rect,
+            PriorityAction.DOWNGRADE,
+        )
 
         # 绘制提高优先级按钮 (+)
         up_button_rect = QRect(
@@ -139,7 +155,11 @@ class TodoItemDelegate(QStyledItemDelegate):
             button_size,
             button_size,
         )
-        self._draw_priority_button(painter, up_button_rect, "+")
+        self._draw_priority_button(
+            painter,
+            up_button_rect,
+            PriorityAction.UPGRADE,
+        )
 
         # 绘制优先级标记
         if priority > 0:
@@ -168,8 +188,6 @@ class TodoItemDelegate(QStyledItemDelegate):
         else:
             img = QImage(":/assets/todo.svg")
 
-        img = img.scaledToWidth(20)
-
         painter.drawImage(rect, img, img.rect())
         painter.restore()
 
@@ -183,8 +201,10 @@ class TodoItemDelegate(QStyledItemDelegate):
         painter.save()
 
         # 根据优先级设置颜色
-        colors = {1: "#4caf50", 2: "#ff9800", 3: "#f44336"}  # 低、中、高
-        color = colors.get(priority, "#9e9e9e")
+        if priority not in range(len(conf.PRIORITIES)):
+            priority = 0
+
+        color = conf.PRIORITY_COLORS[priority]
 
         # 绘制圆角矩形
         painter.setPen(QPen(Qt.NoPen))  # type: ignore  # noqa: PGH003
@@ -196,8 +216,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         font.setBold(True)
         painter.setFont(font)
         painter.setPen(QColor(Qt.white))
-        priority_texts = {1: "低", 2: "中", 3: "高"}
-        text = priority_texts.get(priority, "")
+        text = conf.PRIORITIES[priority]
         painter.drawText(rect, Qt.AlignCenter, text)  # type: ignore  # noqa: PGH003
 
         painter.restore()
@@ -206,22 +225,20 @@ class TodoItemDelegate(QStyledItemDelegate):
         self,
         painter: QPainter,
         rect: QRect,
-        text: str,
+        action: PriorityAction,
     ) -> None:
         """绘制优先级调整按钮."""
         painter.save()
 
-        # 绘制按钮背景
-        painter.setPen(QPen(QColor("#bdbdbd")))  # type: ignore  # noqa: PGH003
-        painter.setBrush(QBrush(QColor("#f5f5f5")))  # type: ignore  # noqa: PGH003
-        painter.drawRoundedRect(rect, 3, 3)
+        if action == PriorityAction.DOWNGRADE:
+            img = QImage(":/assets/downgrade.svg")
+        elif action == PriorityAction.UPGRADE:
+            img = QImage(":/assets/upgrade.svg")
 
-        # 绘制按钮文字
-        font = QFont("Arial", 10, QFont.Bold)  # type: ignore  # noqa: PGH003
-        painter.setFont(font)
-        painter.setPen(QColor("#212121"))
-        painter.drawText(rect, Qt.AlignCenter, text)  # type: ignore  # noqa: PGH003
-
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QBrush(QColor("#efffef"), Qt.BrushStyle.SolidPattern))
+        painter.drawEllipse(rect)
+        painter.drawImage(QRect(rect.adjusted(4, 4, -4, -4)), img, img.rect())
         painter.restore()
 
     def sizeHint(
@@ -249,10 +266,8 @@ class TodoItemDelegate(QStyledItemDelegate):
         Returns:
             bool: 处理成功返回True, 否则返回False.
         """
-        if event.type() == QEvent.MouseButtonRelease and isinstance(
-            event,
-            QMouseEvent,
-        ):
+        # 检查是否为鼠标事件
+        if isinstance(event, QMouseEvent):
             # 获取项目矩形区域
             rect = QRect(option.rect)  # type: ignore  # noqa: PGH003
 
@@ -276,15 +291,25 @@ class TodoItemDelegate(QStyledItemDelegate):
                 button_size,
             )
 
-            # 检查点击位置
+            # 获取鼠标位置
             pos = event.pos()
-            if down_button_rect.contains(pos):
-                self.priority_down_clicked.emit(index)  # type: ignore  # noqa: PGH003
-                return True
-            if up_button_rect.contains(pos):
-                self.priority_up_clicked.emit(index)  # type: ignore  # noqa: PGH003
+
+            # 检查鼠标是否在按钮区域内
+            on_down_button = down_button_rect.contains(pos)
+            on_up_button = up_button_rect.contains(pos)
+
+            # 如果在按钮区域处理事件并阻止传播
+            if on_down_button or on_up_button:
+                # 只在鼠标释放时触发操作避免重复触发
+                if event.type() == QEvent.MouseButtonRelease:
+                    if on_down_button:
+                        self.priority_down_clicked.emit(index)  # type: ignore  # noqa: PGH003
+                    elif on_up_button:
+                        self.priority_up_clicked.emit(index)  # type: ignore  # noqa: PGH003
+                # 对于按钮区域的所有事件都返回True, 阻止传播
                 return True
 
+        # 其他事件使用默认处理
         return super().editorEvent(event, model, option, index)
 
 
@@ -300,6 +325,7 @@ class TodoView(QMainWindow):
         self.resize(500, 600)
 
         self.setWindowIcon(QIcon(":/assets/favicon.svg"))
+        self._processing_priority_click = False
 
         # 创建中心部件
         central_widget = QWidget()
@@ -311,12 +337,8 @@ class TodoView(QMainWindow):
         layout.setContentsMargins(20, 20, 20, 20)
 
         # 创建标题
-        title_label = QLabel("我的待办事项")
-        title_font = QFont()
-        title_font.setPointSize(18)
-        title_font.setBold(True)
-        title_label.setFont(title_font)
-        title_label.setStyleSheet("color: #212121; margin-bottom: 10px;")
+        title_label = QLabel("我的待办清单")
+        title_label.setStyleSheet(conf.STYLE_TITLE_LABEL)
         layout.addWidget(title_label)
 
         # 创建输入区域
@@ -324,17 +346,7 @@ class TodoView(QMainWindow):
 
         self.todo_input = QLineEdit()
         self.todo_input.setPlaceholderText("添加新的待办事项...")
-        self.todo_input.setStyleSheet("""
-            QLineEdit {
-                padding: 10px;
-                border: 2px solid #e0e0e0;
-                border-radius: 6px;
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border-color: #2196f3;
-            }
-        """)
+        self.todo_input.setStyleSheet(conf.STYLE_INPUT)
         input_layout.addWidget(self.todo_input)
 
         self.add_button = QPushButton("添加")
@@ -363,38 +375,13 @@ class TodoView(QMainWindow):
 
         self.filter_combo = QComboBox()
         self.filter_combo.addItems(["全部", "未完成", "已完成"])
-        self.filter_combo.setStyleSheet("""
-            QComboBox {
-                padding: 8px;
-                border: 1px solid #e0e0e0;
-                border-radius: 4px;
-                min-width: 100px;
-            }
-            QComboBox::drop-down {
-                border: none;
-            }
-        """)
+        self.filter_combo.setStyleSheet(conf.STYLE_COMBOBOX)
         filter_layout.addWidget(QLabel("显示:"))
         filter_layout.addWidget(self.filter_combo)
         filter_layout.addStretch()
 
         self.clear_completed_button = QPushButton("清除已完成")
-        self.clear_completed_button.setStyleSheet("""
-            QPushButton {
-                background-color: #ffcdd2;
-                color: #c62828;
-                border: none;
-                border-radius: 4px;
-                padding: 6px 12px;
-                font-size: 12px;
-            }
-            QPushButton:hover {
-                background-color: #ef9a9a;
-            }
-            QPushButton:pressed {
-                background-color: #e57373;
-            }
-        """)
+        self.clear_completed_button.setStyleSheet(conf.STYLE_BUTTON_FINISHED)
         filter_layout.addWidget(self.clear_completed_button)
 
         layout.addLayout(filter_layout)
@@ -417,30 +404,14 @@ class TodoView(QMainWindow):
         self.todo_list.setEditTriggers(
             QAbstractItemView.EditTrigger.NoEditTriggers,  # pyright: ignore[reportArgumentType]
         )
-        self.todo_list.setStyleSheet("""
-            QListView {
-                border: none;
-                outline: 0;
-                padding: 0;
-            }
-            QListView::item {
-                border-bottom: 1px solid #eeeeee;
-            }
-            QListView::item:last-child {
-                border-bottom: none;
-            }
-        """)
+        self.todo_list.setStyleSheet(conf.STYLE_TODO_LIST)
         layout.addWidget(self.todo_list)
 
         # 创建工具栏
         self._create_toolbar()
 
         # 设置窗口样式
-        self.setStyleSheet("""
-            QMainWindow {
-                background-color: white;
-            }
-        """)
+        self.setStyleSheet(conf.STYLE_MAINWINDOW)
 
     def _create_toolbar(self) -> None:
         """创建工具栏."""
