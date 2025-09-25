@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
+from datetime import datetime
 from enum import Enum
 from typing import Any
 from typing import Dict
@@ -26,25 +27,27 @@ class FilterMode(Enum):
 
 @dataclass
 class TodoItem:
-    """表示单个待办事项的数据模型."""
+    """Data class for single todo item."""
 
     text: str
     completed: bool = False
-    created_at: QDateTime = field(default_factory=QDateTime.currentDateTime)
-    completed_at: QDateTime | None = None
+    created_at: datetime = field(default_factory=datetime.now)
+    completed_at: datetime | None = None
     priority: int = 0
     category: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
-        """将TodoItem转换为字典.
+        """Convert to dict.
 
         Returns:
-            Dict[str, Any]: 字典
+            Dict[str, Any]: dict representation.
         """
         return {
             **asdict(self),
-            "created_at": self.created_at.toString() if self.created_at else "",
-            "completed_at": self.completed_at.toString()
+            "created_at": self.created_at.isoformat()
+            if self.created_at
+            else "",
+            "completed_at": self.completed_at.isoformat()
             if self.completed_at
             else "",
         }
@@ -63,9 +66,9 @@ class TodoItem:
             category=data.get("category", ""),
         )
         if data.get("created_at"):
-            item.created_at = QDateTime.fromString(data["created_at"])
+            item.created_at = datetime.fromisoformat(data["created_at"])
         if data.get("completed_at"):
-            item.completed_at = QDateTime.fromString(data["completed_at"])
+            item.completed_at = datetime.fromisoformat(data["completed_at"])
         return item
 
 
