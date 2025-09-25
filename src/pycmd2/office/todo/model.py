@@ -4,13 +4,13 @@ from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
 from datetime import datetime
+from datetime import timezone
 from enum import Enum
 from typing import Any
 from typing import Dict
 from typing import List
 
 from PySide2.QtCore import QAbstractListModel
-from PySide2.QtCore import QDateTime
 from PySide2.QtCore import QModelIndex
 from PySide2.QtCore import QObject
 from PySide2.QtCore import Qt
@@ -54,10 +54,10 @@ class TodoItem:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> TodoItem:
-        """从字典创建TodoItem.
+        """Create TodoItem from dict.
 
         Returns:
-            TodoItem: 创建的TodoItem实例.
+            TodoItem: TodoItem instance.
         """
         item = cls(
             text=data["text"],
@@ -115,7 +115,9 @@ class TodoModel(QObject):
             if "completed" in kwargs:
                 item.completed = kwargs["completed"]  # type: ignore  # noqa: PGH003
                 item.completed_at = (
-                    QDateTime.currentDateTime() if kwargs["completed"] else None
+                    datetime.now(tz=timezone.utc)
+                    if kwargs["completed"]
+                    else None
                 )
             if "priority" in kwargs:
                 item.priority = kwargs["priority"]  # type: ignore  # noqa: PGH003

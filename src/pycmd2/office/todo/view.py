@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 from enum import IntEnum
 
 from PySide2.QtCore import QAbstractItemModel
@@ -43,6 +44,8 @@ from PySide2.QtWidgets import QWidget
 from pycmd2.office.todo.config import conf
 from pycmd2.office.todo.todo_rc import *  # noqa: F403
 
+from .model import TodoItem
+
 
 class PriorityAction(IntEnum):
     """Priority adjustment action."""
@@ -76,6 +79,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         item_text = index.data(Qt.DisplayRole)  # type: ignore  # noqa: PGH003
         completed = index.data(Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
         priority = index.data(Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
+        item: TodoItem = index.data(Qt.ItemDataRole.UserRole + 3)  # type: ignore  # noqa: PGH003
 
         # 绘制背景
         # 使用类型转换来避免静态检查错误
@@ -170,6 +174,35 @@ class TodoItemDelegate(QStyledItemDelegate):
                 20,
             )
             self._draw_priority_tag(painter, priority_rect, priority)
+
+        created_time_rect = QRect(
+            rect.right() - 240,
+            rect.top() + (rect.height() - 20) // 2,
+            100,
+            20,
+        )
+        self._draw_time_tag(painter, created_time_rect, item.created_at)
+
+        painter.restore()
+
+    def _draw_time_tag(
+        self,
+        painter: QPainter,
+        rect: QRect,
+        create_at: datetime,
+    ) -> None:
+        painter.save()
+
+        painter.setPen(QPen(Qt.black))
+        painter.setBrush(QBrush(Qt.white))
+        painter.drawRoundedRect(rect, 5, 5)
+        painter.setPen(QPen(Qt.black))
+        painter.setFont(QFont("Consolas", 6))
+        painter.drawText(
+            rect,
+            Qt.AlignCenter,
+            create_at.strftime("Created: %Y-%m-%d"),
+        )
 
         painter.restore()
 
