@@ -231,6 +231,9 @@ class TodoController:
             self._on_clear_completed,
         )
 
+        # 删除项目
+        self.view.item_deleted.connect(self._on_item_delete)  # type: ignore  # noqa: PGH003
+
         # 模型数据变化时更新统计
         self.model.data_changed.connect(self._update_stats)  # type: ignore  # noqa: PGH003
 
@@ -254,6 +257,14 @@ class TodoController:
     def _on_clear_completed(self) -> None:
         """处理清除已完成项目."""
         self.model.clear_completed()
+
+    def _on_item_delete(self, row: int) -> None:
+        """处理项目删除."""
+        # 获取在过滤列表中的项目在原始模型中的索引
+        if 0 <= row < len(self.list_model.filtered_items):
+            item = self.list_model.filtered_items[row]
+            original_index = self.model._items.index(item)  # noqa: SLF001
+            self.model.remove_item(original_index)
 
     def _update_stats(self) -> None:
         """更新统计信息."""

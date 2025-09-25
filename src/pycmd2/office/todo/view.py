@@ -6,6 +6,7 @@ from PySide2.QtCore import QModelIndex
 from PySide2.QtCore import QRect
 from PySide2.QtCore import QSize
 from PySide2.QtCore import Qt
+from PySide2.QtCore import Signal
 from PySide2.QtGui import QBrush
 from PySide2.QtGui import QColor
 from PySide2.QtGui import QContextMenuEvent
@@ -186,6 +187,9 @@ class TodoItemDelegate(QStyledItemDelegate):
 
 class TodoView(QMainWindow):
     """Todo应用的主视图."""
+
+    # 定义删除项目的信号
+    item_deleted = Signal(int)
 
     def __init__(self) -> None:
         super().__init__()
@@ -391,7 +395,7 @@ class TodoView(QMainWindow):
             elif action == priority_high:
                 self.set_item_priority(index.row(), 3)
             elif action == delete_action:
-                self.delete_item(index.row())
+                self.item_deleted.emit(index.row())  # type: ignore  # noqa: PGH003
 
     def edit_item(self, row: int) -> None:
         """编辑指定行的项目."""
@@ -416,11 +420,3 @@ class TodoView(QMainWindow):
 
         model_index = self.todo_list.model().index(row, 0)
         self.todo_list.model().setData(model_index, priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
-
-    def delete_item(self, row: int) -> None:
-        """删除指定行的项目."""
-        model = self.todo_list.model()
-        model.removeRow(row)
-        logger.info(
-            f"Removed item at row: {row}, total items: {model.rowCount()}",
-        )
