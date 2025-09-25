@@ -303,7 +303,9 @@ class TodoView(QMainWindow):
         # 创建列表视图
         self.todo_list = QListView()
         self.todo_list.setItemDelegate(TodoItemDelegate(self.todo_list))
-        self.todo_list.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.todo_list.setEditTriggers(
+            QAbstractItemView.EditTrigger.NoEditTriggers,  # pyright: ignore[reportArgumentType]
+        )
         self.todo_list.setStyleSheet("""
             QListView {
                 border: none;
