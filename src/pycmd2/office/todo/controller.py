@@ -27,105 +27,85 @@ class TodoController:
 
         self.view.todo_list.setModel(self.model)
 
-        delegate = self.view.todo_list.itemDelegate()
-        if isinstance(delegate, TodoItemDelegate):
-            delegate.priority_up_clicked.connect(self._on_priority_up)  # type: ignore  # noqa: PGH003
-            delegate.priority_down_clicked.connect(self._on_priority_down)  # type: ignore  # noqa: PGH003
-
         self._connect_signals()
 
-        self.view.closeEvent = self._handle_close_event
-
+        self.view.closeEvent = self.on_close
         self.load_data()
-        self._update_stats()
+        self.on_update_stats()
 
     def _connect_signals(self) -> None:
-        """连接视图信号到控制器槽函数."""
-        # 添加按钮
-        self.view.add_button.clicked.connect(self._on_add_clicked)  # type: ignore  # noqa: PGH003
-        self.view.todo_input.returnPressed.connect(self._on_add_clicked)  # type: ignore  # noqa: PGH003
+        """Connect signals to slots."""
+        self.view.add_button.clicked.connect(self.on_add_clicked)  # type: ignore  # noqa: PGH003
+        self.view.todo_input.returnPressed.connect(self.on_add_clicked)  # type: ignore  # noqa: PGH003
+        self.view.item_deleted.connect(self.on_delete)  # type: ignore  # noqa: PGH003
+        self.model.data_changed.connect(self.on_update_stats)  # type: ignore[attr-defined]
 
-        # 列表项点击切换完成状态
-        self.view.todo_list.clicked.connect(self._on_item_clicked)  # type: ignore  # noqa: PGH003
+        delegate = self.view.todo_list.itemDelegate()
+        if isinstance(delegate, TodoItemDelegate):
+            delegate.priority_up_clicked.connect(self.on_priority_up)  # type: ignore  # noqa: PGH003
+            delegate.priority_down_clicked.connect(self.on_priority_down)  # type: ignore  # noqa: PGH003
 
-        # 过滤器变化
+        # Click to set completed
+        self.view.todo_list.clicked.connect(self.on_item_clicked)  # type: ignore  # noqa: PGH003
+
+        # Handle filter change
         self.view.filter_combo.currentTextChanged.connect(  # type: ignore  # noqa: PGH003
-            self._on_filter_changed,
+            self.model.set_filter_mode,
         )
 
-        # 清除已完成
+        # Handle clear completed
         self.view.clear_completed_button.clicked.connect(  # type: ignore  # noqa: PGH003
-            self._on_clear_completed,
+            self.model.clear_completed,
         )
 
-        # 删除项目
-        self.view.item_deleted.connect(self._on_item_delete)  # type: ignore  # noqa: PGH003
-
-        # 模型数据变化时更新统计
-        self.model.data_changed.connect(self._update_stats)  # type: ignore[attr-defined]
-
-    def _on_add_clicked(self) -> None:
-        """处理添加按钮点击."""
+    def on_add_clicked(self) -> None:
+        """Handle add button clicked."""
         text = self.view.todo_input.text().strip()
+
         if text:
             self.model.add_item(text)
             self.view.todo_input.clear()
 
-    def _on_item_clicked(self, index: QModelIndex) -> None:
-        """处理列表项点击."""
-        # 添加一个标志来避免在处理优先级按钮时触发完成状态切换
-        # 检查是否是由于优先级按钮点击触发的
+    def on_item_clicked(self, index: QModelIndex) -> None:
+        """Handle item clicked."""
         if (
             hasattr(self, "_processing_priority_click")
             and self._processing_priority_click
         ):
-            # 重置标志
+            # Reset processing flag
             self._processing_priority_click = False
             return
 
-        # 切换完成状态
         current_state = self.model.data(index, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
         self.model.setData(index, not current_state, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
 
-    def _on_filter_changed(self, text: str) -> None:
-        """处理过滤器变化."""
-        self.model.set_filter_mode(text)
-
-    def _on_clear_completed(self) -> None:
-        """处理清除已完成项目."""
-        self.model.clear_completed()
-
-    def _on_item_delete(self, row: int) -> None:
-        """处理项目删除."""
-        # 获取在过滤列表中的项目在原始模型中的索引
+    def on_delete(self, row: int) -> None:
+        """Handle delete event."""
         if 0 <= row < len(self.model.filtered_items):
             item = self.model.filtered_items[row]
             original_index = self.model.items.index(item)
             self.model.remove_item(original_index)
 
-    def _on_priority_up(self, index: QModelIndex) -> None:
-        """处理提高优先级."""
-        # 设置标志以避免触发完成状态切换
+    def on_priority_up(self, index: QModelIndex) -> None:
+        """Handle priority up click event."""
         self._processing_priority_click = True
-        # 获取当前优先级
         current_priority = self.model.data(index, Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
-        # 增加优先级, 最高为3
-        new_priority = min(current_priority + 1, 3)
-        # 更新优先级
+        new_priority = min(current_priority + 1, len(conf.PRIORITIES) - 1)
         self.model.setData(index, new_priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
 
-    def _on_priority_down(self, index: QModelIndex) -> None:
-        """处理降低优先级."""
-        # 设置标志以避免触发完成状态切换
+    def on_priority_down(self, index: QModelIndex) -> None:
+        """Handle priority down click event."""
         self._processing_priority_click = True
-        # 获取当前优先级
         current_priority = self.model.data(index, Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
-        # 降低优先级, 最低为0
         new_priority = max(current_priority - 1, 0)
-        # 更新优先级
         self.model.setData(index, new_priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
 
-    def _update_stats(self) -> None:
+    def on_close(self, event: QCloseEvent) -> None:
+        """Handle close event, ensure data is saved before closing ."""
+        self.save_data()
+        event.accept()
+
+    def on_update_stats(self) -> None:
         """更新统计信息."""
         self.view.stats_label.setText(
             f"总计: {self.model.count} |"
@@ -147,7 +127,7 @@ class TodoController:
         return str(config_path)
 
     def save_data(self) -> None:
-        """保存数据到文件."""
+        """Save data to file."""
         logger.info("Saving data to file.")
         try:
             data = {
@@ -176,11 +156,6 @@ class TodoController:
                 self.model.data_changed.emit()  # type: ignore  # noqa: PGH003
         except Exception:  # noqa: BLE001
             pass
-
-    def _handle_close_event(self, event: QCloseEvent) -> None:
-        """处理窗口关闭事件, 确保数据被保存."""
-        self.save_data()
-        event.accept()
 
     def show(self) -> None:
         """显示视图."""
