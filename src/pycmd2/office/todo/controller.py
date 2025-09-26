@@ -13,39 +13,30 @@ from pycmd2.office.todo.model import TodoListModel
 
 from .delegate import TodoItemDelegate
 from .model import TodoItem
-from .model import TodoModel
 from .view import TodoView
 
 logger = logging.getLogger(__name__)
 
 
 class TodoController:
-    """Todo应用控制器, 协调模型和视图."""
+    """Todo List Application Controller."""
 
     def __init__(self) -> None:
-        self.model = TodoModel()
         self.view = TodoView()
-        self.list_model = TodoListModel(self.model)
+        self.model = TodoListModel()
 
-        # 设置视图的模型
-        self.view.todo_list.setModel(self.list_model)
+        self.view.todo_list.setModel(self.model)
 
-        # 连接优先级调整信号
         delegate = self.view.todo_list.itemDelegate()
         if isinstance(delegate, TodoItemDelegate):
             delegate.priority_up_clicked.connect(self._on_priority_up)  # type: ignore  # noqa: PGH003
             delegate.priority_down_clicked.connect(self._on_priority_down)  # type: ignore  # noqa: PGH003
 
-        # 连接视图信号
         self._connect_signals()
 
-        # 连接窗口关闭事件到保存数据
         self.view.closeEvent = self._handle_close_event
 
-        # 加载数据
         self.load_data()
-
-        # 更新统计信息
         self._update_stats()
 
     def _connect_signals(self) -> None:
@@ -93,12 +84,12 @@ class TodoController:
             return
 
         # 切换完成状态
-        current_state = self.list_model.data(index, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
-        self.list_model.setData(index, not current_state, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
+        current_state = self.model.data(index, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
+        self.model.setData(index, not current_state, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
 
     def _on_filter_changed(self, text: str) -> None:
         """处理过滤器变化."""
-        self.list_model.set_filter_mode(text)
+        self.model.set_filter_mode(text)
 
     def _on_clear_completed(self) -> None:
         """处理清除已完成项目."""
@@ -107,9 +98,9 @@ class TodoController:
     def _on_item_delete(self, row: int) -> None:
         """处理项目删除."""
         # 获取在过滤列表中的项目在原始模型中的索引
-        if 0 <= row < len(self.list_model.filtered_items):
-            item = self.list_model.filtered_items[row]
-            original_index = self.model._items.index(item)  # noqa: SLF001
+        if 0 <= row < len(self.model.filtered_items):
+            item = self.model.filtered_items[row]
+            original_index = self.model.items.index(item)
             self.model.remove_item(original_index)
 
     def _on_priority_up(self, index: QModelIndex) -> None:
@@ -117,22 +108,22 @@ class TodoController:
         # 设置标志以避免触发完成状态切换
         self._processing_priority_click = True
         # 获取当前优先级
-        current_priority = self.list_model.data(index, Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
+        current_priority = self.model.data(index, Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
         # 增加优先级, 最高为3
         new_priority = min(current_priority + 1, 3)
         # 更新优先级
-        self.list_model.setData(index, new_priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
+        self.model.setData(index, new_priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
 
     def _on_priority_down(self, index: QModelIndex) -> None:
         """处理降低优先级."""
         # 设置标志以避免触发完成状态切换
         self._processing_priority_click = True
         # 获取当前优先级
-        current_priority = self.list_model.data(index, Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
+        current_priority = self.model.data(index, Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
         # 降低优先级, 最低为0
         new_priority = max(current_priority - 1, 0)
         # 更新优先级
-        self.list_model.setData(index, new_priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
+        self.model.setData(index, new_priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
 
     def _update_stats(self) -> None:
         """更新统计信息."""
@@ -160,7 +151,7 @@ class TodoController:
         logger.info("Saving data to file.")
         try:
             data = {
-                "items": [item.to_dict() for item in self.model._items],  # noqa: SLF001
+                "items": [item.to_dict() for item in self.model.items],
             }
             file_path = self.get_data_file_path()
             with Path(file_path).open("w", encoding="utf-8") as f:
@@ -176,15 +167,12 @@ class TodoController:
                 with Path(file_path).open(encoding="utf-8") as f:
                     data = json.load(f)
 
-                # 清空现有数据
-                self.model._items.clear()  # noqa: SLF001
+                self.model.items.clear()
 
-                # 加载数据
                 for item_data in data.get("items", []):
                     item = TodoItem.from_dict(item_data)
-                    self.model._items.append(item)  # noqa: SLF001
+                    self.model.items.append(item)
 
-                # 通知数据变化
                 self.model.data_changed.emit()  # type: ignore  # noqa: PGH003
         except Exception:  # noqa: BLE001
             pass

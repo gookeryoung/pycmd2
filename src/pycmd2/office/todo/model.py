@@ -13,7 +13,6 @@ from typing import List
 
 from PySide2.QtCore import QAbstractListModel
 from PySide2.QtCore import QModelIndex
-from PySide2.QtCore import QObject
 from PySide2.QtCore import Qt
 from PySide2.QtCore import Signal
 
@@ -77,8 +76,8 @@ class TodoItem:
         return item
 
 
-class TodoModel(QObject):
-    """Todo data model, for storing todo items."""
+class TodoListModel(QAbstractListModel):
+    """List model for todo items."""
 
     data_changed = Signal()
     item_added = Signal(int)
@@ -87,8 +86,56 @@ class TodoModel(QObject):
 
     def __init__(self) -> None:
         super().__init__()
-
         self._items: List[TodoItem] = []
+        self.filtered_items: List[TodoItem] = []
+        self.filter_mode = FilterMode.All.value
+
+        self.update_filtered_items()
+
+        self.data_changed.connect(self.on_data_changed)  # pyright: ignore[reportAttributeAccessIssue]
+
+    @property
+    def items(self) -> List[TodoItem]:
+        """Get all todo items.
+
+        Returns:
+            List[TodoItem]: All todo items.
+        """
+        return self._items
+
+    @property
+    def count(self) -> int:
+        """Get todo item count.
+
+        Returns:
+            int: todo item count.
+        """
+        return len(self._items)
+
+    @property
+    def completed_count(self) -> int:
+        """Get completed todo item count.
+
+        Returns:
+            int: completed todo item count.
+        """
+        return len([item for item in self._items if item.completed])
+
+    @property
+    def pending_count(self) -> int:
+        """Get pending todo item count.
+
+        Returns:
+            int: pending todo item count.
+        """
+        return len([item for item in self._items if not item.completed])
+
+    def clear_completed(self) -> None:
+        """Clear completed todo items."""
+        logger.info("Clear completed todo items.")
+
+        self._items = [item for item in self._items if not item.completed]
+        self.data_changed.emit()  # pyright: ignore[reportAttributeAccessIssue]
 
     def add_item(
         self,
@@ -96,7 +143,7 @@ class TodoModel(QObject):
         priority: int = 2,
         category: str = "",
     ) -> None:
-        """Add new item to the list."""
+        """Add item."""
         logger.info(f"Add item: {text}")
 
         item = TodoItem(text=text, priority=priority, category=category)
@@ -160,77 +207,24 @@ class TodoModel(QObject):
 
         return [item for item in self._items if not item.completed]
 
-    @property
-    def count(self) -> int:
-        """Get todo item count.
-
-        Returns:
-            int: todo item count.
-        """
-        return len(self._items)
-
-    @property
-    def completed_count(self) -> int:
-        """Get completed todo item count.
-
-        Returns:
-            int: completed todo item count.
-        """
-        return len([item for item in self._items if item.completed])
-
-    @property
-    def pending_count(self) -> int:
-        """Get pending todo item count.
-
-        Returns:
-            int: pending todo item count.
-        """
-        return len([item for item in self._items if not item.completed])
-
-    def clear_completed(self) -> None:
-        """Clear completed todo items."""
-        logger.info("Clear completed todo items.")
-
-        self._items = [item for item in self._items if not item.completed]
-        self.data_changed.emit()  # pyright: ignore[reportAttributeAccessIssue]
-
-
-class TodoListModel(QAbstractListModel):
-    """适配TodoModel到Qt的ListModel."""
-
-    def __init__(self, todo_model: TodoModel) -> None:
-        super().__init__()
-        self.todo_model = todo_model
-        self.filtered_items: List[TodoItem] = []
-        self.filter_mode = FilterMode.All.value
-
-        self.todo_model.data_changed.connect(self._on_data_changed)  # type: ignore  # noqa: PGH003
-        self.todo_model.item_added.connect(self._on_item_added)  # type: ignore  # noqa: PGH003
-        self.todo_model.item_removed.connect(self._on_item_removed)  # type: ignore  # noqa: PGH003
-        self.todo_model.item_changed.connect(self._on_item_changed)  # type: ignore  # noqa: PGH003
-
-        self._update_filtered_items()
-
     def set_filter_mode(self, mode: str) -> None:
         """设置过滤模式."""
         self.filter_mode = mode
-        self._update_filtered_items()
+        self.update_filtered_items()
         self.layoutChanged.emit()  # type: ignore  # noqa: PGH003
 
-    def _update_filtered_items(self) -> None:
+    def update_filtered_items(self) -> None:
         """更新过滤后的项目列表."""
         if self.filter_mode == FilterMode.Pending.value:
             self.filtered_items = [
-                item
-                for item in self.todo_model.get_items()
-                if not item.completed
+                item for item in self.get_items() if not item.completed
             ]
         elif self.filter_mode == FilterMode.Completed.value:
             self.filtered_items = [
-                item for item in self.todo_model.get_items() if item.completed
+                item for item in self.get_items() if item.completed
             ]
         else:  # 全部
-            self.filtered_items = self.todo_model.get_items()
+            self.filtered_items = self.get_items()
 
         # sort by priority
         self.filtered_items = sorted(
@@ -244,51 +238,9 @@ class TodoListModel(QAbstractListModel):
             key=lambda item: item.completed,
         )
 
-    def _on_data_changed(self) -> None:
+    def on_data_changed(self) -> None:
         """处理模型数据变化."""
-        self._update_filtered_items()
-        self.layoutChanged.emit()  # type: ignore  # noqa: PGH003
-
-    def _on_item_added(self, index: int) -> None:
-        """处理项目添加."""
-        self._update_filtered_items()
-
-        if self.filter_mode == FilterMode.All.value:
-            actual_index = index
-        elif self.filter_mode == FilterMode.Pending.value:
-            item = self.todo_model.get_item(index)
-            if item and not item.completed:
-                actual_index = len([
-                    i
-                    for i in self.filtered_items
-                    if self.todo_model._items.index(i) < index  # noqa: SLF001
-                ])
-            else:
-                return
-        elif self.filter_mode == FilterMode.Completed.value:
-            item = self.todo_model.get_item(index)
-            if item and item.completed:
-                actual_index = len([
-                    i
-                    for i in self.filtered_items
-                    if self.todo_model._items.index(i) < index  # noqa: SLF001
-                ])
-            else:
-                return
-        else:
-            return
-
-        self.beginInsertRows(QModelIndex(), actual_index, actual_index)
-        self.endInsertRows()
-
-    def _on_item_removed(self, index: int) -> None:  # noqa: ARG002
-        """处理项目删除."""
-        self._update_filtered_items()
-        self.layoutChanged.emit()  # type: ignore  # noqa: PGH003
-
-    def _on_item_changed(self, index: int) -> None:  # noqa: ARG002
-        """处理项目更改."""
-        self._update_filtered_items()
+        self.update_filtered_items()
         self.layoutChanged.emit()  # type: ignore  # noqa: PGH003
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:  # noqa: ARG002, B008
@@ -339,21 +291,22 @@ class TodoListModel(QAbstractListModel):
             return False
 
         item = self.filtered_items[index.row()]
+
         # 找到在原始模型中的索引
-        original_index = self.todo_model._items.index(item)  # noqa: SLF001
+        original_index = self._items.index(item)
 
         if role == Qt.EditRole:
-            self.todo_model.update_item(original_index, text=value)
+            self.update_item(original_index, text=value)
             self.dataChanged.emit(index, index, [role])  # type: ignore  # noqa: PGH003
             return True
         if (
             role == Qt.UserRole + 1  # type: ignore  # noqa: PGH003
         ):  # 切换完成状态
-            self.todo_model.update_item(original_index, completed=value)
+            self.update_item(original_index, completed=value)
             self.dataChanged.emit(index, index, [role])  # type: ignore  # noqa: PGH003
             return True
         if role == Qt.UserRole + 3:  # 更新优先级 # type: ignore  # noqa: PGH003
-            self.todo_model.update_item(original_index, priority=value)
+            self.update_item(original_index, priority=value)
             self.dataChanged.emit(index, index, [role])  # type: ignore  # noqa: PGH003
             return True
 
