@@ -11,9 +11,9 @@ from PySide2.QtGui import QCloseEvent
 from pycmd2.office.todo.config import conf
 from pycmd2.office.todo.model import TodoListModel
 
+from .delegate import TodoItemDelegate
 from .model import TodoItem
 from .model import TodoModel
-from .view import TodoItemDelegate
 from .view import TodoView
 
 logger = logging.getLogger(__name__)

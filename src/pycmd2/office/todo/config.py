@@ -9,9 +9,58 @@ from pycmd2.config import TomlConfigMixin
 class TodoConfig(TomlConfigMixin):
     """Todo configuration."""
 
-    TITLE = "Todo"
-    PRIORITIES: ClassVar[list[str]] = ["", "低", "中", "高"]
+    WIN_TITLE = "Todo"
+    WIN_SIZE = (640, 600)
 
+    BACKUP_INTEVAL: int = 5
+
+    # title label
+    TITLE_LABEL = "我的待办清单"
+    STYLE_TITLE_LABEL = """
+    QLabel {
+        font-family: "Microsoft YaHei", "SimSun";
+        font-size: 24px;
+        font-weight: bold;
+        color: #323232;
+    }"""
+
+    # input label
+    INPUT_PLACEHOLDER = "添加新的待办事项..."
+    STYLE_INPUT = """
+    QLineEdit {
+        padding: 6px 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+    QLineEdit:focus {
+        border-color: #2196f3;
+    }"""
+    ADD_BUTTON_TEXT = "添加"
+    STYLE_ADD_BUTTON = """
+    QPushButton {
+        background-color: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 20px;
+        font-weight: bold;
+    }
+    QPushButton:hover {
+        background-color: #1976d2;
+    }
+    QPushButton:pressed {
+        background-color: #0d47a1;
+    }"""
+
+    ABOUT_TITLE = "关于Todo list"
+    ABOUT_MESSAGE = """
+    <h1>Todo list</h1>
+    <p>一个简单的Todo list程序, 使用 Python + Pyside2 开发.</p>
+    """
+
+    # priority
+    PRIORITIES: ClassVar[list[str]] = ["无", "低", "中", "高"]
     PRIORITY_COLORS: ClassVar[list[str]] = [
         "",
         "#B2B9B2",  # 绿色
@@ -24,25 +73,6 @@ class TodoConfig(TomlConfigMixin):
         background-color: #fcfffc;
     }
     """
-
-    STYLE_TITLE_LABEL = """
-    QLabel {
-        font-family: "Microsoft YaHei", "SimSun";
-        font-size: 24px;
-        font-weight: bold;
-        color: #323232;
-    }"""
-
-    STYLE_INPUT = """
-    QLineEdit {
-        padding: 6px 12px;
-        border: 2px solid #e0e0e0;
-        border-radius: 6px;
-        font-size: 14px;
-    }
-    QLineEdit:focus {
-        border-color: #2196f3;
-    }"""
 
     STYLE_COMBOBOX = """
     QComboBox {

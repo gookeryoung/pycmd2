@@ -232,9 +232,16 @@ class TodoListModel(QAbstractListModel):
         else:  # 全部
             self.filtered_items = self.todo_model.get_items()
 
+        # sort by priority
         self.filtered_items = sorted(
             self.filtered_items,
             key=lambda item: -item.priority,
+        )
+
+        # sort by complete
+        self.filtered_items = sorted(
+            self.filtered_items,
+            key=lambda item: item.completed,
         )
 
     def _on_data_changed(self) -> None:
