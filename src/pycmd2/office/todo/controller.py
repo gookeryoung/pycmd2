@@ -42,8 +42,8 @@ class TodoController:
 
         delegate = self.view.todo_list.itemDelegate()
         if isinstance(delegate, TodoItemDelegate):
-            delegate.priority_up_clicked.connect(self.on_priority_up)  # type: ignore  # noqa: PGH003
-            delegate.priority_down_clicked.connect(self.on_priority_down)  # type: ignore  # noqa: PGH003
+            delegate.inc_priority.connect(self.on_priority_up)  # type: ignore  # noqa: PGH003
+            delegate.dec_priority.connect(self.on_priority_down)  # type: ignore  # noqa: PGH003
 
         # Click to set completed
         self.view.todo_list.clicked.connect(self.on_item_clicked)  # type: ignore  # noqa: PGH003

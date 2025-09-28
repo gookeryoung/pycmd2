@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
 from enum import IntEnum
 
 from PySide2.QtCore import QAbstractItemModel
@@ -35,11 +34,10 @@ class PriorityAction(IntEnum):
 
 
 class TodoItemDelegate(QStyledItemDelegate):
-    """自定义委托, 用于绘制待办事项项."""
+    """Delegate for todo item view."""
 
-    # 定义优先级调整信号
-    priority_up_clicked = Signal(QModelIndex)
-    priority_down_clicked = Signal(QModelIndex)
+    inc_priority = Signal(QModelIndex)
+    dec_priority = Signal(QModelIndex)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -51,15 +49,12 @@ class TodoItemDelegate(QStyledItemDelegate):
         option: QStyleOptionViewItem,
         index: QModelIndex,
     ) -> None:
-        """绘制待办事项项."""
-        # 获取数据
+        """Paint todo item."""
         item_text = index.data(Qt.DisplayRole)  # type: ignore  # noqa: PGH003
         completed = index.data(Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
         priority = index.data(Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
         item: TodoItem = index.data(Qt.ItemDataRole.UserRole + 3)  # type: ignore  # noqa: PGH003
 
-        # 绘制背景
-        # 使用类型转换来避免静态检查错误
         rect = QRect(option.rect)  # type: ignore  # noqa: PGH003
         painter.save()
 
@@ -152,13 +147,32 @@ class TodoItemDelegate(QStyledItemDelegate):
             )
             self._draw_priority_tag(painter, priority_rect, priority)
 
-        created_time_rect = QRect(
-            rect.right() - 240,
-            rect.top() + (rect.height() - 20) // 2,
-            100,
-            20,
-        )
-        self._draw_time_tag(painter, created_time_rect, item.created_at)
+        if item.completed_at:
+            completed_time_rect = QRect(
+                rect.right() - 320,
+                rect.top() + (rect.height() - 20) // 2,
+                *conf.TAG_SIZE,
+            )
+            self._draw_time_tag(
+                painter,
+                completed_time_rect,
+                item.completed_at.strftime("结: %Y-%m-%d"),
+                bg_color=conf.COMPLETE_TAG_COLOR,
+            )
+
+        if item.created_at:
+            created_time_rect = QRect(
+                rect.right() - 240,
+                rect.top() + (rect.height() - 20) // 2,
+                *conf.TAG_SIZE,
+            )
+            self._draw_time_tag(
+                painter,
+                created_time_rect,
+                item.created_at.strftime("始: %Y-%m-%d"),
+                bg_color=conf.CREATE_TAG_COLOR,
+                font_color=conf.CREATE_FONT_COLOR,
+            )
 
         painter.restore()
 
@@ -166,19 +180,21 @@ class TodoItemDelegate(QStyledItemDelegate):
         self,
         painter: QPainter,
         rect: QRect,
-        create_at: datetime,
+        timelabel: str,
+        bg_color: str = "#c0ffc0",
+        font_color: str = "#ff4040",
     ) -> None:
         painter.save()
 
-        painter.setPen(QPen(Qt.black))
-        painter.setBrush(QBrush(Qt.white))
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QBrush(QColor(bg_color)))
         painter.drawRoundedRect(rect, 5, 5)
-        painter.setPen(QPen(Qt.black))
-        painter.setFont(QFont("Consolas", 6))
+        painter.setPen(QColor(font_color))
+        painter.setFont(QFont(conf.FONT_FAMILY, 6))
         painter.drawText(
-            rect,
-            Qt.AlignCenter,
-            create_at.strftime("Created: %Y-%m-%d"),
+            rect,  # pyright: ignore[reportArgumentType]
+            Qt.AlignmentFlag.AlignCenter,  # type: ignore  # noqa: PGH003
+            timelabel,
         )
 
         painter.restore()
@@ -313,7 +329,7 @@ class TodoItemDelegate(QStyledItemDelegate):
                 # 只在鼠标释放时触发操作避免重复触发
                 if event.type() == QEvent.MouseButtonRelease:
                     if on_down_button:
-                        self.priority_down_clicked.emit(index)  # type: ignore  # noqa: PGH003
+                        self.dec_priority.emit(index)  # type: ignore  # noqa: PGH003
                     elif on_up_button:
                         self.priority_up_clicked.emit(index)  # type: ignore  # noqa: PGH003
                 # 对于按钮区域的所有事件都返回True, 阻止传播

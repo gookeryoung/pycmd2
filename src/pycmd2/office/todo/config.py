@@ -9,10 +9,17 @@ from pycmd2.config import TomlConfigMixin
 class TodoConfig(TomlConfigMixin):
     """Todo configuration."""
 
-    WIN_TITLE = "Todo"
-    WIN_SIZE = (640, 600)
+    WIN_TITLE: str = "Todo"
+    WIN_SIZE: tuple[int, int] = (640, 600)
+
+    FONT_FAMILY: str = "Microsoft YaHei"
 
     BACKUP_INTEVAL: int = 5
+
+    TAG_SIZE: tuple[int, int] = (72, 20)
+    CREATE_TAG_COLOR: str = "#c0ffc0"
+    CREATE_FONT_COLOR: str = "#ff4040"
+    COMPLETE_TAG_COLOR: str = "#e0e0e0"
 
     # title label
     TITLE_LABEL = "我的待办清单"
