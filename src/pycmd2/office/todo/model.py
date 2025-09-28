@@ -38,6 +38,10 @@ class TodoItem:
     priority: int = 0
     category: str = ""
 
+    def __str__(self) -> str:
+        """Return string representation."""
+        return f"{self.text} - {self.priority} - {self.category}"
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dict.
 
@@ -87,11 +91,11 @@ class TodoListModel(QAbstractListModel):
     def __init__(self) -> None:
         super().__init__()
         self._items: List[TodoItem] = []
+
         self.filtered_items: List[TodoItem] = []
         self.filter_mode = FilterMode.All.value
 
         self.update_filtered_items()
-
         self.data_changed.connect(self.on_data_changed)  # pyright: ignore[reportAttributeAccessIssue]
 
     @property

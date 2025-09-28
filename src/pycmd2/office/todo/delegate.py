@@ -58,11 +58,9 @@ class TodoItemDelegate(QStyledItemDelegate):
         rect = QRect(option.rect)  # type: ignore  # noqa: PGH003
         painter.save()
 
-        # 选中状态背景
         if option.state & QStyle.State_Selected:  # type: ignore  # noqa: PGH003
-            painter.fillRect(rect, QColor("#e3f2fd"))
+            painter.fillRect(rect, QColor("#aaf7d7"))
         elif completed:
-            # 为已完成的项目设置浅绿色背景
             painter.fillRect(rect, QColor("#e8f5e8"))
         elif self.hovered_row == index.row():
             painter.fillRect(rect, QColor("#f5f5f5"))
