@@ -182,6 +182,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         bg_color: str = "#c0ffc0",
         font_color: str = "#ff4040",
     ) -> None:
+        """Draw time tag, for created time and completed time."""
         painter.save()
 
         painter.setPen(Qt.PenStyle.NoPen)

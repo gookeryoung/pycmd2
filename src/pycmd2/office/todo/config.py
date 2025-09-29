@@ -10,7 +10,8 @@ class TodoConfig(TomlConfigMixin):
     """Todo configuration."""
 
     WIN_TITLE: str = "Todo"
-    WIN_SIZE: tuple[int, int] = (640, 600)
+    WIN_SIZE: ClassVar[list[int]] = [640, 600]
+    WIN_POS: ClassVar[list[int]] = [100, 100]
 
     FONT_FAMILY: str = "Microsoft YaHei"
 

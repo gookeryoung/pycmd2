@@ -10,6 +10,8 @@ from PySide2.QtCore import QTimer
 from PySide2.QtCore import Signal
 from PySide2.QtGui import QContextMenuEvent
 from PySide2.QtGui import QIcon
+from PySide2.QtGui import QMoveEvent
+from PySide2.QtGui import QResizeEvent
 from PySide2.QtWidgets import QAbstractItemView
 from PySide2.QtWidgets import QAction
 from PySide2.QtWidgets import QComboBox
@@ -44,19 +46,33 @@ class TodoView(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
 
-        self.setWindowTitle(conf.WIN_TITLE)
-        self.resize(*conf.WIN_SIZE)
+        self._setup_ui()
 
         self._processing_priority_click = False
 
         self.setWindowIcon(QIcon(":/assets/favicon.svg"))
 
-        self._setup_ui()
+        self.setWindowTitle(conf.WIN_TITLE)
+        self.resize(*conf.WIN_SIZE)
+        self.setGeometry(*conf.WIN_POS, *conf.WIN_SIZE)
+
         self._create_toolbar()
         self._create_backup_timer()
 
         # 设置窗口样式
         self.setStyleSheet(conf.STYLE_MAINWINDOW)
+
+    def moveEvent(self, event: QMoveEvent) -> None:
+        """Handle move event."""
+        logger.debug(f"Window moved to: {event.pos()}")
+        conf.setattr("WIN_POS", [event.pos().x(), event.pos().y()])
+        return super().moveEvent(event)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        """Handle resize event."""
+        logger.debug(f"Window resized to: {event.size()}")
+        conf.setattr("WIN_SIZE", [event.size().width(), event.size().height()])
+        return super().resizeEvent(event)
 
     def contextMenuEvent(self, event: QContextMenuEvent) -> None:
         """Handle context menu event."""
