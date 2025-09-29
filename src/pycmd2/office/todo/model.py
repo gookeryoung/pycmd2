@@ -16,6 +16,8 @@ from PySide2.QtCore import QModelIndex
 from PySide2.QtCore import Qt
 from PySide2.QtCore import Signal
 
+from .config import conf
+
 logger = logging.getLogger(__name__)
 
 
@@ -93,7 +95,7 @@ class TodoListModel(QAbstractListModel):
         self._items: List[TodoItem] = []
 
         self.filtered_items: List[TodoItem] = []
-        self.filter_mode = FilterMode.All.value
+        self.filter_mode = conf.DEFAULT_FILTER_MODE
 
         self.update_filtered_items()
         self.data_changed.connect(self.on_data_changed)  # pyright: ignore[reportAttributeAccessIssue]
@@ -214,6 +216,8 @@ class TodoListModel(QAbstractListModel):
     def set_filter_mode(self, mode: str) -> None:
         """设置过滤模式."""
         self.filter_mode = mode
+        conf.setattr("DEFAULT_FILTER_MODE", mode)
+
         self.update_filtered_items()
         self.layoutChanged.emit()  # type: ignore  # noqa: PGH003
 

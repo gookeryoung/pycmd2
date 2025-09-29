@@ -13,6 +13,8 @@ class TodoConfig(TomlConfigMixin):
     WIN_SIZE: ClassVar[list[int]] = [640, 600]
     WIN_POS: ClassVar[list[int]] = [100, 100]
 
+    DEFAULT_FILTER_MODE: str = "全部"
+
     FONT_FAMILY: str = "Microsoft YaHei"
 
     BACKUP_INTEVAL: int = 5

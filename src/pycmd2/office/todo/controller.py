@@ -7,11 +7,13 @@ from pathlib import Path
 from PySide2.QtCore import QModelIndex
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QCloseEvent
+from PySide2.QtWidgets import QMessageBox
 
 from pycmd2.office.todo.config import conf
 from pycmd2.office.todo.model import TodoListModel
 
 from .delegate import TodoItemDelegate
+from .model import FilterMode
 from .model import TodoItem
 from .view import TodoView
 
@@ -25,13 +27,20 @@ class TodoController:
         self.view = TodoView()
         self.model = TodoListModel()
 
-        self.view.todo_list.setModel(self.model)
-
+        self._setup_ui()
         self._connect_signals()
 
         self.view.closeEvent = self.on_close
         self.load_data()
         self.on_update_stats()
+
+    def _setup_ui(self) -> None:
+        self.view.todo_list.setModel(self.model)
+
+        modes = [v.value for v in FilterMode]
+        self.view.filter_combo.setCurrentIndex(
+            modes.index(conf.DEFAULT_FILTER_MODE),
+        )
 
     def _connect_signals(self) -> None:
         """Connect signals to slots."""
@@ -76,8 +85,24 @@ class TodoController:
             self._processing_priority_click = False
             return
 
-        current_state = self.model.data(index, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
-        self.model.setData(index, not current_state, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
+        completed = self.model.data(index, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
+
+        # Confirm to delete
+        if completed:
+            msgbox = QMessageBox(self.view)
+            msgbox.setIcon(QMessageBox.Icon.Question)
+            msgbox.setWindowTitle("取消完成确认")
+            msgbox.setText("确定取消已完成吗?")
+            msgbox.setStandardButtons(
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,  # pyright: ignore[reportOperatorIssue]
+            )
+            msgbox.button(QMessageBox.StandardButton.Yes).setText("是")
+            msgbox.button(QMessageBox.StandardButton.No).setText("否")
+
+            if msgbox.exec_() != QMessageBox.Yes:
+                return
+
+        self.model.setData(index, not completed, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
 
     def on_delete(self, row: int) -> None:
         """Handle delete event."""
