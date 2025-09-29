@@ -1,5 +1,6 @@
 import pytest
 
+from pycmd2.office.todo.controller import TodoController
 from pycmd2.office.todo.model import TodoItem
 from pycmd2.office.todo.model import TodoListModel
 
@@ -109,3 +110,15 @@ class TestTodoListModel:
         # Test remove item
         model.remove_item(0)
         assert model.count == 0
+
+
+class TestTodoListView:
+    """Test TodoListView."""
+
+    def test_app_run(self, qtbot) -> None:
+        """Test app run."""
+        controller = TodoController()
+        controller.show()
+
+        qtbot.addWidget(controller.view)
+        assert controller.view.isVisible()

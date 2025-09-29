@@ -103,6 +103,7 @@ path = "src/pycmd2/__init__.py"
 [tool.pytest.ini_options]
 filterwarnings = ["error"]
 markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
+qt_api = "pyside2"
 testpaths = ["tests"]
 
 # ------------------------ ruff ------------------------- #
@@ -234,6 +235,7 @@ test = [
   "pytest-cov>=5.0.0",
   "pytest-html>=4.1.1",
   "pytest-mock>=3.14.1",
+  "pytest-qt>=4.4.0",
   "pytest-xdist>=3.6.1",
   "pytest>=8.3.4",
   "tox-uv>=1.13.1",
