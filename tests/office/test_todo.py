@@ -1,4 +1,10 @@
+from pathlib import Path
+from typing import Generator
+
 import pytest
+from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QMessageBox
+from pytestqt.qtbot import QtBot
 
 from pycmd2.office.todo.controller import TodoController
 from pycmd2.office.todo.model import TodoItem
@@ -115,10 +121,86 @@ class TestTodoListModel:
 class TestTodoListView:
     """Test TodoListView."""
 
-    def test_app_run(self, qtbot) -> None:
-        """Test app run."""
+    @pytest.fixture(autouse=True)
+    def fixture_reset_data(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Reset data file."""
+        monkeypatch.setattr(
+            "pycmd2.office.todo.controller.TodoController.get_data_file_path",
+            lambda _: str(tmp_path / "todo_data.json"),
+        )
+
+    @pytest.fixture
+    def mock_controller(
+        self,
+        qtbot: QtBot,
+    ) -> Generator[TodoController, None, None]:
+        """Setup controller.
+
+        Yields:
+            TodoController: TodoController instance
+        """
         controller = TodoController()
         controller.show()
-
         qtbot.addWidget(controller.view)
-        assert controller.view.isVisible()
+        yield controller
+        controller.save_data()
+
+    def test_app_run(
+        self,
+        mock_controller: TodoController,
+        qtbot: QtBot,
+    ) -> None:
+        """Test app run."""
+        assert mock_controller.view.isVisible()
+
+        # actions
+        mock_controller.view.todo_input.setText("测试待办事项")
+        qtbot.mouseClick(mock_controller.view.add_button, Qt.LeftButton)
+
+        assert mock_controller.model.count == 1
+        assert isinstance(mock_controller.model.get_item(0), TodoItem)
+        assert not mock_controller.model.get_item(0).completed  # pyright: ignore[reportOptionalMemberAccess]
+        assert mock_controller.model.get_item(0).text == "测试待办事项"  # pyright: ignore[reportOptionalMemberAccess]
+
+    def test_item_clicked(
+        self,
+        mock_controller: TodoController,
+        qtbot: QtBot,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test app close."""
+        mock_controller.model.add_item("Test todo item 01", 1, "work")
+        mock_controller.model.add_item("Test todo item 02", 2, "work")
+        assert mock_controller.model.count == 2  # noqa: PLR2004
+        assert mock_controller.model.get_item(0).completed is False  # pyright: ignore[reportOptionalMemberAccess]
+        assert mock_controller.model.get_item(1).completed is False  # pyright: ignore[reportOptionalMemberAccess]
+
+        # click first item to complete
+        index = mock_controller.model.index(0, 0)
+        qtbot.mouseClick(
+            mock_controller.view.todo_list.viewport(),
+            Qt.LeftButton,
+            pos=mock_controller.view.todo_list.visualRect(index).center(),
+        )
+        # the first item should moved down to the second position
+        assert mock_controller.model.get_item(0).completed is False  # pyright: ignore[reportOptionalMemberAccess]
+        assert mock_controller.model.get_item(1).completed is True  # pyright: ignore[reportOptionalMemberAccess]
+
+        # click first item to uncomplete
+        monkeypatch.setattr(
+            QMessageBox,
+            "exec_",
+            lambda _: QMessageBox.StandardButton.Yes,
+        )
+        index = mock_controller.model.index(1, 0)
+        qtbot.mouseClick(
+            mock_controller.view.todo_list.viewport(),
+            Qt.LeftButton,
+            pos=mock_controller.view.todo_list.visualRect(index).center(),
+        )
+        assert mock_controller.model.get_item(0).completed is False  # pyright: ignore[reportOptionalMemberAccess]
+        assert mock_controller.model.get_item(1).completed is False  # pyright: ignore[reportOptionalMemberAccess]

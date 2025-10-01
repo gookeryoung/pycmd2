@@ -89,17 +89,17 @@ class TodoController:
 
         # Confirm to delete
         if completed:
-            msgbox = QMessageBox(self.view)
-            msgbox.setIcon(QMessageBox.Icon.Question)
-            msgbox.setWindowTitle("取消完成确认")
-            msgbox.setText("确定取消已完成吗?")
-            msgbox.setStandardButtons(
+            self.msgbox = QMessageBox(self.view)
+            self.msgbox.setIcon(QMessageBox.Icon.Question)
+            self.msgbox.setWindowTitle("取消完成确认")
+            self.msgbox.setText("确定取消已完成吗?")
+            self.msgbox.setStandardButtons(
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,  # pyright: ignore[reportOperatorIssue]
             )
-            msgbox.button(QMessageBox.StandardButton.Yes).setText("是")
-            msgbox.button(QMessageBox.StandardButton.No).setText("否")
+            self.msgbox.button(QMessageBox.StandardButton.Yes).setText("是")
+            self.msgbox.button(QMessageBox.StandardButton.No).setText("否")
 
-            if msgbox.exec_() != QMessageBox.Yes:
+            if self.msgbox.exec_() != QMessageBox.Yes:
                 return
 
         self.model.setData(index, not completed, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
