@@ -149,7 +149,7 @@ class TestTodoListView:
         yield controller
         controller.save_data()
 
-    def test_app_run(
+    def test_add_item(
         self,
         mock_controller: TodoController,
         qtbot: QtBot,
@@ -204,3 +204,19 @@ class TestTodoListView:
         )
         assert mock_controller.model.get_item(0).completed is False  # pyright: ignore[reportOptionalMemberAccess]
         assert mock_controller.model.get_item(1).completed is False  # pyright: ignore[reportOptionalMemberAccess]
+
+    def test_item_right_clicked(
+        self,
+        mock_controller: TodoController,
+        qtbot: QtBot,
+    ) -> None:
+        """Test app close."""
+        mock_controller.model.add_item("Test todo item 01", 1, "work")
+        assert mock_controller.model.count == 1
+
+        index = mock_controller.model.index(0, 0)
+        qtbot.mouseClick(
+            mock_controller.view.todo_list.viewport(),
+            Qt.RightButton,
+            pos=mock_controller.view.todo_list.visualRect(index).center(),
+        )
