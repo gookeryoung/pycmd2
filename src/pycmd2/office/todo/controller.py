@@ -5,9 +5,11 @@ import logging
 from pathlib import Path
 
 from PySide2.QtCore import QModelIndex
+from PySide2.QtCore import QStringListModel
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QCloseEvent
 from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QCompleter
 from PySide2.QtWidgets import QMessageBox
 
 from pycmd2.office.todo.config import conf
@@ -28,6 +30,7 @@ class TodoController:
         self.view = TodoView()
         self.model = TodoListModel()
         self.is_ascending = True
+        self.completer: QCompleter = QCompleter()  # 明确类型定义
 
         self._setup_ui()
         self._connect_signals()
@@ -35,6 +38,7 @@ class TodoController:
         self.view.closeEvent = self.on_close
         self.load_data()
         self.on_update_stats()
+        self.on_update_category_completer()
 
     def _setup_ui(self) -> None:
         self.view.todo_list.setModel(self.model)
@@ -44,12 +48,37 @@ class TodoController:
             modes.index(conf.DEFAULT_FILTER_MODE),
         )
 
+        # Set completer
+        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        popup = self.completer.popup()
+        popup.setStyleSheet("""
+            QListView {
+                border: 1px solid #2196f3;
+                border-radius: 4px;
+                background-color: white;
+                font-family: "Microsoft YaHei", "SimSun";
+                font-size: 14px;
+            }
+            QListView::item {
+                padding: 4px 8px;
+            }
+            QListView::item:selected {
+                background-color: #2196f3;
+                color: white;
+            }
+        """)
+        self.view.category_input.setCompleter(self.completer)
+
     def _connect_signals(self) -> None:
         """Connect signals to slots."""
         self.view.add_button.clicked.connect(self.on_add_clicked)  # type: ignore  # noqa: PGH003
         self.view.todo_input.returnPressed.connect(self.on_add_clicked)  # type: ignore  # noqa: PGH003
         self.view.item_deleted.connect(self.on_delete)  # type: ignore  # noqa: PGH003
         self.model.data_changed.connect(self.on_update_stats)  # type: ignore[attr-defined]
+        self.model.data_changed.connect(self.on_update_category_completer)  # type: ignore[attr-defined]
+
+        # 连接category_input的点击信号
+        self.view.category_input.clicked.connect(self.on_category_input_clicked)  # type: ignore  # noqa: PGH003
 
         delegate = self.view.todo_list.itemDelegate()
         if isinstance(delegate, TodoItemDelegate):
@@ -137,6 +166,16 @@ class TodoController:
 
         self.model.on_data_changed()
 
+    def on_category_input_clicked(self) -> None:
+        """Handle category input clicked event."""
+        # 如果completer有内容则显示补全列表
+        if self.completer and self.completer.completionCount() > 0:
+            # 设置completer的文本为当前输入框的文本
+            self.completer.setCompletionPrefix(self.view.category_input.text())
+
+            # 手动显示completer
+            self.completer.complete()
+
     def on_priority_up(self, index: QModelIndex) -> None:
         """Handle priority up click event."""
         self._processing_priority_click = True
@@ -163,6 +202,11 @@ class TodoController:
             f" 待完成: {self.model.pending_count} |"
             f" 已完成: {self.model.completed_count}",
         )
+
+    def on_update_category_completer(self) -> None:
+        """Update category completer."""
+        categories = list({v.category for v in self.model.items})
+        self.completer.setModel(QStringListModel(categories))
 
     def get_data_file_path(self) -> str:
         """获取数据文件路径.

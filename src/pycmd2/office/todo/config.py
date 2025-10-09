@@ -35,6 +35,9 @@ class TodoConfig(TomlConfigMixin):
         "#be64fa",
         "#FA3538",
         "#fd951e",
+        "#8ae7f9",
+        "#296ec3",
+        "#5c23f9",
     ]
 
     # title label

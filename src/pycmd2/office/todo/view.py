@@ -10,6 +10,7 @@ from PySide2.QtCore import QTimer
 from PySide2.QtCore import Signal
 from PySide2.QtGui import QContextMenuEvent
 from PySide2.QtGui import QIcon
+from PySide2.QtGui import QMouseEvent
 from PySide2.QtGui import QMoveEvent
 from PySide2.QtGui import QResizeEvent
 from PySide2.QtWidgets import QAbstractItemView
@@ -38,6 +39,19 @@ from .model import FilterMode
 from .model import SortMode
 
 logger = logging.getLogger(__name__)
+
+
+class ClickableLineEdit(QLineEdit):
+    """A QLineEdit that emits a clicked signal when clicked."""
+
+    clicked = Signal()
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        """Handle mouse press event."""
+        if event.button() == Qt.LeftButton:
+            self.clicked.emit()  # type: ignore  # noqa: PGH003
+
+        super().mousePressEvent(event)
 
 
 class TodoView(QMainWindow):
@@ -154,7 +168,9 @@ class TodoView(QMainWindow):
         input_layout.addWidget(self.todo_input)
 
         # Create category input
-        self.category_input = QLineEdit()
+        self.category_input = (
+            ClickableLineEdit()
+        )  # 使用自定义的ClickableLineEdit
         self.category_input.setSizePolicy(
             QSizePolicy.Policy.Minimum,
             QSizePolicy.Policy.Minimum,
