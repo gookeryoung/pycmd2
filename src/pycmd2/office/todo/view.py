@@ -34,6 +34,7 @@ from pycmd2.office.todo.delegate import TodoItemDelegate
 from pycmd2.office.todo.todo_rc import *  # noqa: F403
 
 from .model import FilterMode
+from .model import SortMode
 
 logger = logging.getLogger(__name__)
 
@@ -152,7 +153,7 @@ class TodoView(QMainWindow):
         input_layout.addWidget(self.todo_input)
 
         self.add_button = QPushButton(conf.ADD_BUTTON_TEXT)
-        self.add_button.setStyleSheet(conf.STYLE_ADD_BUTTON)
+        self.add_button.setStyleSheet(conf.STYLE_BUTTON_ADD)
         input_layout.addWidget(self.add_button)
         layout.addLayout(input_layout)
 
@@ -170,10 +171,27 @@ class TodoView(QMainWindow):
         filter_layout.addWidget(self.filter_combo)
         filter_layout.addStretch()
 
+        # 创建排序下拉框
+        self.sort_combo = QComboBox()
+        self.sort_combo.addItems([
+            SortMode.Priority.value,
+            SortMode.Category.value,
+            SortMode.Created.value,
+            SortMode.Completed.value,
+        ])
+        self.sort_combo.setCurrentText(conf.DEFAULT_SORT_MODE)
+        self.sort_combo.setStyleSheet(conf.STYLE_COMBOBOX)
+        filter_layout.addWidget(self.sort_combo)
+
+        # 创建排序按钮
+        self.sort_button = QPushButton(QIcon(":/assets/ascending.svg"), "排序")
+        self.sort_button.setStyleSheet(conf.STYLE_BUTTON_ASCENDING)
+        filter_layout.addWidget(self.sort_button)
+
+        # 创建清除已完成按钮
         self.clear_completed_button = QPushButton("清除已完成")
         self.clear_completed_button.setStyleSheet(conf.STYLE_BUTTON_FINISHED)
         filter_layout.addWidget(self.clear_completed_button)
-
         layout.addLayout(filter_layout)
 
         # 创建统计标签

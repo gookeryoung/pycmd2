@@ -7,6 +7,7 @@ from pathlib import Path
 from PySide2.QtCore import QModelIndex
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QCloseEvent
+from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import QMessageBox
 
 from pycmd2.office.todo.config import conf
@@ -26,6 +27,7 @@ class TodoController:
     def __init__(self) -> None:
         self.view = TodoView()
         self.model = TodoListModel()
+        self.is_ascending = True
 
         self._setup_ui()
         self._connect_signals()
@@ -60,6 +62,14 @@ class TodoController:
         # Handle filter change
         self.view.filter_combo.currentTextChanged.connect(  # type: ignore  # noqa: PGH003
             self.model.set_filter_mode,
+        )
+
+        # Handle sorting
+        self.view.sort_combo.currentTextChanged.connect(  # type: ignore  # noqa: PGH003
+            self.model.set_sort_mode,
+        )
+        self.view.sort_button.clicked.connect(  # type: ignore  # noqa: PGH003
+            self.on_set_ascending,
         )
 
         # Handle clear completed
@@ -110,6 +120,18 @@ class TodoController:
             item = self.model.filtered_items[row]
             original_index = self.model.items.index(item)
             self.model.remove_item(original_index)
+
+    def on_set_ascending(self) -> None:
+        """Handle set ascending event."""
+        self.is_ascending = not self.is_ascending
+        conf.setattr("IS_ASCENDING", self.is_ascending)
+
+        if self.is_ascending:
+            self.view.sort_button.setIcon(QIcon(":/assets/ascending.svg"))
+        else:
+            self.view.sort_button.setIcon(QIcon(":/assets/descending.svg"))
+
+        self.model.on_data_changed()
 
     def on_priority_up(self, index: QModelIndex) -> None:
         """Handle priority up click event."""

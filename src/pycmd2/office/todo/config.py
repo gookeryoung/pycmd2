@@ -14,6 +14,8 @@ class TodoConfig(TomlConfigMixin):
     WIN_POS: ClassVar[list[int]] = [100, 100]
 
     DEFAULT_FILTER_MODE: str = "全部"
+    DEFAULT_SORT_MODE: str = "类别"
+    IS_ASCENDING: bool = True
 
     FONT_FAMILY: str = "Microsoft YaHei"
 
@@ -36,6 +38,7 @@ class TodoConfig(TomlConfigMixin):
 
     # input label
     INPUT_PLACEHOLDER = "添加新的待办事项..."
+
     STYLE_INPUT = """
     QLineEdit {
         padding: 6px 12px;
@@ -47,7 +50,25 @@ class TodoConfig(TomlConfigMixin):
         border-color: #2196f3;
     }"""
     ADD_BUTTON_TEXT = "添加"
-    STYLE_ADD_BUTTON = """
+
+    STYLE_BUTTON_ASCENDING = """
+    QPushButton {
+        background-color: #e0e0e0;
+        color: #323232;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-weight: bold;
+    }
+    QPushButton:hover {
+        background-color: #c0c0c0;
+    }
+    QPushButton:pressed {
+        background-color: #1565c0;
+    }
+    """
+
+    STYLE_BUTTON_ADD = """
     QPushButton {
         background-color: #2196f3;
         color: white;

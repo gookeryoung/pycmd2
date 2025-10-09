@@ -29,6 +29,15 @@ class FilterMode(Enum):
     Completed = "已完成"
 
 
+class SortMode(Enum):
+    """Sort Mode Enum."""
+
+    Priority = "优先级"
+    Category = "类别"
+    Created = "创建时间"
+    Completed = "完成时间"
+
+
 @dataclass
 class TodoItem:
     """Data class for single todo item."""
@@ -96,9 +105,10 @@ class TodoListModel(QAbstractListModel):
 
         self.filtered_items: List[TodoItem] = []
         self.filter_mode = conf.DEFAULT_FILTER_MODE
+        self.sort_mode = conf.DEFAULT_SORT_MODE
 
-        self.update_filtered_items()
         self.data_changed.connect(self.on_data_changed)  # pyright: ignore[reportAttributeAccessIssue]
+        self.on_data_changed()
 
     @property
     def items(self) -> List[TodoItem]:
@@ -217,9 +227,17 @@ class TodoListModel(QAbstractListModel):
         """设置过滤模式."""
         self.filter_mode = mode
         conf.setattr("DEFAULT_FILTER_MODE", mode)
+        logger.info(f"Set filter mode to {mode}")
 
-        self.update_filtered_items()
-        self.layoutChanged.emit()  # type: ignore  # noqa: PGH003
+        self.on_data_changed()
+
+    def set_sort_mode(self, mode: str) -> None:
+        """设置排序模式."""
+        self.sort_mode = mode
+        conf.setattr("DEFAULT_SORT_MODE", mode)
+        logger.info(f"Set sort mode to {mode}")
+
+        self.on_data_changed()
 
     def update_filtered_items(self) -> None:
         """更新过滤后的项目列表."""
@@ -234,17 +252,33 @@ class TodoListModel(QAbstractListModel):
         else:  # 全部
             self.filtered_items = self.get_items()
 
-        # sort by priority
-        self.filtered_items = sorted(
-            self.filtered_items,
-            key=lambda item: -item.priority,
-        )
+        logger.info(f"Filtered items: {self.sort_mode=}, {conf.IS_ASCENDING=}")
 
-        # sort by complete
-        self.filtered_items = sorted(
-            self.filtered_items,
-            key=lambda item: item.completed,
-        )
+        ascending = -1 if conf.IS_ASCENDING else 1
+        if self.sort_mode == SortMode.Priority.value:  # 按优先级排序
+            self.filtered_items = sorted(
+                self.filtered_items,
+                key=lambda item: ascending * item.priority,
+            )
+        elif self.sort_mode == SortMode.Category.value:  # 按类别排序
+            self.filtered_items = sorted(
+                self.filtered_items,
+                key=lambda item: ascending * item.category,
+            )
+        elif self.sort_mode == SortMode.Created.value:  # Sort by created
+            self.filtered_items = sorted(
+                self.filtered_items,
+                key=lambda item: item.created_at,
+            )[::ascending]
+        elif self.sort_mode == SortMode.Completed.value:  # 按完成时间排序
+            self.filtered_items = sorted(
+                self.filtered_items,
+                key=lambda item: (
+                    item.completed_at is not None,
+                    item.completed_at
+                    or datetime.min.replace(tzinfo=timezone.utc),
+                ),
+            )[::ascending]
 
     def on_data_changed(self) -> None:
         """处理模型数据变化."""

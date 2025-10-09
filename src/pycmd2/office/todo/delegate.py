@@ -330,7 +330,7 @@ class TodoItemDelegate(QStyledItemDelegate):
                     if on_down_button:
                         self.dec_priority.emit(index)  # type: ignore  # noqa: PGH003
                     elif on_up_button:
-                        self.inc_priorityD.emit(index)  # type: ignore  # noqa: PGH003
+                        self.inc_priority.emit(index)  # type: ignore  # noqa: PGH003
                 # 对于按钮区域的所有事件都返回True, 阻止传播
                 return True
 
