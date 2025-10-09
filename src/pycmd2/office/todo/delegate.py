@@ -105,6 +105,17 @@ class TodoItemDelegate(QStyledItemDelegate):
             elided_text,
         )
 
+        # 绘制类别标签
+        self._draw_category_tag(
+            painter,
+            QRect(
+                rect.left() + 120,
+                rect.top() + (rect.height() - 20) // 2,
+                *conf.TAG_SIZE,
+            ),
+            item.category,
+        )
+
         # 绘制优先级调整按钮
         button_size = 20
         buttons_y = rect.top() + (rect.height() - button_size) // 2
@@ -172,6 +183,36 @@ class TodoItemDelegate(QStyledItemDelegate):
                 font_color=conf.CREATE_FONT_COLOR,
             )
 
+        painter.restore()
+
+    def _draw_category_tag(
+        self,
+        painter: QPainter,
+        rect: QRect,
+        category: str,
+    ) -> None:
+        """Draw category tag."""
+        painter.save()
+
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(
+            QBrush(
+                QColor(
+                    conf.CATEGORY_TAG_COLORS[
+                        hash(category) % len(conf.CATEGORY_TAG_COLORS)
+                    ],
+                ),
+            ),
+        )
+        painter.drawRoundedRect(rect, 5, 5)
+        painter.setPen(QColor(conf.CATEGORY_FONT_COLOR))
+        painter.setBrush(QBrush(Qt.BrushStyle.NoBrush))
+        painter.setFont(QFont(conf.FONT_FAMILY, 6))
+        painter.drawText(
+            rect,  # pyright: ignore[reportArgumentType]
+            Qt.AlignCenter,  # type: ignore  # noqa: PGH003
+            category,
+        )
         painter.restore()
 
     def _draw_time_tag(

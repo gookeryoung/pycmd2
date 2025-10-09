@@ -15,6 +15,7 @@ class TodoConfig(TomlConfigMixin):
 
     DEFAULT_FILTER_MODE: str = "全部"
     DEFAULT_SORT_MODE: str = "类别"
+    DEFAULT_CATEGORY: str = "未分类"
     IS_ASCENDING: bool = True
 
     FONT_FAMILY: str = "Microsoft YaHei"
@@ -25,6 +26,16 @@ class TodoConfig(TomlConfigMixin):
     CREATE_TAG_COLOR: str = "#c0ffc0"
     CREATE_FONT_COLOR: str = "#ff4040"
     COMPLETE_TAG_COLOR: str = "#e0e0e0"
+    CATEGORY_FONT_COLOR: str = "#323232"
+    CATEGORY_TAG_COLORS: ClassVar[list[str]] = [
+        "#41bbf3",
+        "#40f4a9",
+        "#f8f24d",
+        "#f54cce",
+        "#be64fa",
+        "#FA3538",
+        "#fd951e",
+    ]
 
     # title label
     TITLE_LABEL = "我的待办清单"

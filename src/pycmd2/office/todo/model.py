@@ -47,7 +47,7 @@ class TodoItem:
     created_at: datetime = field(default_factory=datetime.now)
     completed_at: datetime | None = None
     priority: int = 0
-    category: str = ""
+    category: str = conf.DEFAULT_CATEGORY
 
     def __str__(self) -> str:
         """Return string representation."""

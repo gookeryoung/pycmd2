@@ -80,10 +80,14 @@ class TodoController:
     def on_add_clicked(self) -> None:
         """Handle add button clicked."""
         text = self.view.todo_input.text().strip()
+        category = (
+            self.view.category_input.text().strip() or conf.DEFAULT_CATEGORY
+        )
 
         if text:
-            self.model.add_item(text)
+            self.model.add_item(text, category=category)
             self.view.todo_input.clear()
+            self.view.category_input.clear()
 
     def on_item_clicked(self, index: QModelIndex) -> None:
         """Handle item clicked."""

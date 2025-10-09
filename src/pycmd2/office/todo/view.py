@@ -25,6 +25,7 @@ from PySide2.QtWidgets import QMainWindow
 from PySide2.QtWidgets import QMenu
 from PySide2.QtWidgets import QMessageBox
 from PySide2.QtWidgets import QPushButton
+from PySide2.QtWidgets import QSizePolicy
 from PySide2.QtWidgets import QToolBar
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
@@ -151,6 +152,16 @@ class TodoView(QMainWindow):
         self.todo_input.setPlaceholderText(conf.INPUT_PLACEHOLDER)
         self.todo_input.setStyleSheet(conf.STYLE_INPUT)
         input_layout.addWidget(self.todo_input)
+
+        # Create category input
+        self.category_input = QLineEdit()
+        self.category_input.setSizePolicy(
+            QSizePolicy.Policy.Minimum,
+            QSizePolicy.Policy.Minimum,
+        )
+        self.category_input.setPlaceholderText(conf.DEFAULT_CATEGORY)
+        self.category_input.setStyleSheet(conf.STYLE_INPUT)
+        input_layout.addWidget(self.category_input)
 
         self.add_button = QPushButton(conf.ADD_BUTTON_TEXT)
         self.add_button.setStyleSheet(conf.STYLE_BUTTON_ADD)
