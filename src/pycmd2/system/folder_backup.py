@@ -37,7 +37,7 @@ def zip_folder(
         )
         cli.run(os.remove, remove_files)
 
-    backup_path = dst / f"{timestamp}_{src.name}.zip"
+    backup_path = dst / f"{timestamp}_{src.name}"
     logger.info(f"创建备份: [purple]{backup_path.name}")
     shutil.make_archive(str(backup_path), "zip")
 
