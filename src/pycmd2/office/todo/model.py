@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
@@ -19,6 +20,18 @@ from PySide2.QtCore import Signal
 from .config import conf
 
 logger = logging.getLogger(__name__)
+
+
+def _natural_keys(text: str) -> list[str | int]:
+    """Sort keys that are string with a natural sorting algorithm.
+
+    Returns:
+        list[str | int]: natural sorted keys.
+    """
+    return [
+        int(part) if part.isdigit() else part.lower()
+        for part in re.split(r"(\d+)", text)
+    ]
 
 
 class FilterMode(Enum):
@@ -258,13 +271,13 @@ class TodoListModel(QAbstractListModel):
         if self.sort_mode == SortMode.Priority.value:  # 按优先级排序
             self.filtered_items = sorted(
                 self.filtered_items,
-                key=lambda item: ascending * item.priority,
-            )
+                key=lambda item: item.priority,
+            )[::ascending]
         elif self.sort_mode == SortMode.Category.value:  # 按类别排序
             self.filtered_items = sorted(
                 self.filtered_items,
-                key=lambda item: ascending * item.category,
-            )
+                key=lambda item: _natural_keys(item.category),
+            )[::ascending]
         elif self.sort_mode == SortMode.Created.value:  # Sort by created
             self.filtered_items = sorted(
                 self.filtered_items,

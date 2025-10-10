@@ -32,16 +32,16 @@ class TodoConfig(TomlConfigMixin):
     COMPLETE_TAG_COLOR: str = "#e0e0e0"
     CATEGORY_FONT_COLOR: str = "#323232"
     CATEGORY_TAG_COLORS: ClassVar[list[str]] = [
-        "#41bbf3",
-        "#40f4a9",
-        "#f8f24d",
-        "#f54cce",
-        "#be64fa",
-        "#FA3538",
-        "#fd951e",
-        "#8ae7f9",
-        "#296ec3",
-        "#5c23f9",
+        "#97daf9",
+        "#a1f0cf",
+        "#f5f3ba",
+        "#f9b4e9",
+        "#e3b9fe",
+        "#FB9395",
+        "#badaff",
+        "#7ea3cf",
+        "#b4a2e6",
+        "#fca0a0",
     ]
 
     # title label
