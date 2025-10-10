@@ -66,7 +66,7 @@ class TodoView(QMainWindow):
 
         self._processing_priority_click = False
 
-        self.setWindowIcon(QIcon(":/assets/favicon.svg"))
+        self.setWindowIcon(QIcon(":/assets/images/favicon.svg"))
 
         self.setWindowTitle(conf.WIN_TITLE)
         self.resize(*conf.WIN_SIZE)
@@ -74,9 +74,6 @@ class TodoView(QMainWindow):
 
         self._create_toolbar()
         self._create_backup_timer()
-
-        # 设置窗口样式
-        self.setStyleSheet(conf.STYLE_MAINWINDOW)
 
     def moveEvent(self, event: QMoveEvent) -> None:
         """Handle move event."""
@@ -157,14 +154,12 @@ class TodoView(QMainWindow):
 
         # Create title label
         title_label = QLabel(conf.TITLE_LABEL)
-        title_label.setStyleSheet(conf.STYLE_TITLE_LABEL)
         layout.addWidget(title_label)
 
         # Create input layout
         input_layout = QHBoxLayout()
         self.todo_input = QLineEdit()
         self.todo_input.setPlaceholderText(conf.INPUT_PLACEHOLDER)
-        self.todo_input.setStyleSheet(conf.STYLE_INPUT)
         input_layout.addWidget(self.todo_input)
 
         # Create category input
@@ -176,11 +171,9 @@ class TodoView(QMainWindow):
             QSizePolicy.Policy.Minimum,
         )
         self.category_input.setPlaceholderText(conf.DEFAULT_CATEGORY)
-        self.category_input.setStyleSheet(conf.STYLE_INPUT)
         input_layout.addWidget(self.category_input)
 
         self.add_button = QPushButton(conf.ADD_BUTTON_TEXT)
-        self.add_button.setStyleSheet(conf.STYLE_BUTTON_ADD)
         input_layout.addWidget(self.add_button)
         layout.addLayout(input_layout)
 
@@ -193,12 +186,12 @@ class TodoView(QMainWindow):
             FilterMode.Pending.value,
             FilterMode.Completed.value,
         ])
-        self.filter_combo.setStyleSheet(conf.STYLE_COMBOBOX)
         filter_layout.addWidget(QLabel("显示:"))
         filter_layout.addWidget(self.filter_combo)
         filter_layout.addStretch()
 
         # 创建排序下拉框
+        filter_layout.addWidget(QLabel("排序:"))
         self.sort_combo = QComboBox()
         self.sort_combo.addItems([
             SortMode.Priority.value,
@@ -207,17 +200,21 @@ class TodoView(QMainWindow):
             SortMode.Completed.value,
         ])
         self.sort_combo.setCurrentText(conf.DEFAULT_SORT_MODE)
-        self.sort_combo.setStyleSheet(conf.STYLE_COMBOBOX)
         filter_layout.addWidget(self.sort_combo)
 
         # 创建排序按钮
-        self.sort_button = QPushButton(QIcon(":/assets/ascending.svg"), "排序")
+        self.sort_button = QPushButton(
+            QIcon(":/assets/images/ascending.svg"),
+            "",
+            self,
+        )
+        self.sort_button.setIconSize(QSize(12, 12))
         self.sort_button.setStyleSheet(conf.STYLE_BUTTON_ASCENDING)
         filter_layout.addWidget(self.sort_button)
 
         # 创建清除已完成按钮
         self.clear_completed_button = QPushButton("清除已完成")
-        self.clear_completed_button.setStyleSheet(conf.STYLE_BUTTON_FINISHED)
+        self.clear_completed_button.setStyleSheet(conf.STYLE_BUTTON_CLEAR)
         filter_layout.addWidget(self.clear_completed_button)
         layout.addLayout(filter_layout)
 
@@ -239,7 +236,6 @@ class TodoView(QMainWindow):
         self.todo_list.setEditTriggers(
             QAbstractItemView.EditTrigger.NoEditTriggers,  # pyright: ignore[reportArgumentType]
         )
-        self.todo_list.setStyleSheet(conf.STYLE_TODO_LIST)
         layout.addWidget(self.todo_list)
 
     def _create_toolbar(self) -> None:

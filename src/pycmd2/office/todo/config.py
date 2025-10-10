@@ -42,62 +42,11 @@ class TodoConfig(TomlConfigMixin):
 
     # title label
     TITLE_LABEL = "我的待办清单"
-    STYLE_TITLE_LABEL = """
-    QLabel {
-        font-family: "Microsoft YaHei", "SimSun";
-        font-size: 24px;
-        font-weight: bold;
-        color: #323232;
-    }"""
 
     # input label
     INPUT_PLACEHOLDER = "添加新的待办事项..."
 
-    STYLE_INPUT = """
-    QLineEdit {
-        padding: 6px 12px;
-        border: 2px solid #e0e0e0;
-        border-radius: 6px;
-        font-size: 14px;
-    }
-    QLineEdit:focus {
-        border-color: #2196f3;
-    }"""
     ADD_BUTTON_TEXT = "添加"
-
-    STYLE_BUTTON_ASCENDING = """
-    QPushButton {
-        background-color: #e0e0e0;
-        color: #323232;
-        border: none;
-        border-radius: 6px;
-        padding: 6px 12px;
-        font-weight: bold;
-    }
-    QPushButton:hover {
-        background-color: #c0c0c0;
-    }
-    QPushButton:pressed {
-        background-color: #1565c0;
-    }
-    """
-
-    STYLE_BUTTON_ADD = """
-    QPushButton {
-        background-color: #2196f3;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        padding: 10px 20px;
-        font-weight: bold;
-    }
-    QPushButton:hover {
-        background-color: #1976d2;
-    }
-    QPushButton:pressed {
-        background-color: #0d47a1;
-    }"""
-
     ABOUT_TITLE = "关于Todo list"
     ABOUT_MESSAGE = """
     <h1>Todo list</h1>
@@ -113,51 +62,29 @@ class TodoConfig(TomlConfigMixin):
         "#f44336",  # 红色
     ]
 
-    STYLE_MAINWINDOW = """
-    QMainWindow {
-        background-color: #fcfffc;
+    STYLE_BUTTON_ASCENDING = """
+    QPushButton {
+        background-color: #e0e0e0;
+        color: #323232;
+    }
+    QPushButton:hover {
+        background-color: #c0c0c0;
+    }
+    QPushButton:pressed {
+        background-color: #1565c0;
     }
     """
 
-    STYLE_COMBOBOX = """
-    QComboBox {
-        padding: 4px;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
-        min-width: 100px;
-        font-size: 14px;
-    }
-    QComboBox::drop-down {
-        border: none;
-    }"""
-
-    STYLE_BUTTON_FINISHED = """
+    STYLE_BUTTON_CLEAR = """
     QPushButton {
         background-color: #ffcdd2;
         color: #c62828;
-        border: none;
-        border-radius: 4px;
-        padding: 6px 12px;
-        font-size: 12px;
     }
     QPushButton:hover {
         background-color: #ef9a9a;
     }
     QPushButton:pressed {
         background-color: #e57373;
-    }"""
-
-    STYLE_TODO_LIST = """
-    QListView {
-        border: none;
-        outline: 0;
-        padding: 0;
-    }
-    QListView::item {
-        border-bottom: 1px solid #eeeeee;
-    }
-    QListView::item:last-child {
-        border-bottom: none;
     }"""
 
     _DATA_DIR = Path.home() / ".pycmd2" / "office" / "todo"

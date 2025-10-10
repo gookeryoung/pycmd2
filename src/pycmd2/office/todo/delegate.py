@@ -250,9 +250,9 @@ class TodoItemDelegate(QStyledItemDelegate):
         painter.save()
 
         if checked:
-            img = QImage(":/assets/done.svg")
+            img = QImage(":/assets/images/done.svg")
         else:
-            img = QImage(":/assets/todo.svg")
+            img = QImage(":/assets/images/todo.svg")
 
         painter.drawImage(rect, img, img.rect())
         painter.restore()
@@ -297,9 +297,9 @@ class TodoItemDelegate(QStyledItemDelegate):
         painter.save()
 
         if action == PriorityAction.DOWNGRADE:
-            img = QImage(":/assets/downgrade.svg")
+            img = QImage(":/assets/images/downgrade.svg")
         elif action == PriorityAction.UPGRADE:
-            img = QImage(":/assets/upgrade.svg")
+            img = QImage(":/assets/images/upgrade.svg")
 
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QBrush(QColor("#efffef"), Qt.BrushStyle.SolidPattern))

@@ -160,10 +160,13 @@ class TodoController:
         conf.setattr("IS_ASCENDING", self.is_ascending)
 
         if self.is_ascending:
-            self.view.sort_button.setIcon(QIcon(":/assets/ascending.svg"))
+            self.view.sort_button.setIcon(
+                QIcon(":/assets/images/ascending.svg"),
+            )
         else:
-            self.view.sort_button.setIcon(QIcon(":/assets/descending.svg"))
-
+            self.view.sort_button.setIcon(
+                QIcon(":/assets/images/descending.svg"),
+            )
         self.model.on_data_changed()
 
     def on_category_input_clicked(self) -> None:
