@@ -1,27 +1,28 @@
+QPushButton, QLabel, QLineEdit, QComboBox, QListView, QMainWindow {
+    font-family: "Microsoft YaHei", "SimSun";
+    font-size: 12px;
+}
+
 QComboBox {
     padding: 4px 8px;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     min-width: 100px;
-    font-size: 12px;
-    font-family: "Microsoft YaHei", "SimSun";
 }
 QComboBox::drop-down {
     border: none;
 }
 
 QLabel {
-    font-family: "Microsoft YaHei", "SimSun";
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
-    color: #323232;
+    color: #5f5e5e;
 }
 
 QLineEdit {
-    padding: 6px 12px;
+    padding: 4px 12px;
     border: 2px solid #cfcecf;
     border-radius: 12px;
-    font-size: 14px;
 }
 QLineEdit:focus {
     border-color: #2196f3;
@@ -44,22 +45,9 @@ QMainWindow {
 }
 
 QPushButton {
-    background-color: #2196f3;
+    background-color: #939393;
     color: white;
     border: none;
-    border-radius: 12px;
-    padding: 10px 20px;
-    font-weight: bold;
-}
-
-QPushButton:disabled {
-    background-color: #e0e0e0;
-}
-
-QPushButton:hover {
-    background-color: #1976d2;
-}
-
-QPushButton:pressed {
-    background-color: #0d47a1;
+    border-radius: 8px;
+    padding: 6px 12px;
 }

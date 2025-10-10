@@ -174,6 +174,8 @@ class TodoView(QMainWindow):
         input_layout.addWidget(self.category_input)
 
         self.add_button = QPushButton(conf.ADD_BUTTON_TEXT)
+        style = conf._DIR_STYLES / "add_button.qss"  # noqa: SLF001
+        self.add_button.setStyleSheet(style.read_text().strip())
         self.add_button.setEnabled(False)
         input_layout.addWidget(self.add_button)
         layout.addLayout(input_layout)
@@ -210,12 +212,14 @@ class TodoView(QMainWindow):
             self,
         )
         self.sort_button.setIconSize(QSize(12, 12))
-        self.sort_button.setStyleSheet(conf.STYLE_BUTTON_ASCENDING)
+        style = conf._DIR_STYLES / "sort_button.qss"  # noqa: SLF001
+        self.sort_button.setStyleSheet(style.read_text().strip())
         filter_layout.addWidget(self.sort_button)
 
         # 创建清除已完成按钮
         self.clear_completed_button = QPushButton("清除已完成")
-        self.clear_completed_button.setStyleSheet(conf.STYLE_BUTTON_CLEAR)
+        style = conf._DIR_STYLES / "clear_button.qss"  # noqa: SLF001
+        self.clear_completed_button.setStyleSheet(style.read_text().strip())
         filter_layout.addWidget(self.clear_completed_button)
         layout.addLayout(filter_layout)
 

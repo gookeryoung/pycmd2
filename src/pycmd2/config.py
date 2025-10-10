@@ -177,3 +177,10 @@ class TomlConfigMixin:
         except PermissionError as e:
             msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
             logger.exception(msg)
+        except TypeError as e:
+            logger.exception(f"self._cls_attrs: {self._cls_attrs}")
+            msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
+            logger.exception(msg)
+        except Exception as e:
+            msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
+            logger.exception(msg)

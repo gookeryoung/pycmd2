@@ -51,22 +51,8 @@ class TodoController:
         # Set completer
         self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         popup = self.completer.popup()
-        popup.setStyleSheet("""
-            QListView {
-                border: 1px solid #2196f3;
-                border-radius: 4px;
-                background-color: white;
-                font-family: "Microsoft YaHei", "SimSun";
-                font-size: 14px;
-            }
-            QListView::item {
-                padding: 4px 8px;
-            }
-            QListView::item:selected {
-                background-color: #2196f3;
-                color: white;
-            }
-        """)
+        style = conf._DIR_STYLES / "completer.qss"  # noqa: SLF001
+        popup.setStyleSheet(style.read_text().strip())
         self.view.category_input.setCompleter(self.completer)
 
     def _connect_signals(self) -> None:

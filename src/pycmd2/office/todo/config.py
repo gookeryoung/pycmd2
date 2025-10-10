@@ -9,6 +9,10 @@ from pycmd2.config import TomlConfigMixin
 class TodoConfig(TomlConfigMixin):
     """Todo configuration."""
 
+    _CWD = Path(__file__).parent
+    _DIR_ASSETS = _CWD / "assets"
+    _DIR_STYLES = _DIR_ASSETS / "styles"
+
     WIN_TITLE: str = "Todo"
     WIN_SIZE: ClassVar[list[int]] = [640, 600]
     WIN_POS: ClassVar[list[int]] = [100, 100]
@@ -61,31 +65,6 @@ class TodoConfig(TomlConfigMixin):
         "#ff9800",  # 黄色
         "#f44336",  # 红色
     ]
-
-    STYLE_BUTTON_ASCENDING = """
-    QPushButton {
-        background-color: #e0e0e0;
-        color: #323232;
-    }
-    QPushButton:hover {
-        background-color: #c0c0c0;
-    }
-    QPushButton:pressed {
-        background-color: #1565c0;
-    }
-    """
-
-    STYLE_BUTTON_CLEAR = """
-    QPushButton {
-        background-color: #ffcdd2;
-        color: #c62828;
-    }
-    QPushButton:hover {
-        background-color: #ef9a9a;
-    }
-    QPushButton:pressed {
-        background-color: #e57373;
-    }"""
 
     _DATA_DIR = Path.home() / ".pycmd2" / "office" / "todo"
 
