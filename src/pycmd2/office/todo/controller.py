@@ -73,6 +73,7 @@ class TodoController:
         """Connect signals to slots."""
         self.view.add_button.clicked.connect(self.on_add_clicked)  # type: ignore  # noqa: PGH003
         self.view.todo_input.returnPressed.connect(self.on_add_clicked)  # type: ignore  # noqa: PGH003
+        self.view.todo_input.textChanged.connect(self.on_check_input)  # type: ignore  # noqa: PGH003
         self.view.item_deleted.connect(self.on_delete)  # type: ignore  # noqa: PGH003
         self.model.data_changed.connect(self.on_update_stats)  # type: ignore[attr-defined]
         self.model.data_changed.connect(self.on_update_category_completer)  # type: ignore[attr-defined]
@@ -105,6 +106,13 @@ class TodoController:
         self.view.clear_completed_button.clicked.connect(  # type: ignore  # noqa: PGH003
             self.model.clear_completed,
         )
+
+    def on_check_input(self, text: str) -> None:
+        """Handle text changed in todo input."""
+        if text:
+            self.view.add_button.setEnabled(True)
+        else:
+            self.view.add_button.setEnabled(False)
 
     def on_add_clicked(self) -> None:
         """Handle add button clicked."""

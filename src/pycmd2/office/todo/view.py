@@ -174,6 +174,7 @@ class TodoView(QMainWindow):
         input_layout.addWidget(self.category_input)
 
         self.add_button = QPushButton(conf.ADD_BUTTON_TEXT)
+        self.add_button.setEnabled(False)
         input_layout.addWidget(self.add_button)
         layout.addLayout(input_layout)
 
