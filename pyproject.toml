@@ -8,7 +8,6 @@ requires = ["hatchling"]
 authors = [{ name = "gooker_young", email = "gooker_young@qq.com" }]
 classifiers = []
 dependencies = [
-  "paramiko>=3.5.1",
   "rich>=13.9.4",
   "tomli-w>=1.0.0 ; python_full_version < '3.11'",
   "tomli>=2.2.1 ; python_full_version < '3.11'",

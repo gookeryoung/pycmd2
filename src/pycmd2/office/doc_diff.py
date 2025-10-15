@@ -81,7 +81,7 @@ def diff_doc(old: Path, new: Path) -> None:
 
 @cli.app.command()
 def main(
-    files: List[Path] = typer.Argument(help="Input file list."),  # noqa: B008
+    files: List[Path] = typer.Argument(help="待输入文件清单"),  # noqa: B008
 ) -> None:
     """Compare two doc/docx files."""
     if len(files) < 2:  # noqa: PLR2004

@@ -1,9 +1,10 @@
 """功能: 实现类似 ssh-copy-id 的功能."""
 
+import subprocess
+import sys
 from pathlib import Path
 
-import paramiko
-from typer import Argument
+import typer
 
 from pycmd2.client import get_client
 
@@ -33,63 +34,78 @@ def ssh_copy_id(
         username: 远程服务器用户名
         password: 远程服务器密码
         public_key_path: 本地公钥路径(默认 ~/.ssh/id_rsa.pub)
-        timeout: 连接超时时间(秒)
 
     Raises:
         SSHAuthenticationError: 认证失败
         SSHConnectionError: 连接失败
+        Exception: 其他异常
     """
     # 读取本地公钥内容
     expanded_path = Path(public_key_path).expanduser()
-    with expanded_path.open() as f:
-        public_key = f.read().strip()
-
-    # 建立 SSH 连接
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-        ssh.connect(hostname, port, username, password, timeout=10)
-    except paramiko.AuthenticationException as e:
-        msg = "认证失败, 请检查用户名或密码"
-        raise SSHAuthenticationError(msg) from e
+        with expanded_path.open() as f:
+            pub_key = f.read().strip()
+    except FileNotFoundError as e:
+        msg = f"公钥文件未找到: {expanded_path}"
+        raise SSHConnectionError(msg) from e
     except Exception as e:
-        msg = f"连接失败: {e!s}"
+        msg = f"读取公钥文件失败: {e!s}"
         raise SSHConnectionError(msg) from e
 
-    # 使用 SFTP 创建或更新 authorized_keys
-    sftp = ssh.open_sftp()
     try:
-        # 检查并创建 .ssh 目录
+        # 使用 sshpass 执行远程命令
         try:
-            sftp.stat(".ssh")
+            # 尝试使用 sshpass 执行远程命令
+            process = subprocess.run(
+                [
+                    "sshpass",
+                    "-p",
+                    password,
+                    "ssh",
+                    "-p",
+                    str(port),
+                    "-o",
+                    "StrictHostKeyChecking=no",
+                    f"{username}@{hostname}",
+                    f"mkdir -p ~/.ssh && chmod 700 ~/.ssh && "
+                    f"cd ~/.ssh && touch authorized_keys && "
+                    f"chmod 600 authorized_keys && "
+                    f'grep -qF "{pub_key.split()[0]}.*{pub_key.split()[1]}"'
+                    f"authorized_keys 2>/dev/null || "
+                    f'echo "{pub_key}" >> authorized_keys',
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+
+            if process.returncode != 0:
+                if "Permission denied" in process.stderr:
+                    msg = "认证失败, 请检查用户名或密码"
+                    raise SSHAuthenticationError(msg)
+                msg = f"SSH执行失败: {process.stderr}"
+                raise Exception(msg)  # noqa: TRY002
+
         except FileNotFoundError:
-            sftp.mkdir(".ssh", mode=0o700)
+            # 如果没有 sshpass, 提示用户使用系统自带的 ssh-copy-id 命令
+            sys.exit(1)
 
-        # 追加公钥到 authorized_keys
-        authorized_keys_path = ".ssh/authorized_keys"
-        try:
-            existing_keys = sftp.file(authorized_keys_path, "r").read().decode()
-        except FileNotFoundError:
-            existing_keys = ""
-
-        if public_key not in existing_keys:
-            with sftp.file(authorized_keys_path, "a") as f:
-                f.write(f"\n{public_key}\n")
-
-        # 设置文件权限
-        sftp.chmod(authorized_keys_path, 0o600)
-    finally:
-        sftp.close()
-        ssh.close()
+    except subprocess.TimeoutExpired as e:
+        msg = "SSH连接超时"
+        raise SSHConnectionError(msg) from e
+    except Exception as e:
+        msg = f"SSH操作失败: {e!s}"
+        raise SSHConnectionError(msg) from e
 
 
 @cli.app.command()
 def main(
-    hostname: str = Argument(help="目标 ip 地址"),
-    username: str = Argument(help="用户名"),
-    password: str = Argument(help="密码"),
-    port: int = Argument(22, help="端口"),
-    keypath: str = Argument(str(Path.home() / ".ssh/id_rsa.pub")),
+    hostname: str = typer.Argument(help="目标 ip 地址"),
+    username: str = typer.Argument(help="用户名"),
+    password: str = typer.Argument(help="密码"),
+    port: int = typer.Option(22, help="端口"),
+    keypath: str = typer.Option(str(Path.home() / ".ssh/id_rsa.pub")),
 ) -> None:
     ssh_copy_id(
         hostname=hostname,

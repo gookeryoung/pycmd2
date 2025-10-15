@@ -53,7 +53,7 @@ fn kill_process_windows(process_name: &str) -> Result<(), Box<dyn std::error::Er
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    print!("{}", stdout);
+    print!("执行结果: {}", stdout);
     Ok(())
 }
 
