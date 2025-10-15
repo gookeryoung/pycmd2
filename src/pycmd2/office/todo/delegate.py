@@ -109,7 +109,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         self._draw_category_tag(
             painter,
             QRect(
-                rect.left() + 120,
+                rect.right() - 400,
                 rect.top() + (rect.height() - 20) // 2,
                 *conf.TAG_SIZE,
             ),
