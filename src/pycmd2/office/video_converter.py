@@ -25,8 +25,9 @@ from pycmd2.config import TomlConfigMixin
 class VideoConverterConfig(TomlConfigMixin):
     """配置项."""
 
-    SRC_DIR = Path.home() / "Desktop"
-    OUTPUT_DIR = Path.home() / "Desktop"
+    _SRC_DIR = Path.home() / "Desktop"
+    _OUTPUT_DIR = Path.home() / "Desktop"
+
     TITLE = "FFmpeg 视频转换工具"
     WIN_SIZE: ClassVar[list[int]] = [720, 0]
 
@@ -46,30 +47,30 @@ class VideoConverter(QMainWindow):
         # 主部件和布局
         self.main_widget = QWidget()
         self.setCentralWidget(self.main_widget)
-        self.layout = QVBoxLayout(self.main_widget)
+        self.layout: QVBoxLayout = QVBoxLayout(self.main_widget)
 
         # 输入文件选择
-        self.input_layout = QHBoxLayout()
+        self.input_layout: QHBoxLayout = QHBoxLayout(self.main_widget)
         self.input_label = QLabel("输入文件:")
         self.input_path = QLineEdit()
         self.input_button = QPushButton("浏览...")
-        self.input_button.clicked.connect(self.select_input_file)
+        self.input_button.clicked.connect(self.select_input_file)  # type: ignore
         self.input_layout.addWidget(self.input_label)
         self.input_layout.addWidget(self.input_path)
         self.input_layout.addWidget(self.input_button)
 
         # 输出文件选择
-        self.output_layout = QHBoxLayout()
+        self.output_layout: QHBoxLayout = QHBoxLayout(self.main_widget)
         self.output_label = QLabel("输出目录:")
         self.output_path = QLineEdit()
         self.output_button = QPushButton("浏览...")
-        self.output_button.clicked.connect(self.select_output_dir)
+        self.output_button.clicked.connect(self.select_output_dir)  # type: ignore
         self.output_layout.addWidget(self.output_label)
         self.output_layout.addWidget(self.output_path)
         self.output_layout.addWidget(self.output_button)
 
         # 输出文件名
-        self.output_name_layout = QHBoxLayout()
+        self.output_name_layout: QHBoxLayout = QHBoxLayout(self.main_widget)
         self.output_name_label = QLabel("输出文件名:")
         self.output_name = QLineEdit()
         self.output_name.setPlaceholderText("例如: output.mp4")
@@ -77,7 +78,7 @@ class VideoConverter(QMainWindow):
         self.output_name_layout.addWidget(self.output_name)
 
         # 格式选择
-        self.format_layout = QHBoxLayout()
+        self.format_layout: QHBoxLayout = QHBoxLayout(self.main_widget)
         self.format_label = QLabel("输出格式:")
         self.format_combo = QComboBox()
         self.format_combo.addItems(["mp4", "avi", "mov", "mkv", "flv", "webm"])
@@ -85,7 +86,7 @@ class VideoConverter(QMainWindow):
         self.format_layout.addWidget(self.format_combo)
 
         # 质量选择
-        self.quality_layout = QHBoxLayout()
+        self.quality_layout: QHBoxLayout = QHBoxLayout(self.main_widget)
         self.quality_label = QLabel("质量:")
         self.quality_combo = QComboBox()
         self.quality_combo.addItems(["高", "中", "低"])
@@ -99,7 +100,7 @@ class VideoConverter(QMainWindow):
 
         # 转换按钮
         self.convert_button = QPushButton("开始转换")
-        self.convert_button.clicked.connect(self.start_conversion)
+        self.convert_button.clicked.connect(self.start_conversion)  # type: ignore
 
         # 添加到主布局
         self.layout.addLayout(self.input_layout)
@@ -112,9 +113,9 @@ class VideoConverter(QMainWindow):
 
         # FFmpeg 进程
         self.process = QProcess()
-        self.process.readyReadStandardOutput.connect(self.handle_output)
-        self.process.readyReadStandardError.connect(self.handle_error)
-        self.process.finished.connect(self.conversion_finished)
+        self.process.readyReadStandardOutput.connect(self.handle_output)  # type: ignore
+        self.process.readyReadStandardError.connect(self.handle_error)  # type: ignore
+        self.process.finished.connect(self.conversion_finished)  # type: ignore
 
         # 设置默认输出路径为文档目录
         docs_path = QStandardPaths.writableLocation(
@@ -130,10 +131,11 @@ class VideoConverter(QMainWindow):
             "",
             "视频文件 (*.mp4 *.avi *.mov *.mkv *.flv *.webm);;所有文件 (*.*)",
         )
+
         if file_path:
             self.input_path.setText(file_path)
             # 自动设置输出文件名
-            self.output_name.setText(f"{Path(file_path.stem)}_converted")
+            self.output_name.setText(f"{Path(file_path).stem}_converted")
 
     def select_output_dir(self) -> None:
         """选择输出目录."""
@@ -171,7 +173,7 @@ class VideoConverter(QMainWindow):
                 self,
                 "文件已存在",
                 "输出文件已存在, 是否覆盖?",
-                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes | QMessageBox.No,  # type: ignore
             )
             if reply == QMessageBox.No:
                 return
@@ -200,13 +202,13 @@ class VideoConverter(QMainWindow):
 
     def handle_output(self) -> None:
         """处理标准输出."""
-        output = self.process.readAllStandardOutput().data().decode()
+        output = self.process.readAllStandardOutput().data().decode()  # type: ignore
         logger.info(f"输出: {output!s}")
         # 这里可以解析进度信息来更新进度条
 
     def handle_error(self) -> None:
         """处理错误输出."""
-        error = self.process.readAllStandardError().data().decode()
+        error = self.process.readAllStandardError().data().decode()  # type: ignore
         logger.error(f"错误: {error!s}")
 
         # 尝试从错误输出中解析进度
