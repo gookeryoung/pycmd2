@@ -76,7 +76,7 @@ Repository = "https://gitee.com/gooker_young/pycmd2"
 
 [project.optional-dependencies]
 all = ["pycmd2[gui,office]"]
-gui = ["pyside2>=5.15.2.1", "qdarkstyle>=3.2.3"]
+gui = ["pyside2==5.13.2", "qdarkstyle>=3.2.3"]
 office = [
   "numpy>=1.24.4",
   "pillow>=10",
