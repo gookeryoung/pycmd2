@@ -11,6 +11,7 @@ from PySide2.QtCore import QUrl
 from PySide2.QtGui import QBrush
 from PySide2.QtGui import QColor
 from PySide2.QtGui import QDesktopServices
+from PySide2.QtGui import QFont
 from PySide2.QtGui import QTextCharFormat
 from PySide2.QtGui import QTextCursor
 from PySide2.QtWidgets import QApplication
@@ -31,9 +32,9 @@ from pycmd2.config import TomlConfigMixin
 
 
 class LlmServerConfig(TomlConfigMixin):
-    """配置项."""
+    """Configuration for Llama local model server."""
 
-    TITLE: str = "Llama 本地模型管理器"
+    TITLE: str = "Llama local model server"
     WIN_SIZE: ClassVar[list[int]] = [800, 800]
     MODEL_PATH: str = ""
 
@@ -49,7 +50,7 @@ conf = LlmServerConfig()
 
 
 class LlamaServerGUI(QMainWindow):
-    """Llama 本地模型管理器."""
+    """Llama local model server GUI."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -64,72 +65,72 @@ class LlamaServerGUI(QMainWindow):
         if model_path:
             self.model_path_input.setText(str(model_path))
         else:
-            self.model_path_input.setPlaceholderText("选择或输入模型文件路径")
+            self.model_path_input.setPlaceholderText("Choose model file...")
 
     def init_ui(self) -> None:
-        """初始化界面."""
-        # 主界面布局
+        """Initialize UI."""
+        # Main layout
         main_widget = QWidget()
-        main_layout = QVBoxLayout()
+        main_layout = QVBoxLayout(main_widget)
 
-        # 配置面板
-        config_group = QGroupBox("服务器配置")
-        config_layout = QVBoxLayout()
+        # Configuration panel
+        config_group = QGroupBox("Server Configuration")
+        config_layout = QVBoxLayout(config_group)
 
-        # 模型路径选择
-        model_path_layout = QHBoxLayout()
-        model_path_layout.addWidget(QLabel("模型路径:"))
+        # Model path selection
+        model_path_layout = QHBoxLayout(main_widget)
+        model_path_layout.addWidget(QLabel("Model Path:"))
         self.model_path_input = QLineEdit()
 
         model_path_layout.addWidget(self.model_path_input)
-        self.load_model_btn = QPushButton("浏览...")
-        self.load_model_btn.clicked.connect(self.on_load_model)  # type: ignore  # noqa: PGH003
+        self.load_model_btn = QPushButton("Browse...")
+        self.load_model_btn.clicked.connect(self.on_load_model)  # type: ignore
         model_path_layout.addWidget(self.load_model_btn)
         config_layout.addLayout(model_path_layout)
 
-        # 服务器参数
-        params_layout = QHBoxLayout()
+        # Server parameters
+        params_layout = QHBoxLayout(main_widget)
         params_layout.addStretch(1)
-        params_layout.addWidget(QLabel("端口号:"))
+        params_layout.addWidget(QLabel("Port:"))
         self.port_spin = QSpinBox()
         self.port_spin.setRange(*conf.LISTEN_PORT_RNG)
         self.port_spin.setValue(conf.LISTEN_PORT)
         params_layout.addWidget(self.port_spin)
-        self.port_spin.valueChanged.connect(self.on_config_changed)  # type: ignore  # noqa: PGH003
+        self.port_spin.valueChanged.connect(self.on_config_changed)  # type: ignore
 
-        params_layout.addWidget(QLabel("线程数:"))
+        params_layout.addWidget(QLabel("Thread Count:"))
         self.threads_spin = QSpinBox()
         self.threads_spin.setRange(*conf.THREAD_COUNT_RNG)
         self.threads_spin.setValue(conf.THREAD_COUNT)
         params_layout.addWidget(self.threads_spin)
         config_layout.addLayout(params_layout)
-        self.threads_spin.valueChanged.connect(self.on_config_changed)  # type: ignore  # noqa: PGH003
+        self.threads_spin.valueChanged.connect(self.on_config_changed)  # type: ignore
 
         config_group.setLayout(config_layout)
         main_layout.addWidget(config_group)
 
-        # 控制按钮
-        control_layout = QHBoxLayout()
-        self.start_btn = QPushButton("启动服务器")
-        self.start_btn.clicked.connect(self.toggle_server)  # type: ignore  # noqa: PGH003
-        self.browser_btn = QPushButton("启动网页")
+        # Control buttons
+        control_layout = QHBoxLayout(main_widget)
+        self.start_btn = QPushButton("Start Server")
+        self.start_btn.clicked.connect(self.toggle_server)  # type: ignore
+        self.browser_btn = QPushButton("Start Browser")
         self.browser_btn.setEnabled(False)
-        self.browser_btn.clicked.connect(self.on_start_browser)  # type: ignore  # noqa: PGH003
+        self.browser_btn.clicked.connect(self.on_start_browser)  # type: ignore
         control_layout.addWidget(self.start_btn)
         control_layout.addWidget(self.browser_btn)
         main_layout.addLayout(control_layout)
 
-        # 输出显示
-        output_group = QGroupBox("服务器输出")
-        output_layout = QVBoxLayout()
-        self.output_area = QTextEdit()
+        # Output display
+        output_group = QGroupBox("Server Output")
+        output_layout = QVBoxLayout(output_group)
+        self.output_area = QTextEdit("")
         self.output_area.setReadOnly(True)
-        self.output_area.setLineWrapMode(QTextEdit.NoWrap)  # type: ignore  # noqa: PGH003
+        self.output_area.setLineWrapMode(QTextEdit.NoWrap)  # type: ignore
 
-        # 设置不同消息类型的颜色
-        self.error_format = self.create_text_format(QColor(255, 0, 0))
-        self.warning_format = self.create_text_format(QColor(255, 165, 0))
-        self.info_format = self.create_text_format(QColor(0, 0, 0))
+        # Set colors for different message types
+        self.error_format = self.create_text_format(QColor(255, 0, 0))  # type: ignore
+        self.warning_format = self.create_text_format(QColor(255, 165, 0))  # type: ignore
+        self.info_format = self.create_text_format(QColor(0, 0, 0))  # type: ignore
 
         output_layout.addWidget(self.output_area)
         output_group.setLayout(output_layout)
@@ -140,39 +141,39 @@ class LlamaServerGUI(QMainWindow):
 
     @staticmethod
     def create_text_format(color: QColor) -> QTextCharFormat:
-        """创建文本格式.
+        """Create text format.
 
         Args:
-            color: 颜色.
+            color: Color.
 
         Returns:
-            文本格式.
+            Text format.
         """
-        text_format = QTextCharFormat()
-        text_format.setForeground(QBrush(color))
+        text_format = QTextCharFormat()  # type: ignore
+        text_format.setForeground(QBrush(color))  # type: ignore
         return text_format
 
     def setup_process(self) -> None:
-        """初始化进程."""
+        """Initialize process."""
         self.process = QProcess(self)
-        self.process.readyReadStandardOutput.connect(self.handle_stdout)  # type: ignore  # noqa: PGH003
-        self.process.readyReadStandardError.connect(self.handle_stderr)  # type: ignore  # noqa: PGH003
-        self.process.finished.connect(self.on_process_finished)  # type: ignore  # noqa: PGH003
+        self.process.readyReadStandardOutput.connect(self.handle_stdout)  # type: ignore
+        self.process.readyReadStandardError.connect(self.handle_stderr)  # type: ignore
+        self.process.finished.connect(self.on_process_finished)  # type: ignore
 
     def on_config_changed(self) -> None:
-        """配置项改变."""
+        """Configuration changed."""
         conf.setattr("MODEL_PATH", self.model_path_input.text().strip())
         conf.setattr("LISTEN_PORT", self.port_spin.value())
         conf.setattr("THREAD_COUNT", self.threads_spin.value())
         conf.save()
 
     def on_load_model(self) -> None:
-        """选择模型文件."""
+        """Select model file."""
         path, _ = QFileDialog.getOpenFileName(
             self,
-            "选择模型文件",
+            "Select Model File",
             conf.MODEL_PATH,
-            "模型文件 (*.bin *.gguf)",
+            "Model Files (*.bin *.gguf)",
         )
 
         if path:
@@ -180,17 +181,20 @@ class LlamaServerGUI(QMainWindow):
             self.model_path_input.setText(os.path.normpath(path))
 
     def toggle_server(self) -> None:
-        """启动或停止服务器."""
+        """Start or stop server."""
         if self.process.state() == QProcess.Running:
             self.stop_server()
         else:
             self.start_server()
 
     def start_server(self) -> None:
-        """启动服务器."""
+        """Start server."""
         model_path = pathlib.Path(self.model_path_input.text().strip())
         if not model_path.exists():
-            self.append_output("错误: 无效的模型文件路径", self.error_format)
+            self.append_output(
+                "Error: Invalid model file path",
+                self.error_format,
+            )
             return
 
         os.chdir(str(model_path.parent))
@@ -204,45 +208,46 @@ class LlamaServerGUI(QMainWindow):
             str(self.threads_spin.value()),
         ]
 
-        self.append_output(f"启动命令: {' '.join(cmd)}\n", self.info_format)
+        self.append_output(f"Start: {' '.join(cmd)}\n", self.info_format)
 
         try:
             self.process.start(cmd[0], cmd[1:])
             self.update_ui_state(running=True)
-        except QProcess.ProcessError as e:  # type: ignore  # noqa: PGH003
-            self.append_output(f"启动失败: {e!s}", self.error_format)
+        except QProcess.ProcessError as e:  # type: ignore
+            self.append_output(f"Stop failed: {e!s}", self.error_format)
 
     def stop_server(self) -> None:
-        """停止服务器."""
+        """Stop server."""
         if self.process.state() == QProcess.Running:
-            self.append_output("正在停止服务器...", self.info_format)
+            self.append_output("Stopping server...", self.info_format)
             self.process.terminate()
             if not self.process.waitForFinished(2000):
                 self.process.kill()
 
     @staticmethod
     def on_start_browser() -> None:
-        """启动网页."""
+        """Start browser."""
         QDesktopServices.openUrl(QUrl(f"{conf.URL}:{conf.LISTEN_PORT}"))
 
     def on_process_finished(self, exit_code: int, exit_status: int) -> None:
-        """进程结束."""
+        """Process finished."""
         self.append_output(
-            f"\n服务器已停止, 退出码: {exit_code}, 状态: {exit_status}\n",
+            f"\nServer stopped, Exit code: {exit_code}, "
+            f"Status: {exit_status}\n",
             self.info_format,
         )
         self.update_ui_state(running=False)
 
     def handle_stdout(self) -> None:
-        """处理标准输出."""
+        """Handle standard output."""
         data = self.process.readAllStandardOutput()
-        text = QTextStream(data).readAll()
+        text = QTextStream(data).readAll()  # type: ignore
         self.append_output(text, self.info_format)
 
     def handle_stderr(self) -> None:
-        """处理标准错误."""
+        """Handle standard error."""
         data = self.process.readAllStandardError()
-        text = QTextStream(data).readAll()
+        text = QTextStream(data).readAll()  # type: ignore
         self.append_output(text, self.error_format)
 
     def append_output(
@@ -250,19 +255,20 @@ class LlamaServerGUI(QMainWindow):
         text: str,
         text_format: QTextCharFormat | None = None,
     ) -> None:
-        """追加输出."""
+        """Append output."""
         cursor: QTextCursor = self.output_area.textCursor()
-        cursor.movePosition(QTextCursor.MoveOperation.End)
+        cursor.movePosition(QTextCursor.MoveOperation.End)  # type: ignore
 
         if text_format:
             cursor.setCharFormat(text_format)
 
-        cursor.insertText(text)
+        cursor.insertText(text)  # type: ignore
+
         self.output_area.setTextCursor(cursor)
         self.output_area.ensureCursorVisible()
 
     def update_ui_state(self, *, running: bool) -> None:
-        """更新界面状态."""
+        """Update UI state."""
         self.model_path_input.setEnabled(not running)
         self.load_model_btn.setEnabled(not running)
         self.port_spin.setEnabled(not running)
@@ -270,13 +276,14 @@ class LlamaServerGUI(QMainWindow):
         self.browser_btn.setEnabled(running)
 
         if running:
-            self.start_btn.setText("停止服务器")
+            self.start_btn.setText("Stop Server")
         else:
-            self.start_btn.setText("启动服务器")
+            self.start_btn.setText("Start Server")
 
 
 def main() -> None:
     app = QApplication(sys.argv)
+    app.setFont(QFont("Consolas", 12))  # type: ignore
     window = LlamaServerGUI()
     window.show()
     sys.exit(app.exec_())

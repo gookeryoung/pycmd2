@@ -190,6 +190,7 @@ ignore = [
   "D107",
   "D203",    # D 规则中与 Black 冲突的部分
   "N802",
+  "PGH003",
   "PLR0915",
   "PLR6301",
   "UP006",   # pyupgrade
