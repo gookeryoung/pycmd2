@@ -14,7 +14,6 @@ from typing import ClassVar
 from PIL import Image
 from typer import Argument
 from typer import Option
-from typing_extensions import Annotated
 
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
@@ -143,9 +142,9 @@ def convert_img(
 
 @cli.app.command()
 def main(
-    width: Annotated[int, Argument(help="缩放尺寸宽度")] = 0,
+    width: int = Argument(help="缩放尺寸宽度", default=0),
     *,
-    black: Annotated[bool, Option(help="黑白模式")] = False,
+    black: bool = Option(help="黑白模式", default=False),
 ) -> None:
     image_files = [
         f
