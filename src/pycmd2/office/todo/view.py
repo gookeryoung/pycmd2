@@ -4,6 +4,7 @@ import logging
 import os
 import subprocess
 
+from PySide2 import __version__ as pyside2_version
 from PySide2.QtCore import QSize
 from PySide2.QtCore import Qt
 from PySide2.QtCore import QTimer
@@ -49,7 +50,7 @@ class ClickableLineEdit(QLineEdit):
     def mousePressEvent(self, event: QMouseEvent) -> None:
         """Handle mouse press event."""
         if event.button() == Qt.LeftButton:
-            self.clicked.emit()  # type: ignore  # noqa: PGH003
+            self.clicked.emit()  # type: ignore
 
         super().mousePressEvent(event)
 
@@ -108,7 +109,7 @@ class TodoView(QMainWindow):
             if action == edit_action:
                 self.edit_item(index.row())
             elif action == delete_action:
-                self.item_deleted.emit(index.row())  # type: ignore  # noqa: PGH003
+                self.item_deleted.emit(index.row())  # type: ignore
             else:
                 for i, priority_action in enumerate(priority_actions):
                     if action == priority_action:
@@ -116,7 +117,7 @@ class TodoView(QMainWindow):
 
     def edit_item(self, row: int) -> None:
         """Edit item."""
-        current_text = self.todo_list.model().index(row, 0).data(Qt.DisplayRole)  # type: ignore  # noqa: PGH003
+        current_text = self.todo_list.model().index(row, 0).data(Qt.DisplayRole)  # type: ignore
         text, ok = QInputDialog.getText(
             self,
             "编辑待办事项",
@@ -128,7 +129,7 @@ class TodoView(QMainWindow):
             self.todo_list.model().setData(
                 self.todo_list.model().index(row, 0),
                 text,
-                Qt.EditRole,  # type: ignore  # noqa: PGH003
+                Qt.EditRole,  # type: ignore
             )
 
     def set_item_priority(self, row: int, priority: int) -> None:
@@ -136,11 +137,17 @@ class TodoView(QMainWindow):
         logger.info(f"Set item priority: {priority}, at row: {row}")
 
         model_index = self.todo_list.model().index(row, 0)
-        self.todo_list.model().setData(model_index, priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
+        self.todo_list.model().setData(model_index, priority, Qt.UserRole + 3)  # type: ignore
 
-    def show_about(self) -> None:
+    def on_about(self) -> None:
         """Show about dialog."""
-        QMessageBox.about(self, conf.ABOUT_TITLE, conf.ABOUT_MESSAGE)
+        QMessageBox.about(
+            self,
+            "关于Todo list",
+            f"""<h1>Todo list</h1>
+    <p>一个简单的Todo list程序, 使用 Python + Pyside2 开发.</p>
+    <p>Pyside2 版本: {pyside2_version}</p>""",
+        )
 
     def _setup_ui(self) -> None:
         # Central widget
@@ -231,7 +238,7 @@ class TodoView(QMainWindow):
         # 创建分割线
         separator = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
-        separator.setFrameShadow(QFrame.Sunken)  # type: ignore  # noqa: PGH003
+        separator.setFrameShadow(QFrame.Sunken)  # type: ignore
         separator.setStyleSheet("color: #e0e0e0;")
         layout.addWidget(separator)
 
@@ -249,10 +256,10 @@ class TodoView(QMainWindow):
         toolbar.setMovable(False)
         toolbar.setFloatable(False)
         toolbar.setIconSize(QSize(16, 16))
-        self.addToolBar(Qt.TopToolBarArea, toolbar)  # type: ignore  # noqa: PGH003
+        self.addToolBar(Qt.TopToolBarArea, toolbar)  # type: ignore
 
         about_action = QAction("关于", self)
-        about_action.triggered.connect(self.show_about)  # type: ignore  # noqa: PGH003
+        about_action.triggered.connect(self.on_about)  # type: ignore
         toolbar.addAction(about_action)
 
     def _create_backup_timer(self) -> None:
@@ -264,5 +271,5 @@ class TodoView(QMainWindow):
             subprocess.call(["folderb", "--max-count", "100"])
 
         backup_timer = QTimer(self)
-        backup_timer.timeout.connect(backup)  # type: ignore # noqa: PGH003
+        backup_timer.timeout.connect(backup)  # type: ignore
         backup_timer.start(1000 * 60 * conf.BACKUP_INTEVAL)

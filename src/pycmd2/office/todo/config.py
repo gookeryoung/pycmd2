@@ -51,11 +51,6 @@ class TodoConfig(TomlConfigMixin):
     INPUT_PLACEHOLDER = "添加新的待办事项..."
 
     ADD_BUTTON_TEXT = "添加"
-    ABOUT_TITLE = "关于Todo list"
-    ABOUT_MESSAGE = """
-    <h1>Todo list</h1>
-    <p>一个简单的Todo list程序, 使用 Python + Pyside2 开发.</p>
-    """
 
     # priority
     PRIORITIES: ClassVar[list[str]] = ["无", "低", "中", "高"]

@@ -57,39 +57,39 @@ class TodoController:
 
     def _connect_signals(self) -> None:
         """Connect signals to slots."""
-        self.view.add_button.clicked.connect(self.on_add_clicked)  # type: ignore  # noqa: PGH003
-        self.view.todo_input.returnPressed.connect(self.on_add_clicked)  # type: ignore  # noqa: PGH003
-        self.view.todo_input.textChanged.connect(self.on_check_input)  # type: ignore  # noqa: PGH003
-        self.view.item_deleted.connect(self.on_delete)  # type: ignore  # noqa: PGH003
+        self.view.add_button.clicked.connect(self.on_add_clicked)  # type: ignore
+        self.view.todo_input.returnPressed.connect(self.on_add_clicked)  # type: ignore
+        self.view.todo_input.textChanged.connect(self.on_check_input)  # type: ignore
+        self.view.item_deleted.connect(self.on_delete)  # type: ignore
         self.model.data_changed.connect(self.on_update_stats)  # type: ignore[attr-defined]
         self.model.data_changed.connect(self.on_update_category_completer)  # type: ignore[attr-defined]
 
         # 连接category_input的点击信号
-        self.view.category_input.clicked.connect(self.on_category_input_clicked)  # type: ignore  # noqa: PGH003
+        self.view.category_input.clicked.connect(self.on_category_input_clicked)  # type: ignore
 
         delegate = self.view.todo_list.itemDelegate()
         if isinstance(delegate, TodoItemDelegate):
-            delegate.inc_priority.connect(self.on_priority_up)  # type: ignore  # noqa: PGH003
-            delegate.dec_priority.connect(self.on_priority_down)  # type: ignore  # noqa: PGH003
+            delegate.inc_priority.connect(self.on_priority_up)  # type: ignore
+            delegate.dec_priority.connect(self.on_priority_down)  # type: ignore
 
         # Click to set completed
-        self.view.todo_list.clicked.connect(self.on_item_clicked)  # type: ignore  # noqa: PGH003
+        self.view.todo_list.clicked.connect(self.on_item_clicked)  # type: ignore
 
         # Handle filter change
-        self.view.filter_combo.currentTextChanged.connect(  # type: ignore  # noqa: PGH003
+        self.view.filter_combo.currentTextChanged.connect(  # type: ignore
             self.model.set_filter_mode,
         )
 
         # Handle sorting
-        self.view.sort_combo.currentTextChanged.connect(  # type: ignore  # noqa: PGH003
+        self.view.sort_combo.currentTextChanged.connect(  # type: ignore
             self.model.set_sort_mode,
         )
-        self.view.sort_button.clicked.connect(  # type: ignore  # noqa: PGH003
+        self.view.sort_button.clicked.connect(  # type: ignore
             self.on_set_ascending,
         )
 
         # Handle clear completed
-        self.view.clear_completed_button.clicked.connect(  # type: ignore  # noqa: PGH003
+        self.view.clear_completed_button.clicked.connect(  # type: ignore
             self.model.clear_completed,
         )
 
@@ -122,7 +122,7 @@ class TodoController:
             self._processing_priority_click = False
             return
 
-        completed = self.model.data(index, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
+        completed = self.model.data(index, Qt.UserRole + 1)  # type: ignore
 
         # Confirm to delete
         if completed:
@@ -139,7 +139,7 @@ class TodoController:
             if self.msgbox.exec_() != QMessageBox.Yes:
                 return
 
-        self.model.setData(index, not completed, Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
+        self.model.setData(index, not completed, Qt.UserRole + 1)  # type: ignore
 
     def on_delete(self, row: int) -> None:
         """Handle delete event."""
@@ -176,16 +176,16 @@ class TodoController:
     def on_priority_up(self, index: QModelIndex) -> None:
         """Handle priority up click event."""
         self._processing_priority_click = True
-        current_priority = self.model.data(index, Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
+        current_priority = self.model.data(index, Qt.UserRole + 2)  # type: ignore
         new_priority = min(current_priority + 1, len(conf.PRIORITIES) - 1)
-        self.model.setData(index, new_priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
+        self.model.setData(index, new_priority, Qt.UserRole + 3)  # type: ignore
 
     def on_priority_down(self, index: QModelIndex) -> None:
         """Handle priority down click event."""
         self._processing_priority_click = True
-        current_priority = self.model.data(index, Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
+        current_priority = self.model.data(index, Qt.UserRole + 2)  # type: ignore
         new_priority = max(current_priority - 1, 0)
-        self.model.setData(index, new_priority, Qt.UserRole + 3)  # type: ignore  # noqa: PGH003
+        self.model.setData(index, new_priority, Qt.UserRole + 3)  # type: ignore
 
     def on_close(self, event: QCloseEvent) -> None:
         """Handle close event, ensure data is saved before closing ."""
@@ -245,7 +245,7 @@ class TodoController:
                     item = TodoItem.from_dict(item_data)
                     self.model.items.append(item)
 
-                self.model.data_changed.emit()  # type: ignore  # noqa: PGH003
+                self.model.data_changed.emit()  # type: ignore
         except Exception:  # noqa: BLE001
             pass
 
