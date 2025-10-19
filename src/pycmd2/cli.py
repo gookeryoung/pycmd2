@@ -11,6 +11,8 @@ from pycmd2 import __build_date__
 from pycmd2 import __version__
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
+from pycmd2.pycmd2 import show_version
+from pycmd2.pycmd2 import sum_as_string
 
 
 class Pycmd2Config(TomlConfigMixin):
@@ -107,6 +109,8 @@ def find_commands() -> list[CommandEntry]:
 @cli.app.command("version", help="显示版本")
 def version() -> None:
     logger.info(f"当前版本: {__version__}, 构建日期: {__build_date__}")
+    logger.info(show_version())
+    logger.info(sum_as_string(11, 1))
 
 
 @cli.app.command("l", help="列出所有可用的子命令, 等效命令: list")

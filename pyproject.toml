@@ -1,8 +1,10 @@
 # -------------------- build-system --------------------- #
-
 [build-system]
-build-backend = "hatchling.build"
-requires = ["hatchling"]
+build-backend = "maturin"
+requires = ["maturin>=1.9,<2.0"]
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
 
 [project]
 authors = [{ name = "gooker_young", email = "gooker_young@qq.com" }]
@@ -224,6 +226,7 @@ pycmd2 = { workspace = true }
 [dependency-groups]
 build = ["hatch>=1.14.1", "pip>=25.0.1", "wheel>=0.45.1"]
 dev = [
+  "maturin>=1.9.6",
   "pre-commit>=3.5.0",
   "pycmd2[all]",
   { include-group = "build" },
