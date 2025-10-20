@@ -1,0 +1,7 @@
+[target.'cfg(all(target_env = "msvc", target_os = "windows"))']
+rustflags = [
+    "-C",
+    "target-feature=+crt-static",
+    "-C",
+    "link-args=/subsystem:console,5.01",
+]
