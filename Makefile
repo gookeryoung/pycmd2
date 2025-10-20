@@ -155,6 +155,10 @@ update-dsl-schema-hashes:  ## Update the DSL schema hashes file
 .PHONY: pre-commit
 pre-commit: fmt clippy clippy-default  ## Run all code quality checks
 
+.PHONY: publish
+publish:  ## Publish Python Polars to PyPI
+	maturin publish
+
 .PHONY: clean
 clean:  ## Clean up caches, build artifacts, and the venv
 	@$(MAKE) -s -C py-polars/ $@
