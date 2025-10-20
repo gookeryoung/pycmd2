@@ -34,7 +34,41 @@ pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
                 command_str.red(),
                 e.to_string().red()
             );
-            pyo3::exceptions::PyException::new_err("Failed to execute command")
+
+            match e.kind() {
+                // 命令未找到
+                std::io::ErrorKind::NotFound => {
+                    pyo3::exceptions::PyException::new_err(format!("命令未找到: {}", command))
+                }
+
+                // 权限被拒绝
+                std::io::ErrorKind::PermissionDenied => pyo3::exceptions::PyException::new_err(
+                    format!("权限被拒绝，无法执行命令: {}", command_str.red().bold()),
+                ),
+
+                _ => {
+                    // Windows 错误代码 193 表示不是有效的 Win32 应用程序
+                    if let Some(193) = e.raw_os_error() {
+                        if std::path::Path::new(command).exists() {
+                            eprintln!(
+                                "文件存在，但不是有效的 Win32 应用程序: {}, 尝试删除...",
+                                command_str.red().bold()
+                            );
+
+                            // 尝试删除可能损坏的文件
+                            std::fs::remove_file(command).ok();
+                        }
+
+                        pyo3::exceptions::PyException::new_err(format!(
+                            "不是有效的 Win32 应用程序: {}",
+                            command_str
+                        ))
+                    } else {
+                        // 其他错误
+                        pyo3::exceptions::PyException::new_err(format!("执行命令时未知错误: {}", e))
+                    }
+                }
+            }
         })?;
 
     // 实时输出 stdout
