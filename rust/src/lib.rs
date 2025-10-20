@@ -1,8 +1,8 @@
 use pyo3::prelude::*;
 
-mod command;
 mod dirs;
 mod env;
+mod system;
 
 /// 格式化输出两个数字之和为字符串
 ///

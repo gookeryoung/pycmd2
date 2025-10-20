@@ -1,7 +1,9 @@
 use colored::*;
 use pyo3::prelude::*;
-use std::io::{BufRead, BufReader};
-use std::process::{Command, Stdio};
+use std::{
+    io::BufRead,
+    process::{Command, Stdio},
+};
 
 /// 调用命令并实时输出结果
 ///
@@ -16,12 +18,13 @@ use std::process::{Command, Stdio};
 /// ```rust
 /// call_command_realtime("rustup", ["toolchain", "install", "stable-x86_64-pc-windows-msvc"])
 /// ```
-pub fn call_command_realtime(command: &str, args: &[&str]) -> PyResult<()> {
+pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
     let command_str = format!("{} {}", command, args.join(" "));
     println!("正在执行命令: `{}`", command_str.green());
 
     let mut child = Command::new(command)
         .args(args)
+        .stdin(Stdio::inherit()) // 继承父进程的stdin，允许用户输入
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
@@ -36,7 +39,7 @@ pub fn call_command_realtime(command: &str, args: &[&str]) -> PyResult<()> {
 
     // 实时输出 stdout
     if let Some(stdout) = child.stdout.take() {
-        let reader = BufReader::new(stdout);
+        let reader = std::io::BufReader::new(stdout);
         for line in reader.lines() {
             match line {
                 Ok(line) => println!("{}", line.blue()),
@@ -47,11 +50,11 @@ pub fn call_command_realtime(command: &str, args: &[&str]) -> PyResult<()> {
 
     // 实时输出 stderr
     if let Some(stderr) = child.stderr.take() {
-        let reader = BufReader::new(stderr);
+        let reader = std::io::BufReader::new(stderr);
         for line in reader.lines() {
             match line {
-                Ok(line) => eprintln!("{}", line.yellow()),
-                Err(e) => eprintln!("读取 stderr 时出错: {}", e.to_string().red()),
+                Ok(line) => eprintln!("{}", line),
+                Err(e) => eprintln!("读取 stderr 时出错: {}", e),
             }
         }
     }
@@ -72,14 +75,16 @@ pub fn call_command_realtime(command: &str, args: &[&str]) -> PyResult<()> {
     Ok(())
 }
 
-#[test]
-fn test_call_command_realtime() {
-    assert_eq!(
-        call_command_realtime(
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_call_command_realtime() {
+        call_command(
             "rustup",
             ["toolchain", "install", "stable-x86_64-pc-windows-msvc"].as_ref(),
         )
-        .unwrap(),
-        ()
-    )
+        .unwrap();
+    }
 }
