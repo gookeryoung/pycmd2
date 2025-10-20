@@ -1,7 +1,8 @@
 use pyo3::prelude::*;
 
-mod dev_env;
+mod command;
 mod dirs;
+mod env;
 
 /// 格式化输出两个数字之和为字符串
 ///
@@ -13,12 +14,31 @@ mod dirs;
 /// 两个数字之和的字符串
 #[pyfunction]
 fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
-    Ok((a + b).to_string())
+    let y = {
+        let x = 3;
+        x + 1
+    };
+    Ok(format!(
+        "y={}\nsum={}, add={}",
+        y,
+        (a + b).to_string(),
+        add()
+    ))
 }
 
 #[pyfunction]
 fn show_version() -> PyResult<String> {
     Ok(format!("pycmd2 version: {}", env!("CARGO_PKG_VERSION")))
+}
+
+#[pyfunction]
+fn add() -> String {
+    let x = 3;
+    let y = x;
+    let mut s = String::from("hello");
+    s.push_str("test");
+    println!("s = {}", s);
+    format!("{} + {} = {}", x, y, x + y)
 }
 
 /// A Python module implemented in Rust.
@@ -27,6 +47,8 @@ fn _pycmd2(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
     m.add_function(wrap_pyfunction!(show_version, m)?)?;
     m.add_function(wrap_pyfunction!(dirs::list_dirs, m)?)?;
-    m.add_function(wrap_pyfunction!(dev_env::setup_rust_env, m)?)?;
+
+    m.add_function(wrap_pyfunction!(env::rust::setup_rust_env, m)?)?;
+
     Ok(())
 }

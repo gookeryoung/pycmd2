@@ -9,7 +9,9 @@ crate-type = ["cdylib"]
 name = "_pycmd2"
 
 [dependencies]
+colored = "3.0.0"
 pyo3 = { version = "0.25.0", features = ["abi3-py38"] }
+which = "8.0.0"
 
 [profile.release]
 lto = true
