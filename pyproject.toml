@@ -78,7 +78,8 @@ Issues = "https://gitee.com/gooker_young/pycmd2/issues"
 Repository = "https://gitee.com/gooker_young/pycmd2"
 
 [project.optional-dependencies]
-all = ["pycmd2[gui,office]"]
+all = ["pycmd2[demo,gui,office]"]
+demo = ["pyqtgraph>=0.13.3"]
 gui = [
   "pyside2>=5.15; platform_system == 'Windows'",
   "pyside2~=5.13; platform_system != 'Windows'",

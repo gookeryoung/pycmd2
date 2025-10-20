@@ -2,7 +2,14 @@ use pyo3::prelude::*;
 
 mod dirs;
 
-/// Formats the sum of two numbers as string.
+/// 格式化输出两个数字之和为字符串
+///
+/// # Arguments
+/// * a - 第一个数字
+/// * b - 第二个数字
+///
+/// # Returns
+/// 两个数字之和的字符串
 #[pyfunction]
 fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
     Ok((a + b).to_string())
