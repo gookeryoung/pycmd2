@@ -13,7 +13,7 @@ fn show_version() -> PyResult<String> {
 
 /// A Python module implemented in Rust.
 #[pymodule]
-fn pycmd2(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn _pycmd2(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
     m.add_function(wrap_pyfunction!(show_version, m)?)?;
     Ok(())

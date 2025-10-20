@@ -9,10 +9,10 @@ from typing import ClassVar
 
 from pycmd2 import __build_date__
 from pycmd2 import __version__
+from pycmd2._pycmd2 import show_version
+from pycmd2._pycmd2 import sum_as_string
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
-from pycmd2.pycmd2 import show_version
-from pycmd2.pycmd2 import sum_as_string
 
 
 class Pycmd2Config(TomlConfigMixin):
