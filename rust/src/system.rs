@@ -16,7 +16,7 @@ use std::{
 ///
 /// # Examples
 /// ```rust
-/// call_command_realtime("rustup", ["toolchain", "install", "stable-x86_64-pc-windows-msvc"])
+/// call_command("rustup", ["toolchain", "install", "stable-x86_64-pc-windows-msvc"])
 /// ```
 pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
     let command_str = format!("{} {}", command, args.join(" "));
@@ -80,11 +80,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_call_command_realtime() {
+    fn test_call_command() {
         call_command(
             "rustup",
             ["toolchain", "install", "stable-x86_64-pc-windows-msvc"].as_ref(),
         )
         .unwrap();
+    }
+
+    #[test]
+    fn test_call_invalid_command() {
+        let result = call_command("invalid_command", [].as_ref());
+        assert!(result.is_err());
     }
 }
