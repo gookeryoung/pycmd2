@@ -27,6 +27,9 @@ version = "0.5.3"
 [project.scripts]
 pycmd2 = "pycmd2.cli:cli.app"
 
+# demo commands
+ld = "pycmd2.demo.list_dirs:cli.app"
+
 # dev-tools
 envjs = "pycmd2.dev.env_javascript:cli.app"
 envpy = "pycmd2.dev.env_python:cli.app"

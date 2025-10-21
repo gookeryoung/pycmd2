@@ -45,7 +45,8 @@ fn add() -> String {
 #[pymodule]
 fn _pycmd2(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // dirs
-    m.add_function(wrap_pyfunction!(dirs::list_dirs, m)?)?;
+    m.add_function(wrap_pyfunction!(dirs::list_entries, m)?)?;
+    m.add_function(wrap_pyfunction!(dirs::list_names, m)?)?;
 
     // demos
     m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
