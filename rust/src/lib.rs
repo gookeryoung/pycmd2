@@ -27,8 +27,8 @@ fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
 }
 
 #[pyfunction]
-fn show_version() -> PyResult<String> {
-    Ok(format!("pycmd2 version: {}", env!("CARGO_PKG_VERSION")))
+fn version_info() -> PyResult<String> {
+    Ok(format!("_pycmd2 v{}", env!("CARGO_PKG_VERSION")))
 }
 
 #[pyfunction]
@@ -44,13 +44,14 @@ fn add() -> String {
 /// A Python module implemented in Rust.
 #[pymodule]
 fn _pycmd2(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(version_info, m)?)?;
+
     // dirs
     m.add_function(wrap_pyfunction!(dirs::list_entries, m)?)?;
     m.add_function(wrap_pyfunction!(dirs::list_names, m)?)?;
 
     // demos
     m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
-    m.add_function(wrap_pyfunction!(show_version, m)?)?;
     m.add_function(wrap_pyfunction!(environ::rust::setup_rust_env, m)?)?;
 
     Ok(())

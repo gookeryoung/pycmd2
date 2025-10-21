@@ -9,7 +9,7 @@ from typing import ClassVar
 
 from pycmd2 import __build_date__
 from pycmd2 import __version__
-from pycmd2._pycmd2 import show_version
+from pycmd2._pycmd2 import version_info
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
 
@@ -108,7 +108,7 @@ def find_commands() -> list[CommandEntry]:
 @cli.app.command("version", help="显示版本")
 def version() -> None:
     logger.info(f"当前版本: {__version__}, 构建日期: {__build_date__}")
-    logger.info(show_version())
+    logger.info(f"依赖版本: {version_info()}")
 
 
 @cli.app.command("l", help="列出所有可用的子命令, 等效命令: list")
