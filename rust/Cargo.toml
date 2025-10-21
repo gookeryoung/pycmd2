@@ -10,7 +10,6 @@ name = "_pycmd2"
 
 [dependencies]
 colored = "3.0.0"
-indicatif = "0.18.0"
 pyo3 = { version = "0.25.0", features = ["abi3-py38"] }
 tklog = "0.3.0"
 which = "8.0.0"

@@ -1,11 +1,35 @@
-use colored::*;
+use colored::Colorize;
 use pyo3::prelude::*;
 use std::{
     io::BufRead,
     process::{Command, Stdio},
 };
 
-use tklog::{error, info};
+use tklog::{Format, LEVEL, error, info};
+
+/// 初始化日志系统
+pub fn init_log() {
+    tklog::LOG.set_attr_format(|fmt| {
+        fmt.set_level_fmt(|level| {
+            match level {
+                LEVEL::Trace => "[TRACE]".blue(),
+                LEVEL::Debug => "[DEBUG]".cyan(),
+                LEVEL::Info => "[INFO]".green(),
+                LEVEL::Warn => "[WARN]".yellow(),
+                LEVEL::Error => "[ERROR]".red(),
+                LEVEL::Fatal => "[FATAL]".magenta(),
+                LEVEL::Off => "[OFF]".black(),
+            }
+            .to_string()
+        });
+    });
+
+    tklog::LOG
+        .set_console(true)
+        .set_level(LEVEL::Info)
+        .set_format(Format::Time | Format::LevelFlag)
+        .set_formatter("{time} {level} [*] {message}\n");
+}
 
 /// 调用命令并实时输出结果
 ///
@@ -21,8 +45,13 @@ use tklog::{error, info};
 /// call_command("rustup", ["toolchain", "install", "stable-x86_64-pc-windows-msvc"])
 /// ```
 pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
-    let command_str = format!("{} {}", command, args.join(" "));
-    info!(format!("正在执行命令 `{}`", command_str.green()));
+    let args_str = args.join(" ");
+    let command_str = match args_str.is_empty() {
+        true => format!("{}", command),
+        false => format!("{} {}", command, args_str),
+    };
+
+    info!(format!("正在执行命令 [{}]", command_str.green().bold()));
 
     let mut child = Command::new(command)
         .args(args)
@@ -33,8 +62,8 @@ pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
         .map_err(|e| {
             error!(format!(
                 "执行命令 `{}` 时出错: {}",
-                command_str.red(),
-                e.to_string().red()
+                command_str,
+                e.to_string()
             ));
 
             match e.kind() {
@@ -45,7 +74,7 @@ pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
 
                 // 权限被拒绝
                 std::io::ErrorKind::PermissionDenied => pyo3::exceptions::PyException::new_err(
-                    format!("权限被拒绝，无法执行命令: {}", command_str.red().bold()),
+                    format!("权限被拒绝，无法执行命令: {}", command_str),
                 ),
 
                 _ => {
@@ -54,7 +83,7 @@ pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
                         if std::path::Path::new(command).exists() {
                             error!(format!(
                                 "文件存在，但不是有效的 Win32 应用程序: {}, 尝试删除...",
-                                command_str.red().bold()
+                                command_str
                             ));
 
                             // 尝试删除可能损坏的文件
@@ -89,8 +118,8 @@ pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
         let reader = std::io::BufReader::new(stdout);
         for line in reader.lines() {
             match line {
-                Ok(line) => info!(line.blue()),
-                Err(e) => error!(format!("读取 stdout 时出错: {}", e.to_string().red())),
+                Ok(line) => info!(line),
+                Err(e) => error!(format!("读取 stdout 时出错: {}", e.to_string())),
             }
         }
     }
@@ -101,14 +130,14 @@ pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
         for line in reader.lines() {
             match line {
                 Ok(line) => info!(line),
-                Err(e) => error!(format!("读取 stderr 时出错: {}", e.to_string().red())),
+                Err(e) => error!(format!("读取 stderr 时出错: {}", e.to_string())),
             }
         }
     }
 
     // 等待子进程结束
     let status = child.wait().map_err(|e| {
-        error!(format!("等待子进程结束时出错: {}", e.to_string().red()));
+        error!(format!("等待子进程结束时出错: {}", e.to_string()));
         pyo3::exceptions::PyException::new_err("Failed to wait for child process")
     })?;
 
@@ -118,7 +147,7 @@ pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
         ));
     }
 
-    info!(format!("命令`{}`执行成功", command_str.green().bold()));
+    info!(format!("命令`{}`执行成功", command_str));
     Ok(())
 }
 

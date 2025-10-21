@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
 mod dirs;
-mod env;
+mod environ;
 mod system;
 
 /// 格式化输出两个数字之和为字符串
@@ -48,7 +48,7 @@ fn _pycmd2(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(show_version, m)?)?;
     m.add_function(wrap_pyfunction!(dirs::list_dirs, m)?)?;
 
-    m.add_function(wrap_pyfunction!(env::rust::setup_rust_env, m)?)?;
+    m.add_function(wrap_pyfunction!(environ::rust::setup_rust_env, m)?)?;
 
     Ok(())
 }
