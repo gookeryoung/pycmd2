@@ -5,6 +5,8 @@ use std::{
     process::{Command, Stdio},
 };
 
+use tklog::{error, info};
+
 /// 调用命令并实时输出结果
 ///
 /// # Arguments
@@ -20,7 +22,7 @@ use std::{
 /// ```
 pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
     let command_str = format!("{} {}", command, args.join(" "));
-    println!("正在执行命令: `{}`", command_str.green());
+    info!(format!("正在执行命令 `{}`", command_str.green()));
 
     let mut child = Command::new(command)
         .args(args)
@@ -29,11 +31,11 @@ pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|e| {
-            eprintln!(
+            error!(format!(
                 "执行命令 `{}` 时出错: {}",
                 command_str.red(),
                 e.to_string().red()
-            );
+            ));
 
             match e.kind() {
                 // 命令未找到
@@ -50,13 +52,24 @@ pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
                     // Windows 错误代码 193 表示不是有效的 Win32 应用程序
                     if let Some(193) = e.raw_os_error() {
                         if std::path::Path::new(command).exists() {
-                            eprintln!(
+                            error!(format!(
                                 "文件存在，但不是有效的 Win32 应用程序: {}, 尝试删除...",
                                 command_str.red().bold()
-                            );
+                            ));
 
                             // 尝试删除可能损坏的文件
-                            std::fs::remove_file(command).ok();
+                            match std::fs::remove_file(command) {
+                                Ok(()) => info!("文件删除成功。"),
+                                Err(e) => match e.kind() {
+                                    std::io::ErrorKind::NotFound => {
+                                        error!(format!("错误：文件 '{}' 未找到。", command))
+                                    }
+                                    std::io::ErrorKind::PermissionDenied => {
+                                        error!(format!("错误：没有权限删除 '{}'。", command))
+                                    }
+                                    _ => error!(format!("删除文件时发生未知错误: {}", e)),
+                                },
+                            }
                         }
 
                         pyo3::exceptions::PyException::new_err(format!(
@@ -76,8 +89,8 @@ pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
         let reader = std::io::BufReader::new(stdout);
         for line in reader.lines() {
             match line {
-                Ok(line) => println!("{}", line.blue()),
-                Err(e) => eprintln!("读取 stdout 时出错: {}", e.to_string().red()),
+                Ok(line) => info!(line.blue()),
+                Err(e) => error!(format!("读取 stdout 时出错: {}", e.to_string().red())),
             }
         }
     }
@@ -87,15 +100,15 @@ pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
         let reader = std::io::BufReader::new(stderr);
         for line in reader.lines() {
             match line {
-                Ok(line) => eprintln!("{}", line),
-                Err(e) => eprintln!("读取 stderr 时出错: {}", e),
+                Ok(line) => info!(line),
+                Err(e) => error!(format!("读取 stderr 时出错: {}", e.to_string().red())),
             }
         }
     }
 
     // 等待子进程结束
     let status = child.wait().map_err(|e| {
-        eprintln!("等待子进程结束时出错: {}", e.to_string().red());
+        error!(format!("等待子进程结束时出错: {}", e.to_string().red()));
         pyo3::exceptions::PyException::new_err("Failed to wait for child process")
     })?;
 
@@ -105,7 +118,7 @@ pub fn call_command(command: &str, args: &[&str]) -> PyResult<()> {
         ));
     }
 
-    println!("命令`{}`执行成功", command_str.green());
+    info!(format!("命令`{}`执行成功", command_str.green().bold()));
     Ok(())
 }
 
