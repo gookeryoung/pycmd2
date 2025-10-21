@@ -37,7 +37,7 @@ conf = EnvRustConfig(show_logging=False)
 logger = logging.getLogger(__name__)
 
 
-def setup_rustup(*, override: bool = True) -> None:
+def setup_env(*, override: bool = True) -> None:
     logger.info("配置 uv 环境变量")
 
     rustup_envs: dict[str, object] = {
@@ -52,7 +52,7 @@ def setup_rustup(*, override: bool = True) -> None:
             add_env_to_bashrc(str(k), str(v), override=override)
 
 
-def setup_cargo() -> None:
+def setup_cargo_config() -> None:
     cargo_dir = cli.home / ".cargo"
     cargo_conf = cargo_dir / "config.toml"
 
@@ -72,6 +72,30 @@ def download_rustup() -> None:
     else:
         cli.run_cmdstr(conf.DOWNLOAD_CMD_LINUX)
 
+    rustup_path = Path.cwd() / "rustup-init.exe"
+    if rustup_path.exists():
+        logger.info(f"下载完成, 保存到: [green bold]{rustup_path}")
+    else:
+        logger.error(f"下载失败, 请手动下载到当前目录: [red bold]{rustup_path}")
+
+
+def run_rustup(name: str, install_version: str) -> None:
+    try:
+        cli.run_cmd([
+            name,
+            f"--default-toolchain={install_version}",
+            "--no-modify-path",
+            "--default-host",
+            "x86_64-pc-windows-msvc"
+            if cli.is_windows
+            else "x86_64-unknown-linux-gnu",
+        ])
+    except OSError:
+        logger.exception(f"运行 {name} 失败")
+        logger.info(
+            f"请手动运行 {name} 进行安装, 或者删除该文件后重新下载",
+        )
+
 
 @cli.app.command()
 def main(
@@ -82,31 +106,17 @@ def main(
     ),
     override: bool = typer.Option(help="是否覆盖已存在选项", default=True),
 ) -> None:
-    setup_rustup(override=override)
-    setup_cargo()
+    setup_env(override=override)
+    setup_cargo_config()
 
     ext = ".exe" if cli.is_windows else ""
     rustup_init_name = f"rustup-init{ext}"
     rustup_init_file = Path.cwd() / rustup_init_name
+
     if not rustup_init_file.exists():
         download_rustup()
     else:
         logger.info(
             f"已存在 rustup 安装文件: [green bold]{rustup_init_file}",
         )
-        try:
-            cli.run_cmd([
-                rustup_init_name,
-                f"--default-toolchain={install_version}",
-                "--no-modify-path",
-                "--default-host",
-                "x86_64-pc-windows-msvc"
-                if cli.is_windows
-                else "x86_64-unknown-linux-gnu",
-            ])
-        except OSError:
-            logger.exception(f"运行 {rustup_init_name} 失败")
-            logger.info(
-                f"请手动运行 {rustup_init_name} 进行安装, "
-                f"或者删除该文件后重新下载",
-            )
+        run_rustup(rustup_init_name, install_version)
