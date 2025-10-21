@@ -28,7 +28,6 @@ version = "0.5.3"
 pycmd2 = "pycmd2.cli:cli.app"
 
 # demo commands
-ld = "pycmd2.demo.list_dirs:cli.app"
 
 # dev-tools
 envjs = "pycmd2.dev.env_javascript:cli.app"
@@ -72,6 +71,7 @@ filedate = "pycmd2.system.file_date:cli.app"
 filelvl = "pycmd2.system.file_level:cli.app"
 folderb = "pycmd2.system.folder_backup:cli.app"
 folderz = "pycmd2.system.folder_zip:cli.app"
+ld = "pycmd2.system.list_dirs:cli.app"
 taskk = "pycmd2.system.task_kill:cli.app"
 wch = "pycmd2.system.which:cli.app"
 

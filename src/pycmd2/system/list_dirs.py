@@ -29,6 +29,10 @@ def main(
         help="列出所有文件",
         default=False,
     ),
+    export: bool = typer.Option(
+        help="导出为文件",
+        default=False,
+    ),
 ) -> None:
     names = list_names(root)
     names = [item for item in names if show_all or not item.startswith(".")]
@@ -36,3 +40,8 @@ def main(
     max_width = max(len(item) for item in names)
     dirs_str = "".join([n.ljust(max_width + 2) for n in names])
     logger.info(f"列出目录: \n[green bold]{dirs_str}")
+
+    if export:
+        output_file = Path.cwd() / "list_dirs.txt"
+        logger.info(f"导出到文件: [green bold]{output_file}")
+        output_file.write_text("\n".join(names))
