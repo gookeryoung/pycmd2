@@ -1,13 +1,22 @@
-use pyo3::pyfunction;
+use pyo3::{PyResult, pyfunction};
 
-/// Lists all directories in the given path.
+/// 列出指定路径下的所有目录
+///
 /// # Arguments
-/// * `path` - A string slice that holds the path to list directories from.
+/// * path - 目录路径
 ///
 /// # Returns
-/// A vector of strings containing the names of all directories in the given path.
+/// 包含目录路径的字符串列表
+///
+/// # Examples
+/// ```python
+/// from pycmd2._pycmd2 import list_dirs
+///
+/// list_dirs("C:\\")
+/// ```
+///
 #[pyfunction]
-pub fn list_dirs(path: &str) -> Result<Vec<String>, std::io::Error> {
+pub fn list_dirs(path: &str) -> PyResult<Vec<String>> {
     let paths = std::fs::read_dir(path)?;
     let mut dirs = Vec::new();
 

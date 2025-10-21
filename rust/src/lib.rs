@@ -44,10 +44,12 @@ fn add() -> String {
 /// A Python module implemented in Rust.
 #[pymodule]
 fn _pycmd2(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
-    m.add_function(wrap_pyfunction!(show_version, m)?)?;
+    // dirs
     m.add_function(wrap_pyfunction!(dirs::list_dirs, m)?)?;
 
+    // demos
+    m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
+    m.add_function(wrap_pyfunction!(show_version, m)?)?;
     m.add_function(wrap_pyfunction!(environ::rust::setup_rust_env, m)?)?;
 
     Ok(())
