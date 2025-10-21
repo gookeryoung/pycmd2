@@ -116,6 +116,14 @@ class TomlConfigMixin:
 
         atexit.register(self.save)
 
+    def get_fileattrs(self) -> dict[str, object]:
+        """Get all attributes of the config file.
+
+        Returns:
+            dict[str, object]: All attributes of the config file.
+        """
+        return self._file_attrs
+
     def setattr(self, attr: str, value: object) -> None:
         """Set an attribute.
 

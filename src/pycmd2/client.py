@@ -151,7 +151,7 @@ class Client:
 
         proc = subprocess.Popen(
             [proc_path, *commands[1:]],
-            stdin=subprocess.DEVNULL,  # 默认不重定向stdin, 允许用户输入
+            stdin=None,  # 继承父进程的stdin, 允许用户输入
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=False,  # 手动解码
