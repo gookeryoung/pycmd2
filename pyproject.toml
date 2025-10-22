@@ -83,7 +83,7 @@ Repository = "https://gitee.com/gooker_young/pycmd2"
 [project.optional-dependencies]
 all = ["pycmd2[demo,gui,office]"]
 demo = ["pyqtgraph>=0.13.3"]
-gui = ["pyqt5>=5.15", "qdarkstyle>=3.2.3"]
+gui = ["pyqt5-stubs~=5.14.0", "pyqt5~=5.14.0", "qdarkstyle>=3.2.3"]
 office = [
   "numpy>=1.24.4",
   "pillow>=10",

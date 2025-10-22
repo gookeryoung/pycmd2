@@ -40,11 +40,13 @@ def _log_stream(
     stream.close()
 
 
-def _setup_pyside2(*, enable_high_dpi: bool = False) -> None:
+def _setup_pyqt(*, enable_high_dpi: bool = False) -> None:
     """初始化 PyQt5 环境."""
     import os  # noqa: PLC0415
 
     import PyQt5  # noqa: PLC0415
+    from PyQt5.QtCore import Qt  # noqa: PLC0415
+    from PyQt5.QtWidgets import QApplication  # noqa: PLC0415
 
     qt_dir = Path(PyQt5.__file__).parent
     plugin_path = qt_dir / "plugins" / "platforms"
@@ -52,6 +54,12 @@ def _setup_pyside2(*, enable_high_dpi: bool = False) -> None:
 
     if enable_high_dpi:
         os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
+        os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "PassThrough"
+
+        if hasattr(Qt, "AA_EnableHighDpiScaling"):
+            QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)  # noqa: FBT003
+        if hasattr(Qt, "AA_UseHighDpiPixmaps"):
+            QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)  # noqa: FBT003
 
 
 class Client:
@@ -69,7 +77,7 @@ class Client:
         self.console = console
 
         if enable_qt:
-            _setup_pyside2(enable_high_dpi=enable_high_dpi)
+            _setup_pyqt(enable_high_dpi=enable_high_dpi)
 
     @property
     def cwd(self) -> Path:
