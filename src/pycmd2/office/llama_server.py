@@ -71,14 +71,14 @@ class LlamaServerGUI(QMainWindow):
         """Initialize UI."""
         # Main layout
         main_widget = QWidget()
-        main_layout = QVBoxLayout(main_widget)
+        main_layout = QVBoxLayout()  # type: ignore
 
         # Configuration panel
         config_group = QGroupBox("Server Configuration")
         config_layout = QVBoxLayout(config_group)
 
         # Model path selection
-        model_path_layout = QHBoxLayout(main_widget)
+        model_path_layout = QHBoxLayout()  # type: ignore
         model_path_layout.addWidget(QLabel("Model Path:"))
         self.model_path_input = QLineEdit()
 
@@ -89,7 +89,7 @@ class LlamaServerGUI(QMainWindow):
         config_layout.addLayout(model_path_layout)
 
         # Server parameters
-        params_layout = QHBoxLayout(main_widget)
+        params_layout = QHBoxLayout()  # type: ignore
         params_layout.addStretch(1)
         params_layout.addWidget(QLabel("Port:"))
         self.port_spin = QSpinBox()
@@ -110,7 +110,7 @@ class LlamaServerGUI(QMainWindow):
         main_layout.addWidget(config_group)
 
         # Control buttons
-        control_layout = QHBoxLayout(main_widget)
+        control_layout = QHBoxLayout()  # type: ignore
         self.start_btn = QPushButton("Start Server")
         self.start_btn.clicked.connect(self.toggle_server)  # type: ignore
         self.browser_btn = QPushButton("Start Browser")
