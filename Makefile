@@ -15,7 +15,7 @@ endif
 # Detect CPU architecture.
 ifeq ($(OS),Windows_NT)
     ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-		ARCH := amd64
+		ARCH := x86_64
 	else ifeq ($(PROCESSOR_ARCHITECTURE),x86)
 		ARCH := x86
 	else ifeq ($(PROCESSOR_ARCHITECTURE),ARM64)
@@ -23,10 +23,12 @@ ifeq ($(OS),Windows_NT)
 	else
 		ARCH := unknown
     endif
+
+	TARGET := $(ARCH)_64-pc-windows-msvc
 else
     UNAME_P := $(shell uname -p)
     ifeq ($(UNAME_P),x86_64)
-		ARCH := amd64
+		ARCH := x86_64
 	else ifneq ($(filter %86,$(UNAME_P)),)
 		ARCH := x86
 	else ifneq ($(filter arm%,$(UNAME_P)),)
@@ -34,6 +36,8 @@ else
 	else
 		ARCH := unknown
     endif
+
+	TARGET := $(ARCH)-unknown-linux-gnu
 endif
 
 # Ensure boolean arguments are normalized to 1/0 to prevent surprises.
@@ -88,12 +92,17 @@ requirements-all: .venv  ## Install/refresh all Python requirements (including t
 	$(VENV_BIN)/uv pip install --upgrade --compile-bytecode -r py-polars/requirements-ci.txt
 
 .PHONY: build
-build: .venv  ## Compile and install Python Polars for development
-	maturin b -r -Z build-std --target x86_64-win7-windows-msvc
+build: .venv  ## Compile and install for development
+	maturin b -r -Z build-std --target $(TARGET)
+
+.PHONY: dev
+dev: .venv  ## Activate maturin develop environment
+	@unset CONDA_PREFIX \
+	&& $(VENV_BIN)/maturin dev
 
 .PHONY: publish
 publish: .venv  ## Publish to PyPI
-	maturin publish -Z build-std --target x86_64-win7-windows-msvc
+	maturin publish -Z build-std --target $(TARGET)
 
 .PHONY: build-mindebug
 build-mindebug: .venv  ## Same as build, but don't include full debug information
