@@ -54,8 +54,12 @@ class WaveformApp(QMainWindow):
         self.curve.setData(self.x, self.y)
 
 
-if __name__ == "__main__":
+def main() -> None:
     app = QApplication(sys.argv)
     window = WaveformApp()
     window.show()
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
