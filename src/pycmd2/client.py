@@ -41,12 +41,12 @@ def _log_stream(
 
 
 def _setup_pyside2(*, enable_high_dpi: bool = False) -> None:
-    """初始化 PySide2 环境."""
+    """初始化 PyQt5 环境."""
     import os  # noqa: PLC0415
 
-    import PySide2  # noqa: PLC0415
+    import PyQt5  # noqa: PLC0415
 
-    qt_dir = Path(PySide2.__file__).parent
+    qt_dir = Path(PyQt5.__file__).parent
     plugin_path = qt_dir / "plugins" / "platforms"
     os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = str(plugin_path)
 

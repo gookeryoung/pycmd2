@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QPainterPath
-from PySide2.QtGui import QPen
-from PySide2.QtWidgets import QGraphicsPathItem
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPainterPath
+from PyQt5.QtGui import QPen
+from PyQt5.QtWidgets import QGraphicsPathItem
 
 from .node import MindNode
 

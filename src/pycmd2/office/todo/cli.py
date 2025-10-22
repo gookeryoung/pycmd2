@@ -2,7 +2,7 @@
 
 import sys
 
-from PySide2.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication
 
 from pycmd2.client import get_client
 from pycmd2.office.todo.config import conf

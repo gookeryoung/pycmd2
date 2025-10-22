@@ -4,33 +4,33 @@ import logging
 import os
 import subprocess
 
-from PySide2 import __version__ as pyside2_version
-from PySide2.QtCore import QSize
-from PySide2.QtCore import Qt
-from PySide2.QtCore import QTimer
-from PySide2.QtCore import Signal
-from PySide2.QtGui import QContextMenuEvent
-from PySide2.QtGui import QIcon
-from PySide2.QtGui import QMouseEvent
-from PySide2.QtGui import QMoveEvent
-from PySide2.QtGui import QResizeEvent
-from PySide2.QtWidgets import QAbstractItemView
-from PySide2.QtWidgets import QAction
-from PySide2.QtWidgets import QComboBox
-from PySide2.QtWidgets import QFrame
-from PySide2.QtWidgets import QHBoxLayout
-from PySide2.QtWidgets import QInputDialog
-from PySide2.QtWidgets import QLabel
-from PySide2.QtWidgets import QLineEdit
-from PySide2.QtWidgets import QListView
-from PySide2.QtWidgets import QMainWindow
-from PySide2.QtWidgets import QMenu
-from PySide2.QtWidgets import QMessageBox
-from PySide2.QtWidgets import QPushButton
-from PySide2.QtWidgets import QSizePolicy
-from PySide2.QtWidgets import QToolBar
-from PySide2.QtWidgets import QVBoxLayout
-from PySide2.QtWidgets import QWidget
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QSize
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QT_VERSION_STR
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QContextMenuEvent
+from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtGui import QMoveEvent
+from PyQt5.QtGui import QResizeEvent
+from PyQt5.QtWidgets import QAbstractItemView
+from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QComboBox
+from PyQt5.QtWidgets import QFrame
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QInputDialog
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtWidgets import QListView
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMenu
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QSizePolicy
+from PyQt5.QtWidgets import QToolBar
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QWidget
 
 from pycmd2.office.todo.config import conf
 from pycmd2.office.todo.delegate import TodoItemDelegate
@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 class ClickableLineEdit(QLineEdit):
     """A QLineEdit that emits a clicked signal when clicked."""
 
-    clicked = Signal()
+    clicked = pyqtSignal()
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         """Handle mouse press event."""
@@ -58,7 +58,7 @@ class ClickableLineEdit(QLineEdit):
 class TodoView(QMainWindow):
     """Todo application view."""
 
-    item_deleted = Signal(int)
+    item_deleted = pyqtSignal(int)
 
     def __init__(self) -> None:
         super().__init__()
@@ -146,7 +146,7 @@ class TodoView(QMainWindow):
             "关于Todo list",
             f"""<h1>Todo list</h1>
     <p>一个简单的Todo list程序, 使用 Python + Pyside2 开发.</p>
-    <p>Pyside2 版本: {pyside2_version}</p>""",
+    <p>Pyside2 版本: {QT_VERSION_STR}</p>""",
         )
 
     def _setup_ui(self) -> None:

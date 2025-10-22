@@ -2,8 +2,8 @@ from pathlib import Path
 from typing import Generator
 
 import pytest
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QMessageBox
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMessageBox
 from pytestqt.qtbot import QtBot
 
 from pycmd2.office.todo.controller import TodoController

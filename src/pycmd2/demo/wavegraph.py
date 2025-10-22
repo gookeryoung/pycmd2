@@ -2,11 +2,11 @@ import sys
 
 import numpy as np
 import pyqtgraph as pg
-from PySide2.QtCore import QTime
-from PySide2.QtCore import QTimer
-from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QApplication
-from PySide2.QtWidgets import QMainWindow
+from PyQt5.QtCore import QTime
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QMainWindow
 
 
 class WaveformApp(QMainWindow):

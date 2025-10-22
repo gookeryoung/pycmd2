@@ -12,10 +12,10 @@ from typing import Any
 from typing import Dict
 from typing import List
 
-from PySide2.QtCore import QAbstractListModel
-from PySide2.QtCore import QModelIndex
-from PySide2.QtCore import Qt
-from PySide2.QtCore import Signal
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QAbstractListModel
+from PyQt5.QtCore import QModelIndex
+from PyQt5.QtCore import Qt
 
 from .config import conf
 
@@ -107,10 +107,10 @@ class TodoItem:
 class TodoListModel(QAbstractListModel):
     """List model for todo items."""
 
-    data_changed = Signal()
-    item_added = Signal(int)
-    item_removed = Signal(int)
-    item_changed = Signal(int)
+    data_changed = pyqtSignal()
+    item_added = pyqtSignal(int)
+    item_removed = pyqtSignal(int)
+    item_changed = pyqtSignal(int)
 
     def __init__(self) -> None:
         super().__init__()
@@ -179,8 +179,8 @@ class TodoListModel(QAbstractListModel):
         self._items.append(item)
 
         index = len(self._items) - 1
-        self.item_added.emit(index)  # type: ignore  # noqa: PGH003
-        self.data_changed.emit()  # type: ignore  # noqa: PGH003
+        self.item_added.emit(index)  # type: ignore
+        self.data_changed.emit()  # type: ignore
 
     def remove_item(self, index: int) -> None:
         """Remove item from the list."""
@@ -190,8 +190,8 @@ class TodoListModel(QAbstractListModel):
             )
 
             del self._items[index]
-            self.item_removed.emit(index)  # type: ignore  # noqa: PGH003
-            self.data_changed.emit()  # type: ignore  # noqa: PGH003
+            self.item_removed.emit(index)  # type: ignore
+            self.data_changed.emit()  # type: ignore
 
     def update_item(self, index: int, **kwargs: object) -> None:
         """Update item in the list."""
@@ -200,20 +200,20 @@ class TodoListModel(QAbstractListModel):
 
             item = self._items[index]
             if "text" in kwargs:
-                item.text = kwargs["text"]  # type: ignore  # noqa: PGH003
+                item.text = kwargs["text"]  # type: ignore
             if "completed" in kwargs:
-                item.completed = kwargs["completed"]  # type: ignore  # noqa: PGH003
+                item.completed = kwargs["completed"]  # type: ignore
                 item.completed_at = (
                     datetime.now(tz=timezone.utc)
                     if kwargs["completed"]
                     else None
                 )
             if "priority" in kwargs:
-                item.priority = kwargs["priority"]  # type: ignore  # noqa: PGH003
+                item.priority = kwargs["priority"]  # type: ignore
             if "category" in kwargs:
-                item.category = kwargs["category"]  # type: ignore  # noqa: PGH003
-            self.item_changed.emit(index)  # type: ignore  # noqa: PGH003
-            self.data_changed.emit()  # type: ignore  # noqa: PGH003
+                item.category = kwargs["category"]  # type: ignore
+            self.item_changed.emit(index)  # type: ignore
+            self.data_changed.emit()  # type: ignore
 
     def get_item(self, index: int) -> TodoItem | None:
         """Get a todo item by index.
@@ -296,7 +296,7 @@ class TodoListModel(QAbstractListModel):
     def on_data_changed(self) -> None:
         """处理模型数据变化."""
         self.update_filtered_items()
-        self.layoutChanged.emit()  # type: ignore  # noqa: PGH003
+        self.layoutChanged.emit()  # type: ignore
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:  # noqa: ARG002, B008
         """返回行数.
@@ -309,7 +309,7 @@ class TodoListModel(QAbstractListModel):
         """
         return len(self.filtered_items)
 
-    def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> Any:  # type: ignore  # noqa: ANN401, PGH003
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> Any:  # type: ignore  # noqa: ANN401
         """返回指定索引的数据.
 
         Returns:
@@ -322,11 +322,11 @@ class TodoListModel(QAbstractListModel):
 
         if role == Qt.DisplayRole:
             return item.text
-        if role == Qt.UserRole + 1:  # 完成状态 # type: ignore  # noqa: PGH003
+        if role == Qt.UserRole + 1:  # 完成状态 # type: ignore
             return item.completed
-        if role == Qt.UserRole + 2:  # type: ignore  # noqa: PGH003
+        if role == Qt.UserRole + 2:  # type: ignore
             return item.priority
-        if role == Qt.UserRole + 3:  # type: ignore  # noqa: PGH003
+        if role == Qt.UserRole + 3:  # type: ignore
             return item
 
         return None
@@ -335,7 +335,7 @@ class TodoListModel(QAbstractListModel):
         self,
         index: QModelIndex,
         value: Any,  # noqa: ANN401
-        role: int = Qt.EditRole,  # type: ignore  # noqa: PGH003
+        role: int = Qt.EditRole,  # type: ignore
     ) -> bool:
         """设置数据.
 
@@ -352,17 +352,17 @@ class TodoListModel(QAbstractListModel):
 
         if role == Qt.EditRole:
             self.update_item(original_index, text=value)
-            self.dataChanged.emit(index, index, [role])  # type: ignore  # noqa: PGH003
+            self.dataChanged.emit(index, index, [role])  # type: ignore
             return True
         if (
-            role == Qt.UserRole + 1  # type: ignore  # noqa: PGH003
+            role == Qt.UserRole + 1  # type: ignore
         ):  # 切换完成状态
             self.update_item(original_index, completed=value)
-            self.dataChanged.emit(index, index, [role])  # type: ignore  # noqa: PGH003
+            self.dataChanged.emit(index, index, [role])  # type: ignore
             return True
-        if role == Qt.UserRole + 3:  # 更新优先级 # type: ignore  # noqa: PGH003
+        if role == Qt.UserRole + 3:  # 更新优先级 # type: ignore
             self.update_item(original_index, priority=value)
-            self.dataChanged.emit(index, index, [role])  # type: ignore  # noqa: PGH003
+            self.dataChanged.emit(index, index, [role])  # type: ignore
             return True
 
         return False
@@ -374,6 +374,6 @@ class TodoListModel(QAbstractListModel):
             Qt.ItemFlags: 项目标志
         """
         if not index.isValid():
-            return Qt.NoItemFlags  # type: ignore  # noqa: PGH003
+            return Qt.NoItemFlags  # type: ignore
 
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable  # type: ignore  # noqa: PGH003
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable  # type: ignore

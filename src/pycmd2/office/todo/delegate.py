@@ -2,25 +2,25 @@ from __future__ import annotations
 
 from enum import IntEnum
 
-from PySide2.QtCore import QAbstractItemModel
-from PySide2.QtCore import QEvent
-from PySide2.QtCore import QModelIndex
-from PySide2.QtCore import QRect
-from PySide2.QtCore import QSize
-from PySide2.QtCore import Qt
-from PySide2.QtCore import Signal
-from PySide2.QtGui import QBrush
-from PySide2.QtGui import QColor
-from PySide2.QtGui import QFont
-from PySide2.QtGui import QFontMetrics
-from PySide2.QtGui import QImage
-from PySide2.QtGui import QMouseEvent
-from PySide2.QtGui import QPainter
-from PySide2.QtGui import QPen
-from PySide2.QtWidgets import QStyle
-from PySide2.QtWidgets import QStyledItemDelegate
-from PySide2.QtWidgets import QStyleOptionViewItem
-from PySide2.QtWidgets import QWidget
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QAbstractItemModel
+from PyQt5.QtCore import QEvent
+from PyQt5.QtCore import QModelIndex
+from PyQt5.QtCore import QRect
+from PyQt5.QtCore import QSize
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QBrush
+from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFontMetrics
+from PyQt5.QtGui import QImage
+from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtGui import QPainter
+from PyQt5.QtGui import QPen
+from PyQt5.QtWidgets import QStyle
+from PyQt5.QtWidgets import QStyledItemDelegate
+from PyQt5.QtWidgets import QStyleOptionViewItem
+from PyQt5.QtWidgets import QWidget
 
 from pycmd2.office.todo.config import conf
 from pycmd2.office.todo.model import TodoItem
@@ -36,8 +36,8 @@ class PriorityAction(IntEnum):
 class TodoItemDelegate(QStyledItemDelegate):
     """Delegate for todo item view."""
 
-    inc_priority = Signal(QModelIndex)
-    dec_priority = Signal(QModelIndex)
+    inc_priority = pyqtSignal(QModelIndex)
+    dec_priority = pyqtSignal(QModelIndex)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -50,15 +50,15 @@ class TodoItemDelegate(QStyledItemDelegate):
         index: QModelIndex,
     ) -> None:
         """Paint todo item."""
-        item_text = index.data(Qt.DisplayRole)  # type: ignore  # noqa: PGH003
-        completed = index.data(Qt.UserRole + 1)  # type: ignore  # noqa: PGH003
-        priority = index.data(Qt.UserRole + 2)  # type: ignore  # noqa: PGH003
-        item: TodoItem = index.data(Qt.ItemDataRole.UserRole + 3)  # type: ignore  # noqa: PGH003
+        item_text = index.data(Qt.DisplayRole)  # type: ignore
+        completed = index.data(Qt.UserRole + 1)  # type: ignore
+        priority = index.data(Qt.UserRole + 2)  # type: ignore
+        item: TodoItem = index.data(Qt.ItemDataRole.UserRole + 3)  # type: ignore
 
-        rect = QRect(option.rect)  # type: ignore  # noqa: PGH003
+        rect = QRect(option.rect)  # type: ignore
         painter.save()
 
-        if option.state & QStyle.State_Selected:  # type: ignore  # noqa: PGH003
+        if option.state & QStyle.State_Selected:  # type: ignore
             painter.fillRect(rect, QColor("#aaf7d7"))
         elif completed:
             painter.fillRect(rect, QColor("#e8f5e8"))
@@ -92,7 +92,7 @@ class TodoItemDelegate(QStyledItemDelegate):
 
         # 绘制文本支持省略号
         metrics = QFontMetrics(painter.font())
-        elided_text = metrics.elidedText(item_text, Qt.ElideRight, text_width)  # type: ignore  # noqa: PGH003
+        elided_text = metrics.elidedText(item_text, Qt.ElideRight, text_width)  # type: ignore
         text_rect = QRect(
             text_left,
             rect.top() + (rect.height() - metrics.height()) // 2,
@@ -100,8 +100,8 @@ class TodoItemDelegate(QStyledItemDelegate):
             metrics.height(),
         )
         painter.drawText(
-            text_rect,  # type: ignore  # noqa: PGH003
-            int(Qt.AlignLeft | Qt.AlignVCenter),  # type: ignore  # noqa: PGH003
+            text_rect,  # type: ignore
+            int(Qt.AlignLeft | Qt.AlignVCenter),  # type: ignore
             elided_text,
         )
 
@@ -210,7 +210,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         painter.setFont(QFont(conf.FONT_FAMILY, 6))
         painter.drawText(
             rect,  # pyright: ignore[reportArgumentType]
-            Qt.AlignCenter,  # type: ignore  # noqa: PGH003
+            Qt.AlignCenter,  # type: ignore
             category,
         )
         painter.restore()
@@ -233,7 +233,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         painter.setFont(QFont(conf.FONT_FAMILY, 6))
         painter.drawText(
             rect,  # pyright: ignore[reportArgumentType]
-            Qt.AlignmentFlag.AlignCenter,  # type: ignore  # noqa: PGH003
+            Qt.AlignmentFlag.AlignCenter,  # type: ignore
             timelabel,
         )
 
@@ -273,7 +273,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         color = conf.PRIORITY_COLORS[priority]
 
         # 绘制圆角矩形
-        painter.setPen(QPen(Qt.NoPen))  # type: ignore  # noqa: PGH003
+        painter.setPen(QPen(Qt.NoPen))  # type: ignore
         painter.setBrush(QBrush(QColor(color)))
         painter.drawRoundedRect(rect, 3, 3)
 
@@ -283,7 +283,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         painter.setFont(font)
         painter.setPen(QColor(Qt.white))
         text = conf.PRIORITIES[priority]
-        painter.drawText(rect, Qt.AlignCenter, text)  # type: ignore  # noqa: PGH003
+        painter.drawText(rect, Qt.AlignCenter, text)  # type: ignore
 
         painter.restore()
 
@@ -317,7 +317,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         Returns:
             QSize: 尺寸.
         """
-        rect = QRect(option.rect)  # type: ignore  # noqa: PGH003
+        rect = QRect(option.rect)  # type: ignore
         return QSize(rect.width(), 40)
 
     def editorEvent(
@@ -335,7 +335,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         # 检查是否为鼠标事件
         if isinstance(event, QMouseEvent):
             # 获取项目矩形区域
-            rect = QRect(option.rect)  # type: ignore  # noqa: PGH003
+            rect = QRect(option.rect)  # type: ignore
 
             # 计算按钮位置
             button_size = 20
@@ -369,9 +369,9 @@ class TodoItemDelegate(QStyledItemDelegate):
                 # 只在鼠标释放时触发操作避免重复触发
                 if event.type() == QEvent.MouseButtonRelease:
                     if on_down_button:
-                        self.dec_priority.emit(index)  # type: ignore  # noqa: PGH003
+                        self.dec_priority.emit(index)  # type: ignore
                     elif on_up_button:
-                        self.inc_priority.emit(index)  # type: ignore  # noqa: PGH003
+                        self.inc_priority.emit(index)  # type: ignore
                 # 对于按钮区域的所有事件都返回True, 阻止传播
                 return True
 

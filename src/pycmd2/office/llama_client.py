@@ -2,22 +2,22 @@ import json
 import sys
 
 import requests
-from PySide2.QtCore import Qt
-from PySide2.QtCore import QThread
-from PySide2.QtCore import Signal
-from PySide2.QtGui import QTextCursor
-from PySide2.QtWidgets import QApplication
-from PySide2.QtWidgets import QDoubleSpinBox
-from PySide2.QtWidgets import QGroupBox
-from PySide2.QtWidgets import QHBoxLayout
-from PySide2.QtWidgets import QLabel
-from PySide2.QtWidgets import QLineEdit
-from PySide2.QtWidgets import QMainWindow
-from PySide2.QtWidgets import QPushButton
-from PySide2.QtWidgets import QSpinBox
-from PySide2.QtWidgets import QTextEdit
-from PySide2.QtWidgets import QVBoxLayout
-from PySide2.QtWidgets import QWidget
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QThread
+from PyQt5.QtGui import QTextCursor
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QDoubleSpinBox
+from PyQt5.QtWidgets import QGroupBox
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QSpinBox
+from PyQt5.QtWidgets import QTextEdit
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QWidget
 
 from pycmd2.client import get_client
 
@@ -27,9 +27,9 @@ cli = get_client(enable_qt=True, enable_high_dpi=True)
 class LlamaWorker(QThread):
     """工作线程, 用于与llama-server通信."""
 
-    response_received = Signal(str)
-    error_occurred = Signal(str)
-    finished = Signal()
+    response_received = pyqtSignal(str)
+    error_occurred = pyqtSignal(str)
+    finished = pyqtSignal()
 
     def __init__(  # noqa: PLR0913, PLR0917
         self,

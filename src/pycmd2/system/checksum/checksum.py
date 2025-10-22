@@ -3,12 +3,12 @@ import logging
 import sys
 from pathlib import Path
 
-from PySide2.QtCore import QCoreApplication
-from PySide2.QtCore import QDir
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QApplication
-from PySide2.QtWidgets import QDialog
-from PySide2.QtWidgets import QFileDialog
+from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtCore import QDir
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QFileDialog
 
 from .deps.ui_checksum import Ui_ChecksumDialog
 

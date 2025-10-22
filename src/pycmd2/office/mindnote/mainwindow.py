@@ -1,17 +1,17 @@
 import json
 from pathlib import Path
 
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QCursor
-from PySide2.QtGui import QKeySequence
-from PySide2.QtGui import QMouseEvent
-from PySide2.QtGui import QPainter
-from PySide2.QtWidgets import QAction
-from PySide2.QtWidgets import QFileDialog
-from PySide2.QtWidgets import QGraphicsScene
-from PySide2.QtWidgets import QGraphicsView
-from PySide2.QtWidgets import QMainWindow
-from PySide2.QtWidgets import QToolBar
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCursor
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtGui import QPainter
+from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QGraphicsScene
+from PyQt5.QtWidgets import QGraphicsView
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QToolBar
 
 from pycmd2.office.mindnote.connection import Connection
 from pycmd2.office.mindnote.node import MindNode

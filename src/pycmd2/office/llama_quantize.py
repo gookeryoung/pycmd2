@@ -8,22 +8,22 @@ import pathlib
 import subprocess
 import sys
 
-from PySide2.QtCore import QThread
-from PySide2.QtCore import Signal
-from PySide2.QtCore import Slot
-from PySide2.QtWidgets import QApplication
-from PySide2.QtWidgets import QCheckBox
-from PySide2.QtWidgets import QFileDialog
-from PySide2.QtWidgets import QGridLayout
-from PySide2.QtWidgets import QGroupBox
-from PySide2.QtWidgets import QHBoxLayout
-from PySide2.QtWidgets import QLabel
-from PySide2.QtWidgets import QMainWindow
-from PySide2.QtWidgets import QProgressBar
-from PySide2.QtWidgets import QPushButton
-from PySide2.QtWidgets import QTextEdit
-from PySide2.QtWidgets import QVBoxLayout
-from PySide2.QtWidgets import QWidget
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QThread
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QCheckBox
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QGroupBox
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QProgressBar
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QTextEdit
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QWidget
 
 from pycmd2.client import get_client
 
@@ -45,9 +45,9 @@ def _process_gguf_stem(filename: str) -> str:
 class QuantizationWorker(QThread):
     """量化执行线程Worker."""
 
-    progress_msg_updated = Signal(str)
-    progress_count_updated = Signal(int)
-    finished = Signal(bool)
+    progress_msg_updated = pyqtSignal(str)
+    progress_count_updated = pyqtSignal(int)
+    finished = pyqtSignal(bool)
 
     def __init__(
         self,
@@ -296,19 +296,19 @@ class GGUFQuantizerGUI(QMainWindow):
         self.worker.progress_count_updated.connect(self.update_progress_value)
         self.worker.start()
 
-    @Slot(str)
+    @pyqtSlot(str)
     def update_progress_msg(self, message: str) -> None:
         """更新进度信息."""
         self.output_text.append(message)
         self.output_text.ensureCursorVisible()
         self._scroll_to_bottom()
 
-    @Slot(int)
+    @pyqtSlot(int)
     def update_progress_value(self, value: int) -> None:
         """更新进度条."""
         self.progress_bar.setValue(value)
 
-    @Slot(bool)
+    @pyqtSlot(bool)
     def conversion_finished(self, *, success: bool) -> None:
         """转换完成回调函数."""
         self.convert_btn.setEnabled(True)

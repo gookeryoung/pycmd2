@@ -4,20 +4,20 @@ import logging
 from pathlib import Path
 from typing import ClassVar
 
-from PySide2.QtCore import QProcess
-from PySide2.QtCore import QStandardPaths
-from PySide2.QtWidgets import QApplication
-from PySide2.QtWidgets import QComboBox
-from PySide2.QtWidgets import QFileDialog
-from PySide2.QtWidgets import QHBoxLayout
-from PySide2.QtWidgets import QLabel
-from PySide2.QtWidgets import QLineEdit
-from PySide2.QtWidgets import QMainWindow
-from PySide2.QtWidgets import QMessageBox
-from PySide2.QtWidgets import QProgressBar
-from PySide2.QtWidgets import QPushButton
-from PySide2.QtWidgets import QVBoxLayout
-from PySide2.QtWidgets import QWidget
+from PyQt5.QtCore import QProcess
+from PyQt5.QtCore import QStandardPaths
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QComboBox
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QProgressBar
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QWidget
 
 from pycmd2.config import TomlConfigMixin
 

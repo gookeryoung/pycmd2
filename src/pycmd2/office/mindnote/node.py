@@ -1,13 +1,13 @@
-from PySide2.QtCore import QPointF
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QBrush
-from PySide2.QtGui import QColor
-from PySide2.QtGui import QMouseEvent
-from PySide2.QtGui import QPen
-from PySide2.QtWidgets import QGraphicsItem
-from PySide2.QtWidgets import QGraphicsRectItem
-from PySide2.QtWidgets import QGraphicsTextItem
-from PySide2.QtWidgets import QMenu
+from PyQt5.QtCore import QPointF
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QBrush
+from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtGui import QPen
+from PyQt5.QtWidgets import QGraphicsItem
+from PyQt5.QtWidgets import QGraphicsRectItem
+from PyQt5.QtWidgets import QGraphicsTextItem
+from PyQt5.QtWidgets import QMenu
 
 
 class MindNode(QGraphicsRectItem):

@@ -10,21 +10,21 @@ from functools import partial
 from typing import ClassVar
 
 import qdarkstyle
-from PySide2.QtCore import QSize
-from PySide2.QtCore import Qt
-from PySide2.QtCore import QTime
-from PySide2.QtCore import QTimer
-from PySide2.QtGui import QCloseEvent
-from PySide2.QtWidgets import QApplication
-from PySide2.QtWidgets import QCheckBox
-from PySide2.QtWidgets import QDialog
-from PySide2.QtWidgets import QHBoxLayout
-from PySide2.QtWidgets import QLabel
-from PySide2.QtWidgets import QMainWindow
-from PySide2.QtWidgets import QPushButton
-from PySide2.QtWidgets import QTimeEdit
-from PySide2.QtWidgets import QVBoxLayout
-from PySide2.QtWidgets import QWidget
+from PyQt5.QtCore import QSize
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QTime
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QCloseEvent
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QCheckBox
+from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QTimeEdit
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QWidget
 
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
@@ -74,13 +74,13 @@ class DigitalClock(QLabel):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
 
-        self.setAlignment(Qt.AlignCenter)  # type: ignore # noqa: PGH003
+        self.setAlignment(Qt.AlignCenter)  # type: ignore
 
         self._color = conf.DIGITAL_BORDER_COLORS[0]
 
         # 定时器更新当前时间
         self._timer = QTimer()
-        self._timer.timeout.connect(self.update_time)  # type: ignore # noqa: PGH003
+        self._timer.timeout.connect(self.update_time)  # type: ignore
         self._timer.start(conf.DIGITAL_UPDATE_INTERVAL)  # 每秒更新一次
 
         self.update_time()
@@ -114,7 +114,7 @@ class BlinkDialog(QDialog):
         self.setWindowTitle(conf.BLINK_TITLE)
         self.setModal(True)
         self.setWindowFlags(
-            self.windowFlags() | Qt.WindowStaysOnTopHint | Qt.WindowType.Dialog,  # type: ignore  # noqa: PGH003
+            self.windowFlags() | Qt.WindowStaysOnTopHint | Qt.WindowType.Dialog,  # type: ignore
         )
         self.setFixedSize(QSize(400, 240))
 
@@ -124,21 +124,21 @@ class BlinkDialog(QDialog):
             color: red;
             font-size: 24px;
         """)
-        msg_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore  # noqa: PGH003
+        msg_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
 
         close_button = QPushButton("关闭闹钟")
-        close_button.clicked.connect(self.accept)  # type: ignore  # noqa: PGH003
+        close_button.clicked.connect(self.accept)  # type: ignore
 
         layout.addWidget(msg_label)
         layout.addWidget(close_button)
         self.setLayout(layout)
 
         # 阻止用户通过其他方式关闭对话框, 确保只能点击按钮
-        self.setWindowFlag(Qt.WindowCloseButtonHint, False)  # type: ignore  # noqa: FBT003, PGH003
+        self.setWindowFlag(Qt.WindowCloseButtonHint, False)  # type: ignore  # noqa: FBT003
 
         # 闪烁控制变量和定时器
         self.blink_timer = QTimer(self)
-        self.blink_timer.timeout.connect(self.update_blink)  # type: ignore  # noqa: PGH003
+        self.blink_timer.timeout.connect(self.update_blink)  # type: ignore
         self.blink_state = False
         self.blink_type = conf.BLINK_TYPE
 
@@ -259,7 +259,7 @@ class AlarmClock(QMainWindow):
         for minutes in conf.DELAY_STEPS:
             button = QPushButton(str(minutes))
             button.setStyleSheet("color: white; font-size: 16px;")
-            button.clicked.connect(partial(self.set_delay, minutes))  # type: ignore # noqa: PGH003
+            button.clicked.connect(partial(self.set_delay, minutes))  # type: ignore
             delay_layout.addWidget(button)
         main_layout.addLayout(delay_layout)
 
@@ -270,9 +270,9 @@ class AlarmClock(QMainWindow):
         # 控制按钮
         button_layout = QHBoxLayout()
         self.set_alarm_button = QPushButton("设置闹钟")
-        self.set_alarm_button.clicked.connect(self.set_alarm)  # type: ignore # noqa: PGH003
+        self.set_alarm_button.clicked.connect(self.set_alarm)  # type: ignore
         self.cancel_alarm_button = QPushButton("取消闹钟")
-        self.cancel_alarm_button.clicked.connect(self.cancel_alarm)  # type: ignore # noqa: PGH003
+        self.cancel_alarm_button.clicked.connect(self.cancel_alarm)  # type: ignore
         self.cancel_alarm_button.setEnabled(False)
         button_layout.addWidget(self.set_alarm_button)
         button_layout.addWidget(self.cancel_alarm_button)
@@ -280,13 +280,13 @@ class AlarmClock(QMainWindow):
 
         # 状态显示
         self.status_label = QLabel("闹钟未设置")
-        self.status_label.setAlignment(Qt.AlignCenter)  # type: ignore # noqa: PGH003
+        self.status_label.setAlignment(Qt.AlignCenter)  # type: ignore
         self.status_label.setStyleSheet("color: #aaaaaa; font-size: 16px;")
         main_layout.addWidget(self.status_label)
 
         # 闹钟定时器
         self.alarm_timer = QTimer()
-        self.alarm_timer.timeout.connect(self.check_alarm)  # type: ignore # noqa: PGH003
+        self.alarm_timer.timeout.connect(self.check_alarm)  # type: ignore
 
         # 闹钟状态
         self.alarm_set = False
