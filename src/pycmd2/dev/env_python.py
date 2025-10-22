@@ -103,7 +103,7 @@ def add_env_to_bashrc(
         return True
 
 
-def setup_pip() -> None:
+def write_pip_conf() -> None:
     """初始化 pip 配置."""
     pip_dir = cli.home / "pip" if cli.is_windows else cli.home / ".pip"
     pip_conf = pip_dir / "pip.ini" if cli.is_windows else pip_dir / "pip.conf"
@@ -118,7 +118,8 @@ def setup_pip() -> None:
     pip_conf.write_text(conf.CONFIG_CONTENT)
 
 
-def setup_uv(*, override: bool = True) -> None:
+def setup_uv_env(*, override: bool = True) -> None:
+    """配置 uv 环境变量."""
     logger.info("配置 [purple bold]uv 环境变量")
 
     uv_envs = {
@@ -133,11 +134,8 @@ def setup_uv(*, override: bool = True) -> None:
             add_env_to_bashrc(str(k), str(v), override=override)
 
 
-def setup_tokens(token: str) -> None:
-    """永久配置 PyPI Token.
-
-    :param token: PyPI API Token (格式: pypi-xxxxxxxx)
-    """
+def write_pypirc(token: str) -> None:
+    """永久配置 PyPI Token."""
     token_file = cli.home / ".pypirc"
     if token_file.exists():
         logger.info(f"已存在 [green bold]{token_file}")
@@ -155,9 +153,9 @@ def main(
     *,
     override: bool = typer.Option(help="是否覆盖已存在选项", default=True),
 ) -> None:
-    setup_pip()
-    setup_uv(override=override)
+    write_pip_conf()
+    setup_uv_env(override=override)
 
     if pypi_token:
         logger.info("设置 [purple bold]pypi token")
-        setup_tokens(pypi_token)
+        write_pypirc(pypi_token)
