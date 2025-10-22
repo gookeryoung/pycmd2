@@ -91,6 +91,10 @@ requirements-all: .venv  ## Install/refresh all Python requirements (including t
 build: .venv  ## Compile and install Python Polars for development
 	maturin b -r -Z build-std --target x86_64-win7-windows-msvc
 
+.PHONY: publish
+publish: .venv  ## Publish to PyPI
+	maturin publish -Z build-std --target x86_64-win7-windows-msvc
+
 .PHONY: build-mindebug
 build-mindebug: .venv  ## Same as build, but don't include full debug information
 	@unset CONDA_PREFIX \
@@ -154,10 +158,6 @@ update-dsl-schema-hashes:  ## Update the DSL schema hashes file
 
 .PHONY: pre-commit
 pre-commit: fmt clippy clippy-default  ## Run all code quality checks
-
-.PHONY: publish
-publish:  ## Publish Python Polars to PyPI
-	maturin publish
 
 .PHONY: clean
 clean:  ## Clean up caches, build artifacts, and the venv
