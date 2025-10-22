@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 import pathlib
 import sys
@@ -12,6 +13,8 @@ from PySide2.QtGui import QBrush
 from PySide2.QtGui import QColor
 from PySide2.QtGui import QDesktopServices
 from PySide2.QtGui import QFont
+from PySide2.QtGui import QMoveEvent
+from PySide2.QtGui import QResizeEvent
 from PySide2.QtGui import QTextCharFormat
 from PySide2.QtGui import QTextCursor
 from PySide2.QtWidgets import QApplication
@@ -36,6 +39,7 @@ class LlmServerConfig(TomlConfigMixin):
 
     TITLE: str = "Llama local model server"
     WIN_SIZE: ClassVar[list[int]] = [800, 800]
+    WIN_POS: ClassVar[list[int]] = [200, 200]
     MODEL_PATH: str = ""
 
     URL: str = "http://127.0.0.1"
@@ -47,6 +51,7 @@ class LlmServerConfig(TomlConfigMixin):
 
 cli = get_client(enable_qt=True, enable_high_dpi=False)
 conf = LlmServerConfig()
+logger = logging.getLogger(__name__)
 
 
 class LlamaServerGUI(QMainWindow):
@@ -55,7 +60,7 @@ class LlamaServerGUI(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle(conf.TITLE)
-        self.resize(*conf.WIN_SIZE)
+        self.setGeometry(*conf.WIN_POS, *conf.WIN_SIZE)
 
         self.process: QProcess
         self.init_ui()
@@ -279,6 +284,20 @@ class LlamaServerGUI(QMainWindow):
             self.start_btn.setText("Stop Server")
         else:
             self.start_btn.setText("Start Server")
+
+    def moveEvent(self, event: QMoveEvent) -> None:
+        """处理窗口移动事件."""
+        win_pos = [self.geometry().topLeft().x(), self.geometry().topLeft().y()]
+        logger.info(f"窗口移动: {win_pos}")
+        conf.setattr("WIN_POS", win_pos)
+        return super().moveEvent(event)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        """处理窗口大小改变事件."""
+        win_size = [self.geometry().width(), self.geometry().height()]
+        logger.info(f"窗口大小: {win_size}")
+        conf.setattr("WIN_SIZE", win_size)
+        return super().resizeEvent(event)
 
 
 def main() -> None:
