@@ -1,41 +1,36 @@
 """功能: 初始化 python 环境变量."""
 
+from __future__ import annotations
+
 import logging
 import re
-from pathlib import Path
 
-from typer import Option
-from typing_extensions import Annotated
+import typer
 
 from pycmd2.client import get_client
+from pycmd2.config import TomlConfigMixin
 
-cli = get_client()
-logger = logging.getLogger(__name__)
 
-# 用户文件夹
-BASHRC_PATH = cli.home / ".bashrc"
+class EnvPythonConfig(TomlConfigMixin):
+    """python 环境变量配置."""
 
-# pip 配置信息
-PIP_CONF_CONTENT = """[global]
+    CONFIG_CONTENT = """[global]
 index-url = http://mirrors.aliyun.com/pypi/simple/
 [install]
 trusted-host = mirrors.aliyun.com
 """
+    UV_INDEX_URL = "http://mirrors.aliyun.com/pypi/simple/"
+    UV_DEFALT_INDEX = "http://mirrors.aliyun.com/pypi/simple/"
+    UV_HTTP_TIMEOUT = 60
+    UV_LINK_MODE = "copy"
 
 
-def _set_chmod(filepath: Path) -> None:
-    # 设置安全权限 (仅限 Unix 系统)
-    if not cli.is_windows:
-        if not filepath.exists():
-            cli.run_cmd(["touch", str(filepath)])
+cli = get_client()
+conf = EnvPythonConfig(show_logging=False)
+logger = logging.getLogger(__name__)
 
-        try:
-            filepath.chmod(0o600)
-            logger.info(f"设置文件权限: {oct(filepath.stat().st_mode)[-3:]}")
-        except OSError:
-            logger.exception(f"设置文件权限失败: {filepath}")
-    else:
-        logger.info("Windows系统, 跳过权限设置")
+# 用户文件夹
+BASHRC_PATH = cli.home / ".bashrc"
 
 
 def add_env_to_bashrc(
@@ -88,7 +83,7 @@ def add_env_to_bashrc(
                 new_content += entry.lstrip("\n")
 
                 BASHRC_PATH.write_text(new_content, encoding="utf-8")
-                logger.info(f"✅ 成功覆盖 {variable} 配置")
+                logger.info(f"✅ 成功覆盖 {variable} 配置: {value}")
                 return True
             logger.warning(f"⚠️ 已存在 {variable} 配置, 跳过添加")
             return False
@@ -108,46 +103,8 @@ def add_env_to_bashrc(
         return True
 
 
-def setup_uv(*, override: bool = True) -> None:
-    logger.info("配置 [purple bold]uv 环境变量")
-
-    uv_envs = {
-        "UV_INDEX_URL": "http://mirrors.aliyun.com/pypi/simple/",
-        "UV_DEFALT_INDEX": "http://mirrors.aliyun.com/pypi/simple/",
-        "UV_HTTP_TIMEOUT": 60,
-        "UV_LINK_MODE": "copy",
-    }
-
-    if cli.is_windows:
-        for k, v in uv_envs.items():
-            cli.run_cmd(["setx", str(k), str(v)])
-    else:
-        for k, v in uv_envs.items():
-            add_env_to_bashrc(str(k), str(v), override=override)
-
-
-def setup_hatch_token(
-    token: str,
-    *,
-    override: bool = True,
-) -> None:
-    """永久配置 Hatch 的 PyPI Token.
-
-    :param token: PyPI API Token (格式: pypi-xxxxxxxx)
-    """
-    hatch_envs = {
-        "HATCH_INDEX_USER": "__token__",
-        "HATCH_INDEX_AUTH": token,
-    }
-    if cli.is_windows:
-        for k, v in hatch_envs.items():
-            cli.run_cmd(["setx", str(k), str(v)])
-    else:
-        for k, v in hatch_envs.items():
-            add_env_to_bashrc(str(k), str(v), override=override)
-
-
 def setup_pip() -> None:
+    """初始化 pip 配置."""
     pip_dir = cli.home / "pip" if cli.is_windows else cli.home / ".pip"
     pip_conf = pip_dir / "pip.ini" if cli.is_windows else pip_dir / "pip.conf"
 
@@ -157,21 +114,50 @@ def setup_pip() -> None:
     else:
         logger.info(f"已存在 pip 文件夹: [green bold]{pip_dir}")
 
-    _set_chmod(pip_conf)
-
     logger.info(f"写入文件: [green bold]{pip_conf}")
-    pip_conf.write_text(PIP_CONF_CONTENT)
+    pip_conf.write_text(conf.CONFIG_CONTENT)
+
+
+def setup_uv(*, override: bool = True) -> None:
+    logger.info("配置 [purple bold]uv 环境变量")
+
+    uv_envs = {
+        k: v for k, v in conf.get_fileattrs().items() if k.startswith("UV_")
+    }
+
+    if cli.is_windows:
+        for k, v in uv_envs.items():
+            cli.run_cmd(["setx", str(k), str(v)])
+    else:
+        for k, v in uv_envs.items():
+            add_env_to_bashrc(str(k), str(v), override=override)
+
+
+def setup_tokens(token: str) -> None:
+    """永久配置 PyPI Token.
+
+    :param token: PyPI API Token (格式: pypi-xxxxxxxx)
+    """
+    token_file = cli.home / ".pypirc"
+    if token_file.exists():
+        logger.info(f"已存在 [green bold]{token_file}")
+    else:
+        logger.info(f"创建 [green bold]{token_file}")
+        token_file.write_text(
+            f"[pypi]\nusername = __token__\npassword = {token}\n",
+            encoding="utf-8",
+        )
 
 
 @cli.app.command()
 def main(
-    pypi_token: Annotated[str, Option(help="pypi token")] = "",
+    pypi_token: str = typer.Argument(help="PyPI token值", default=""),
     *,
-    override: Annotated[bool, Option(help="是否覆盖已存在选项")] = True,
+    override: bool = typer.Option(help="是否覆盖已存在选项", default=True),
 ) -> None:
     setup_pip()
     setup_uv(override=override)
 
     if pypi_token:
         logger.info("设置 [purple bold]pypi token")
-        setup_hatch_token(pypi_token, override=override)
+        setup_tokens(pypi_token)
