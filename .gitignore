@@ -149,3 +149,4 @@ tests/packages
 tests/requirements.txt
 tests/office/test_pdf_merge/**/*.pdf
 .build
+rust/Cargo.lock
