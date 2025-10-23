@@ -29,6 +29,9 @@ def main(
     except FileNotFoundError:
         logger.exception(f"未找到文件: {path}")
         return
-    else:
-        logger.info("搜索结果:")
-        logger.info(result)
+
+    if not result:
+        logger.info("未找到匹配项")
+        return
+
+    logger.info(f"搜索结果: [green]{result}")
