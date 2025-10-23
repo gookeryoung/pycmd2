@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 
 mod dirs;
+mod grep;
 
 #[pyfunction]
 fn version_info() -> PyResult<String> {
@@ -15,6 +16,9 @@ fn _pycmd2(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // dirs
     m.add_function(wrap_pyfunction!(dirs::list_entries, m)?)?;
     m.add_function(wrap_pyfunction!(dirs::list_names, m)?)?;
+
+    // grep
+    m.add_function(wrap_pyfunction!(grep::grep, m)?)?;
 
     Ok(())
 }

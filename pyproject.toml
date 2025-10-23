@@ -28,6 +28,7 @@ version = "0.5.7"
 pycmd2 = "pycmd2.cli:cli.app"
 
 # demo commands
+ggrep = "pycmd2.demo.grep:cli.app"
 wavegraph = "pycmd2.demo.wavegraph:main"
 
 # dev-tools
