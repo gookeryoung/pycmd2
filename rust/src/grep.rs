@@ -2,22 +2,42 @@ use pyo3::{PyResult, pyfunction};
 
 #[pyfunction]
 pub fn grep(pattern: &str, path: &str) -> PyResult<String> {
-    println!("Searching for {} in {}", pattern, path);
+    let filepath = std::path::Path::new(path);
 
-    if !std::path::Path::new(path).exists() {
+    if !filepath.exists() {
         return Err(pyo3::exceptions::PyFileNotFoundError::new_err(format!(
             "{} 文件不存在",
             path
         )));
     }
 
-    let contents = std::fs::read_to_string(path)?;
     let mut match_contents = String::new();
-    for line in contents.lines() {
-        if line.contains(pattern) {
-            match_contents.push_str(line);
+    if filepath.is_file() {
+        let contents = std::fs::read_to_string(path)?;
+        for line in contents.lines() {
+            if line.contains(pattern) {
+                match_contents.push_str(line);
+            }
         }
+    } else if filepath.is_dir() {
+        for entry in std::fs::read_dir(path)? {
+            let path = entry?.path();
+            if path.is_file() {
+                println!("Search in file: {}", path.display());
+                let contents = std::fs::read_to_string(path)?;
+                for line in contents.lines() {
+                    if line.contains(pattern) {
+                        match_contents.push_str(line);
+                    }
+                }
+            }
+        }
+    } else {
+        return Err(pyo3::exceptions::PyValueError::new_err(format!(
+            "{} 不是一个文件或目录",
+            path
+        )));
     }
 
-    return Ok(match_contents);
+    Ok(match_contents)
 }

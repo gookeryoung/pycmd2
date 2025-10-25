@@ -4,6 +4,7 @@
 """
 
 import logging
+from pathlib import Path
 
 import typer
 
@@ -19,15 +20,19 @@ logger = logging.getLogger(__name__)
 
 @cli.app.command()
 def main(
-    pattern: str = typer.Argument(help="文件匹配模式", default="*"),
-    path: str = typer.Argument(help="搜索目录", default="."),
+    pattern: str = typer.Argument(help="文件匹配模式"),
+    path: str = typer.Argument(help="搜索目录", default=str(Path.cwd())),
 ) -> None:
     logger.info(f"grep {__version__}, 构建日期: {__build_date__}")
+    logger.info(f"Searching for [green b]{pattern}[/] in [green b]{path}")
 
     try:
         result = grep(pattern, path)
     except FileNotFoundError:
         logger.exception(f"未找到文件: {path}")
+        return
+    except OSError:
+        logger.exception("文件系统错误")
         return
 
     if not result:
