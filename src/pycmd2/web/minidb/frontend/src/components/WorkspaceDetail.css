@@ -1,0 +1,89 @@
+.workspace-detail {
+  text-align: left;
+}
+
+.workspace-header h2 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.workspace-path {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 20px;
+}
+
+.workspace-info {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.info-item {
+  margin: 5px 0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.section-header h3 {
+  margin: 0;
+}
+
+.add-data-form {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.data-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.data-item {
+  display: flex;
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+}
+
+.data-key {
+  font-weight: bold;
+  min-width: 150px;
+  padding-right: 15px;
+}
+
+.data-value {
+  flex: 1;
+}
+
+.empty-state {
+  color: #666;
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+}

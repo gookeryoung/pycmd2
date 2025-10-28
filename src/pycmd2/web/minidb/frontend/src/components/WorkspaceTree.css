@@ -1,0 +1,55 @@
+.workspace-node {
+  margin: 4px 0;
+}
+
+.node-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.node-row:hover {
+  background-color: #f0f8ff;
+}
+
+.child-node {
+  border-left: 2px solid #e0e0e0;
+  margin-left: 8px;
+}
+
+.node-toggle {
+  width: 20px;
+  display: inline-block;
+  text-align: center;
+}
+
+.node-name {
+  flex: 1;
+  margin: 0 10px;
+}
+
+.node-meta {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 1.2em;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.delete-btn:hover {
+  background-color: #f8d7da;
+}

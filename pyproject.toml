@@ -77,13 +77,17 @@ ld = "pycmd2.system.list_dirs:cli.app"
 taskk = "pycmd2.system.task_kill:cli.app"
 wch = "pycmd2.system.which:cli.app"
 
+# web commands
+mdb = "pycmd2.web.minidb.gui:main"
+mdb-api = "pycmd2.web.minidb.app:main"
+
 [project.urls]
 Documentation = "https://pycmd2.readthedocs.io/zh-cn/stable/"
 Issues = "https://gitee.com/gooker_young/pycmd2/issues"
 Repository = "https://gitee.com/gooker_young/pycmd2"
 
 [project.optional-dependencies]
-all = ["pycmd2[demo,gui,office]"]
+all = ["pycmd2[demo,gui,office,web]"]
 demo = ["pyqtgraph~=0.12.4"]
 gui = ["pyqt5-stubs~=5.14.0", "pyqt5~=5.14.0", "qdarkstyle>=3.2.3"]
 office = [
@@ -91,6 +95,10 @@ office = [
   "pillow>=10",
   "pypdf>=5.9.0",
   "pywin32>=311; platform_system == 'Windows'",
+]
+web = [
+    "fastapi[standard]>=0.120.1",
+    "uvicorn[standard]>=0.33.0",
 ]
 
 # ---------------------- coverage ----------------------- #
