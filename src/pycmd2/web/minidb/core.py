@@ -171,7 +171,7 @@ class MiniDB:
                 self._deserialize_workspace(ws_data)
                 for ws_data in data.get("root_workspaces", [])
             ]
-        except Exception:
+        except FileNotFoundError:
             logger.exception("Failed to load database")
 
     def _serialize_workspace(self, workspace: Workspace) -> Dict[str, Any]:
