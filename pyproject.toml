@@ -97,6 +97,7 @@ office = [
   "pywin32>=311; platform_system == 'Windows'",
 ]
 web = [
+    "fastapi-offline>=1.7.5",
     "fastapi[standard]>=0.120.1",
     "uvicorn[standard]>=0.33.0",
 ]
@@ -211,6 +212,7 @@ ignore = [
   "PLR0915",
   "PLR6301",
   "UP006",   # pyupgrade
+  "UP045",
 ]
 
 # 格式化配置 (Ruff 的格式化器)

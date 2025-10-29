@@ -14,6 +14,7 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_offline import FastAPIOffline
 from pydantic import BaseModel
 
 from pycmd2.config import TomlConfigMixin
@@ -31,7 +32,7 @@ conf = MiniDBConfig()
 logger = logging.getLogger(__name__)
 
 # Create FastAPI app
-app = FastAPI(
+app = FastAPIOffline(
     title="MiniDB API",
     description="Personal database with workspace hierarchy support",
 )
