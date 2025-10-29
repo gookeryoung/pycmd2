@@ -99,6 +99,7 @@ office = [
 web = [
     "fastapi-offline>=1.7.5",
     "fastapi[standard]>=0.120.1",
+    "sqlmodel>=0.0.27",
     "uvicorn[standard]>=0.33.0",
 ]
 
