@@ -131,7 +131,7 @@ def convert_img(
             new_height = int(width / img_conv.width * img_conv.height)
             img_conv = img_conv.resize(
                 (width, new_height),
-                resample=Image.LANCZOS,  # type: ignore  # noqa: PGH003
+                resample=Image.LANCZOS,  # type: ignore
             )
 
         new_img_path = img_path.with_name(img_path.stem + "_conv.png")

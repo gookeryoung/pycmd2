@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from contextlib import asynccontextmanager
 from enum import Enum
 from typing import Any
 from typing import Dict
@@ -10,15 +11,24 @@ from typing import List
 
 import anyio
 import uvicorn
+from fastapi import Depends
 from fastapi import FastAPI
 from fastapi import HTTPException
+from fastapi import Query
 from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_offline import FastAPIOffline
 from pydantic import BaseModel
+from sqlmodel import create_engine
+from sqlmodel import select
+from sqlmodel import Session
+from sqlmodel import SQLModel
+from typing_extensions import Annotated
 
 from pycmd2.config import TomlConfigMixin
 from pycmd2.web.minidb.core import MiniDB
+from pycmd2.web.minidb.models.workspace import Workspace
+from pycmd2.web.minidb.models.workspace import WorkspaceBase
 from pycmd2.web.minidb.models.workspace import WorkspaceCreate
 
 
@@ -28,6 +38,36 @@ class MiniDBConfig(TomlConfigMixin):
     db_path: str = "minidb.json"
 
 
+def create_db_and_tables() -> None:
+    """Create db and tables."""
+    SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    """Get session.
+
+    Yields:
+        session:
+    """
+    with Session(engine) as session:
+        yield session
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):  # noqa: ANN201, ARG001, RUF029
+    create_db_and_tables()
+    yield
+
+
+sqlite_file_name = "database.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
+connect_args = {"check_same_thread": False}
+engine = create_engine(sqlite_url, connect_args=connect_args)
+
+
 conf = MiniDBConfig()
 logger = logging.getLogger(__name__)
 
@@ -35,6 +75,7 @@ logger = logging.getLogger(__name__)
 app = FastAPIOffline(
     title="MiniDB API",
     description="Personal database with workspace hierarchy support",
+    lifespan=lifespan,
 )
 
 # Enable CORS for all origins
@@ -78,6 +119,28 @@ class WorkspaceDetail(WorkspaceInfo):
     data: Dict[str, Any]
     children: List[WorkspaceInfo]
     created_at: str
+
+
+@app.post("/api/workspaces-db", response_model=WorkspaceBase)
+def create_workspaces_db(
+    workspace: WorkspaceCreate,
+    session: SessionDep,
+) -> WorkspaceBase:
+    """创建 workspace."""
+    db_workspace = Workspace.model_validate(workspace)
+    session.add(db_workspace)
+    session.commit()
+    session.refresh(db_workspace)
+    return db_workspace
+
+
+@app.get("/api/workspaces-db")
+def list_workspaces_db(
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
+):
+    return session.exec(select(Workspace).offset(offset).limit(limit)).all()
 
 
 @app.get("/")
@@ -227,7 +290,7 @@ async def get_workspace(workspace_path: str) -> WorkspaceDetail:
 
 @app.post("/api/workspaces", status_code=status.HTTP_201_CREATED)
 async def create_workspace(
-    workspace_create: WorkspaceCreate,
+    workspace_create: WorkspaceBase,
 ) -> Dict[str, str]:
     """Create a new workspace.
 

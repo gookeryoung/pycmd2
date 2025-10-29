@@ -35,7 +35,7 @@ def diff_doc(old: Path, new: Path) -> None:
         logger.error(f"New file not exist: {new}")
         return
 
-    word = win32.gencache.EnsureDispatch("Word.Application")  # type: ignore  # noqa: PGH003
+    word = win32.gencache.EnsureDispatch("Word.Application")  # type: ignore
     word.Visible = False  # Run word in background
     word.DisplayAlerts = False  # Disable alerts
 

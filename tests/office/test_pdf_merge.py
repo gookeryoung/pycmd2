@@ -49,7 +49,7 @@ class TestPDFMerge:
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
-        pdf.cell(0, 10, txt=text, ln=True)  # type: ignore  # noqa: PGH003
+        pdf.cell(0, 10, txt=text, ln=True)  # type: ignore
         pdf.output(str(filepath))
 
     @pytest.fixture(scope="session")
