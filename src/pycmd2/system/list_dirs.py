@@ -26,12 +26,16 @@ def main(
     ),
     *,
     show_all: bool = typer.Option(
+        False,  # noqa: FBT003
+        "--show-all",
+        "-a",
         help="列出所有文件",
-        default=False,
     ),
     export: bool = typer.Option(
+        False,  # noqa: FBT003
+        "--export",
+        "-e",
         help="导出为文件",
-        default=False,
     ),
 ) -> None:
     names = list_names(root)
