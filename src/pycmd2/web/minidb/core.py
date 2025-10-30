@@ -11,6 +11,12 @@ from typing import Any
 from typing import Dict
 from typing import List
 
+from fastapi import Depends
+from sqlmodel import create_engine
+from sqlmodel import Session
+from sqlmodel import SQLModel
+from typing_extensions import Annotated
+
 logger = logging.getLogger(__name__)
 
 
@@ -220,3 +226,28 @@ class MiniDB:
             self._deserialize_workspace(child_data, workspace)
 
         return workspace
+
+
+sqlite_file_name = "database.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
+connect_args = {"check_same_thread": False}
+engine = create_engine(sqlite_url, connect_args=connect_args)
+
+
+def create_db_and_tables() -> None:
+    """Create db and tables."""
+    SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    """Get session.
+
+    Yields:
+        session:
+    """
+    with Session(engine) as session:
+        yield session
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
+sqlite_file_name = "database.db"

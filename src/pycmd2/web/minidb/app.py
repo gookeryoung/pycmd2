@@ -11,7 +11,6 @@ from typing import List
 
 import anyio
 import uvicorn
-from fastapi import Depends
 from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import Query
@@ -19,17 +18,18 @@ from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_offline import FastAPIOffline
 from pydantic import BaseModel
-from sqlmodel import create_engine
 from sqlmodel import select
-from sqlmodel import Session
-from sqlmodel import SQLModel
 from typing_extensions import Annotated
 
 from pycmd2.config import TomlConfigMixin
 from pycmd2.web.minidb.core import MiniDB
+from pycmd2.web.minidb.core import SessionDep
 from pycmd2.web.minidb.models.workspace import Workspace
 from pycmd2.web.minidb.models.workspace import WorkspaceBase
-from pycmd2.web.minidb.models.workspace import WorkspaceCreate
+
+from .core import create_db_and_tables
+from .routers.users import router as user_router
+from .routers.workspaces import router as workspace_router
 
 
 class MiniDBConfig(TomlConfigMixin):
@@ -38,34 +38,10 @@ class MiniDBConfig(TomlConfigMixin):
     db_path: str = "minidb.json"
 
 
-def create_db_and_tables() -> None:
-    """Create db and tables."""
-    SQLModel.metadata.create_all(engine)
-
-
-def get_session():
-    """Get session.
-
-    Yields:
-        session:
-    """
-    with Session(engine) as session:
-        yield session
-
-
-SessionDep = Annotated[Session, Depends(get_session)]
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # noqa: ANN201, ARG001, RUF029
     create_db_and_tables()
     yield
-
-
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
 
 
 conf = MiniDBConfig()
@@ -77,6 +53,9 @@ app = FastAPIOffline(
     description="Personal database with workspace hierarchy support",
     lifespan=lifespan,
 )
+
+app.include_router(user_router)
+app.include_router(workspace_router)
 
 # Enable CORS for all origins
 app.add_middleware(
@@ -119,19 +98,6 @@ class WorkspaceDetail(WorkspaceInfo):
     data: Dict[str, Any]
     children: List[WorkspaceInfo]
     created_at: str
-
-
-@app.post("/api/workspaces-db", response_model=WorkspaceBase)
-def create_workspaces_db(
-    workspace: WorkspaceCreate,
-    session: SessionDep,
-) -> WorkspaceBase:
-    """创建 workspace."""
-    db_workspace = Workspace.model_validate(workspace)
-    session.add(db_workspace)
-    session.commit()
-    session.refresh(db_workspace)
-    return db_workspace
 
 
 @app.get("/api/workspaces-db")
