@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 
 mod dirs;
 mod grep;
+mod process;
 
 #[pyfunction]
 fn version_info() -> PyResult<String> {
@@ -19,6 +20,7 @@ fn _pycmd2(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // grep
     m.add_function(wrap_pyfunction!(grep::grep, m)?)?;
+    m.add_function(wrap_pyfunction!(process::kill_process, m)?)?;
 
     Ok(())
 }

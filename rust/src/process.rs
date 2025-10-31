@@ -1,24 +1,21 @@
-use std::env;
+use pyo3::prelude::*;
 use std::process::Command;
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() < 2 {
-        eprintln!("用法: taskk <进程名>");
-        std::process::exit(1);
-    }
-
-    let process_name = &args[1];
-
+#[pyfunction]
+pub fn kill_process(process_name: &str) -> PyResult<()> {
     #[cfg(windows)]
     {
         // Windows 平台使用 taskkill 命令
         match kill_process_windows(process_name) {
-            Ok(_) => println!("成功终止匹配 '{}' 的进程", process_name),
+            Ok(_) => {
+                println!("成功终止匹配 '{}' 的进程", process_name);
+                Ok(())
+            }
             Err(e) => {
-                eprintln!("终止进程时出错: {}", e);
-                std::process::exit(1);
+                return Err(pyo3::exceptions::PyProcessLookupError::new_err(format!(
+                    "无法终止进程: {}",
+                    e
+                )));
             }
         }
     }
@@ -27,10 +24,15 @@ fn main() {
     {
         // Unix-like 平台使用 kill 和 pgrep 命令
         match kill_process_unix(process_name) {
-            Ok(count) => println!("成功终止 {} 个匹配 '{}' 的进程", count, process_name),
+            Ok(count) => {
+                println!("成功终止 {} 个匹配 '{}' 的进程", count, process_name);
+                Ok(())
+            }
             Err(e) => {
-                eprintln!("终止进程时出错: {}", e);
-                std::process::exit(1);
+                return Err(pyo3::exceptions::PyProcessLookupError::new_err(format!(
+                    "无法终止进程: {}",
+                    e
+                )));
             }
         }
     }
@@ -39,22 +41,36 @@ fn main() {
 #[cfg(windows)]
 fn kill_process_windows(process_name: &str) -> Result<(), Box<dyn std::error::Error>> {
     let output = Command::new("taskkill")
-        .args(&["/f", "/im", process_name])
+        .args(&["/F", "/IM", format!("{}*", process_name).as_str()])
         .output()?;
 
     if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
+        // 尝试使用GBK编码解析stderr
+        let stderr = decode_windows_output(&output.stderr);
         if stderr.contains("INFO") {
             // INFO级别的消息，表示没有找到进程，这不是错误
-            println!("未找到匹配 '{}' 的进程", process_name);
+            println!("Process not found: '{}' ", process_name);
             return Ok(());
         }
-        return Err(format!("taskkill 命令失败: {}", stderr).into());
+        return Err(format!("taskkill command failed: {}", stderr).into());
     }
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    print!("执行结果: {}", stdout);
+    // 使用正确的编码处理stdout
+    let stdout = decode_windows_output(&output.stdout);
+    println!("执行结果: {}", stdout);
     Ok(())
+}
+
+#[cfg(windows)]
+fn decode_windows_output(bytes: &[u8]) -> String {
+    // 尝试使用GBK编码解析（Windows中文系统常用编码）
+    match encoding_rs::GBK.decode_without_bom_handling_and_without_replacement(bytes) {
+        Some(s) => s.to_string(),
+        None => {
+            // 如果GBK解码失败，则回退到UTF-8并替换无效字符
+            String::from_utf8_lossy(bytes).to_string()
+        }
+    }
 }
 
 #[cfg(not(windows))]
