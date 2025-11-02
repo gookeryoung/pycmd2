@@ -32,7 +32,9 @@ def timer(func: Callable[P, R]) -> Callable[P, R]:
         start = perf_counter()
         result = func(*args, **kwargs)
         end = perf_counter()
-        logger.debug(f"`{func.__name__}` took {end - start:.3f} seconds")
+        logger.info(
+            f"函数 `{func.__name__}` 用时 {end - start:.3f} s",
+        )
         return result
 
     return wrapper

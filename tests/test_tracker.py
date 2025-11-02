@@ -26,4 +26,4 @@ class TestTracker:
 
         func(t)
 
-        assert f"`func` took {expected:.1f}" in caplog.text
+        assert f"函数 `func` 用时 {expected:.1f}" in caplog.text
