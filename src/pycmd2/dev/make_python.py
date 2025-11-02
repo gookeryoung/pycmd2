@@ -149,6 +149,30 @@ class ActivateOption(MakeOption):
     commands: ClassVar = [_activate_py_env]
 
 
+def _get_build_cmd() -> str:
+    makefile = Path.cwd() / "Makefile"
+    if makefile.exists():
+        logger.info("检测到 Makefile 文件")
+        return "make"
+
+    pyproject_file = Path.cwd() / "pyproject.toml"
+    if pyproject_file.exists():
+        logger.info("检测到 pyproject.toml 文件")
+        with pyproject_file.open("rb") as f:
+            conf = tomllib.load(f)
+            if all(
+                [
+                    "build-system" in conf,
+                    "build-backend" in conf["build-system"],
+                    "hatch" in conf["build-system"]["build-backend"],
+                ],
+            ):
+                return "hatch"
+
+    logger.error("未找到构建工具, 请手动构建")
+    return ""
+
+
 class BumpPublishOption(MakeOption):
     """执行版本更新、构建以及推送等系列操作."""
 
@@ -262,6 +286,12 @@ class CoverageSlowOption(CoverageOption):
     ]
 
 
+def _get_dist_cmd() -> list[str]:
+    return (
+        ["ls", "-l", "dist"] if (Path.cwd() / "dist").exists() else ["ls", "-l"]
+    )
+
+
 class DistributionOption(MakeOption):
     """生成分发包."""
 
@@ -270,8 +300,8 @@ class DistributionOption(MakeOption):
     commands: ClassVar = [
         "clean",
         "sync",
-        ["hatch", "build"],
-        ["ls", "-l", "dist"],
+        [_get_build_cmd(), "build"],
+        _get_dist_cmd(),
     ]
 
 
@@ -328,7 +358,7 @@ class PublishOption(MakeOption):
     desc = "执行构建以及推送等系列操作, 别名: pub / publish"
     commands: ClassVar = [
         "dist",
-        ["hatch", "publish"],
+        [_get_build_cmd(), "publish"],
         ["gitc", "-f"],
         git_push_all,
     ]
