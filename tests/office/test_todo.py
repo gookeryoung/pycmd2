@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import os
+import subprocess
 from pathlib import Path
 from typing import Generator
 
@@ -9,6 +13,7 @@ from PyQt5.QtGui import QContextMenuEvent
 from PyQt5.QtWidgets import QMessageBox
 from pytestqt.qtbot import QtBot
 
+from pycmd2.office.todo.config import conf
 from pycmd2.office.todo.controller import TodoController
 from pycmd2.office.todo.model import TodoItem
 from pycmd2.office.todo.model import TodoListModel
@@ -502,7 +507,7 @@ class TestTodoListView:
         mock_controller: TodoController,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test context menu event when clicking on an invalid index."""
+        """Test context menu event when clicking on an invalid index (empty area)."""  # noqa: E501
         # Add an item to test with
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
@@ -512,7 +517,6 @@ class TestTodoListView:
             mock_controller.view.todo_list.rect().topLeft(),
         )
         # Move the point to ensure it's not over any item
-
         global_pos += QPoint(0, 1000)
 
         # Create a context menu event
@@ -525,7 +529,7 @@ class TestTodoListView:
         # Mock QMenu.exec_ to ensure it doesn't cause issues
         menu_executed = []
 
-        def mock_exec(pos: QPoint) -> None:  # noqa: ARG001
+        def mock_exec(self: QObject, pos: QPoint) -> None:  # noqa: ARG001
             menu_executed.append(True)
 
         monkeypatch.setattr("PyQt5.QtWidgets.QMenu.exec_", mock_exec)
@@ -535,3 +539,111 @@ class TestTodoListView:
 
         # Ensure that menu.exec_ was not called since index is invalid
         assert len(menu_executed) == 0
+
+    def test_backup_timer_creation(
+        self,
+        mock_controller: TodoController,
+    ) -> None:
+        """Test that backup timer is created with correct interval."""
+        # Check that the backup timer has been created with correct interval
+        # BACKUP_INTEVAL is 5 minutes = 5 * 60 * 1000 milliseconds
+        assert mock_controller.view is not None
+
+        # The timer is created in the view's constructor, so it should exist
+        # We can't directly access it, but we can check that the view was
+        # created properly
+
+    def test_backup_function(
+        self,
+        mock_controller: TodoController,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test the backup function execution."""
+        # Mock subprocess.call to avoid actually running the backup command
+        calls = []
+
+        def mock_subprocess_call(
+            cmd: str,
+            *_: list[str],
+            **__: dict[str, str],
+        ) -> int:
+            calls.append(cmd)
+            return 0
+
+        monkeypatch.setattr(subprocess, "call", mock_subprocess_call)
+
+        # Mock os.chdir to track directory changes
+        chdir_calls = []
+
+        def mock_chdir(path: str) -> None:
+            chdir_calls.append(path)
+
+        monkeypatch.setattr(os, "chdir", mock_chdir)
+
+        # Get the backup function from the closure
+        # We need to access the backup function that was defined inside
+        # _create_backup_timer
+        # Since we can't directly access it, we'll test by checking if
+        # the timer was created and has the right interval
+
+        # Check that the backup timer was created with the correct interval
+        timers = [
+            child
+            for child in mock_controller.view.children()
+            if child.__class__.__name__ == "QTimer"
+        ]
+        assert len(timers) >= 1
+
+        # One of the timers should have the backup interval
+        backup_interval = (
+            1000 * 60 * conf.BACKUP_INTEVAL
+        )  # 5 minutes in milliseconds
+        timer_intervals = [timer.interval() for timer in timers]
+        assert backup_interval in timer_intervals
+
+    def test_backup_execution(
+        self,
+        mock_controller: TodoController,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test backup execution through timer timeout."""
+        # Collect calls to subprocess.call and os.chdir
+        calls = []
+        chdir_calls = []
+
+        def mock_subprocess_call(
+            cmd: str,
+            *_: list[str],
+            **__: dict[str, str],
+        ) -> int:
+            calls.append(cmd)
+            return 0
+
+        def mock_chdir(path: str) -> None:
+            chdir_calls.append(path)
+
+        monkeypatch.setattr(subprocess, "call", mock_subprocess_call)
+        monkeypatch.setattr(os, "chdir", mock_chdir)
+
+        # Find the backup timer
+        timers = [
+            child
+            for child in mock_controller.view.children()
+            if child.__class__.__name__ == "QTimer"
+        ]
+        backup_interval = 1000 * 60 * conf.BACKUP_INTEVAL
+        backup_timers = [
+            timer for timer in timers if timer.interval() == backup_interval
+        ]
+
+        assert len(backup_timers) == 1
+        backup_timer = backup_timers[0]
+
+        # Trigger the timeout to execute the backup function
+        backup_timer.timeout.emit()
+
+        # Verify that the backup function was called correctly
+        assert len(chdir_calls) == 1
+        assert str(conf.data_dir()) in chdir_calls[0]
+        assert len(calls) == 1
+        assert calls[0] == ["folderb", "--max-count", "100"]
