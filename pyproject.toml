@@ -89,7 +89,12 @@ Repository = "https://gitee.com/gooker_young/pycmd2"
 [project.optional-dependencies]
 all = ["pycmd2[demo,gui,office,web]"]
 demo = ["pyqtgraph~=0.12.4"]
-gui = ["pyqt5-stubs~=5.14.0", "pyqt5~=5.14.0", "qdarkstyle>=3.2.3"]
+gui = [
+  "pyqt5-sip~=12.9.0",
+  "pyqt5-stubs~=5.14.0",
+  "pyqt5~=5.14.0",
+  "qdarkstyle>=3.2.3",
+]
 office = [
   "numpy>=1.24.4",
   "pillow>=10",
@@ -97,10 +102,10 @@ office = [
   "pywin32>=311; platform_system == 'Windows'",
 ]
 web = [
-    "fastapi-offline>=1.7.5",
-    "fastapi[standard]>=0.120.1",
-    "sqlmodel>=0.0.27",
-    "uvicorn[standard]>=0.33.0",
+  "fastapi-offline>=1.7.5",
+  "fastapi[standard]>=0.120.1",
+  "sqlmodel>=0.0.27",
+  "uvicorn[standard]>=0.33.0",
 ]
 
 # ---------------------- coverage ----------------------- #

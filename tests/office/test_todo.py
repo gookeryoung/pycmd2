@@ -194,7 +194,7 @@ class TestTodoListView:
         monkeypatch.setattr(
             QMessageBox,
             "exec_",
-            lambda _: QMessageBox.StandardButton.Yes,
+            lambda _: QMessageBox.StandardButton.Yes,  # type: ignore
         )
         index = mock_controller.model.index(1, 0)
         qtbot.mouseClick(
