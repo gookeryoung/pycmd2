@@ -2,7 +2,10 @@ from pathlib import Path
 from typing import Generator
 
 import pytest
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QPoint
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QContextMenuEvent
 from PyQt5.QtWidgets import QMessageBox
 from pytestqt.qtbot import QtBot
 
@@ -202,9 +205,11 @@ class TestTodoListView:
         # Add two items to the model
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         mock_controller.model.add_item("Test todo item 02", 2, "work")
+
         assert mock_controller.model.count == 2  # noqa: PLR2004
         assert mock_controller.model.get_item(0).completed is False  # pyright: ignore[reportOptionalMemberAccess]
         assert mock_controller.model.get_item(1).completed is False  # pyright: ignore[reportOptionalMemberAccess]
+
         mock_controller.model.add_item("Test todo item 03", 3, "play")
         assert mock_controller.model.count == 3  # noqa: PLR2004
         assert mock_controller.model.get_item(2).completed is False  # pyright: ignore[reportOptionalMemberAccess]
@@ -264,3 +269,269 @@ class TestTodoListView:
             Qt.RightButton,
             pos=mock_controller.view.todo_list.visualRect(index).center(),
         )
+
+    def test_context_menu_event_edit(
+        self,
+        mock_controller: TodoController,
+        qtbot: QtBot,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test context menu edit action."""
+        # Add an item to test with
+        mock_controller.model.add_item("Test todo item 01", 1, "work")
+        assert mock_controller.model.count == 1
+
+        # Mock the QInputDialog to return a specific text
+        monkeypatch.setattr(
+            "PyQt5.QtWidgets.QInputDialog.getText",
+            lambda _, __: ("Updated item text", True),
+        )
+
+        # Get the position of the item
+        index = mock_controller.model.index(0, 0)
+        rect = mock_controller.view.todo_list.visualRect(index)
+
+        # Simulate right-click to open context menu
+        qtbot.mouseClick(
+            mock_controller.view.todo_list.viewport(),
+            Qt.RightButton,
+            pos=rect.center(),
+        )
+
+        # Note: We cannot interact with the context menu via key events
+        # because it's a separate popup menu, not part of the list widget.
+        # The proper way to test context menu functionality is through
+        # direct method calls, as implemented in the direct_call tests.
+
+    def test_context_menu_event_delete(
+        self,
+        mock_controller: TodoController,
+        qtbot: QtBot,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test context menu delete action."""
+        # Add an item to test with
+        mock_controller.model.add_item("Test todo item 01", 1, "work")
+        assert mock_controller.model.count == 1
+
+        # Mock the confirmation dialog to automatically confirm deletion
+        monkeypatch.setattr(
+            "PyQt5.QtWidgets.QMessageBox.exec_",
+            lambda _: QMessageBox.StandardButton.Yes,  # pyright: ignore[reportAttributeAccessIssue]
+        )
+
+        # Get the position of the item
+        index = mock_controller.model.index(0, 0)
+        rect = mock_controller.view.todo_list.visualRect(index)
+
+        # Simulate right-click to open context menu
+        qtbot.mouseClick(
+            mock_controller.view.todo_list.viewport(),
+            Qt.RightButton,
+            pos=rect.center(),
+        )
+
+        # Note: We cannot interact with the context menu via key events
+        # because it's a separate popup menu, not part of the list widget.
+        # The proper way to test context menu functionality is through
+        # direct method calls, as implemented in the direct_call tests.
+
+    def test_context_menu_event_set_priority(
+        self,
+        mock_controller: TodoController,
+        qtbot: QtBot,
+    ) -> None:
+        """Test context menu set priority action."""
+        # Add an item to test with
+        mock_controller.model.add_item("Test todo item 01", 1, "work")
+        assert mock_controller.model.count == 1
+
+        # Get the position of the item
+        index = mock_controller.model.index(0, 0)
+        rect = mock_controller.view.todo_list.visualRect(index)
+
+        # Simulate right-click to open context menu
+        qtbot.mouseClick(
+            mock_controller.view.todo_list.viewport(),
+            Qt.RightButton,
+            pos=rect.center(),
+        )
+
+        # Note: We cannot interact with the context menu via key events
+        # because it's a separate popup menu, not part of the list widget.
+        # The proper way to test context menu functionality is through
+        # direct method calls, as implemented in the direct_call tests.
+
+    def test_context_menu_event_direct_call_edit(
+        self,
+        mock_controller: TodoController,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test context menu event by directly calling the method for edit action."""  # noqa: E501
+        # Add an item to test with
+        mock_controller.model.add_item("Test todo item 01", 1, "work")
+        assert mock_controller.model.count == 1
+
+        # Get the item's index and position
+        index = mock_controller.model.index(0, 0)
+        rect = mock_controller.view.todo_list.visualRect(index)
+        global_pos = mock_controller.view.todo_list.mapToGlobal(rect.center())
+
+        # Mock QInputDialog.getText to return specific values
+        monkeypatch.setattr(
+            "PyQt5.QtWidgets.QInputDialog.getText",
+            lambda _, __: ("Edited item text", True),
+        )
+
+        # Mock QMenu.exec_ to return the edit action
+
+        def mock_exec(self: QObject, pos: QPoint) -> None:  # noqa: ARG001
+            """Mock QMenu.exec_."""
+            actions = self.actions()
+            for action in actions:
+                if action.text() == "编辑":
+                    return action
+            return None
+
+        monkeypatch.setattr("PyQt5.QtWidgets.QMenu.exec_", mock_exec)
+
+        # Create a context menu event
+        event = QContextMenuEvent(
+            QContextMenuEvent.Mouse,
+            global_pos,
+            global_pos,
+        )
+
+        # Call contextMenuEvent directly
+        mock_controller.view.contextMenuEvent(event)
+
+        # Check that the item text was updated
+        assert mock_controller.model.get_item(0).text == "Edited item text"  # pyright: ignore[reportOptionalMemberAccess]
+
+    def test_context_menu_event_direct_call_delete(
+        self,
+        mock_controller: TodoController,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test context menu event by directly calling the method for delete action."""  # noqa: E501
+        # Add an item to test with
+        mock_controller.model.add_item("Test todo item 01", 1, "work")
+        assert mock_controller.model.count == 1
+
+        # Get the item's index and position
+        index = mock_controller.model.index(0, 0)
+        rect = mock_controller.view.todo_list.visualRect(index)
+        global_pos = mock_controller.view.todo_list.mapToGlobal(rect.center())
+
+        # Mock QMenu.exec_ to return the delete action
+        def mock_exec(self: QObject, pos: QPoint) -> None:  # noqa: ARG001
+            """Mock QMenu.exec."""
+            actions = self.actions()
+            for action in actions:
+                if action.text() == "删除":
+                    return action
+            return None
+
+        monkeypatch.setattr("PyQt5.QtWidgets.QMenu.exec_", mock_exec)
+
+        # Create a context menu event
+        event = QContextMenuEvent(
+            QContextMenuEvent.Mouse,
+            global_pos,
+            global_pos,
+        )
+
+        # Mock the item_deleted signal
+        deleted_row = []
+
+        def capture_deleted_row(row: int) -> None:
+            deleted_row.append(row)
+
+        mock_controller.view.item_deleted.connect(capture_deleted_row)
+
+        # Call contextMenuEvent directly
+        mock_controller.view.contextMenuEvent(event)
+
+        # Check that the delete signal was emitted with correct row
+        assert deleted_row == [0]
+
+    def test_context_menu_event_direct_call_set_priority(
+        self,
+        mock_controller: TodoController,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test context menu event by directly calling the method for set priority action."""  # noqa: E501
+        # Add an item to test with
+        mock_controller.model.add_item("Test todo item 01", 1, "work")
+        assert mock_controller.model.count == 1
+
+        # Get the item's index and position
+        index = mock_controller.model.index(0, 0)
+        rect = mock_controller.view.todo_list.visualRect(index)
+        global_pos = mock_controller.view.todo_list.mapToGlobal(rect.center())
+
+        # Mock QMenu.exec_ to return the "高" priority action
+        def mock_exec(self: QObject, pos: QPoint) -> None:  # noqa: ARG001
+            """Mock QMenu.exec."""
+            # Find the "设置优先级" menu
+            for action in self.actions():
+                if action.menu():
+                    # This is the priority submenu
+                    priority_actions = action.menu().actions()
+                    # Return the "高" priority action (index 3)
+                    return priority_actions[3]
+            return None
+
+        monkeypatch.setattr("PyQt5.QtWidgets.QMenu.exec_", mock_exec)
+
+        # Create a context menu event
+        event = QContextMenuEvent(
+            QContextMenuEvent.Mouse,
+            global_pos,
+            global_pos,
+        )
+
+        # Call contextMenuEvent directly
+        mock_controller.view.contextMenuEvent(event)
+
+        # Check that the item priority was updated to "高" (index 3)
+        assert mock_controller.model.get_item(0).priority == 3  # pyright: ignore[reportOptionalMemberAccess] # noqa: PLR2004
+
+    def test_context_menu_event_with_invalid_index(
+        self,
+        mock_controller: TodoController,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test context menu event when clicking on an invalid index."""
+        # Add an item to test with
+        mock_controller.model.add_item("Test todo item 01", 1, "work")
+        assert mock_controller.model.count == 1
+
+        # Get a position that is not on any item (e.g., at y=1000)
+        global_pos = mock_controller.view.todo_list.mapToGlobal(
+            mock_controller.view.todo_list.rect().topLeft(),
+        )
+        # Move the point to ensure it's not over any item
+
+        global_pos += QPoint(0, 1000)
+
+        # Create a context menu event
+        event = QContextMenuEvent(
+            QContextMenuEvent.Mouse,
+            global_pos,
+            global_pos,
+        )
+
+        # Mock QMenu.exec_ to ensure it doesn't cause issues
+        menu_executed = []
+
+        def mock_exec(pos: QPoint) -> None:  # noqa: ARG001
+            menu_executed.append(True)
+
+        monkeypatch.setattr("PyQt5.QtWidgets.QMenu.exec_", mock_exec)
+
+        # Call contextMenuEvent directly - should not raise any exception
+        mock_controller.view.contextMenuEvent(event)
+
+        # Ensure that menu.exec_ was not called since index is invalid
+        assert len(menu_executed) == 0

@@ -123,7 +123,7 @@ class TodoView(QMainWindow):
             "编辑待办事项",
             "内容:",
             text=current_text,
-            echo=QLineEdit.EchoMode.Normal,
+            echo=QLineEdit.EchoMode.Normal,  # pyright: ignore[reportAttributeAccessIssue]
         )
         if ok and text:
             self.todo_list.model().setData(
@@ -174,8 +174,8 @@ class TodoView(QMainWindow):
             ClickableLineEdit()
         )  # 使用自定义的ClickableLineEdit
         self.category_input.setSizePolicy(
-            QSizePolicy.Policy.Minimum,
-            QSizePolicy.Policy.Minimum,
+            QSizePolicy.Policy.Minimum,  # type: ignore
+            QSizePolicy.Policy.Minimum,  # type: ignore
         )
         self.category_input.setPlaceholderText(conf.DEFAULT_CATEGORY)
         input_layout.addWidget(self.category_input)
@@ -237,7 +237,7 @@ class TodoView(QMainWindow):
 
         # 创建分割线
         separator = QFrame()
-        separator.setFrameShape(QFrame.Shape.HLine)
+        separator.setFrameShape(QFrame.Shape.HLine)  # type: ignore
         separator.setFrameShadow(QFrame.Sunken)  # type: ignore
         separator.setStyleSheet("color: #e0e0e0;")
         layout.addWidget(separator)
@@ -246,7 +246,7 @@ class TodoView(QMainWindow):
         self.todo_list = QListView()
         self.todo_list.setItemDelegate(TodoItemDelegate(self.todo_list))
         self.todo_list.setEditTriggers(
-            QAbstractItemView.EditTrigger.NoEditTriggers,  # pyright: ignore[reportArgumentType]
+            QAbstractItemView.EditTrigger.NoEditTriggers,  # pyright: ignore[reportArgumentType] # type: ignore
         )
         layout.addWidget(self.todo_list)
 
