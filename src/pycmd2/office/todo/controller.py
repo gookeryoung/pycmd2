@@ -166,7 +166,7 @@ class TodoController:
     def on_category_input_clicked(self) -> None:
         """Handle category input clicked event."""
         # 如果completer有内容则显示补全列表
-        if self.completer and self.completer.completionCount() > 0:
+        if self.completer:
             # 设置completer的文本为当前输入框的文本
             self.completer.setCompletionPrefix(self.view.category_input.text())
 
