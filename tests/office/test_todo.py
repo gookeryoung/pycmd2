@@ -380,7 +380,7 @@ class TestTodoListView:
         # Mock QInputDialog.getText to return specific values
         monkeypatch.setattr(
             "PyQt5.QtWidgets.QInputDialog.getText",
-            lambda _, __: ("Edited item text", True),
+            lambda *args, **kwargs: ("Edited item text", True),  # noqa: ARG005
         )
 
         # Mock QMenu.exec_ to return the edit action
