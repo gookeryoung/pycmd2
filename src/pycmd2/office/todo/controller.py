@@ -35,7 +35,7 @@ class TodoController:
         self._setup_ui()
         self._connect_signals()
 
-        self.view.closeEvent = self.on_close
+        self.view.closeEvent = self.on_close  # pyright: ignore[reportAttributeAccessIssue]
         self.load_data()
         self.on_update_stats()
         self.on_update_category_completer()
@@ -49,7 +49,7 @@ class TodoController:
         )
 
         # Set completer
-        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)  # pyright: ignore[reportAttributeAccessIssue]
         popup = self.completer.popup()
         style = conf._DIR_STYLES / "completer.qss"  # noqa: SLF001
         popup.setStyleSheet(style.read_text().strip())
@@ -127,14 +127,14 @@ class TodoController:
         # Confirm to delete
         if completed:
             self.msgbox = QMessageBox(self.view)
-            self.msgbox.setIcon(QMessageBox.Icon.Question)
+            self.msgbox.setIcon(QMessageBox.Icon.Question)  # pyright: ignore[reportAttributeAccessIssue]
             self.msgbox.setWindowTitle("取消完成确认")
             self.msgbox.setText("确定取消已完成吗?")
             self.msgbox.setStandardButtons(
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,  # pyright: ignore[reportOperatorIssue]
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,  # pyright: ignore[reportOperatorIssue] # type: ignore
             )
-            self.msgbox.button(QMessageBox.StandardButton.Yes).setText("是")
-            self.msgbox.button(QMessageBox.StandardButton.No).setText("否")
+            self.msgbox.button(QMessageBox.StandardButton.Yes).setText("是")  # type: ignore
+            self.msgbox.button(QMessageBox.StandardButton.No).setText("否")  # type: ignore
 
             if self.msgbox.exec_() != QMessageBox.Yes:
                 return

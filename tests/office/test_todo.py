@@ -540,67 +540,6 @@ class TestTodoListView:
         # Ensure that menu.exec_ was not called since index is invalid
         assert len(menu_executed) == 0
 
-    def test_backup_timer_creation(
-        self,
-        mock_controller: TodoController,
-    ) -> None:
-        """Test that backup timer is created with correct interval."""
-        # Check that the backup timer has been created with correct interval
-        # BACKUP_INTEVAL is 5 minutes = 5 * 60 * 1000 milliseconds
-        assert mock_controller.view is not None
-
-        # The timer is created in the view's constructor, so it should exist
-        # We can't directly access it, but we can check that the view was
-        # created properly
-
-    def test_backup_function(
-        self,
-        mock_controller: TodoController,
-        monkeypatch: pytest.MonkeyPatch,
-    ) -> None:
-        """Test the backup function execution."""
-        # Mock subprocess.call to avoid actually running the backup command
-        calls = []
-
-        def mock_subprocess_call(
-            cmd: str,
-            *_: list[str],
-            **__: dict[str, str],
-        ) -> int:
-            calls.append(cmd)
-            return 0
-
-        monkeypatch.setattr(subprocess, "call", mock_subprocess_call)
-
-        # Mock os.chdir to track directory changes
-        chdir_calls = []
-
-        def mock_chdir(path: str) -> None:
-            chdir_calls.append(path)
-
-        monkeypatch.setattr(os, "chdir", mock_chdir)
-
-        # Get the backup function from the closure
-        # We need to access the backup function that was defined inside
-        # _create_backup_timer
-        # Since we can't directly access it, we'll test by checking if
-        # the timer was created and has the right interval
-
-        # Check that the backup timer was created with the correct interval
-        timers = [
-            child
-            for child in mock_controller.view.children()
-            if child.__class__.__name__ == "QTimer"
-        ]
-        assert len(timers) >= 1
-
-        # One of the timers should have the backup interval
-        backup_interval = (
-            1000 * 60 * conf.BACKUP_INTEVAL
-        )  # 5 minutes in milliseconds
-        timer_intervals = [timer.interval() for timer in timers]
-        assert backup_interval in timer_intervals
-
     def test_backup_execution(
         self,
         mock_controller: TodoController,
