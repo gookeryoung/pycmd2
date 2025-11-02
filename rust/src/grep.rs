@@ -1,8 +1,9 @@
 use pyo3::{PyResult, pyfunction};
+use std::{fs, path};
 
 #[pyfunction]
 pub fn grep(pattern: &str, path: &str) -> PyResult<String> {
-    let filepath = std::path::Path::new(path);
+    let filepath = path::Path::new(path);
 
     if !filepath.exists() {
         return Err(pyo3::exceptions::PyFileNotFoundError::new_err(format!(
@@ -13,18 +14,18 @@ pub fn grep(pattern: &str, path: &str) -> PyResult<String> {
 
     let mut match_contents = String::new();
     if filepath.is_file() {
-        let contents = std::fs::read_to_string(path)?;
+        let contents = fs::read_to_string(path)?;
         for line in contents.lines() {
             if line.contains(pattern) {
                 match_contents.push_str(line);
             }
         }
     } else if filepath.is_dir() {
-        for entry in std::fs::read_dir(path)? {
+        for entry in fs::read_dir(path)? {
             let path = entry?.path();
             if path.is_file() {
                 println!("Search in file: {}", path.display());
-                let contents = std::fs::read_to_string(path)?;
+                let contents = fs::read_to_string(path)?;
                 for line in contents.lines() {
                     if line.contains(pattern) {
                         match_contents.push_str(line);
