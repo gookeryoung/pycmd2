@@ -149,6 +149,32 @@ class TestTodoListView:
         yield controller
         controller.save_data()
 
+    def _click_item(
+        self,
+        mock_controller: TodoController,
+        qtbot: QtBot,
+        item: TodoItem,
+        *,
+        condition: bool = True,
+    ) -> None:
+        """Click item."""
+        if condition:
+            filtered_index = mock_controller.model.filtered_items.index(item)
+            index = mock_controller.model.index(filtered_index, 0)
+            qtbot.mouseClick(
+                mock_controller.view.todo_list.viewport(),
+                Qt.LeftButton,
+                pos=mock_controller.view.todo_list.visualRect(index).center(),
+            )
+
+    def _complete_count(self, mock_controller: TodoController) -> int:
+        """Get complete count.
+
+        Returns:
+            int: complete count
+        """
+        return sum(1 for item in mock_controller.model.items if item.completed)
+
     def test_add_item(
         self,
         mock_controller: TodoController,
@@ -179,20 +205,32 @@ class TestTodoListView:
         assert mock_controller.model.count == 2  # noqa: PLR2004
         assert mock_controller.model.get_item(0).completed is False  # pyright: ignore[reportOptionalMemberAccess]
         assert mock_controller.model.get_item(1).completed is False  # pyright: ignore[reportOptionalMemberAccess]
+        mock_controller.model.add_item("Test todo item 03", 3, "play")
+        assert mock_controller.model.count == 3  # noqa: PLR2004
+        assert mock_controller.model.get_item(2).completed is False  # pyright: ignore[reportOptionalMemberAccess]
 
         # Click first item to complete it
-        index = mock_controller.model.index(0, 0)
-        qtbot.mouseClick(
-            mock_controller.view.todo_list.viewport(),
-            Qt.LeftButton,
-            pos=mock_controller.view.todo_list.visualRect(index).center(),
+        first_item = mock_controller.model.get_item(0)
+        assert first_item is not None
+        self._click_item(
+            mock_controller,
+            qtbot,
+            first_item,
+            condition=not first_item.completed,
         )
+        assert self._complete_count(mock_controller) == 1
+
+        # Click other items to complete it
+        for _, item in enumerate(mock_controller.model.items):
+            self._click_item(
+                mock_controller,
+                qtbot,
+                item,
+                condition=not item.completed,
+            )
 
         # Check that one item is now completed
-        completed_count = sum(
-            1 for item in mock_controller.model.items if item.completed
-        )
-        assert completed_count == 1
+        assert self._complete_count(mock_controller) == 3  # noqa: PLR2004
 
         # Mock the confirmation dialog for un-completing
         monkeypatch.setattr(
@@ -203,25 +241,13 @@ class TestTodoListView:
 
         # Find the completed item and click it to un-complete
         for _, item in enumerate(mock_controller.model.items):
-            if item.completed:
-                # Find the corresponding index in filtered_items
-                filtered_index = mock_controller.model.filtered_items.index(
-                    item,
-                )
-                index = mock_controller.model.index(filtered_index, 0)
-                break
-
-        qtbot.mouseClick(
-            mock_controller.view.todo_list.viewport(),
-            Qt.LeftButton,
-            pos=mock_controller.view.todo_list.visualRect(index).center(),
-        )
-
-        # Check that no items are completed
-        completed_count = sum(
-            1 for item in mock_controller.model.items if item.completed
-        )
-        assert completed_count == 0
+            self._click_item(
+                mock_controller,
+                qtbot,
+                item,
+                condition=item.completed,
+            )
+        assert self._complete_count(mock_controller) == 0
 
     def test_item_right_clicked(
         self,
