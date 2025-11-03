@@ -5,6 +5,9 @@ from __future__ import annotations
 import logging
 from functools import partial
 from pathlib import Path
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 import pypdf
 from typer import Argument
@@ -30,7 +33,7 @@ def is_encrypted(filepath: Path) -> bool:
 def encrypt_pdf(
     filepath: Path,
     password: str,
-) -> tuple[Path, Path | None]:
+) -> Tuple[Path, Optional[Path]]:
     """加密单个pdf文件.
 
     Args:
@@ -69,7 +72,7 @@ def encrypt_pdf(
 def decrypt_pdf(
     filepath: Path,
     password: str,
-) -> tuple[Path, Path | None]:
+) -> Tuple[Path, Optional[Path]]:
     """解密 PDF 文件.
 
     Args:
@@ -108,7 +111,7 @@ def decrypt_pdf(
 
 @cli.app.command("l", help="显示 pdf 文件列表, 别名: list")
 @cli.app.command("list", help="显示 pdf 文件列表")
-def list_pdf() -> tuple[list[Path], list[Path]]:
+def list_pdf() -> Tuple[List[Path], List[Path]]:
     """显示当前文件夹中的 pdf 文件列表.
 
     Returns:

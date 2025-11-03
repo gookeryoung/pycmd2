@@ -236,9 +236,6 @@ order-by-type = false
 convention = "google" # 可选: "pep257", "numpy", "google"
 
 # ----------------------- uv-dependencies ------------------------ #
-[tool.uv]
-default-groups = "all"
-
 [tool.uv.sources]
 pycmd2 = { workspace = true }
 
