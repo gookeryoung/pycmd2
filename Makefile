@@ -24,7 +24,7 @@ ifeq ($(OS),Windows_NT)
 		ARCH := unknown
     endif
 
-	TARGET := $(ARCH)-pc-windows-msvc
+	TARGET := $(ARCH)-win7-windows-msvc
 else
     UNAME_P := $(shell uname -p)
     ifeq ($(UNAME_P),x86_64)
