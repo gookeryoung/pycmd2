@@ -19,7 +19,6 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QSize
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDropEvent
-from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QImage
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QAbstractItemView
@@ -204,6 +203,16 @@ class PDFToolWindow(QMainWindow):
         self.file_list.setIconSize(QSize(100, 100))
         layout.addWidget(self.file_list)
 
+        # Select/Deselect all buttons
+        select_buttons_layout = QHBoxLayout()
+        self.select_all_button = QPushButton("Select All")
+        self.select_all_button.clicked.connect(self.select_all_files)
+        self.deselect_all_button = QPushButton("Deselect All")
+        self.deselect_all_button.clicked.connect(self.deselect_all_files)
+        select_buttons_layout.addWidget(self.select_all_button)
+        select_buttons_layout.addWidget(self.deselect_all_button)
+        layout.addLayout(select_buttons_layout)
+
         # Merge button
         self.merge_button = QPushButton("Merge to PDF")
         self.merge_button.clicked.connect(self.merge_to_pdf)
@@ -217,6 +226,26 @@ class PDFToolWindow(QMainWindow):
     def toggle_width_option(self, checked: bool) -> None:
         """Toggle the uniform page width option."""
         self.uniform_page_width = checked
+
+    def select_all_files(self) -> None:
+        """Select all files in the list."""
+        for i in range(self.file_list.count()):
+            item = self.file_list.item(i)
+            widget = self.file_list.itemWidget(item)
+            if widget:
+                checkbox = widget.findChild(QCheckBox)
+                if checkbox and not checkbox.isChecked():
+                    checkbox.setChecked(True)
+
+    def deselect_all_files(self) -> None:
+        """Deselect all files in the list."""
+        for i in range(self.file_list.count()):
+            item = self.file_list.item(i)
+            widget = self.file_list.itemWidget(item)
+            if widget:
+                checkbox = widget.findChild(QCheckBox)
+                if checkbox and checkbox.isChecked():
+                    checkbox.setChecked(False)
 
     def select_directory(self) -> None:
         """Open directory selection dialog and load files."""
@@ -264,8 +293,37 @@ class PDFToolWindow(QMainWindow):
     def add_file(self, filepath: pathlib.Path) -> None:
         """Add a file to the list with preview."""
         filename = pathlib.Path(filepath).name
-        item = QListWidgetItem(filename)
-        item.setData(Qt.UserRole, filepath)  # Store full path
+
+        # Create a container widget for the item
+        item_widget = QWidget()
+        item_layout = QHBoxLayout(item_widget)
+        item_layout.setContentsMargins(5, 5, 5, 5)
+
+        # Create a checkbox for selecting the file
+        checkbox = QCheckBox(filename)
+        checkbox.setChecked(True)  # Selected by default
+        checkbox.setProperty(
+            "filepath",
+            str(filepath),
+        )  # Store filepath as property
+
+        # Create a label for the preview
+        preview_label = QLabel()
+        preview_label.setMinimumSize(100, 100)
+        preview_label.setMaximumSize(100, 100)
+        preview_label.setAlignment(Qt.AlignCenter)
+
+        item_layout.addWidget(checkbox)
+        item_layout.addWidget(preview_label)
+
+        # Create list item and set the widget
+        item = QListWidgetItem()
+        item.setSizeHint(item_widget.sizeHint())
+        self.file_list.addItem(item)
+        self.file_list.setItemWidget(item, item_widget)
+
+        # Store filepath in item data as well
+        item.setData(Qt.UserRole, filepath)
 
         # Generate preview
         if filepath.suffix.lower().endswith((
@@ -282,18 +340,16 @@ class PDFToolWindow(QMainWindow):
                 if not image.isNull():
                     pixmap = QPixmap.fromImage(image)
             if not pixmap.isNull():
-                item.setIcon(
-                    QIcon(
-                        pixmap.scaled(
-                            100,
-                            100,
-                            Qt.KeepAspectRatio,
-                            Qt.SmoothTransformation,
-                        ),
+                preview_label.setPixmap(
+                    pixmap.scaled(
+                        100,
+                        100,
+                        Qt.KeepAspectRatio,
+                        Qt.SmoothTransformation,
                     ),
                 )
             else:
-                item.setText(f"{filename} (Preview N/A)")
+                preview_label.setText("N/A")
         elif filepath.suffix.lower().endswith(".pdf"):
             # For PDFs, show first page as preview
             try:
@@ -310,21 +366,18 @@ class PDFToolWindow(QMainWindow):
                         QImage.Format_RGB888,
                     )
                     pixmap = QPixmap.fromImage(img)
-                    item.setIcon(
-                        QIcon(
-                            pixmap.scaled(
-                                100,
-                                100,
-                                Qt.KeepAspectRatio,
-                                Qt.SmoothTransformation,
-                            ),
+                    preview_label.setPixmap(
+                        pixmap.scaled(
+                            100,
+                            100,
+                            Qt.KeepAspectRatio,
+                            Qt.SmoothTransformation,
                         ),
                     )
                 doc.close()
             except Exception:  # noqa: BLE001
-                item.setText(f"{filename} (Preview N/A)")
+                preview_label.setText("N/A")
 
-        self.file_list.addItem(item)
         self.files.append(filepath)
 
     def preview_item(self, item: QListWidgetItem) -> None:
@@ -342,9 +395,30 @@ class PDFToolWindow(QMainWindow):
             filepath = item.data(Qt.UserRole)
             self.files.append(filepath)
 
+    def get_selected_files(self) -> List[pathlib.Path]:
+        """Get list of selected files based on checkboxes."""
+        selected_files = []
+        for i in range(self.file_list.count()):
+            item = self.file_list.item(i)
+            widget = self.file_list.itemWidget(item)
+            if widget:
+                checkbox = widget.findChild(QCheckBox)
+                if checkbox and checkbox.isChecked():
+                    filepath = pathlib.Path(checkbox.property("filepath"))
+                    selected_files.append(filepath)
+        return selected_files
+
     def merge_to_pdf(self) -> None:
-        """Merge all files to a single PDF."""
-        if not self.files:
+        """Merge selected files to a single PDF."""
+        # Get only selected files
+        selected_files = self.get_selected_files()
+
+        if not selected_files:
+            QMessageBox.information(
+                self,
+                "No Files Selected",
+                "Please select at least one file to merge.",
+            )
             return
 
         output_path, _ = QFileDialog.getSaveFileName(
@@ -362,24 +436,21 @@ class PDFToolWindow(QMainWindow):
         try:
             writer = PdfWriter()
 
-            for filepath in self.files:
+            for filepath in selected_files:
                 if filepath.suffix.lower().endswith(".pdf"):
                     # For PDF files, append all pages
                     reader = PdfReader(filepath)
-                    for page in reader.pages:
-                        # Apply transformations if enabled
-                        if self.auto_rotate_pages or self.uniform_page_width:
-                            # Need to process with fitz for transformations
-                            temp_pdf_path = self.process_pdf_page(
-                                filepath,
-                                page,
-                            )
-                            temp_reader = PdfReader(temp_pdf_path)
-                            for temp_page in temp_reader.pages:
-                                writer.add_page(temp_page)
-                            # Clean up temporary file
-                            pathlib.Path(temp_pdf_path).unlink()
-                        else:
+                    # Apply transformations if enabled
+                    if self.auto_rotate_pages or self.uniform_page_width:
+                        # Need to process with fitz for transformations
+                        temp_pdf_path = self.process_pdf_page(filepath)
+                        temp_reader = PdfReader(temp_pdf_path)
+                        for temp_page in temp_reader.pages:
+                            writer.add_page(temp_page)
+                        # Clean up temporary file
+                        pathlib.Path(temp_pdf_path).unlink()
+                    else:
+                        for page in reader.pages:
                             writer.add_page(page)
                 else:
                     # For image files, convert to PDF page
@@ -407,7 +478,6 @@ class PDFToolWindow(QMainWindow):
     def process_pdf_page(
         self,
         pdf_path: pathlib.Path,
-        page: pypdf.PageObject,
     ) -> pathlib.Path:
         """Process PDF page with auto-rotation and uniform width if enabled."""
         # Create a temporary PDF with processed pages
@@ -440,6 +510,10 @@ class PDFToolWindow(QMainWindow):
                 scale_factor = self.page_width / original_width
 
                 # Create new page with uniform width
+                # new_page = new_doc.new_page(
+                #     width=self.page_width,
+                #     height=original_height * scale_factor,
+                # )
                 if original_width > original_height:  # Landscape
                     new_page = new_doc.new_page(
                         width=self.page_width,
@@ -457,7 +531,7 @@ class PDFToolWindow(QMainWindow):
                     new_page.rect,
                     doc,
                     page_num,
-                    matrix=matrix,
+                    matrix,
                 )
             else:
                 # Copy page as is
