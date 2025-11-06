@@ -243,10 +243,10 @@ class PDFToolWindow(QMainWindow):
             ".bmp",
             ".gif",
         )):
-            pixmap = QPixmap(filepath)
+            pixmap = QPixmap(str(filepath))
             if pixmap.isNull():
                 # Try with QImage for better format support
-                image = QImage(filepath)
+                image = QImage(str(filepath))
                 if not image.isNull():
                     pixmap = QPixmap.fromImage(image)
             if not pixmap.isNull():
@@ -373,7 +373,7 @@ class PDFToolWindow(QMainWindow):
         Raises:
             Exception: If the image cannot be loaded
         """
-        image = QImage(image_path)
+        image = QImage(str(image_path))
 
         if image.isNull():
             msg = f"Cannot load image: {image_path}"
