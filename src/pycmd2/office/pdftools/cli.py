@@ -24,13 +24,16 @@ from PyQt5.QtGui import QImage
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QAbstractItemView
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QListWidget
 from PyQt5.QtWidgets import QListWidgetItem
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QScrollArea
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
@@ -53,6 +56,94 @@ class DraggableListWidget(QListWidget):
         self.item_dropped.emit()
 
 
+class PDFPreviewDialog(QDialog):
+    """Dialog for previewing PDF pages."""
+
+    def __init__(
+        self,
+        pdf_path: pathlib.Path,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self.pdf_path = pdf_path
+        self.setWindowTitle(f"PDF Preview - {pdf_path.name}")
+        self.setGeometry(100, 100, 1000, 800)
+        self.init_ui()
+        self.load_pdf_pages()
+
+    def init_ui(self) -> None:
+        """Initialize the user interface."""
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        layout.addWidget(scroll_area)
+
+        self.content_widget = QWidget()
+        self.grid_layout = QGridLayout(self.content_widget)
+        self.grid_layout.setAlignment(Qt.AlignTop)
+        scroll_area.setWidget(self.content_widget)
+
+    def load_pdf_pages(self) -> None:
+        """Load and display all PDF pages."""
+        try:
+            doc = fitz.open(self.pdf_path)  # type: ignore
+
+            row, col = 0, 0
+            max_cols = 3  # Number of pages per row
+
+            for page_num in range(len(doc)):
+                page = doc[page_num]
+                # Use a higher zoom factor for better quality previews
+                mat = fitz.Matrix(1.5, 1.5)  # type: ignore
+                pix = page.get_pixmap(matrix=mat)
+
+                img = QImage(
+                    pix.samples,
+                    pix.width,
+                    pix.height,
+                    pix.stride,
+                    QImage.Format_RGB888,
+                )
+                pixmap = QPixmap.fromImage(img)
+
+                # Create a widget for this page
+                page_widget = QWidget()
+                page_layout = QVBoxLayout(page_widget)
+
+                # Page label
+                page_label = QLabel(f"Page {page_num + 1}")
+                page_label.setAlignment(Qt.AlignCenter)
+                page_layout.addWidget(page_label)
+
+                # Page image
+                page_label_img = QLabel()
+                page_label_img.setPixmap(
+                    pixmap.scaled(
+                        200,
+                        300,
+                        Qt.KeepAspectRatio,
+                        Qt.SmoothTransformation,
+                    ),
+                )
+                page_label_img.setAlignment(Qt.AlignCenter)
+                page_layout.addWidget(page_label_img)
+
+                # Add to grid
+                self.grid_layout.addWidget(page_widget, row, col)
+
+                col += 1
+                if col >= max_cols:
+                    col = 0
+                    row += 1
+
+            doc.close()
+
+        except Exception as e:  # noqa: BLE001
+            QMessageBox.critical(self, "Error", f"Failed to load PDF:\n{e!s}")
+
+
 class PDFToolWindow(QMainWindow):
     """Main window for the PDF tools application."""
 
@@ -62,7 +153,7 @@ class PDFToolWindow(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
 
         self.init_ui()
-        self.files = []
+        self.files: List[pathlib.Path] = []
 
     def init_ui(self) -> None:
         """Initialize the user interface."""
@@ -83,6 +174,9 @@ class PDFToolWindow(QMainWindow):
         # File list with drag and drop support
         self.file_list = DraggableListWidget()
         self.file_list.item_dropped.connect(self.update_order)
+        self.file_list.itemDoubleClicked.connect(
+            self.preview_item,
+        )  # Add double-click handler
         self.file_list.setIconSize(QSize(100, 100))
         layout.addWidget(self.file_list)
 
@@ -201,6 +295,13 @@ class PDFToolWindow(QMainWindow):
         self.file_list.addItem(item)
         self.files.append(filepath)
 
+    def preview_item(self, item: QListWidgetItem) -> None:
+        """Preview the selected item."""
+        filepath = item.data(Qt.UserRole)
+        if filepath.suffix.lower().endswith(".pdf"):
+            dialog = PDFPreviewDialog(filepath, self)
+            dialog.exec_()
+
     def update_order(self) -> None:
         """Update the file order after drag and drop."""
         self.files = []
@@ -230,7 +331,7 @@ class PDFToolWindow(QMainWindow):
             writer = PdfWriter()
 
             for filepath in self.files:
-                if filepath.lower().endswith(".pdf"):
+                if filepath.suffix.lower().endswith(".pdf"):
                     # For PDF files, append all pages
                     reader = PdfReader(filepath)
                     for page in reader.pages:
