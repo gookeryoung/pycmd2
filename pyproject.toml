@@ -122,13 +122,6 @@ source = ["src/pycmd2"]
 [tool.hatch.version]
 path = "src/pycmd2/__init__.py"
 
-# ----------------------- pytest ------------------------ #
-[tool.pytest.ini_options]
-filterwarnings = ["error"]
-markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
-qt_api = "pyside2"
-testpaths = ["tests"]
-
 # ------------------------ ruff ------------------------- #
 [tool.ruff]
 exclude = ["**/*_rc.py", "**/ui_*.py", "docs/*.py"]
