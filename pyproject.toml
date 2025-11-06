@@ -98,6 +98,7 @@ gui = [
 office = [
   "numpy>=1.24.4",
   "pillow>=10",
+  "pymupdf>=1.24.11",
   "pypdf>=5.9.0",
   "pywin32>=311; platform_system == 'Windows'",
 ]
