@@ -31,8 +31,8 @@ def main(
         "-a",
         help="列出所有文件",
     ),
-    export: bool = typer.Option(
-        False,  # noqa: FBT003
+    export: str = typer.Option(
+        "",
         "--export",
         "-e",
         help="导出为文件",
@@ -46,6 +46,6 @@ def main(
     logger.info(f"列出目录: \n[green bold]{dirs_str}")
 
     if export:
-        output_file = Path.cwd() / "list_dirs.txt"
+        output_file = Path.cwd() / export
         logger.info(f"导出到文件: [green bold]{output_file}")
         output_file.write_text("\n".join(names))
