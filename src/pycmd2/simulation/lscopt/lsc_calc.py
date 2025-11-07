@@ -1,14 +1,27 @@
-"""LSC曲线计算器
+"""LSC曲线计算器.
+
 使用numpy和matplotlib重新实现lsc.m中的计算程序.
 """
+
+import logging
+import traceback
 
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import lsq_linear
 
+logger = logging.getLogger(__name__)
 
-def cot(x):
-    """计算余切函数."""
+
+def cot(x: float) -> float:
+    """计算余切函数.
+
+    Parameters:
+        x: 输入参数
+
+    Returns:
+        float: 余切函数值
+    """
     return 1 / np.tan(x)
 
 
@@ -422,9 +435,8 @@ def main() -> None:
         for _i in range(len(x)):
             pass
 
-    except Exception:
-        import traceback
-
+    except Exception as e:
+        logger.exception(e)
         traceback.print_exc()
 
 
