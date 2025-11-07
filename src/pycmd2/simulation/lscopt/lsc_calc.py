@@ -12,6 +12,18 @@ def cot(x):
     return 1 / np.tan(x)
 
 
+def setup_chinese_font() -> None:
+    """设置中文字体以避免警告."""
+    # 设置字体以支持中文显示
+    plt.rcParams["font.sans-serif"] = [
+        "SimHei",
+        "DejaVu Sans",
+        "Arial Unicode MS",
+        "sans-serif",
+    ]
+    plt.rcParams["axes.unicode_minus"] = False  # 正确显示负号
+
+
 def calculate_lsc_curves():
     """根据lsc.m中的算法计算LSC曲线参数."""
     # 基本参数设置（与原MATLAB文件相同）
@@ -326,7 +338,7 @@ def calculate_lsc_curves():
 
 
 def plot_curves(x, m, m1):
-    """绘制LSC曲线."""
+    """Plot LSC curves."""
     # 计算内部段曲线 (-1.3 到 0)
     I = np.linspace(m, 0, 100)
     y1 = x[0] + x[1] * I + x[2] * I**2 + x[3] * I**3  # 内部上部
@@ -341,10 +353,10 @@ def plot_curves(x, m, m1):
     plt.figure(figsize=(12, 8))
 
     # 绘制曲线
-    plt.plot(I, y1, "b-", linewidth=2, label="内部上部")
-    plt.plot(I, y2, "r-", linewidth=2, label="内部下部")
-    plt.plot(J, g1, "g-", linewidth=2, label="外部上部")
-    plt.plot(J, g2, "m-", linewidth=2, label="外部下部")
+    plt.plot(I, y1, "b-", linewidth=2, label="Inner Upper")
+    plt.plot(I, y2, "r-", linewidth=2, label="Inner Lower")
+    plt.plot(J, g1, "g-", linewidth=2, label="Outer Upper")
+    plt.plot(J, g2, "m-", linewidth=2, label="Outer Lower")
 
     # 标注关键点
     plt.plot(
@@ -352,20 +364,20 @@ def plot_curves(x, m, m1):
         x[0] + x[1] * m + x[2] * m**2 + x[3] * m**3,
         "bo",
         markersize=8,
-        label=f"内部断点({m}, y1)",
+        label=f"Inner Point({m}, y1)",
     )
     plt.plot(
         m1,
         x[8] + x[9] * m1 + x[10] * m1**2 + x[11] * m1**3,
         "gs",
         markersize=8,
-        label=f"外部断点({m1}, g1)",
+        label=f"Outer Point({m1}, g1)",
     )
 
     # 设置图形属性
-    plt.xlabel("X坐标")
-    plt.ylabel("Y坐标")
-    plt.title("LSC 曲线优化结果")
+    plt.xlabel("X Coordinate")
+    plt.ylabel("Y Coordinate")
+    plt.title("LSC Curve Optimization Result")
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.axis("equal")
@@ -378,7 +390,7 @@ def plot_curves(x, m, m1):
 
 
 def calculate_angles(x, m, m1) -> None:
-    """计算角度."""
+    """Calculate angles."""
     # 在点m处计算角度
     y3 = x[0] + x[1] * m + x[2] * m**2 + x[3] * m**3
     # 使用arctan2处理除零情况
@@ -392,7 +404,10 @@ def calculate_angles(x, m, m1) -> None:
 
 
 def main() -> None:
-    """主函数."""
+    """Main function."""
+    # 设置中文字体
+    setup_chinese_font()
+
     try:
         # 计算曲线参数
         x, m, m1 = calculate_lsc_curves()

@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 from typing import Optional
 
+import matplotlib as mpl
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -17,6 +18,15 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 from scipy.optimize import lsq_linear
+
+# 设置matplotlib支持中文显示
+mpl.rcParams["font.sans-serif"] = [
+    "SimHei",
+    "DejaVu Sans",
+    "Arial Unicode MS",
+    "sans-serif",
+]
+mpl.rcParams["axes.unicode_minus"] = False
 
 
 class LSCOptimizer(QMainWindow):
