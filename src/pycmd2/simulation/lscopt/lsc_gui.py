@@ -7,14 +7,16 @@ import matplotlib as mpl
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QDoubleSpinBox
 from PyQt5.QtWidgets import QFormLayout
 from PyQt5.QtWidgets import QGroupBox
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QSlider
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 from scipy.optimize import lsq_linear
@@ -83,29 +85,109 @@ class LSCOptimizer(QMainWindow):
         param_group = QGroupBox("基本参数")
         param_layout = QFormLayout(param_group)
 
-        # 创建参数输入框
-        self.m_input = QLineEdit(str(self.m))
-        self.m1_input = QLineEdit(str(self.m1))
-        self.s_input = QLineEdit(str(self.s))
-        self.s1_input = QLineEdit(str(self.s1))
-        self.H_input = QLineEdit(str(self.H))
-        self.m2_input = QLineEdit(str(self.m2))
-        self.H1_input = QLineEdit(str(self.H1))
-        self.H2_input = QLineEdit(str(self.H2))
-        self.J_input = QLineEdit(str(self.J))
-        self.J1_input = QLineEdit(str(self.J1))
+        # 创建参数输入组件 (SpinBox + Slider)
+        self.m_spinbox, self.m_slider = self.create_parameter_widgets(
+            self.m,
+            -5.0,
+            0.0,
+            0.1,
+        )
+        self.m1_spinbox, self.m1_slider = self.create_parameter_widgets(
+            self.m1,
+            -10.0,
+            0.0,
+            0.1,
+        )
+        self.s_spinbox, self.s_slider = self.create_parameter_widgets(
+            self.s,
+            0.0,
+            10.0,
+            0.1,
+        )
+        self.s1_spinbox, self.s1_slider = self.create_parameter_widgets(
+            self.s1,
+            0.0,
+            20.0,
+            0.1,
+        )
+        self.H_spinbox, self.H_slider = self.create_parameter_widgets(
+            self.H,
+            0.0,
+            5.0,
+            0.1,
+        )
+        self.m2_spinbox, self.m2_slider = self.create_parameter_widgets(
+            self.m2,
+            -2.0,
+            2.0,
+            0.1,
+        )
+        self.H1_spinbox, self.H1_slider = self.create_parameter_widgets(
+            self.H1,
+            0.0,
+            2.0,
+            0.1,
+        )
+        self.H2_spinbox, self.H2_slider = self.create_parameter_widgets(
+            self.H2,
+            0.0,
+            2.0,
+            0.1,
+        )
+        self.J_spinbox, self.J_slider = self.create_parameter_widgets(
+            self.J,
+            0.0,
+            180.0,
+            1.0,
+        )
+        self.J1_spinbox, self.J1_slider = self.create_parameter_widgets(
+            self.J1,
+            0.0,
+            180.0,
+            1.0,
+        )
 
         # 添加输入框到布局
-        param_layout.addRow("第一断点(m):", self.m_input)
-        param_layout.addRow("第二断点(m1):", self.m1_input)
-        param_layout.addRow("内部坡度(s):", self.s_input)
-        param_layout.addRow("外部坡度(s1):", self.s1_input)
-        param_layout.addRow("切割高度(H):", self.H_input)
-        param_layout.addRow("特定点(m2):", self.m2_input)
-        param_layout.addRow("内部保留高度(H1):", self.H1_input)
-        param_layout.addRow("外部保留高度(H2):", self.H2_input)
-        param_layout.addRow("总体夹角(J):", self.J_input)
-        param_layout.addRow("断点夹角(J1):", self.J1_input)
+        param_layout.addRow(
+            "第一断点(m):",
+            self.create_parameter_row(self.m_spinbox, self.m_slider),
+        )
+        param_layout.addRow(
+            "第二断点(m1):",
+            self.create_parameter_row(self.m1_spinbox, self.m1_slider),
+        )
+        param_layout.addRow(
+            "内部坡度(s):",
+            self.create_parameter_row(self.s_spinbox, self.s_slider),
+        )
+        param_layout.addRow(
+            "外部坡度(s1):",
+            self.create_parameter_row(self.s1_spinbox, self.s1_slider),
+        )
+        param_layout.addRow(
+            "切割高度(H):",
+            self.create_parameter_row(self.H_spinbox, self.H_slider),
+        )
+        param_layout.addRow(
+            "特定点(m2):",
+            self.create_parameter_row(self.m2_spinbox, self.m2_slider),
+        )
+        param_layout.addRow(
+            "内部保留高度(H1):",
+            self.create_parameter_row(self.H1_spinbox, self.H1_slider),
+        )
+        param_layout.addRow(
+            "外部保留高度(H2):",
+            self.create_parameter_row(self.H2_spinbox, self.H2_slider),
+        )
+        param_layout.addRow(
+            "总体夹角(J):",
+            self.create_parameter_row(self.J_spinbox, self.J_slider),
+        )
+        param_layout.addRow(
+            "断点夹角(J1):",
+            self.create_parameter_row(self.J1_spinbox, self.J1_slider),
+        )
 
         # 结果显示组
         result_group = QGroupBox("计算结果")
@@ -123,6 +205,17 @@ class LSCOptimizer(QMainWindow):
         button_layout.addWidget(calc_button)
         button_layout.addWidget(reset_button)
 
+        self.m_spinbox.valueChanged.connect(self.on_calculate_clicked)
+        self.m1_spinbox.valueChanged.connect(self.on_calculate_clicked)
+        self.s_spinbox.valueChanged.connect(self.on_calculate_clicked)
+        self.s1_spinbox.valueChanged.connect(self.on_calculate_clicked)
+        self.H_spinbox.valueChanged.connect(self.on_calculate_clicked)
+        self.m2_spinbox.valueChanged.connect(self.on_calculate_clicked)
+        self.H1_spinbox.valueChanged.connect(self.on_calculate_clicked)
+        self.H2_spinbox.valueChanged.connect(self.on_calculate_clicked)
+        self.J_spinbox.valueChanged.connect(self.on_calculate_clicked)
+        self.J1_spinbox.valueChanged.connect(self.on_calculate_clicked)
+
         # 添加到主布局
         layout.addWidget(param_group)
         layout.addWidget(result_group)
@@ -130,6 +223,40 @@ class LSCOptimizer(QMainWindow):
         layout.addStretch()
 
         return panel
+
+    def create_parameter_widgets(self, value, min_val, max_val, step):
+        """创建参数输入组件 (SpinBox + Slider)."""
+        # 创建SpinBox
+        spinbox = QDoubleSpinBox()
+        spinbox.setRange(min_val, max_val)
+        spinbox.setSingleStep(step)
+        spinbox.setValue(value)
+        spinbox.setDecimals(2 if step < 1 else 0)
+
+        # 创建Slider (需要将浮点数转换为整数)
+        slider_range = int((max_val - min_val) / step)
+        slider = QSlider(Qt.Horizontal)
+        slider.setRange(0, slider_range)
+        slider.setValue(int((value - min_val) / step))
+
+        # 连接信号槽
+        spinbox.valueChanged.connect(
+            lambda val: slider.setValue(int((val - min_val) / step)),
+        )
+        slider.valueChanged.connect(
+            lambda val: spinbox.setValue(min_val + val * step),
+        )
+
+        return spinbox, slider
+
+    def create_parameter_row(self, spinbox, slider):
+        """创建参数输入行."""
+        widget = QWidget()
+        layout = QHBoxLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(spinbox, 1)
+        layout.addWidget(slider, 2)
+        return widget
 
     def create_plot_area(self):
         """创建绘图区域."""
@@ -147,16 +274,16 @@ class LSCOptimizer(QMainWindow):
     def get_parameters_from_inputs(self) -> Optional[bool]:
         """从输入框获取参数."""
         try:
-            self.m = float(self.m_input.text())
-            self.m1 = float(self.m1_input.text())
-            self.s = float(self.s_input.text())
-            self.s1 = float(self.s1_input.text())
-            self.H = float(self.H_input.text())
-            self.m2 = float(self.m2_input.text())
-            self.H1 = float(self.H1_input.text())
-            self.H2 = float(self.H2_input.text())
-            self.J = float(self.J_input.text())
-            self.J1 = float(self.J1_input.text())
+            self.m = self.m_spinbox.value()
+            self.m1 = self.m1_spinbox.value()
+            self.s = self.s_spinbox.value()
+            self.s1 = self.s1_spinbox.value()
+            self.H = self.H_spinbox.value()
+            self.m2 = self.m2_spinbox.value()
+            self.H1 = self.H1_spinbox.value()
+            self.H2 = self.H2_spinbox.value()
+            self.J = self.J_spinbox.value()
+            self.J1 = self.J1_spinbox.value()
 
             # 更新三角函数值
             self.n = 1 / np.tan(np.radians(self.J))
@@ -179,16 +306,16 @@ class LSCOptimizer(QMainWindow):
 
     def update_input_fields(self) -> None:
         """更新输入框显示."""
-        self.m_input.setText(str(self.m))
-        self.m1_input.setText(str(self.m1))
-        self.s_input.setText(str(self.s))
-        self.s1_input.setText(str(self.s1))
-        self.H_input.setText(str(self.H))
-        self.m2_input.setText(str(self.m2))
-        self.H1_input.setText(str(self.H1))
-        self.H2_input.setText(str(self.H2))
-        self.J_input.setText(str(self.J))
-        self.J1_input.setText(str(self.J1))
+        self.m_spinbox.setValue(self.m)
+        self.m1_spinbox.setValue(self.m1)
+        self.s_spinbox.setValue(self.s)
+        self.s1_spinbox.setValue(self.s1)
+        self.H_spinbox.setValue(self.H)
+        self.m2_spinbox.setValue(self.m2)
+        self.H1_spinbox.setValue(self.H1)
+        self.H2_spinbox.setValue(self.H2)
+        self.J_spinbox.setValue(self.J)
+        self.J1_spinbox.setValue(self.J1)
 
     def build_matrices(self):
         """构建矩阵方程."""
