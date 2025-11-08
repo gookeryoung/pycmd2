@@ -13,6 +13,7 @@ from functools import cached_property
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import lsq_linear
+from scipy.optimize import OptimizeResult
 
 logger = logging.getLogger(__name__)
 
@@ -179,21 +180,25 @@ class LSCCurve:
         return np.array([0, 0, 0, 0, self.H1, self.H1, self.H2, self.H2, 0, 0, self.s / 2])
 
     @cached_property
-    def x(self) -> np.ndarray:
-        """计算x向量."""
+    def R(self) -> OptimizeResult:
+        """计算结果."""
         # 将等式约束转换为不等式约束, Ax = b  =>  Ax <= b  and  -Ax <= -b
         np.vstack([self.A_ineq, self.A_eq, -self.A_eq])
         np.hstack([self.b_ineq, self.b_eq, -self.b_eq])
 
         # 使用最小二乘法求解
-        result = lsq_linear(
+        return lsq_linear(
             self.C,
             self.d,
             bounds=(-np.inf, np.inf),
             lsmr_tol="auto",
             verbose=0,
         )
-        return result.x
+
+    @cached_property
+    def x(self) -> np.ndarray:
+        """计算x向量."""
+        return self.R.x
 
     def calculate_angles(self) -> None:
         """Calculate angles."""
@@ -230,10 +235,10 @@ class LSCCurve:
         plt.figure(figsize=(12, 8))
 
         # 绘制曲线
-        plt.plot(self.i, y1, "b-", linewidth=2, label="Inner Upper")
-        plt.plot(self.i, y2, "r-", linewidth=2, label="Inner Lower")
-        plt.plot(self.j, g1, "g-", linewidth=2, label="Outer Upper")
-        plt.plot(self.j, g2, "m-", linewidth=2, label="Outer Lower")
+        plt.plot(self.i, y1, "b-", linewidth=2, label="内部上部")
+        plt.plot(self.i, y2, "r-", linewidth=2, label="内部下部")
+        plt.plot(self.j, g1, "g-", linewidth=2, label="外部上部")
+        plt.plot(self.j, g2, "m-", linewidth=2, label="外部下部")
 
         # 标注关键点
         plt.plot(
@@ -241,14 +246,14 @@ class LSCCurve:
             self.x[0] + self.x[1] * self.m + self.x[2] * self.ms + self.x[3] * self.mc,
             "bo",
             markersize=8,
-            label=f"Inner Point({self.m}, y1)",
+            label=f"内部点({self.m}, y1)",
         )
         plt.plot(
             self.m1,
             self.x[8] + self.x[9] * self.m1 + self.x[10] * self.m1s + self.x[11] * self.m1c,
             "gs",
             markersize=8,
-            label=f"Outer Point({self.m1}, g1)",
+            label=f"外部点({self.m1}, g1)",
         )
 
         # 设置图形属性
