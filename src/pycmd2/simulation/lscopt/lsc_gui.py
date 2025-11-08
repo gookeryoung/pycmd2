@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import sys
+from dataclasses import dataclass
 from typing import Optional
+from typing import Tuple
 
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -20,6 +22,48 @@ from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
 from pycmd2.simulation.lscopt.lsc_calc import LSCCurve
+
+
+@dataclass
+class ParamInput:
+    """参数输入组件."""
+
+    value: float
+    min_val: float
+    max_val: float
+    step: float
+    spinbox: QWidget | None = None
+    slider: QWidget | None = None
+
+    def setup(self) -> Tuple[QWidget, QWidget]:
+        """构建输入组件.
+
+        Returns:
+            Tuple[QWidget, QWidget]
+
+            输入组件.
+        """
+        self.spinbox = QDoubleSpinBox()
+        self.spinbox.setRange(self.min_val, self.max_val)
+        self.spinbox.setSingleStep(self.step)
+        self.spinbox.setValue(self.value)
+        self.spinbox.setDecimals(2 if self.step < 1 else 0)
+
+        slider_range = int((self.max_val - self.min_val) / self.step)
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.setRange(0, slider_range)
+        self.slider.setValue(int((self.value - self.min_val) / self.step))
+
+        if self.slider is not None and self.spinbox is not None:
+            # 连接信号槽
+            self.spinbox.valueChanged.connect(
+                lambda val: self.slider.setValue(int((val - self.min_val) / self.step)),  # type: ignore
+            )
+            self.slider.valueChanged.connect(
+                lambda val: self.spinbox.setValue(self.min_val + val * self.step),  # type: ignore
+            )
+
+        return self.spinbox, self.slider
 
 
 class LSCOptimizer(QMainWindow):
@@ -79,67 +123,16 @@ class LSCOptimizer(QMainWindow):
         param_group = QGroupBox("基本参数")
         param_layout = QFormLayout(param_group)
 
-        # 创建参数输入组件 (SpinBox + Slider)
-        self.m_spinbox, self.m_slider = self.create_parameter_widgets(
-            self.m,
-            -5.0,
-            0.0,
-            0.1,
-        )
-        self.m1_spinbox, self.m1_slider = self.create_parameter_widgets(
-            self.m1,
-            -10.0,
-            0.0,
-            0.1,
-        )
-        self.s_spinbox, self.s_slider = self.create_parameter_widgets(
-            self.s,
-            0.0,
-            10.0,
-            0.1,
-        )
-        self.s1_spinbox, self.s1_slider = self.create_parameter_widgets(
-            self.s1,
-            0.0,
-            20.0,
-            0.1,
-        )
-        self.H_spinbox, self.H_slider = self.create_parameter_widgets(
-            self.H,
-            0.0,
-            5.0,
-            0.1,
-        )
-        self.m2_spinbox, self.m2_slider = self.create_parameter_widgets(
-            self.m2,
-            -2.0,
-            2.0,
-            0.1,
-        )
-        self.H1_spinbox, self.H1_slider = self.create_parameter_widgets(
-            self.H1,
-            0.0,
-            2.0,
-            0.1,
-        )
-        self.H2_spinbox, self.H2_slider = self.create_parameter_widgets(
-            self.H2,
-            0.0,
-            2.0,
-            0.1,
-        )
-        self.J_spinbox, self.J_slider = self.create_parameter_widgets(
-            self.J,
-            0.0,
-            180.0,
-            1.0,
-        )
-        self.J1_spinbox, self.J1_slider = self.create_parameter_widgets(
-            self.J1,
-            0.0,
-            180.0,
-            1.0,
-        )
+        self.m_spinbox, self.m_slider = ParamInput(self.m, -5.0, 0.0, 0.1).setup()
+        self.m1_spinbox, self.m1_slider = ParamInput(self.m1, -10.0, 0.0, 1.0).setup()
+        self.s_spinbox, self.s_slider = ParamInput(self.s, 0.0, 10.0, 0.1).setup()
+        self.s1_spinbox, self.s1_slider = ParamInput(self.s1, 0.0, 20.0, 0.1).setup()
+        self.H_spinbox, self.H_slider = ParamInput(self.H, 0.0, 5.0, 0.1).setup()
+        self.m2_spinbox, self.m2_slider = ParamInput(self.m2, -2.0, 2.0, 0.1).setup()
+        self.H1_spinbox, self.H1_slider = ParamInput(self.H1, 0.0, 2.0, 0.1).setup()
+        self.H2_spinbox, self.H2_slider = ParamInput(self.H2, 0.0, 2.0, 0.1).setup()
+        self.J_spinbox, self.J_slider = ParamInput(self.J, 0.0, 180.0, 1.0).setup()
+        self.J1_spinbox, self.J1_slider = ParamInput(self.J1, 0.0, 180.0, 1.0).setup()
 
         # 添加输入框到布局
         param_layout.addRow(
@@ -217,31 +210,6 @@ class LSCOptimizer(QMainWindow):
         layout.addStretch()
 
         return panel
-
-    def create_parameter_widgets(self, value, min_val, max_val, step):
-        """创建参数输入组件 (SpinBox + Slider)."""
-        # 创建SpinBox
-        spinbox = QDoubleSpinBox()
-        spinbox.setRange(min_val, max_val)
-        spinbox.setSingleStep(step)
-        spinbox.setValue(value)
-        spinbox.setDecimals(2 if step < 1 else 0)
-
-        # 创建Slider (需要将浮点数转换为整数)
-        slider_range = int((max_val - min_val) / step)
-        slider = QSlider(Qt.Horizontal)
-        slider.setRange(0, slider_range)
-        slider.setValue(int((value - min_val) / step))
-
-        # 连接信号槽
-        spinbox.valueChanged.connect(
-            lambda val: slider.setValue(int((val - min_val) / step)),
-        )
-        slider.valueChanged.connect(
-            lambda val: spinbox.setValue(min_val + val * step),
-        )
-
-        return spinbox, slider
 
     def create_parameter_row(self, spinbox, slider):
         """创建参数输入行."""
