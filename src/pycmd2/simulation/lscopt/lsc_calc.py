@@ -213,7 +213,7 @@ class LSCCurve:
         np.degrees(np.arctan2((g3 - self.x[8]), self.m1))
         np.degrees(np.arctan2((g3 - self.x[12]), self.m1))
 
-    def plot(self) -> None:
+    def plot(self, ax: plt.Axes | None = None) -> None:
         """Plot LSC curves."""
         plt.rcParams["font.sans-serif"] = [
             "SimHei",
@@ -231,24 +231,28 @@ class LSCCurve:
         g1 = self.x[8] + self.x[9] * self.j + self.x[10] * self.j**2 + self.x[11] * self.j**3  # 外部上部
         g2 = self.x[12] + self.x[13] * self.j + self.x[14] * self.j**2 + self.x[15] * self.j**3  # 外部下部
 
-        # 创建图形
-        plt.figure(figsize=(12, 8))
+        if not ax:
+            # 创建图形
+            fig = plt.figure(figsize=(12, 8))
+            ax = fig.add_subplot(111)
+
+        ax.clear()
 
         # 绘制曲线
-        plt.plot(self.i, y1, "b-", linewidth=2, label="内部上部")
-        plt.plot(self.i, y2, "r-", linewidth=2, label="内部下部")
-        plt.plot(self.j, g1, "g-", linewidth=2, label="外部上部")
-        plt.plot(self.j, g2, "m-", linewidth=2, label="外部下部")
+        ax.plot(self.i, y1, "b-", linewidth=2, label="内部上部")
+        ax.plot(self.i, y2, "r-", linewidth=2, label="内部下部")
+        ax.plot(self.j, g1, "g-", linewidth=2, label="外部上部")
+        ax.plot(self.j, g2, "m-", linewidth=2, label="外部下部")
 
         # 标注关键点
-        plt.plot(
+        ax.plot(
             self.m,
             self.x[0] + self.x[1] * self.m + self.x[2] * self.ms + self.x[3] * self.mc,
             "bo",
             markersize=8,
             label=f"内部点({self.m}, y1)",
         )
-        plt.plot(
+        ax.plot(
             self.m1,
             self.x[8] + self.x[9] * self.m1 + self.x[10] * self.m1s + self.x[11] * self.m1c,
             "gs",
@@ -257,16 +261,12 @@ class LSCCurve:
         )
 
         # 设置图形属性
-        plt.xlabel("X Coordinate")
-        plt.ylabel("Y Coordinate")
-        plt.title("LSC Curve Optimization Result")
-        plt.legend()
-        plt.grid(visible=True, alpha=0.3)
-        plt.axis("equal")
-
-        # 显示图形
-        plt.tight_layout()
-        plt.show()
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        ax.set_title("LSC 曲线优化结果")
+        ax.legend()
+        ax.grid(visible=True, alpha=0.3)
+        ax.axis("equal")
 
 
 def main() -> None:
@@ -277,6 +277,8 @@ def main() -> None:
 
         # 绘制曲线
         lscc.plot()
+        plt.tight_layout()
+        plt.show()
 
         # 计算角度
         lscc.calculate_angles()
