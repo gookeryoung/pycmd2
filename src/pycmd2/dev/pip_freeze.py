@@ -7,17 +7,18 @@ from __future__ import annotations
 
 import logging
 import subprocess
+from typing import Optional
 
 from pycmd2.client import get_client
 
-__version__ = "0.1.2"
-__build_date__ = "2025-07-29"
+__version__ = "0.1.3"
+__build_date__ = "2025-11-09"
 
 cli = get_client()
 logger = logging.getLogger(__name__)
 
 
-def check_uv_callable() -> bool | None:
+def check_uv_callable() -> Optional[bool]:
     """检查uv是否可调用.
 
     Returns:
