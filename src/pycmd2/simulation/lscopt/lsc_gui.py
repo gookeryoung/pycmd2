@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass
-from typing import Optional
-from typing import Tuple
+from functools import cached_property
+from typing import Dict
 
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QDoubleSpinBox
@@ -25,45 +26,114 @@ from pycmd2.simulation.lscopt.lsc_calc import LSCCurve
 
 
 @dataclass
-class ParamInput:
-    """参数输入组件."""
+class ParamValue:
+    """参数值."""
 
     value: float
     min_val: float
     max_val: float
     step: float
-    spinbox: QWidget | None = None
-    slider: QWidget | None = None
+    name: str
 
-    def setup(self) -> Tuple[QWidget, QWidget]:
-        """构建输入组件.
+    @cached_property
+    def slider_range(self) -> int:
+        """slider取值范围."""
+        return int((self.max_val - self.min_val) / self.step)
 
-        Returns:
-            Tuple[QWidget, QWidget]
+    @cached_property
+    def slider_value(self) -> int:
+        """slider当前值."""
+        return int((self.value - self.min_val) / self.step)
 
-            输入组件.
-        """
+
+class ParamInput:
+    """单行参数输入组件."""
+
+    value_changed = pyqtSignal()
+
+    def __init__(self, param: ParamValue) -> None:
+        self.param = param
+
+        # spinbox
         self.spinbox = QDoubleSpinBox()
-        self.spinbox.setRange(self.min_val, self.max_val)
-        self.spinbox.setSingleStep(self.step)
-        self.spinbox.setValue(self.value)
-        self.spinbox.setDecimals(2 if self.step < 1 else 0)
+        self.spinbox.setRange(self.param.min_val, self.param.max_val)
+        self.spinbox.setSingleStep(self.param.step)
+        self.spinbox.setValue(self.param.value)
+        self.spinbox.setDecimals(2 if self.param.step < 1 else 0)
 
-        slider_range = int((self.max_val - self.min_val) / self.step)
+        # slider
         self.slider = QSlider(Qt.Horizontal)
-        self.slider.setRange(0, slider_range)
-        self.slider.setValue(int((self.value - self.min_val) / self.step))
+        self.slider.setRange(0, self.param.slider_range)
+        self.slider.setValue(self.param.slider_value)
 
-        if self.slider is not None and self.spinbox is not None:
-            # 连接信号槽
-            self.spinbox.valueChanged.connect(
-                lambda val: self.slider.setValue(int((val - self.min_val) / self.step)),  # type: ignore
-            )
-            self.slider.valueChanged.connect(
-                lambda val: self.spinbox.setValue(self.min_val + val * self.step),  # type: ignore
-            )
+        # signals
+        self.spinbox.valueChanged.connect(
+            lambda val: self.slider.setValue(int((val - self.param.min_val) / self.param.step)),  # type: ignore
+        )
+        self.slider.valueChanged.connect(
+            lambda val: self.spinbox.setValue(self.param.min_val + val * self.param.step),  # type: ignore
+        )
 
-        return self.spinbox, self.slider
+        self.widget = QWidget()
+        layout = QHBoxLayout(self.widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.spinbox, 1)
+        layout.addWidget(self.slider, 2)
+
+
+class ParamInputGroup(QGroupBox):
+    """参数输入组件."""
+
+    error_signal = pyqtSignal(str)
+    calculate_finished = pyqtSignal(bool)
+
+    def __init__(self, title: str, parent: QWidget | None = None) -> None:
+        super().__init__(title, parent)
+
+        self.lscc: LSCCurve = LSCCurve()
+        self.inputs: Dict[str, ParamInput] = {}
+
+        self.reset_inputs()
+
+    def reset_inputs(self) -> None:
+        """重置所有输入."""
+        self.inputs = {
+            "m": ParamInput(ParamValue(self.lscc.m, -5.0, 0.0, 0.05, "第一断点(m)")),
+            "m1": ParamInput(ParamValue(self.lscc.m1, -10.0, 0.0, 1.0, "第二断点(m1)")),
+            "s": ParamInput(ParamValue(self.lscc.s, 0.0, 10.0, 0.1, "内部坡度(s)")),
+            "s1": ParamInput(ParamValue(self.lscc.s1, 0.0, 20.0, 0.1, "外部坡度(s1)")),
+            "H": ParamInput(ParamValue(self.lscc.H, 0.0, 5.0, 0.1, "切割高度(H)")),
+            "m2": ParamInput(ParamValue(self.lscc.m2, -2.0, 2.0, 0.1, "特定点(m2)")),
+            "H1": ParamInput(ParamValue(self.lscc.H1, 0.0, 2.0, 0.1, "内部保留高度(H1)")),
+            "H2": ParamInput(ParamValue(self.lscc.H2, 0.0, 2.0, 0.1, "外部保留高度(H2)")),
+            "J": ParamInput(ParamValue(self.lscc.J, 0.0, 180.0, 1.0, "总体夹角(J)")),
+            "J1": ParamInput(ParamValue(self.lscc.J1, 0.0, 180.0, 1.0, "断点夹角(J1)")),
+        }
+
+        main_layout = QFormLayout(self)
+        for param_input in self.inputs.values():
+            main_layout.addRow(param_input.param.name, param_input.widget)
+            param_input.spinbox.valueChanged.connect(self.on_calc)
+
+    def on_calc(self) -> None:
+        """求解."""
+        try:
+            self.lscc = LSCCurve(
+                m=self.inputs["m"].spinbox.value(),
+                m1=self.inputs["m1"].spinbox.value(),
+                s=self.inputs["s"].spinbox.value(),
+                s1=self.inputs["s1"].spinbox.value(),
+                H=self.inputs["H"].spinbox.value(),
+                m2=self.inputs["m2"].spinbox.value(),
+                H2=self.inputs["H2"].spinbox.value(),
+                J=self.inputs["J"].spinbox.value(),
+                J1=self.inputs["J1"].spinbox.value(),
+            )
+        except ValueError:
+            self.error_signal.emit("参数输入错误, 请输入有效的数字")
+            return
+
+        self.calculate_finished.emit(True)  # noqa: FBT003
 
 
 class LSCOptimizer(QMainWindow):
@@ -81,10 +151,6 @@ class LSCOptimizer(QMainWindow):
         # 创建主布局
         main_layout = QHBoxLayout(central_widget)
 
-        # 初始化参数
-        self.lscc = LSCCurve()
-        self.init_parameters()
-
         # 创建控制面板
         control_panel = self.create_control_panel()
         main_layout.addWidget(control_panel, 1)
@@ -94,87 +160,20 @@ class LSCOptimizer(QMainWindow):
         main_layout.addWidget(self.plot_widget, 3)
 
         # 计算并绘制初始曲线
-        self.calculate_and_plot()
+        self.param_group.on_calc()
 
-    def init_parameters(self) -> None:
-        """初始化参数."""
-        # 基本参数
-        self.m = -1.3  # 第一断点（内部）
-        self.m1 = -2.4  # 第二断点（外部）
-        self.s = 1.2183  # 内部坡度
-        self.s1 = 8.1  # 外部坡度
-        self.H = 0.5  # 切割高度
-        self.m2 = 0.5  # 特定点
-        self.H1 = 0.2  # 内部保留高度
-        self.H2 = 0.65  # 外部保留高度
-        self.J = 80  # 总体夹角
-        self.J1 = 40  # 断点夹角
+    def create_control_panel(self) -> QWidget:
+        """创建控制面板.
 
-        # 计算三角函数值
-        self.n = 1 / np.tan(np.radians(self.J))  # cot(J)
-        self.t = 1 / np.tan(np.radians(self.J1))  # cot(J1)
-
-    def create_control_panel(self):
-        """创建控制面板."""
+        Returns:
+            QWidget: 控制面板
+        """
         panel = QGroupBox("参数控制")
         layout = QVBoxLayout(panel)
 
         # 参数输入组
-        param_group = QGroupBox("基本参数")
-        param_layout = QFormLayout(param_group)
-
-        self.m_spinbox, self.m_slider = ParamInput(self.m, -5.0, 0.0, 0.1).setup()
-        self.m1_spinbox, self.m1_slider = ParamInput(self.m1, -10.0, 0.0, 1.0).setup()
-        self.s_spinbox, self.s_slider = ParamInput(self.s, 0.0, 10.0, 0.1).setup()
-        self.s1_spinbox, self.s1_slider = ParamInput(self.s1, 0.0, 20.0, 0.1).setup()
-        self.H_spinbox, self.H_slider = ParamInput(self.H, 0.0, 5.0, 0.1).setup()
-        self.m2_spinbox, self.m2_slider = ParamInput(self.m2, -2.0, 2.0, 0.1).setup()
-        self.H1_spinbox, self.H1_slider = ParamInput(self.H1, 0.0, 2.0, 0.1).setup()
-        self.H2_spinbox, self.H2_slider = ParamInput(self.H2, 0.0, 2.0, 0.1).setup()
-        self.J_spinbox, self.J_slider = ParamInput(self.J, 0.0, 180.0, 1.0).setup()
-        self.J1_spinbox, self.J1_slider = ParamInput(self.J1, 0.0, 180.0, 1.0).setup()
-
-        # 添加输入框到布局
-        param_layout.addRow(
-            "第一断点(m):",
-            self.create_parameter_row(self.m_spinbox, self.m_slider),
-        )
-        param_layout.addRow(
-            "第二断点(m1):",
-            self.create_parameter_row(self.m1_spinbox, self.m1_slider),
-        )
-        param_layout.addRow(
-            "内部坡度(s):",
-            self.create_parameter_row(self.s_spinbox, self.s_slider),
-        )
-        param_layout.addRow(
-            "外部坡度(s1):",
-            self.create_parameter_row(self.s1_spinbox, self.s1_slider),
-        )
-        param_layout.addRow(
-            "切割高度(H):",
-            self.create_parameter_row(self.H_spinbox, self.H_slider),
-        )
-        param_layout.addRow(
-            "特定点(m2):",
-            self.create_parameter_row(self.m2_spinbox, self.m2_slider),
-        )
-        param_layout.addRow(
-            "内部保留高度(H1):",
-            self.create_parameter_row(self.H1_spinbox, self.H1_slider),
-        )
-        param_layout.addRow(
-            "外部保留高度(H2):",
-            self.create_parameter_row(self.H2_spinbox, self.H2_slider),
-        )
-        param_layout.addRow(
-            "总体夹角(J):",
-            self.create_parameter_row(self.J_spinbox, self.J_slider),
-        )
-        param_layout.addRow(
-            "断点夹角(J1):",
-            self.create_parameter_row(self.J1_spinbox, self.J1_slider),
-        )
+        self.param_group = ParamInputGroup("基本参数")
+        self.param_group.calculate_finished.connect(self.on_calc_finished)
 
         # 结果显示组
         result_group = QGroupBox("计算结果")
@@ -186,42 +185,26 @@ class LSCOptimizer(QMainWindow):
         # 按钮组
         button_layout = QHBoxLayout()
         calc_button = QPushButton("计算")
-        calc_button.clicked.connect(self.on_calculate_clicked)
+        calc_button.clicked.connect(self.param_group.on_calc)
         reset_button = QPushButton("重置")
         reset_button.clicked.connect(self.on_reset_clicked)
         button_layout.addWidget(calc_button)
         button_layout.addWidget(reset_button)
 
-        self.m_spinbox.valueChanged.connect(self.on_calculate_clicked)
-        self.m1_spinbox.valueChanged.connect(self.on_calculate_clicked)
-        self.s_spinbox.valueChanged.connect(self.on_calculate_clicked)
-        self.s1_spinbox.valueChanged.connect(self.on_calculate_clicked)
-        self.H_spinbox.valueChanged.connect(self.on_calculate_clicked)
-        self.m2_spinbox.valueChanged.connect(self.on_calculate_clicked)
-        self.H1_spinbox.valueChanged.connect(self.on_calculate_clicked)
-        self.H2_spinbox.valueChanged.connect(self.on_calculate_clicked)
-        self.J_spinbox.valueChanged.connect(self.on_calculate_clicked)
-        self.J1_spinbox.valueChanged.connect(self.on_calculate_clicked)
-
         # 添加到主布局
-        layout.addWidget(param_group)
+        layout.addWidget(self.param_group)
         layout.addWidget(result_group)
         layout.addLayout(button_layout)
         layout.addStretch()
 
         return panel
 
-    def create_parameter_row(self, spinbox, slider):
-        """创建参数输入行."""
-        widget = QWidget()
-        layout = QHBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(spinbox, 1)
-        layout.addWidget(slider, 2)
-        return widget
+    def create_plot_area(self) -> QWidget:
+        """创建绘图区域.
 
-    def create_plot_area(self):
-        """创建绘图区域."""
+        Returns:
+            QWidget: 绘图区域
+        """
         widget = QWidget()
         layout = QVBoxLayout(widget)
 
@@ -233,81 +216,22 @@ class LSCOptimizer(QMainWindow):
         layout.addWidget(self.canvas)
         return widget
 
-    def get_parameters_from_inputs(self) -> Optional[bool]:
-        """从输入框获取参数."""
-        try:
-            self.m = self.m_spinbox.value()
-            self.m1 = self.m1_spinbox.value()
-            self.s = self.s_spinbox.value()
-            self.s1 = self.s1_spinbox.value()
-            self.H = self.H_spinbox.value()
-            self.m2 = self.m2_spinbox.value()
-            self.H1 = self.H1_spinbox.value()
-            self.H2 = self.H2_spinbox.value()
-            self.J = self.J_spinbox.value()
-            self.J1 = self.J1_spinbox.value()
-
-            # 更新三角函数值
-            self.n = 1 / np.tan(np.radians(self.J))
-            self.t = 1 / np.tan(np.radians(self.J1))
-            return True
-        except ValueError:
-            self.result_label.setText("参数输入错误，请输入有效的数字！")
-            return False
-
-    def on_calculate_clicked(self) -> None:
-        """处理计算按钮点击事件."""
-        if self.get_parameters_from_inputs():
-            self.calculate_and_plot()
-
     def on_reset_clicked(self) -> None:
         """处理重置按钮点击事件."""
-        self.init_parameters()
-        self.update_input_fields()
-        self.calculate_and_plot()
+        self.param_group.reset_inputs()
+        self.param_group.on_calc()
 
-    def update_input_fields(self) -> None:
-        """更新输入框显示."""
-        self.m_spinbox.setValue(self.m)
-        self.m1_spinbox.setValue(self.m1)
-        self.s_spinbox.setValue(self.s)
-        self.s1_spinbox.setValue(self.s1)
-        self.H_spinbox.setValue(self.H)
-        self.m2_spinbox.setValue(self.m2)
-        self.H1_spinbox.setValue(self.H1)
-        self.H2_spinbox.setValue(self.H2)
-        self.J_spinbox.setValue(self.J)
-        self.J1_spinbox.setValue(self.J1)
-
-    def calculate_and_plot(self) -> None:
+    def on_calc_finished(self) -> None:
         """计算并绘制曲线."""
-        try:
-            # 构建矩阵
-            lscc = LSCCurve(
-                m=self.m,
-                m1=self.m1,
-                s=self.s,
-                s1=self.s1,
-                H=self.n,
-                m2=self.m2,
-                H1=self.H1,
-                H2=self.H2,
-                J=self.J,
-                J1=self.J1,
-            )
+        # 显示结果摘要
+        result_text = "计算成功完成!\n"
+        result_text += f"解向量范数: {np.linalg.norm(self.param_group.lscc.x):.4f}\n"
+        result_text += f"残差: {self.param_group.lscc.R.cost:.6f}"
+        self.result_label.setText(result_text)
 
-            # 显示结果摘要
-            result_text = "计算成功完成!\n"
-            result_text += f"解向量范数: {np.linalg.norm(lscc.x):.4f}\n"
-            result_text += f"残差: {lscc.R.cost:.6f}"
-            self.result_label.setText(result_text)
-
-            # 绘制曲线
-            lscc.plot(self.ax)
-            self.canvas.draw()
-
-        except Exception as e:
-            self.result_label.setText(f"计算过程中发生错误: {e!s}")
+        # 绘制曲线
+        self.param_group.lscc.plot(self.ax)
+        self.canvas.draw()
 
 
 def main() -> None:
