@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import ClassVar
+from typing import List
 from urllib.request import pathname2url
 
 import typer
@@ -50,6 +51,44 @@ class MakeOption:
             Path: 源代码目录
         """
         return cli.cwd / "src"
+
+    @classmethod
+    def build_command(cls) -> str:
+        """获取构建命令.
+
+        Returns:
+            str: 构建命令
+        """
+        makefile = Path.cwd() / "Makefile"
+
+        if makefile.exists():
+            return "make"
+
+        pyproject_file = Path.cwd() / "pyproject.toml"
+        if pyproject_file.exists():
+            logger.info("检测到 pyproject.toml 文件")
+            with pyproject_file.open("rb") as f:
+                conf = tomllib.load(f)
+                if all(
+                    [
+                        "build-system" in conf,
+                        "build-backend" in conf["build-system"],
+                        "hatch" in conf["build-system"]["build-backend"],
+                    ],
+                ):
+                    return "hatch"
+
+        logger.error("未找到构建工具, 请手动构建")
+        return ""
+
+    @classmethod
+    def dist_command(cls) -> List[str]:
+        """获取发布命令.
+
+        Returns:
+            str: 发布命令
+        """
+        return ["ls", "-l", "dist"] if (Path.cwd() / "dist").exists() else ["ls", "-l"]
 
     @classmethod
     def project_name(cls) -> str:
@@ -145,28 +184,12 @@ class ActivateOption(MakeOption):
     commands: ClassVar = [_activate_py_env]
 
 
-def _get_build_cmd() -> str:
-    makefile = Path.cwd() / "Makefile"
-    if makefile.exists():
-        logger.info("检测到 Makefile 文件")
-        return "make"
+class BuildOption(MakeOption):
+    """构建项目."""
 
-    pyproject_file = Path.cwd() / "pyproject.toml"
-    if pyproject_file.exists():
-        logger.info("检测到 pyproject.toml 文件")
-        with pyproject_file.open("rb") as f:
-            conf = tomllib.load(f)
-            if all(
-                [
-                    "build-system" in conf,
-                    "build-backend" in conf["build-system"],
-                    "hatch" in conf["build-system"]["build-backend"],
-                ],
-            ):
-                return "hatch"
-
-    logger.error("未找到构建工具, 请手动构建")
-    return ""
+    name = "build"
+    desc = "构建项目"
+    commands: ClassVar = [[MakeOption.build_command(), "build"]]
 
 
 class BumpPublishOption(MakeOption):
@@ -282,10 +305,6 @@ class CoverageSlowOption(CoverageOption):
     ]
 
 
-def _get_dist_cmd() -> list[str]:
-    return ["ls", "-l", "dist"] if (Path.cwd() / "dist").exists() else ["ls", "-l"]
-
-
 class DistributionOption(MakeOption):
     """生成分发包."""
 
@@ -294,8 +313,8 @@ class DistributionOption(MakeOption):
     commands: ClassVar = [
         "clean",
         "sync",
-        [_get_build_cmd(), "build"],
-        _get_dist_cmd(),
+        [MakeOption.build_command(), "build"],
+        MakeOption.dist_command(),
     ]
 
 
@@ -352,7 +371,7 @@ class PublishOption(MakeOption):
     desc = "执行构建以及推送等系列操作, 别名: pub / publish"
     commands: ClassVar = [
         "dist",
-        [_get_build_cmd(), "publish"],
+        [MakeOption.build_command(), "publish"],
         ["gitc", "-f"],
         git_push_all,
     ]
@@ -407,6 +426,7 @@ class PyprojectMaker:
 
     options: ClassVar[dict[str, MakeOption]] = {
         "act": ActivateOption(),
+        "build": BuildOption(),
         "bpub": BumpPublishOption(),
         "bump": BumpOption(),
         "bumpi": BumpMinorOption(),
