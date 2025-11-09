@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import QSlider
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
-from pycmd2.simulation.lscopt.lsc_calc import LSCCurve
+from .lsc_calc import LSCCurve
 
 
 @dataclass

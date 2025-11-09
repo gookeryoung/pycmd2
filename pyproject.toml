@@ -78,6 +78,9 @@ ld = "pycmd2.system.list_dirs:cli.app"
 taskk = "pycmd2.system.task_kill:cli.app"
 wch = "pycmd2.system.which:cli.app"
 
+# simulation commands
+lscopt = "pycmd2.simulation.lscopt.lsc_gui:main"
+
 # web commands
 mdb = "pycmd2.web.minidb.gui:main"
 mdb-api = "pycmd2.web.minidb.app:main"

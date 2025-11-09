@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 import logging
-import traceback
 from dataclasses import dataclass
 from functools import cached_property
 
@@ -267,30 +266,3 @@ class LSCCurve:
         ax.legend()
         ax.grid(visible=True, alpha=0.3)
         ax.axis("equal")
-
-
-def main() -> None:
-    """Main function."""
-    try:
-        # 计算曲线参数
-        lscc = LSCCurve()
-
-        # 绘制曲线
-        lscc.plot()
-        plt.tight_layout()
-        plt.show()
-
-        # 计算角度
-        lscc.calculate_angles()
-
-        # 输出参数
-        for _i in range(len(lscc.x)):
-            logger.info(f"参数{_i}: {lscc.x[_i]}")
-
-    except Exception:
-        logger.exception("程序异常")
-        traceback.print_exc()
-
-
-if __name__ == "__main__":
-    main()
