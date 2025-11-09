@@ -2,15 +2,30 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
 from typing import List
 
 import typer
 
 from pycmd2.client import get_client
-from pycmd2.dev.conf import conf
+from pycmd2.config import TomlConfigMixin
+
+
+class PipConfig(TomlConfigMixin):
+    """Pip配置."""
+
+    NAME = "pip"
+
+    TRUSTED_PIP_URL: ClassVar[List[str]] = [
+        "--trusted-host",
+        "mirrors.aliyun.com",
+        "-i",
+        "http://mirrors.aliyun.com/pypi/simple/",
+    ]
+
 
 cli = get_client()
-StrList = List[str]
+conf = PipConfig()
 
 
 def pip_download(libname: str) -> None:
