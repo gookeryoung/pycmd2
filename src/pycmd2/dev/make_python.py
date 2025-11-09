@@ -69,10 +69,7 @@ class MakeOption:
         try:
             with cfg_file.open("rb") as f:
                 config = tomllib.load(f)
-                project_name = (
-                    config["project"]["name"]
-                    or config["tool"]["poetry"]["name"]
-                )
+                project_name = config["project"]["name"] or config["tool"]["poetry"]["name"]
 
                 return project_name or ""
         except Exception as e:
@@ -113,7 +110,7 @@ class MakeOption:
 
                     # 构造新行(保留原始格式).
                     quote = match.group(3) or ""  # 获取原引号(可能为空)
-                    new_line = f"{match.group(1)}{match.group(2)} = {quote}{build_date}{quote}{match.group(5)}"  # noqa: E501
+                    new_line = f"{match.group(1)}{match.group(2)} = {quote}{build_date}{quote}{match.group(5)}"
                     new_content = pattern.sub(new_line, content, count=1)
 
                     # 检查是否需要更新
@@ -286,9 +283,7 @@ class CoverageSlowOption(CoverageOption):
 
 
 def _get_dist_cmd() -> list[str]:
-    return (
-        ["ls", "-l", "dist"] if (Path.cwd() / "dist").exists() else ["ls", "-l"]
-    )
+    return ["ls", "-l", "dist"] if (Path.cwd() / "dist").exists() else ["ls", "-l"]
 
 
 class DistributionOption(MakeOption):
@@ -436,8 +431,7 @@ class PyprojectMaker:
         option = self.options.get(option_name, None)
         if not option:
             logger.error(
-                f"未找到匹配选项: {option_name}, 选项列表: "
-                f"[red]{self.options_list()}",
+                f"未找到匹配选项: {option_name}, 选项列表: [red]{self.options_list()}",
             )
             return
 
