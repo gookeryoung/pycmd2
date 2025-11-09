@@ -1,3 +1,5 @@
+cargo-features = ["profile-rustflags"]
+
 [package]
 edition = "2024"
 name = "_pycmd2"
@@ -18,3 +20,4 @@ which = "8.0.0"
 lto = true
 opt-level = "z" # Optimize for size.
 strip = true
+rustflags = ["-C", "link-args=/LIBPATH:C:\\Environment\\Anaconda38\\libs\\"]
