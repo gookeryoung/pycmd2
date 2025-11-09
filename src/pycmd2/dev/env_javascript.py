@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 
 from typer import Argument
-from typing_extensions import Annotated
 
 from pycmd2.client import get_client
 
@@ -25,13 +24,10 @@ def install_nodejs(node_ver: str) -> None:
 
 @cli.app.command()
 def main(
-    node_ver: Annotated[
-        str,
-        Argument(help=f"nodejs 版本: {NODE_VERSIONS.keys()}"),
-    ] = "V18",
+    version: str = Argument(default="V18", help=f"nodejs 版本: {NODE_VERSIONS.keys()}"),
 ) -> None:
     if cli.is_windows:
         logger.error("当前系统为windows, 请下载压缩包直接安装")
         return
 
-    install_nodejs(node_ver)
+    install_nodejs(version)
