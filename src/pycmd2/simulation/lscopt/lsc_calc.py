@@ -102,7 +102,11 @@ class LSCCurve:
 
     @cached_property
     def C(self) -> np.ndarray:
-        """计算C矩阵."""
+        """计算C矩阵.
+
+        Returns:
+            np.ndarray: C 矩阵返回值.
+        """
         return np.array(
             [
                 [1, self.m, self.ms, self.mc, -1, -self.m, -self.ms, -self.mc, 0, 0, 0, 0, 0, 0, 0, 0],

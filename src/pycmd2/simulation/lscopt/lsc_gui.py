@@ -5,6 +5,7 @@ from functools import cached_property
 from typing import Dict
 
 import numpy as np
+from matplotlib.axes import Axes
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from PyQt5.QtCore import pyqtSignal
@@ -82,7 +83,7 @@ class ParamInput:
 class ParamInputGroup(QGroupBox):
     """参数输入组件."""
 
-    error_signal = pyqtSignal(str)
+    calc_error = pyqtSignal(str)
     calculate_finished = pyqtSignal(bool)
 
     def __init__(self, title: str, parent: QWidget | None = None) -> None:
@@ -128,7 +129,7 @@ class ParamInputGroup(QGroupBox):
                 J1=self.inputs["J1"].spinbox.value(),
             )
         except ValueError:
-            self.error_signal.emit("参数输入错误, 请输入有效的数字")
+            self.calc_error.emit("参数输入错误, 请输入有效的数字")
             return
 
         self.calculate_finished.emit(True)  # noqa: FBT003
@@ -141,6 +142,10 @@ class LSCOptimizer(QMainWindow):
         super().__init__()
         self.setWindowTitle("LSC 曲线优化器")
         self.setGeometry(100, 100, 1200, 800)
+
+        self.figure: Figure | None = None
+        self.canvas: FigureCanvas | None = None
+        self.ax: Axes | None = None
 
         # 创建中央部件
         central_widget = QWidget()
@@ -172,6 +177,7 @@ class LSCOptimizer(QMainWindow):
         # 参数输入组
         self.param_group = ParamInputGroup("基本参数")
         self.param_group.calculate_finished.connect(self.on_calc_finished)
+        self.param_group.calc_error.connect(self.on_calc_error)
 
         # 结果显示组
         result_group = QGroupBox("计算结果")
@@ -229,4 +235,12 @@ class LSCOptimizer(QMainWindow):
 
         # 绘制曲线
         self.param_group.lscc.plot(self.ax)
-        self.canvas.draw()
+
+        if self.canvas:
+            self.canvas.draw()
+        else:
+            self.result_label.setText("画布未初始化!")
+
+    def on_calc_error(self, msg: str) -> None:
+        """错误提示."""
+        self.result_label.setText(msg)
