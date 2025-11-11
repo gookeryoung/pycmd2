@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import sys
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Dict
@@ -8,21 +7,21 @@ from typing import Dict
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QDoubleSpinBox
-from PyQt5.QtWidgets import QFormLayout
-from PyQt5.QtWidgets import QGroupBox
-from PyQt5.QtWidgets import QHBoxLayout
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QSlider
-from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtWidgets import (
+    QDoubleSpinBox,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QPushButton,
+    QSlider,
+    QVBoxLayout,
+    QWidget,
+)
 
-from .lsc_calc import LSCCurve
+from pycmd2.simulation.lscopt.lsc_calc import LSCCurve
 
 
 @dataclass
@@ -232,14 +231,3 @@ class LSCOptimizer(QMainWindow):
         # 绘制曲线
         self.param_group.lscc.plot(self.ax)
         self.canvas.draw()
-
-
-def main() -> None:
-    app = QApplication(sys.argv)
-    window = LSCOptimizer()
-    window.show()
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()

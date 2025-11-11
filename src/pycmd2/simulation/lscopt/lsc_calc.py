@@ -11,8 +11,7 @@ from functools import cached_property
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.optimize import lsq_linear
-from scipy.optimize import OptimizeResult
+from scipy.optimize import OptimizeResult, lsq_linear
 
 logger = logging.getLogger(__name__)
 
@@ -103,16 +102,18 @@ class LSCCurve:
     @cached_property
     def C(self) -> np.ndarray:
         """计算C矩阵."""
-        return np.array([
-            [1, self.m, self.ms, self.mc, -1, -self.m, -self.ms, -self.mc, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, self.m, self.ms, self.mc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, self.m, self.ms, self.mc, 0, 0, 0, 0, 0, 0, 0, 0],
-            [self.m, self.ms / 2, self.mc / 3, self.ms4 / 4, -self.m, -self.ms / 2, -self.mc / 3, -self.ms4 / 4, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 1, self.m1, self.m1s, self.m1c, -1, -self.m1, -self.m1s, -self.m1c],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, self.m1, self.m1s, self.m1c, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, self.m1, self.m1s, self.m1c],
-            [0, 0, 0, 0, 0, 0, 0, 0, self.m1, self.m1s / 2, self.m1c / 3, self.m1s4 / 4, -self.m1, -self.m1s / 2, -self.m1c / 3, -self.m1s4 / 4],
-        ])
+        return np.array(
+            [
+                [1, self.m, self.ms, self.mc, -1, -self.m, -self.ms, -self.mc, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, self.m, self.ms, self.mc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, self.m, self.ms, self.mc, 0, 0, 0, 0, 0, 0, 0, 0],
+                [self.m, self.ms / 2, self.mc / 3, self.ms4 / 4, -self.m, -self.ms / 2, -self.mc / 3, -self.ms4 / 4, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 1, self.m1, self.m1s, self.m1c, -1, -self.m1, -self.m1s, -self.m1c],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, self.m1, self.m1s, self.m1c, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, self.m1, self.m1s, self.m1c],
+                [0, 0, 0, 0, 0, 0, 0, 0, self.m1, self.m1s / 2, self.m1c / 3, self.m1s4 / 4, -self.m1, -self.m1s / 2, -self.m1c / 3, -self.m1s4 / 4],
+            ]
+        )
 
     @cached_property
     def i(self) -> np.ndarray:
@@ -137,19 +138,21 @@ class LSCCurve:
         对于等式 Ax = b, 构造两个不等式约束:
         Ax <= b 和 -Ax <= -b
         """
-        return np.array([
-            [0, 1, 2 * self.m, 3 * self.ms, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # a2+2*a3*m+3*a4*m^2 <= 0
-            [0, 0, 0, 0, 0, -1, -2 * self.m, -3 * self.ms, 0, 0, 0, 0, 0, 0, 0, 0],  # -(a6+2*a7*m+3*a8*m^2) <= 0
-            [1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # a1-a5 <= 0
-            [0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # -a2 <= 0
-            [0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # -a6 <= 0
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2 * self.m1, 3 * self.m1s, 0, 0, 0, 0],  # a10+2*a11*m1+3*a12*m1^2 <= 0
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -2 * self.m1, -3 * self.m1s],  # -(a14+2*a15*m1+3*a16*m1^2) <= 0
-            [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0],  # a9-a13 <= 0
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0],  # -a10 <= 0
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0],  # -a14 <= 0
-            [1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # a1-a5 <= -H (即 a5-a1 >= H)
-        ])
+        return np.array(
+            [
+                [0, 1, 2 * self.m, 3 * self.ms, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # a2+2*a3*m+3*a4*m^2 <= 0
+                [0, 0, 0, 0, 0, -1, -2 * self.m, -3 * self.ms, 0, 0, 0, 0, 0, 0, 0, 0],  # -(a6+2*a7*m+3*a8*m^2) <= 0
+                [1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # a1-a5 <= 0
+                [0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # -a2 <= 0
+                [0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # -a6 <= 0
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2 * self.m1, 3 * self.m1s, 0, 0, 0, 0],  # a10+2*a11*m1+3*a12*m1^2 <= 0
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -2 * self.m1, -3 * self.m1s],  # -(a14+2*a15*m1+3*a16*m1^2) <= 0
+                [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0],  # a9-a13 <= 0
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0],  # -a10 <= 0
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0],  # -a14 <= 0
+                [1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # a1-a5 <= -H (即 a5-a1 >= H)
+            ]
+        )
 
     @cached_property
     def b_ineq(self) -> np.ndarray:
@@ -159,19 +162,38 @@ class LSCCurve:
     @cached_property
     def A_eq(self) -> np.ndarray:
         """计算等式约束矩阵."""
-        return np.array([
-            [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # a2 = 0
-            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # a6 = 0
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],  # a10 = 0
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],  # a14 = 0
-            [1, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0],  # a1-a9 = H1
-            [1, self.m2, self.m2s, self.m2c, 0, 0, 0, 0, -1, -self.m2, -self.m2s, -self.m2c, 0, 0, 0, 0],  # 条件
-            [0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],  # a13-a5 = H2
-            [0, 0, 0, 0, -1, -self.m2, -self.m2s, -self.m2c, 0, 0, 0, 0, 1, self.m2, self.m2s, self.m2c],  # 条件
-            [1, self.m, self.ms, self.mc, -1, -self.m, -self.ms, -self.mc, 0, 0, 0, 0, 0, 0, 0, 0],  # 连续性条件
-            [0, 0, 0, 0, 0, 0, 0, 0, 1, self.m1, self.m1s, self.m1c, -1, -self.m1, -self.m1s, -self.m1c],  # 连续性条件
-            [self.m, self.ms / 2, self.mc / 3, self.ms4 / 4, -self.m, -self.ms / 2, -self.mc / 3, -self.ms4 / 4, 0, 0, 0, 0, 0, 0, 0, 0],  # 坡度条件
-        ])
+        return np.array(
+            [
+                [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # a2 = 0
+                [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # a6 = 0
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],  # a10 = 0
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],  # a14 = 0
+                [1, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0],  # a1-a9 = H1
+                [1, self.m2, self.m2s, self.m2c, 0, 0, 0, 0, -1, -self.m2, -self.m2s, -self.m2c, 0, 0, 0, 0],  # 条件
+                [0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],  # a13-a5 = H2
+                [0, 0, 0, 0, -1, -self.m2, -self.m2s, -self.m2c, 0, 0, 0, 0, 1, self.m2, self.m2s, self.m2c],  # 条件
+                [1, self.m, self.ms, self.mc, -1, -self.m, -self.ms, -self.mc, 0, 0, 0, 0, 0, 0, 0, 0],  # 连续性条件
+                [0, 0, 0, 0, 0, 0, 0, 0, 1, self.m1, self.m1s, self.m1c, -1, -self.m1, -self.m1s, -self.m1c],  # 连续性条件
+                [
+                    self.m,
+                    self.ms / 2,
+                    self.mc / 3,
+                    self.ms4 / 4,
+                    -self.m,
+                    -self.ms / 2,
+                    -self.mc / 3,
+                    -self.ms4 / 4,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                ],  # 坡度条件
+            ]
+        )
 
     @cached_property
     def b_eq(self) -> np.ndarray:
