@@ -11,7 +11,8 @@ from functools import cached_property
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.optimize import OptimizeResult, lsq_linear
+from scipy.optimize import lsq_linear
+from scipy.optimize import OptimizeResult
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +113,7 @@ class LSCCurve:
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, self.m1, self.m1s, self.m1c, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, self.m1, self.m1s, self.m1c],
                 [0, 0, 0, 0, 0, 0, 0, 0, self.m1, self.m1s / 2, self.m1c / 3, self.m1s4 / 4, -self.m1, -self.m1s / 2, -self.m1c / 3, -self.m1s4 / 4],
-            ]
+            ],
         )
 
     @cached_property
@@ -151,7 +152,7 @@ class LSCCurve:
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0],  # -a10 <= 0
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0],  # -a14 <= 0
                 [1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # a1-a5 <= -H (即 a5-a1 >= H)
-            ]
+            ],
         )
 
     @cached_property
@@ -174,25 +175,8 @@ class LSCCurve:
                 [0, 0, 0, 0, -1, -self.m2, -self.m2s, -self.m2c, 0, 0, 0, 0, 1, self.m2, self.m2s, self.m2c],  # 条件
                 [1, self.m, self.ms, self.mc, -1, -self.m, -self.ms, -self.mc, 0, 0, 0, 0, 0, 0, 0, 0],  # 连续性条件
                 [0, 0, 0, 0, 0, 0, 0, 0, 1, self.m1, self.m1s, self.m1c, -1, -self.m1, -self.m1s, -self.m1c],  # 连续性条件
-                [
-                    self.m,
-                    self.ms / 2,
-                    self.mc / 3,
-                    self.ms4 / 4,
-                    -self.m,
-                    -self.ms / 2,
-                    -self.mc / 3,
-                    -self.ms4 / 4,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                ],  # 坡度条件
-            ]
+                [self.m, self.ms / 2, self.mc / 3, self.ms4 / 4, -self.m, -self.ms / 2, -self.mc / 3, -self.ms4 / 4, 0, 0, 0, 0, 0, 0, 0, 0],  # 坡度
+            ],
         )
 
     @cached_property
