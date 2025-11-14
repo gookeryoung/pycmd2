@@ -19,7 +19,6 @@ index-url = http://mirrors.aliyun.com/pypi/simple/
 [install]
 trusted-host = mirrors.aliyun.com
 """
-    UV_INDEX_URL = "http://mirrors.aliyun.com/pypi/simple/"
     UV_DEFALT_INDEX = "http://mirrors.aliyun.com/pypi/simple/"
     UV_HTTP_TIMEOUT = 60
     UV_LINK_MODE = "copy"
@@ -52,17 +51,11 @@ def add_env_to_bashrc(
         操作是否成功.
     """
     export_line = f'export {variable}="{value}"'
-    entry = (
-        f"\n# {comment}\n{export_line}\n" if comment else f"\n{export_line}\n"
-    )
+    entry = f"\n# {comment}\n{export_line}\n" if comment else f"\n{export_line}\n"
 
     try:
         # 读取现有内容
-        content = (
-            BASHRC_PATH.read_text(encoding="utf-8")
-            if BASHRC_PATH.exists()
-            else ""
-        )
+        content = BASHRC_PATH.read_text(encoding="utf-8") if BASHRC_PATH.exists() else ""
 
         # 匹配现有配置的正则模式
         pattern = re.compile(
@@ -122,9 +115,7 @@ def setup_uv_env(*, override: bool = True) -> None:
     """配置 uv 环境变量."""
     logger.info("配置 [purple bold]uv 环境变量")
 
-    uv_envs = {
-        k: v for k, v in conf.get_fileattrs().items() if k.startswith("UV_")
-    }
+    uv_envs = {k: v for k, v in conf.get_fileattrs().items() if k.startswith("UV_")}
 
     if cli.is_windows:
         for k, v in uv_envs.items():
