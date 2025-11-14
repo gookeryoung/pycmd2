@@ -49,8 +49,8 @@ class PDFMergeApp:
             with ui.card().classes("w-1/2 mx-auto p-12 bg-gradient-to-br from-green-200 to-blue-200 rounded-xl shadow-lg"):
                 # Options
                 with ui.row().classes("items-center gap-4 mb-4"):
-                    self.auto_rotate_checkbox = ui.checkbox("Auto-rotate pages to correct orientation").bind_value(self, "auto_rotate")
-                    self.uniform_width_checkbox = ui.checkbox("Uniform page width (A4)").bind_value(self, "uniform_width")
+                    self.auto_rotate_checkbox = ui.checkbox("自动旋转").bind_value(self, "auto_rotate")
+                    self.uniform_width_checkbox = ui.checkbox("归一化尺寸(A4)").bind_value(self, "uniform_width")
 
                 # File list
                 self.files_container = ui.column().classes("w-full gap-2")
@@ -105,7 +105,7 @@ class PDFMergeApp:
         files = [f for f in path.iterdir() if f.is_file() and f.suffix.lower() in _SUPPORTED_FILE_EXTENSIONS]
 
         if not files:
-            ui.notify("No supported files found in the selected directory")
+            ui.notify("所选目录下未找到支持格式的文件!")
             return
 
         # Sort files alphabetically
@@ -115,7 +115,7 @@ class PDFMergeApp:
         for file in files:
             self.add_file(file)
 
-        ui.notify(f"Loaded {len(files)} files")
+        ui.notify(f"载入 {len(files)} 个文件.")
 
     def add_file(self, filepath: Path) -> None:
         """Add a file to the list with preview."""
@@ -132,7 +132,7 @@ class PDFMergeApp:
 
                 # Preview button for PDFs
                 if filepath.suffix.lower() == ".pdf":
-                    ui.button("Preview", on_click=lambda f=filepath: self.preview_pdf(f)).classes("ml-2")
+                    ui.button("预览", on_click=lambda _: self.preview_pdf(filepath)).classes("ml-2")
 
                 # Delete button
                 ui.button(icon="delete", on_click=lambda: self.remove_file(filepath)).props("flat round color=red")
@@ -197,24 +197,25 @@ class PDFMergeApp:
             file_info["checkbox"].set_value(False)
 
     def preview_pdf(self, filepath: Path) -> None:
-        """Show a preview dialog for a PDF file."""
+        """预览PDF文件."""
+        ui.notification("正在预览文件...")
         with ui.dialog().classes("w-3/4 h-3/4") as dialog, ui.card().classes("w-full h-full"):
             with ui.scroll_area().classes("w-full h-full"), ui.column().classes("items-center"):
-                ui.label(f"Preview: {filepath.name}").classes("text-xl")
+                ui.label(f"预览文件: {filepath.name}").classes("text-xl")
                 try:
                     doc = fitz.open(filepath)
                     for page_num in range(len(doc)):
                         page = doc[page_num]
                         mat = fitz.Matrix(1.5, 1.5)  # Zoom factor
-                        pix = page.get_pixmap(matrix=mat)
+                        pix = page.get_pixmap(matrix=mat)  # type: ignore
 
                         # Convert to base64 for display
                         img_data = base64.b64encode(pix.tobytes()).decode()
                         ui.image(f"data:image/png;base64,{img_data}").classes("max-w-full h-auto my-2")
                         ui.label(f"Page {page_num + 1}").classes("text-sm text-gray-500")
                     doc.close()
-                except Exception as e:
-                    ui.label(f"Error loading PDF: {e!s}").classes("text-red-500")
+                except Exception as e:  # noqa: BLE001
+                    ui.label(f"载入PDF文件失败: {e!s}").classes("text-red-500")
             ui.button("Close", on_click=dialog.close).classes("self-center mt-4")
 
     def get_selected_files(self) -> List[Path]:
