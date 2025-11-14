@@ -64,6 +64,7 @@ pdfc = "pycmd2.office.pdf_crypt:cli.app"
 pdfmrg = "pycmd2.office.pdf_merge:cli.app"
 pdfspl = "pycmd2.office.pdf_split:cli.app"
 pdft = "pycmd2.office.pdftools.cli:main"
+pdftw = "pycmd2.office.pdftoolweb.cli:main"
 todo = "pycmd2.office.todo.cli:main"
 videoconv = "pycmd2.office.video_converter:main"
 
