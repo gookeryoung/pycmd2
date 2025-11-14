@@ -94,6 +94,7 @@ Repository = "https://gitee.com/gooker_young/pycmd2"
 all = ["pycmd2[demo,gui,office,simulation,web]"]
 demo = ["pyqtgraph~=0.12.4"]
 gui = [
+  "nicegui>=2.24.2",
   "pyqt5-sip~=12.9.0",
   "pyqt5-stubs~=5.14.0",
   "pyqt5~=5.14.0",
