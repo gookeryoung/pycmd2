@@ -1,8 +1,6 @@
-#!/usr/bin/env python
-"""PDF Tools Module using NiceGUI.
+"""PDF合并工具.
 
-A web-based tool for previewing images and PDF files,
-allowing drag-and-drop reordering of pages and merging them into a single PDF.
+允许拖拽和排序的PDF合并工具, 使用NiceGUI.
 """
 
 from __future__ import annotations
@@ -17,81 +15,94 @@ from nicegui import ui
 from pypdf import PdfReader
 from pypdf import PdfWriter
 
+__version__ = "0.1.0"
 
-class PDFToolsApp:
-    """Main application class for PDF tools using NiceGUI."""
+_SUPPORTED_FILE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf")
+
+
+class PDFMergeApp:
+    """PDF合并工具类.
+
+    Properties:
+        selected_directory: 已选择的目录路径
+        files: 已选择的文件列表
+        auto_rotate: 是否自动旋转页面
+        uniform_width: 是否保持页面宽度一致
+    """
 
     def __init__(self) -> None:
-        """Initialize the PDF tools application."""
         self.selected_directory: Path | None = None
-        self.files: List[dict] = []  # List of files with metadata
-        self.auto_rotate = True
-        self.uniform_width = True
+        self.files: List[dict] = []
+        self.auto_rotate: bool = True
+        self.uniform_width: bool = True
 
     def setup_ui(self) -> None:
-        """Setup the user interface."""
-        with ui.column().classes("w-full p-4"):
-            ui.label("PDF Tools - Preview and Merge").classes("text-2xl")
+        """初始化用户界面."""
+        with ui.row().classes("w-full mx-auto items-center gap-2"):
+            ui.label(f"PDF 合并工具 v{__version__}").classes("mx-auto text-red-600 text-4xl font-bold")
 
-            # Directory selection
-            with ui.row().classes("items-center gap-4"):
-                ui.button("Select Directory", on_click=self.select_directory).classes("mb-4")
-                self.directory_label = ui.label("No directory selected").classes("text-gray-500")
+        with ui.column().classes("w-full mx-auto items-center gap-4"):
+            with ui.row().classes("w-1/2 mx-auto p-12 bg-blue-200 rounded-xl items-center gap-4"):
+                ui.button("选择文件目录", on_click=self.select_directory)
+                self.directory_label = ui.label("未选择目录").classes("text-gray-500")
 
-            # Options
-            with ui.row().classes("items-center gap-4 mb-4"):
-                self.auto_rotate_checkbox = ui.checkbox("Auto-rotate pages to correct orientation").bind_value(self, "auto_rotate")
-                self.uniform_width_checkbox = ui.checkbox("Uniform page width (A4)").bind_value(self, "uniform_width")
+            with ui.card().classes("w-1/2 mx-auto p-12 bg-gradient-to-br from-green-200 to-blue-200 rounded-xl shadow-lg"):
+                # Options
+                with ui.row().classes("items-center gap-4 mb-4"):
+                    self.auto_rotate_checkbox = ui.checkbox("Auto-rotate pages to correct orientation").bind_value(self, "auto_rotate")
+                    self.uniform_width_checkbox = ui.checkbox("Uniform page width (A4)").bind_value(self, "uniform_width")
 
-            # File list
-            self.files_container = ui.column().classes("w-full gap-2")
+                # File list
+                self.files_container = ui.column().classes("w-full gap-2")
 
-            # Action buttons
-            with ui.row().classes("gap-2 mt-4"):
-                self.select_all_button = ui.button("Select All", on_click=self.select_all_files)
-                self.deselect_all_button = ui.button("Deselect All", on_click=self.deselect_all_files)
-                self.merge_button = ui.button("Merge to PDF", on_click=self.merge_to_pdf).bind_visibility_from(
-                    self,
-                    "files",
-                    backward=lambda f: len(f) > 0,
-                )
+                # Action buttons
+                with ui.row().classes("gap-2 mt-4"):
+                    self.select_all_button = ui.button("全选", on_click=self.select_all_files)
+                    self.deselect_all_button = ui.button("取消全选", on_click=self.deselect_all_files)
+                    self.merge_button = ui.button("合并为PDF", on_click=self.merge_to_pdf).bind_visibility_from(
+                        self,
+                        "files",
+                        backward=lambda f: len(f) > 0,
+                    )
+
+        with ui.column().classes("w-1/2 mx-auto gap-0"):
+            ui.label("提示:").classes("text-blue-600 text-bold")
+            ui.label(f"支持的文件格式: {_SUPPORTED_FILE_EXTENSIONS}").classes("text-gray-500")
 
     def select_directory(self) -> None:
-        """Open directory selection dialog."""
+        """打开文件目录选择对话框."""
         dialog = ui.dialog()
-        with dialog, ui.card():
-            ui.label("Enter directory path:")
-            input_field = ui.input(label="Directory path", placeholder="e.g. C:\\Users\\Documents").classes("w-full")
+
+        with dialog, ui.card().classes("w-1/4 gap-2"):
+            ui.label("选择文件目录:").classes("text-blue-600 text-bold")
+            input_field = ui.input(label="文件目录", placeholder="示例 C:\\Users\\Documents").classes("w-full")
 
             with ui.row():
-                ui.button("Cancel", on_click=dialog.close)
-                ui.button("Select", on_click=lambda: self.load_files_from_directory(input_field.value) or dialog.close())
+                ui.button("取消", on_click=dialog.close)
+                ui.button("选择", on_click=lambda: self.load_files_from_directory(input_field.value) or dialog.close())
 
         dialog.open()
 
     def load_files_from_directory(self, directory: str) -> None:
-        """Load supported files from the selected directory."""
+        """载入文件目录下的文件."""
         if not directory:
-            ui.notify("Please enter a directory path")
+            ui.notify("请输入文件目录!")
             return
 
         path = Path(directory)
         if not path.exists() or not path.is_dir():
-            ui.notify("Invalid directory path")
+            ui.notify(f"非法文件目录: {path}")
             return
 
         self.selected_directory = path
-        self.directory_label.set_text(f"Selected: {path}")
+        self.directory_label.set_text(f"已选目录: 【{path}】")
 
         # Clear previous files
         self.files.clear()
         self.files_container.clear()
 
-        # Supported file extensions
-        supported_extensions = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf")
-
         # Get all supported files from directory
-        files = [f for f in path.iterdir() if f.is_file() and f.suffix.lower() in supported_extensions]
+        files = [f for f in path.iterdir() if f.is_file() and f.suffix.lower() in _SUPPORTED_FILE_EXTENSIONS]
 
         if not files:
             ui.notify("No supported files found in the selected directory")
@@ -298,21 +309,3 @@ class PDFToolsApp:
         except Exception as e:
             msg = f"Error converting image {image_path}: {e!s}"
             raise Exception(msg)
-
-
-@ui.page("/")
-def main_page() -> None:
-    """Main page for the application."""
-    # Create the app
-    app_instance = PDFToolsApp()
-    app_instance.setup_ui()
-
-
-def main() -> None:
-    """Main entry point for the application."""
-    # Run the NiceGUI application
-    ui.run(title="PDF Tools", reload=False)
-
-
-if __name__ == "__main__":
-    main()
