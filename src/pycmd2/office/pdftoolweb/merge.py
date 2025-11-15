@@ -15,9 +15,18 @@ from nicegui import ui
 from pypdf import PdfReader
 from pypdf import PdfWriter
 
+from pycmd2.config import TomlConfigMixin
+
+
+class PDFMergerConfig(TomlConfigMixin):
+    """PDF合并工具配置."""
+
+    valid_extensions = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf")
+
+
 __version__ = "0.1.0"
 
-_VALID_EXTENSIONS = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf")
+conf = PDFMergerConfig()
 
 
 @dataclass
@@ -84,7 +93,7 @@ class PDFMergeApp:
 
         with ui.column().classes("w-1/2 mx-auto gap-0"):
             ui.label("提示:").classes("text-blue-600 text-bold")
-            ui.label(f"支持的文件格式: {_VALID_EXTENSIONS}").classes("text-gray-500")
+            ui.label(f"支持的文件格式: {conf.valid_extensions}").classes("text-gray-500")
 
     def select_directory(self) -> None:
         """打开文件目录选择对话框."""
@@ -119,7 +128,7 @@ class PDFMergeApp:
         self.files_container.clear()
 
         # Get all supported files from directory
-        self.files = {f.name: PDFFileInfo(f) for f in path.iterdir() if f.is_file() and f.suffix.lower() in _VALID_EXTENSIONS}
+        self.files = {f.name: PDFFileInfo(f) for f in path.iterdir() if f.is_file() and f.suffix.lower() in conf.valid_extensions}
         self.update_files_container()
 
     def update_files_container(self) -> None:
@@ -144,6 +153,8 @@ class PDFMergeApp:
 
                 # Preview image
                 preview_container = ui.row().classes("w-full justify-center mt-2")
+                with preview_container:
+                    ui.spinner().classes("w-12 h-12")
 
                 file_info.checkbox = checkbox
                 file_info.previewer = preview_container
@@ -155,6 +166,8 @@ class PDFMergeApp:
         """生成文件预览."""
         assert file_info
         assert file_info.previewer
+
+        file_info.previewer.clear()
 
         try:
             if file_info.path.suffix.lower() in {".png", ".jpg", ".jpeg", ".bmp", ".gif"}:
