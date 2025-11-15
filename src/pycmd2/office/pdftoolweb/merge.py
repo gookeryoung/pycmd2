@@ -72,6 +72,7 @@ class PDFMergeApp:
         with ui.column().classes("w-full mx-auto items-center gap-4"):
             with ui.row().classes("w-1/2 mx-auto p-6 bg-slate-200 rounded-xl items-center gap-2"):
                 ui.button("选择文件目录", on_click=self.select_directory)
+                ui.button(icon="refresh", on_click=self.refresh_directory)
                 self.directory_label = ui.label("未选择目录").classes("text-gray-500")
 
             with ui.card().classes("w-1/2 mx-auto p-12 bg-gradient-to-br from-green-200 to-blue-200 rounded-xl shadow-lg"):
@@ -111,10 +112,18 @@ class PDFMergeApp:
 
         dialog.open()
 
+    def refresh_directory(self) -> None:
+        """更新文件清单."""
+        if not self.root_dir:
+            ui.notify("请选择文件目录!")
+            return
+
+        self.load_files_from_directory(str(self.root_dir))
+
     def load_files_from_directory(self, directory: str) -> None:
         """载入文件目录下的文件."""
         if not directory:
-            ui.notify("请输入文件目录!")
+            ui.notify("请选择文件目录!")
             return
 
         path = Path(directory)
