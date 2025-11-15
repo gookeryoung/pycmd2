@@ -34,7 +34,6 @@ class PDFFileInfo:
     """PDF文件信息."""
 
     path: Path
-    checked: bool = True
     row: ui.row | None = None
     checkbox: ui.checkbox | None = None
     previewer: ui.row | None = None
@@ -131,11 +130,12 @@ class PDFMergeApp:
             ui.notify(f"非法文件目录: {path}")
             return
 
-        self.root_dir = path
-        self.directory_label.set_text(f"已选目录: 【{path}】")
-
         # Get all supported files from directory
         self.files = {f.name: PDFFileInfo(f) for f in path.iterdir() if f.is_file() and f.suffix.lower() in conf.valid_extensions}
+
+        # Update data
+        self.root_dir = path
+        self.directory_label.set_text(f"已选目录: 【{path}】, 文件数量: {len(self.files)} 个")
         self.setup_files_container()
 
     def setup_files_container(self) -> None:
@@ -150,7 +150,7 @@ class PDFMergeApp:
             for file_info in self.files.values():
                 row = ui.row().classes("items-center w-full")
                 with row:
-                    checkbox = ui.checkbox(file_info.path.name, value=file_info.checked).classes("flex-grow")
+                    checkbox = ui.checkbox(file_info.path.name, value=True).classes("flex-grow")
 
                     # Preview button for PDFs
                     if file_info.path.suffix.lower() == ".pdf":
