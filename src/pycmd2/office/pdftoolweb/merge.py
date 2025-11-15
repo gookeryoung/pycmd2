@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import base64
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
@@ -18,6 +19,23 @@ from pypdf import PdfWriter
 __version__ = "0.1.0"
 
 _SUPPORTED_FILE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf")
+
+
+@dataclass
+class PDFFileInfo:
+    """PDF文件信息."""
+
+    path: Path
+    selected: bool = True
+    preview: str | None = None
+
+    def __hash__(self) -> int:
+        """计算哈希值, 用于在集合中唯一标识.
+
+        Returns:
+            int: 哈希值
+        """
+        return hash(self.path)
 
 
 class PDFMergeApp:
