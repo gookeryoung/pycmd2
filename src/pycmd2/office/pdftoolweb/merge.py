@@ -34,6 +34,8 @@ class PDFFileInfo:
     """PDF文件信息."""
 
     path: Path
+    checked: bool = True
+    row: ui.row | None = None
     checkbox: ui.checkbox | None = None
     previewer: ui.row | None = None
 
@@ -93,7 +95,7 @@ class PDFMergeApp:
 
         with ui.column().classes("w-1/2 mx-auto gap-0"):
             ui.label("提示:").classes("text-blue-600 text-bold")
-            ui.label(f"支持的文件格式: {conf.valid_extensions}").classes("text-gray-500")
+            ui.label(f"支持的文件格式: {','.join([ext[1:] for ext in conf.valid_extensions])}").classes("text-gray-500")
 
     def select_directory(self) -> None:
         """打开文件目录选择对话框."""
@@ -123,15 +125,11 @@ class PDFMergeApp:
         self.root_dir = path
         self.directory_label.set_text(f"已选目录: 【{path}】")
 
-        # Clear previous files
-        self.files.clear()
-        self.files_container.clear()
-
         # Get all supported files from directory
         self.files = {f.name: PDFFileInfo(f) for f in path.iterdir() if f.is_file() and f.suffix.lower() in conf.valid_extensions}
-        self.update_files_container()
+        self.setup_files_container()
 
-    def update_files_container(self) -> None:
+    def setup_files_container(self) -> None:
         """更新文件列表."""
         self.files_container.clear()
 
@@ -141,21 +139,21 @@ class PDFMergeApp:
                 return
 
             for file_info in self.files.values():
-                with ui.row().classes("items-center w-full"):
-                    checkbox = ui.checkbox(file_info.path.name, value=True).classes("flex-grow")
+                row = ui.row().classes("items-center w-full")
+                with row:
+                    checkbox = ui.checkbox(file_info.path.name, value=file_info.checked).classes("flex-grow")
 
                     # Preview button for PDFs
                     if file_info.path.suffix.lower() == ".pdf":
                         ui.button("预览", on_click=lambda _, f=file_info: self.preview_pdf(f)).classes("ml-2")
-
                     # Delete button
                     ui.button(icon="delete", on_click=lambda _, f=file_info: self.remove_file(f)).props("flat round color=red")
 
-                # Preview image
-                preview_container = ui.row().classes("w-full justify-center mt-2")
-                with preview_container:
-                    ui.spinner().classes("w-12 h-12")
+                    preview_container = ui.row().classes("w-full justify-center mt-2")
+                    with preview_container:
+                        ui.spinner().classes("w-12 h-12")
 
+                file_info.row = row
                 file_info.checkbox = checkbox
                 file_info.previewer = preview_container
 
@@ -194,8 +192,16 @@ class PDFMergeApp:
 
     def remove_file(self, file_info: PDFFileInfo) -> None:
         """移除文件."""
+        if not file_info or not file_info.row:
+            ui.notify(f"移除失败: {file_info}")
+            return
+
+        file_info.row.clear()
+        file_info.row.set_visibility(False)
         self.files.pop(file_info.path.name)
-        self.update_files_container()
+
+        if not len(self.files):
+            self.files_container.clear()
 
     def select_all_files(self) -> None:
         """Select all files."""
