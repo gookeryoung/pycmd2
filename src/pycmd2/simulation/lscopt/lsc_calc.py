@@ -240,10 +240,10 @@ class LSCCurve:
         ax.clear()
 
         # 绘制曲线
-        ax.plot(self.i, y1, "b-", linewidth=2, label="内部上部")
-        ax.plot(self.i, y2, "r-", linewidth=2, label="内部下部")
-        ax.plot(self.j, g1, "g-", linewidth=2, label="外部上部")
-        ax.plot(self.j, g2, "m-", linewidth=2, label="外部下部")
+        ax.plot(self.i, y1, "b-", linewidth=2, label="Inner top")
+        ax.plot(self.i, y2, "r-", linewidth=2, label="Inner bottom")
+        ax.plot(self.j, g1, "g-", linewidth=2, label="Outer top")
+        ax.plot(self.j, g2, "m-", linewidth=2, label="Outer bottom")
 
         # 标注关键点
         ax.plot(
@@ -251,20 +251,19 @@ class LSCCurve:
             self.x[0] + self.x[1] * self.m + self.x[2] * self.ms + self.x[3] * self.mc,
             "bo",
             markersize=8,
-            label=f"内部点({self.m}, y1)",
+            label=f"Inner Point({self.m}, y1)",
         )
         ax.plot(
             self.m1,
             self.x[8] + self.x[9] * self.m1 + self.x[10] * self.m1s + self.x[11] * self.m1c,
             "gs",
             markersize=8,
-            label=f"外部点({self.m1}, g1)",
+            label=f"Outer Point({self.m1}, g1)",
         )
 
         # 设置图形属性
         ax.set_xlabel("X", fontfamily="sans-serif", fontsize=16)
         ax.set_ylabel("Y", fontfamily="sans-serif", fontsize=16)
-        ax.set_title("LSC 曲线优化结果", fontfamily="sans-serif", fontsize=18)
         ax.legend()
         ax.grid(visible=True, alpha=0.3)
         ax.axis("equal")
