@@ -1,10 +1,28 @@
 from __future__ import annotations
 
 import numpy as np
+from matplotlib import rcParams
 from matplotlib.axes import Axes
 from nicegui import ui
 
 from pycmd2.simulation.lscopt.lsc_calc import LSCCurve
+
+# 解决中文显示问题的额外配置
+rcParams["font.family"] = "sans-serif"
+rcParams["font.sans-serif"] = [
+    "Noto Sans CJK SC",  # Linux Noto字体
+    "WenQuanYi Micro Hei",  # Linux文泉驿字体
+    "Noto Sans CJK JP",
+    "Noto Sans CJK KR",
+    "Noto Sans CJK TC",
+    "SimHei",  # Windows常用字体
+    "Songti SC",
+    "Microsoft YaHei",
+    "DejaVu Sans",  # Linux常用字体
+    "Arial Unicode MS",  # 通用Unicode字体
+    "sans-serif",
+]
+rcParams["axes.unicode_minus"] = False
 
 
 class LSCOptimizerApp:

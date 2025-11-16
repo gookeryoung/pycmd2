@@ -224,14 +224,6 @@ class LSCCurve:
 
     def plot(self, ax: plt.Axes | None = None) -> None:
         """Plot LSC curves."""
-        plt.rcParams["font.sans-serif"] = [
-            "SimHei",
-            "DejaVu Sans",
-            "Arial Unicode MS",
-            "sans-serif",
-        ]
-        plt.rcParams["axes.unicode_minus"] = False
-
         # 计算内部段曲线 (-1.3 到 0)
         y1 = self.x[0] + self.x[1] * self.i + self.x[2] * self.i**2 + self.x[3] * self.i**3  # 内部上部
         y2 = self.x[4] + self.x[5] * self.i + self.x[6] * self.i**2 + self.x[7] * self.i**3  # 内部下部
@@ -270,9 +262,9 @@ class LSCCurve:
         )
 
         # 设置图形属性
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
-        ax.set_title("LSC 曲线优化结果")
+        ax.set_xlabel("X", fontfamily="sans-serif", fontsize=16)
+        ax.set_ylabel("Y", fontfamily="sans-serif", fontsize=16)
+        ax.set_title("LSC 曲线优化结果", fontfamily="sans-serif", fontsize=18)
         ax.legend()
         ax.grid(visible=True, alpha=0.3)
         ax.axis("equal")
