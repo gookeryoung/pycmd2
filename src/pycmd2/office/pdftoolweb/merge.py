@@ -9,8 +9,10 @@ import base64
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Dict
 
 import fitz  # pymupdf
+from nicegui import events
 from nicegui import ui
 from pypdf import PdfReader
 from pypdf import PdfWriter
@@ -64,20 +66,23 @@ class PDFMergeApp:
 
     def __init__(self) -> None:
         self.root_dir: Path | None = None
-        self.files: dict[str, PDFFileInfo] = {}
+        self.files: Dict[str, PDFFileInfo] = {}
         self.auto_rotate: bool = True
         self.uniform_width: bool = True
         self.preview_dialog: ui.dialog | None = None
+
+        # 用于存储上传的文件内容
+        self.uploaded_files: Dict[str, bytes] = {}
 
     def setup_ui(self) -> None:
         """初始化用户界面."""
         ui.label(f"PDF 合并工具 v{__version__}").classes("mx-auto text-red-600 text-4xl font-bold")
 
         with ui.column().classes("w-full mx-auto items-center gap-4"):
+            # Upload
             with ui.row().classes("w-1/2 mx-auto p-6 bg-slate-200 rounded-xl items-center gap-2"):
-                ui.button("选择文件目录", on_click=self.select_directory)
-                ui.button(icon="refresh", on_click=self.refresh_directory)
-                self.directory_label = ui.label("未选择目录").classes("text-gray-500")
+                ui.label("上传文件").classes("text-blue-600 text-bold")
+                ui.upload(on_upload=self.handle_upload, multiple=True, auto_upload=True).classes("w-full")
 
             with ui.card().classes("w-1/2 mx-auto p-12 bg-gradient-to-br from-green-200 to-blue-200 rounded-xl shadow-lg"):
                 # Options
@@ -102,46 +107,33 @@ class PDFMergeApp:
             ui.label("提示:").classes("text-blue-600 text-bold")
             ui.label(f"支持的文件格式: {','.join([ext[1:] for ext in conf.VALID_EXTENSIONS])}").classes("text-gray-500")
 
-    def select_directory(self) -> None:
-        """打开文件目录选择对话框."""
-        dialog = ui.dialog()
+    def handle_upload(self, e: events.UploadEventArguments) -> None:
+        """处理文件上传事件."""
+        filename = e.name
+        file_content = e.content.read()
 
-        with dialog, ui.card().classes("w-1/4 gap-2"):
-            ui.label("选择文件目录:").classes("text-blue-600 text-bold")
-            input_field = ui.input(label="文件目录", placeholder="示例 C:\\Users\\Documents").classes("w-full")
-
-            with ui.row():
-                ui.button("取消", on_click=dialog.close)
-                ui.button("选择", on_click=lambda: self.load_files_from_directory(input_field.value) or dialog.close())
-
-        dialog.open()
-
-    def refresh_directory(self) -> None:
-        """更新文件清单."""
-        if not self.root_dir:
-            ui.notify("请选择文件目录!")
+        # 检查文件扩展名
+        file_ext = Path(filename).suffix.lower()
+        if file_ext not in conf.VALID_EXTENSIONS:
+            ui.notify(f"不支持的文件类型: {filename}", type="negative")
             return
 
-        self.load_files_from_directory(str(self.root_dir))
+        # 保存上传的文件内容
+        self.uploaded_files[filename] = file_content
 
-    def load_files_from_directory(self, directory: str) -> None:
-        """载入文件目录下的文件."""
-        if not directory:
-            ui.notify("请选择文件目录!")
-            return
+        # 创建临时文件路径
+        temp_path = Path(tempfile.gettempdir()) / filename
 
-        path = Path(directory)
-        if not path.exists() or not path.is_dir():
-            ui.notify(f"非法文件目录: {path}")
-            return
+        # 创建PDFFileInfo对象
+        file_info = PDFFileInfo(temp_path)
 
-        # Get all supported files from directory
-        self.files = {f.name: PDFFileInfo(f) for f in path.iterdir() if f.is_file() and f.suffix.lower() in conf.VALID_EXTENSIONS}
+        # 添加到文件列表
+        self.files[filename] = file_info
 
-        # Update data
-        self.root_dir = path
-        self.directory_label.set_text(f"已选目录: 【{path}】, 文件数量: {len(self.files)} 个")
+        # 更新显示
         self.update_files_container()
+
+        ui.notify(f"文件上传成功: {filename}", type="positive")
 
     def update_files_container(self, *, reorder: bool = False) -> None:
         """更新文件列表."""
@@ -183,13 +175,14 @@ class PDFMergeApp:
         """创建文件操作行."""
         row = ui.row().classes("items-center w-full")
         with row:
-            checkbox = ui.checkbox(file_info.path.name, value=True).classes("flex-grow")
+            filename = next((name for name, info in self.files.items() if info.path == file_info.path), file_info.path.name)
+            checkbox = ui.checkbox(filename, value=True).classes("flex-grow")
 
             # Preview button for PDFs
-            if file_info.path.suffix.lower() == ".pdf":
-                ui.button("预览", on_click=lambda _, f=file_info: self.preview_pdf(f)).classes("ml-2")
+            if file_info.path.suffix.lower() == ".pdf" or (filename in self.uploaded_files and Path(filename).suffix.lower() == ".pdf"):
+                ui.button("预览", on_click=lambda _, f=file_info, fn=filename: self.preview_pdf(f, fn)).classes("ml-2")
             # Delete button
-            ui.button(icon="delete", on_click=lambda _, f=file_info: self.remove_file(f)).props("flat round color=red")
+            ui.button(icon="delete", on_click=lambda _, f=file_info, fn=filename: self.remove_file(f, fn)).props("flat round color=red")
             # Sort button
             with ui.button_group().props("outline"):
                 ui.button(icon="keyboard_arrow_up", on_click=lambda _, f=file_info: self.move_item(f, -1)).props("outline")
@@ -214,30 +207,50 @@ class PDFMergeApp:
 
         file_info.previewer.clear()
 
+        # 查找文件名
+        filename = next((name for name, info in self.files.items() if info.path == file_info.path), file_info.path.name)
+
         try:
-            if file_info.path.suffix.lower() in {".png", ".jpg", ".jpeg", ".bmp", ".gif"}:
+            file_suffix = Path(filename).suffix.lower() if filename in self.uploaded_files else file_info.path.suffix.lower()
+
+            if file_suffix in {".png", ".jpg", ".jpeg", ".bmp", ".gif"}:
                 # For images, show thumbnail
                 with file_info.previewer:
-                    ui.image(file_info.path).classes("w-32 h-32 object-contain")
-            elif file_info.path.suffix.lower() == ".pdf":
-                image_data = self.pdf_to_image_data(file_info.path, page_count=conf.PREVIEW_PAGES)
+                    if filename in self.uploaded_files:
+                        # 显示上传的图片
+                        ui.image(f"data:image/{file_suffix[1:]};base64,{base64.b64encode(self.uploaded_files[filename]).decode()}").classes(
+                            "w-32 h-32 object-contain",
+                        )
+                    else:
+                        # 显示本地图片
+                        ui.image(file_info.path).classes("w-32 h-32 object-contain")
+            elif file_suffix == ".pdf":
+                image_data = self.pdf_to_image_data(file_info.path, filename, page_count=conf.PREVIEW_PAGES)
                 with file_info.previewer:
                     for img in image_data:
                         ui.image(f"data:image/png;base64,{img.decode()}").classes("w-32 h-32 object-contain")
         except Exception as e:  # noqa: BLE001
-            msg = f"生成文件预览失败: {file_info.path}, 错误信息: {e}"
+            msg = f"生成文件预览失败: {filename}, 错误信息: {e}"
             with file_info.previewer:
                 ui.label(msg).classes("text-gray-500")
 
-    def remove_file(self, file_info: PDFFileInfo) -> None:
+    def remove_file(self, file_info: PDFFileInfo, filename: str = "") -> None:
         """移除文件."""
         if not file_info or not file_info.row:
             ui.notify(f"移除失败: {file_info}")
             return
 
+        # 确定文件名
+        if not filename:
+            filename = next((name for name, info in self.files.items() if info.path == file_info.path), file_info.path.name)
+
         file_info.row.clear()
         file_info.row.set_visibility(False)
-        self.files.pop(file_info.path.name)
+        self.files.pop(filename, None)
+
+        # 如果是上传的文件, 也从uploaded_files中移除
+        if filename in self.uploaded_files:
+            self.uploaded_files.pop(filename)
 
         if not len(self.files):
             self.files_container.clear()
@@ -289,15 +302,18 @@ class PDFMergeApp:
 
             file_info.checkbox.set_value(False)
 
-    def preview_pdf(self, file_info: PDFFileInfo) -> None:
+    def preview_pdf(self, file_info: PDFFileInfo, filename: str = "") -> None:
         """预览PDF文件."""
-        ui.notification(f"正在预览文件: {file_info.path.name}")
+        if not filename:
+            filename = next((name for name, info in self.files.items() if info.path == file_info.path), file_info.path.name)
+
+        ui.notification(f"正在预览文件: {filename}")
 
         self.preview_dialog = ui.dialog()
         self.preview_dialog.open()
         with self.preview_dialog, ui.card().classes("w-full h-full items-center"):
-            ui.label(f"预览文件: {file_info.path.name}").classes("text-xl text-bold")
-            self.images = self.pdf_to_image_data(file_info.path, page_count=conf.MAX_PAGES)
+            ui.label(f"预览文件: {filename}").classes("text-xl text-bold")
+            self.images = self.pdf_to_image_data(file_info.path, filename, page_count=conf.MAX_PAGES)
             for page_num, img in enumerate(self.images):
                 with ui.column().classes("flex flex-col items-center gap-2"), ui.column().classes("w-full h-full"):
                     ui.image(f"data:image/png;base64,{img.decode()}").classes("w-full h-full object-contain")
@@ -339,7 +355,38 @@ class PDFMergeApp:
             writer = PdfWriter()
 
             for file_info in files:
-                if file_info.path.suffix.lower() == ".pdf":
+                # 查找文件名
+                filename = next((name for name, info in self.files.items() if info.path == file_info.path), file_info.path.name)
+
+                if filename in self.uploaded_files:
+                    # 处理上传的文件
+                    file_content = self.uploaded_files[filename]
+                    file_suffix = Path(filename).suffix.lower()
+
+                    if file_suffix == ".pdf":
+                        # 对于PDF文件, 直接处理
+                        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_file:
+                            tmp_file.write(file_content)
+                            tmp_file_path = tmp_file.name
+
+                        reader = PdfReader(tmp_file_path)
+                        for page in reader.pages:
+                            writer.add_page(page)
+
+                        # 清理临时文件
+                        Path(tmp_file_path).unlink()
+                    else:
+                        # 对于图像文件, 先创建临时文件再转换
+                        with tempfile.NamedTemporaryFile(suffix=file_suffix, delete=False) as tmp_file:
+                            tmp_file.write(file_content)
+                            tmp_file_path = tmp_file.name
+
+                        self.image_to_pdf(Path(tmp_file_path), writer)
+
+                        # 清理临时文件
+                        Path(tmp_file_path).unlink()
+                # 处理本地文件
+                elif file_info.path.suffix.lower() == ".pdf":
                     # For PDF files, append all pages
                     reader = PdfReader(file_info.path)
                     for page in reader.pages:
@@ -395,32 +442,63 @@ class PDFMergeApp:
             msg = f"转换图片失败: {image_path}, 错误信息: {e!s}"
             ui.notify(msg, type="negative")
 
-    def pdf_to_image_data(self, filepath: Path, page_count: int = 1) -> list[bytes]:
+    def pdf_to_image_data(self, filepath: Path, filename: str = "", page_count: int = 1) -> list[bytes]:  # noqa: C901, PLR0912
         """转换PDF文件为图片数据.
 
         Returns:
             list[bytes]: 图片数据列表
         """
-        if not filepath.exists() or filepath.suffix.lower() != ".pdf":
-            ui.notify("请选择一个有效的PDF文件")
-            return []
+        # 检查是否是上传的文件
+        if filename in self.uploaded_files:
+            try:
+                image_data: list[bytes] = []
+                # 创建临时文件来处理上传的PDF
+                with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_file:
+                    tmp_file.write(self.uploaded_files[filename])
+                    tmp_file_path = tmp_file.name
 
-        image_data: list[bytes] = []
-        try:
-            doc = fitz.open(filepath)  # type: ignore
-            if len(doc) > 0:
-                for i, page in enumerate(doc.pages()):
-                    if i >= page_count:
-                        break
+                doc = fitz.open(tmp_file_path)  # type: ignore
+                if len(doc) > 0:
+                    for i, page in enumerate(doc.pages()):
+                        if i >= page_count:
+                            break
 
-                    mat = fitz.Matrix(2.0, 2.0)  # Zoom factor # type: ignore
-                    pix = page.get_pixmap(matrix=mat)  # type: ignore
+                        mat = fitz.Matrix(2.0, 2.0)  # Zoom factor # type: ignore
+                        pix = page.get_pixmap(matrix=mat)  # type: ignore
 
-                    # Convert to base64 for display
-                    image_data.append(base64.b64encode(pix.tobytes()))
-            doc.close()
-        except Exception as e:  # noqa: BLE001
-            ui.notify(f"载入PDF文件失败: {e!s}", type="negative")
-            return []
+                        # Convert to base64 for display
+                        image_data.append(base64.b64encode(pix.tobytes()))
+                doc.close()
+
+                # 清理临时文件
+                Path(tmp_file_path).unlink()
+            except Exception as e:  # noqa: BLE001
+                ui.notify(f"载入上传的PDF文件失败: {e!s}", type="negative")
+                return []
+            else:
+                return image_data
         else:
-            return image_data
+            # 处理本地文件
+            if not filepath.exists() or filepath.suffix.lower() != ".pdf":
+                ui.notify("请选择一个有效的PDF文件")
+                return []
+
+            image_data: list[bytes] = []
+            try:
+                doc = fitz.open(filepath)  # type: ignore
+                if len(doc) > 0:
+                    for i, page in enumerate(doc.pages()):
+                        if i >= page_count:
+                            break
+
+                        mat = fitz.Matrix(2.0, 2.0)  # Zoom factor # type: ignore
+                        pix = page.get_pixmap(matrix=mat)  # type: ignore
+
+                        # Convert to base64 for display
+                        image_data.append(base64.b64encode(pix.tobytes()))
+                doc.close()
+            except Exception as e:  # noqa: BLE001
+                ui.notify(f"载入PDF文件失败: {e!s}", type="negative")
+                return []
+            else:
+                return image_data
