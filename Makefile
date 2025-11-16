@@ -25,6 +25,7 @@ ifeq ($(OS),Windows_NT)
     endif
 
 	TARGET := $(ARCH)-win7-windows-msvc
+	OPTIONS := -Z build-std=std
 else
     UNAME_P := $(shell uname -p)
     ifeq ($(UNAME_P),x86_64)
@@ -38,6 +39,7 @@ else
     endif
 
 	TARGET := $(ARCH)-unknown-linux-gnu
+	OPTIONS :=
 endif
 
 # Ensure boolean arguments are normalized to 1/0 to prevent surprises.
@@ -49,23 +51,6 @@ $(error LTS_CPU must be 0 or 1 (or undefined, default to 0))
 	endif
 endif
 
-# Define RUSTFLAGS and CFLAGS appropriate for the architecture.
-# Keep synchronized with .github/workflows/release-python.yml.
-# ifeq ($(ARCH),amd64)
-# 	ifeq ($(LTS_CPU),1)
-# 		FEAT_RUSTFLAGS=-C target-feature=+sse3,+ssse3,+sse4.1,+sse4.2,+popcnt,+cmpxchg16b
-# 		FEAT_CFLAGS=-msse3 -mssse3 -msse4.1 -msse4.2 -mpopcnt -mcx16
-# 	else
-# 		FEAT_RUSTFLAGS=-C target-feature=+sse3,+ssse3,+sse4.1,+sse4.2,+popcnt,+cmpxchg16b,+avx,+avx2,+fma,+bmi1,+bmi2,+lzcnt,+pclmulqdq,+movbe -Z tune-cpu=skylake
-# 		FEAT_CFLAGS=-msse3 -mssse3 -msse4.1 -msse4.2 -mpopcnt -mcx16 -mavx -mavx2 -mfma -mbmi -mbmi2 -mlzcnt -mpclmul -mmovbe -mtune=skylake
-# 	endif
-# endif
-
-# override RUSTFLAGS+=$(FEAT_RUSTFLAGS)
-# override CFLAGS+=$(FEAT_CFLAGS)
-# export RUSTFLAGS
-# export CFLAGS
-
 # Define command to filter pip warnings when running maturin
 FILTER_PIP_WARNINGS=| grep -v "don't match your environment"; test $${PIPESTATUS[0]} -eq 0
 
@@ -73,66 +58,13 @@ FILTER_PIP_WARNINGS=| grep -v "don't match your environment"; test $${PIPESTATUS
 	python3 -m venv $(VENV)
 	$(MAKE) requirements
 
-# Note: Installed separately as pyiceberg does not have wheels for 3.13, causing
-# --no-build to fail.
-.PHONY: requirements
-requirements: .venv  ## Install/refresh Python project requirements
-	@unset CONDA_PREFIX \
-	&& $(VENV_BIN)/python -m pip install --upgrade uv \
-	&& $(VENV_BIN)/uv pip install --upgrade --compile-bytecode --no-build \
-	   -r py-polars/requirements-dev.txt \
-	   -r py-polars/requirements-lint.txt \
-	   -r py-polars/docs/requirements-docs.txt \
-	   -r docs/source/requirements.txt \
-	&& $(VENV_BIN)/uv pip install --upgrade --compile-bytecode "pyiceberg>=0.7.1" pyiceberg-core
-
-.PHONY: requirements-all
-requirements-all: .venv  ## Install/refresh all Python requirements (including those needed for CI tests)
-	$(MAKE) requirements
-	$(VENV_BIN)/uv pip install --upgrade --compile-bytecode -r py-polars/requirements-ci.txt
-
 .PHONY: build
 build: .venv  ## Compile and install for development
-	maturin b -r -Z build-std --target $(TARGET)
-
-.PHONY: dev
-dev: .venv  ## Activate maturin develop environment
-	@unset CONDA_PREFIX \
-	&& $(VENV_BIN)/maturin dev
+	maturin b -r $(OPTIONS) --target $(TARGET)
 
 .PHONY: publish
 publish: .venv  ## Publish to PyPI
-	maturin publish -Z build-std --target $(TARGET)
-
-.PHONY: build-mindebug
-build-mindebug: .venv  ## Same as build, but don't include full debug information
-	@unset CONDA_PREFIX \
-	&& $(VENV_BIN)/maturin develop -m py-polars/Cargo.toml --profile mindebug-dev $(ARGS) \
-	$(FILTER_PIP_WARNINGS)
-
-.PHONY: build-release
-build-release: .venv  ## Compile and install Python Polars binary with optimizations, with minimal debug symbols
-	@unset CONDA_PREFIX \
-	&& $(VENV_BIN)/maturin b -r -Z build-std --target x86_64-win7-windows-msvc $(ARGS) \
-	$(FILTER_PIP_WARNINGS)
-
-.PHONY: build-nodebug-release
-build-nodebug-release: .venv  ## Same as build-release, but without any debug symbols at all (a bit faster to build)
-	@unset CONDA_PREFIX \
-	&& $(VENV_BIN)/maturin develop -m py-polars/Cargo.toml --profile nodebug-release $(ARGS) \
-	$(FILTER_PIP_WARNINGS)
-
-.PHONY: build-debug-release
-build-debug-release: .venv  ## Same as build-release, but with full debug symbols turned on (a bit slower to build)
-	@unset CONDA_PREFIX \
-	&& $(VENV_BIN)/maturin develop -m py-polars/Cargo.toml --profile debug-release $(ARGS) \
-	$(FILTER_PIP_WARNINGS)
-
-.PHONY: build-dist-release
-build-dist-release: .venv  ## Compile and install Python Polars binary with super slow extra optimization turned on, for distribution
-	@unset CONDA_PREFIX \
-	&& $(VENV_BIN)/maturin develop -m py-polars/Cargo.toml --profile dist-release $(ARGS) \
-	$(FILTER_PIP_WARNINGS)
+	maturin publish $(OPTIONS) --target $(TARGET)
 
 .PHONY: check
 check:  ## Run cargo check with all features
@@ -153,28 +85,6 @@ fmt:  ## Run autoformatting and linting
 	cargo fmt --all
 	dprint fmt
 	$(VENV_BIN)/typos
-
-.PHONY: fix
-fix:
-	cargo clippy --workspace --all-targets --all-features --fix
-	@# Good chance the fixing introduced formatting issues, best to just do a quick format.
-	cargo fmt --all
-
-.PHONY: update-dsl-schema-hashes
-update-dsl-schema-hashes:  ## Update the DSL schema hashes file
-	cargo build --all-features
-	./target/debug/dsl-schema update-hashes
-
-.PHONY: pre-commit
-pre-commit: fmt clippy clippy-default  ## Run all code quality checks
-
-.PHONY: clean
-clean:  ## Clean up caches, build artifacts, and the venv
-	@$(MAKE) -s -C py-polars/ $@
-	@rm -rf .ruff_cache/
-	@rm -rf .hypothesis/
-	@rm -rf .venv/
-	@cargo clean
 
 .PHONY: help
 help:  ## Display this help screen
