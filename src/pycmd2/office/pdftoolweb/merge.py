@@ -144,10 +144,7 @@ class PDFMergeApp:
     def update_files_container(self, *, reorder: bool = False) -> None:
         """更新文件列表."""
         if reorder:
-            rows = [file_info.row for file_info in self.files.values() if file_info.row]
-            with self.files_container, self.card:
-                for row in rows:
-                    row.move(self.files_container)
+            self.reorder_files_container()
             return
 
         self.files_container.clear()
@@ -160,6 +157,25 @@ class PDFMergeApp:
 
                 for pos, file_info in enumerate(self.files.values()):
                     self.generate_container_row(file_info, pos)
+
+    def reorder_files_container(self) -> None:
+        """重新排列文件容器中的元素, 但不重新生成预览."""
+        # 收集所有现有的行元素
+        rows = [file_info.row for file_info in self.files.values() if file_info.row]
+
+        # 重新添加行元素到容器中, 保持原有预览
+        with self.files_container:
+            # 确保card容器存在
+            if not hasattr(self, "card"):
+                self.card = ui.card().classes("w-full")
+
+            # 将card容器移到files_container中
+            self.card.move(self.files_container)
+
+            # 将所有行元素移到card容器中
+            with self.card:
+                for row in rows:
+                    row.move(self.card)
 
     def generate_container_row(self, file_info: PDFFileInfo, pos: int) -> None:
         """创建文件操作行."""
@@ -303,7 +319,9 @@ class PDFMergeApp:
 
     def merge_to_pdf(self) -> None:
         """Merge selected files to a single PDF."""
-        selected_files = {f.path for f in self.files.values() if f.checkbox and f.checkbox.value}
+        selected_files: set[PDFFileInfo] = {f for f in self.files.values() if f.checkbox and f.checkbox.value}
+        # Sort by order
+        sorted_files: list[PDFFileInfo] = sorted(selected_files, key=lambda f: f.order)
 
         if not selected_files:
             ui.notify("Please select at least one file to merge")
@@ -317,11 +335,11 @@ class PDFMergeApp:
 
             with ui.row():
                 ui.button("Cancel", on_click=dialog.close)
-                ui.button("Merge", on_click=lambda: self.perform_merge(selected_files, input_field.value) or dialog.close())
+                ui.button("Merge", on_click=lambda: self.perform_merge(sorted_files, input_field.value) or dialog.close())
 
         dialog.open()
 
-    def perform_merge(self, files: set[Path], output_name: str) -> None:
+    def perform_merge(self, files: list[PDFFileInfo], output_name: str) -> None:
         """Perform the actual PDF merging."""
         if not output_name:
             ui.notify("Please enter a file name")
@@ -333,15 +351,15 @@ class PDFMergeApp:
         try:
             writer = PdfWriter()
 
-            for filepath in files:
-                if filepath.suffix.lower() == ".pdf":
+            for file_info in files:
+                if file_info.path.suffix.lower() == ".pdf":
                     # For PDF files, append all pages
-                    reader = PdfReader(filepath)
+                    reader = PdfReader(file_info.path)
                     for page in reader.pages:
                         writer.add_page(page)
                 else:
                     # For image files, convert to PDF page
-                    self.image_to_pdf(filepath, writer)
+                    self.image_to_pdf(file_info.path, writer)
 
             # Save the merged PDF
             output_path = self.root_dir / output_name if self.root_dir else Path(output_name)
