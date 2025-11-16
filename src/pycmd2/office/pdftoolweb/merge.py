@@ -276,7 +276,7 @@ class PDFMergeApp:
         self.update_files_container(reorder=True)
 
     def select_all_files(self) -> None:
-        """Select all files."""
+        """选择所有文件."""
         for file_info in self.files.values():
             if not file_info.checkbox:
                 continue
@@ -284,7 +284,7 @@ class PDFMergeApp:
             file_info.checkbox.set_value(True)
 
     def deselect_all_files(self) -> None:
-        """Deselect all files."""
+        """取消选择所有文件."""
         for file_info in self.files.values():
             if not file_info.checkbox:
                 continue
@@ -304,34 +304,34 @@ class PDFMergeApp:
                 with ui.column().classes("flex flex-col items-center gap-2"), ui.column().classes("w-full h-full"):
                     ui.image(f"data:image/png;base64,{img.decode()}").classes("w-full h-full object-contain")
                     ui.label(f"Page {page_num + 1}").classes("text-sm text-gray-500")
-            ui.button("Close", on_click=self.preview_dialog.close).classes("self-center mt-4")
+            ui.button("关闭", on_click=self.preview_dialog.close).classes("self-center mt-4")
 
     def merge_to_pdf(self) -> None:
-        """Merge selected files to a single PDF."""
+        """合并PDF文件."""
         selected_files: set[PDFFileInfo] = {f for f in self.files.values() if f.checkbox and f.checkbox.value}
         # Sort by order
         sorted_files: list[PDFFileInfo] = sorted(selected_files, key=lambda f: f.order)
 
         if not selected_files:
-            ui.notify("Please select at least one file to merge")
+            ui.notify("请选择至少一个待合并文件.")
             return
 
         # Ask for output file name
         dialog = ui.dialog()
         with dialog, ui.card():
-            ui.label("Enter output file name:")
+            ui.label("输入合并文件名:")
             input_field = ui.input(label="File name", placeholder="e.g. merged_document.pdf").classes("w-full")
 
             with ui.row():
-                ui.button("Cancel", on_click=dialog.close)
-                ui.button("Merge", on_click=lambda: self.perform_merge(sorted_files, input_field.value) or dialog.close())
+                ui.button("取消", on_click=dialog.close)
+                ui.button("合并", on_click=lambda: self.perform_merge(sorted_files, input_field.value) or dialog.close())
 
         dialog.open()
 
     def perform_merge(self, files: list[PDFFileInfo], output_name: str) -> None:
-        """Perform the actual PDF merging."""
+        """执行合并操作."""
         if not output_name:
-            ui.notify("Please enter a file name")
+            ui.notify("请输入合并文件名.")
             return
 
         if not output_name.endswith(".pdf"):
@@ -355,13 +355,13 @@ class PDFMergeApp:
             with Path(output_path).open("wb") as out_file:
                 writer.write(out_file)
 
-            ui.notify(f"PDF successfully created: {output_path}", type="positive")
+            ui.notify(f"成功创建PDF文件: {output_path}", type="positive")
 
         except Exception as e:  # noqa: BLE001
             ui.notify(f"创建PDF失败: {output_name}, 错误信息: {e!s}", type="negative")
 
     def image_to_pdf(self, image_path: Path, writer: PdfWriter) -> None:
-        """Convert an image to PDF and add to the writer."""
+        """转换图片为PDF文件."""
         try:
             # Create a temporary PDF with the image
             with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_pdf:
