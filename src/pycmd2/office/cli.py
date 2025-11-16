@@ -19,6 +19,7 @@ class Links(Enum):
     """Links for the application."""
 
     PDF_MERGE_APP = "/pdf-merge"
+    LSC_OPTIMIZER = "/lsc-optimizer"
 
 
 @ui.page("/")
