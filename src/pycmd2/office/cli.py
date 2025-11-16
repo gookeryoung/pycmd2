@@ -13,6 +13,7 @@ from nicegui import ui
 
 from pycmd2.office.pdftoolweb.merge import PDFMergeApp
 from pycmd2.office.system.machine import MachineMonitor
+from pycmd2.simulation.lscopt.lsc_gui import LSCOptimizerApp
 
 
 class Links(Enum):
@@ -33,9 +34,8 @@ def main_page() -> None:
                 ui.link("PDF合并", Links.PDF_MERGE_APP.value)
 
             with ui.column().classes("mx-auto"):
-                ui.label("图片处理工具").classes("text-h6")
-                ui.link("图片转PDF", "/image-to-pdf")
-                ui.link("图片灰度化", "/image-gray")
+                ui.label("计算工具").classes("text-h6")
+                ui.link("LSC曲线优化", Links.LSC_OPTIMIZER.value)
 
     machine_monitor = MachineMonitor()
     machine_monitor.setup_ui()
@@ -45,6 +45,13 @@ def main_page() -> None:
 def pdftools_page() -> None:
     """Main page for the application."""
     app = PDFMergeApp()
+    app.setup_ui()
+
+
+@ui.page(Links.LSC_OPTIMIZER.value)
+def lsc_optimizer_page() -> None:
+    """Main page for the application."""
+    app = LSCOptimizerApp()
     app.setup_ui()
 
 

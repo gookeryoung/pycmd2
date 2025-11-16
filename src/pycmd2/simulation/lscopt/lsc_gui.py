@@ -1,246 +1,109 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from functools import cached_property
-from typing import Dict
-
 import numpy as np
-from matplotlib.axes import Axes
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDoubleSpinBox
-from PyQt5.QtWidgets import QFormLayout
-from PyQt5.QtWidgets import QGroupBox
-from PyQt5.QtWidgets import QHBoxLayout
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QSlider
-from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QWidget
+from nicegui import ui
 
 from pycmd2.simulation.lscopt.lsc_calc import LSCCurve
 
 
-@dataclass
-class ParamValue:
-    """参数值."""
-
-    value: float
-    min_val: float
-    max_val: float
-    step: float
-    name: str
-
-    @cached_property
-    def slider_range(self) -> int:
-        """slider取值范围."""
-        return int((self.max_val - self.min_val) / self.step)
-
-    @cached_property
-    def slider_value(self) -> int:
-        """slider当前值."""
-        return int((self.value - self.min_val) / self.step)
-
-
-class ParamInput:
-    """单行参数输入组件."""
-
-    value_changed = pyqtSignal()
-
-    def __init__(self, param: ParamValue) -> None:
-        self.param = param
-
-        # spinbox
-        self.spinbox = QDoubleSpinBox()
-        self.spinbox.setRange(self.param.min_val, self.param.max_val)
-        self.spinbox.setSingleStep(self.param.step)
-        self.spinbox.setValue(self.param.value)
-        self.spinbox.setDecimals(2 if self.param.step < 1 else 0)
-
-        # slider
-        self.slider = QSlider(Qt.Horizontal)
-        self.slider.setRange(0, self.param.slider_range)
-        self.slider.setValue(self.param.slider_value)
-
-        # signals
-        self.spinbox.valueChanged.connect(
-            lambda val: self.slider.setValue(int((val - self.param.min_val) / self.param.step)),  # type: ignore
-        )
-        self.slider.valueChanged.connect(
-            lambda val: self.spinbox.setValue(self.param.min_val + val * self.param.step),  # type: ignore
-        )
-
-        self.widget = QWidget()
-        layout = QHBoxLayout(self.widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.spinbox, 1)
-        layout.addWidget(self.slider, 2)
-
-
-class ParamInputGroup(QGroupBox):
-    """参数输入组件."""
-
-    calc_error = pyqtSignal(str)
-    calculate_finished = pyqtSignal(bool)
-
-    def __init__(self, title: str, parent: QWidget | None = None) -> None:
-        super().__init__(title, parent)
-
-        self.lscc: LSCCurve = LSCCurve()
-        self.inputs: Dict[str, ParamInput] = {}
-
-        self.reset_inputs()
-
-    def reset_inputs(self) -> None:
-        """重置所有输入."""
-        self.inputs = {
-            "m": ParamInput(ParamValue(self.lscc.m, -5.0, 0.0, 0.05, "第一断点(m)")),
-            "m1": ParamInput(ParamValue(self.lscc.m1, -10.0, 0.0, 1.0, "第二断点(m1)")),
-            "s": ParamInput(ParamValue(self.lscc.s, 0.0, 10.0, 0.1, "内部坡度(s)")),
-            "s1": ParamInput(ParamValue(self.lscc.s1, 0.0, 20.0, 0.1, "外部坡度(s1)")),
-            "H": ParamInput(ParamValue(self.lscc.H, 0.0, 5.0, 0.1, "切割高度(H)")),
-            "m2": ParamInput(ParamValue(self.lscc.m2, -2.0, 2.0, 0.1, "特定点(m2)")),
-            "H1": ParamInput(ParamValue(self.lscc.H1, 0.0, 2.0, 0.1, "内部保留高度(H1)")),
-            "H2": ParamInput(ParamValue(self.lscc.H2, 0.0, 2.0, 0.1, "外部保留高度(H2)")),
-            "J": ParamInput(ParamValue(self.lscc.J, 0.0, 180.0, 1.0, "总体夹角(J)")),
-            "J1": ParamInput(ParamValue(self.lscc.J1, 0.0, 180.0, 1.0, "断点夹角(J1)")),
-        }
-
-        main_layout = QFormLayout(self)
-        for param_input in self.inputs.values():
-            main_layout.addRow(param_input.param.name, param_input.widget)
-            param_input.spinbox.valueChanged.connect(self.on_calc)
-
-    def on_calc(self) -> None:
-        """求解."""
-        try:
-            self.lscc = LSCCurve(
-                m=self.inputs["m"].spinbox.value(),
-                m1=self.inputs["m1"].spinbox.value(),
-                s=self.inputs["s"].spinbox.value(),
-                s1=self.inputs["s1"].spinbox.value(),
-                H=self.inputs["H"].spinbox.value(),
-                m2=self.inputs["m2"].spinbox.value(),
-                H2=self.inputs["H2"].spinbox.value(),
-                J=self.inputs["J"].spinbox.value(),
-                J1=self.inputs["J1"].spinbox.value(),
-            )
-        except ValueError:
-            self.calc_error.emit("参数输入错误, 请输入有效的数字")
-            return
-
-        self.calculate_finished.emit(True)  # noqa: FBT003
-
-
-class LSCOptimizer(QMainWindow):
+class LSCOptimizerApp:
     """LSC 曲线优化器."""
 
     def __init__(self) -> None:
-        super().__init__()
-        self.setWindowTitle("LSC 曲线优化器")
-        self.setGeometry(100, 100, 1200, 800)
+        self.lscc: LSCCurve = LSCCurve()
+        self.inputs: dict[str, ui.number] = {}
+        self.result_label = None
+        self.fig: Figure | None = None
+        self.ax = None
 
-        self.figure: Figure | None = None
-        self.canvas: FigureCanvas | None = None
-        self.ax: Axes | None = None
+    def setup_ui(self) -> None:
+        """设置UI界面."""
+        with ui.column().classes("w-full p-4"), ui.row().classes("w-full"):
+            # 控制面板
+            with ui.column().classes("w-1/3"):
+                with ui.card().classes("w-full"):
+                    ui.label("参数控制").classes("text-xl font-bold")
 
-        # 创建中央部件
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
+                    # 参数输入
+                    self.inputs = {
+                        "m": ui.number(label="第一断点(m)", value=self.lscc.m, min=-5.0, max=0.0, step=0.05).classes("w-full"),
+                        "m1": ui.number(label="第二断点(m1)", value=self.lscc.m1, min=-10.0, max=0.0, step=1.0).classes("w-full"),
+                        "s": ui.number(label="内部坡度(s)", value=self.lscc.s, min=0.0, max=10.0, step=0.1).classes("w-full"),
+                        "s1": ui.number(label="外部坡度(s1)", value=self.lscc.s1, min=0.0, max=20.0, step=0.1).classes("w-full"),
+                        "H": ui.number(label="切割高度(H)", value=self.lscc.H, min=0.0, max=5.0, step=0.1).classes("w-full"),
+                        "m2": ui.number(label="特定点(m2)", value=self.lscc.m2, min=-2.0, max=2.0, step=0.1).classes("w-full"),
+                        "H1": ui.number(label="内部保留高度(H1)", value=self.lscc.H1, min=0.0, max=2.0, step=0.1).classes("w-full"),
+                        "H2": ui.number(label="外部保留高度(H2)", value=self.lscc.H2, min=0.0, max=2.0, step=0.1).classes("w-full"),
+                        "J": ui.number(label="总体夹角(J)", value=self.lscc.J, min=0.0, max=180.0, step=1.0).classes("w-full"),
+                        "J1": ui.number(label="断点夹角(J1)", value=self.lscc.J1, min=0.0, max=180.0, step=1.0).classes("w-full"),
+                    }
 
-        # 创建主布局
-        main_layout = QHBoxLayout(central_widget)
+                    # 按钮
+                    with ui.row():
+                        ui.button("计算", on_click=self.on_calc).classes("w-1/2")
+                        ui.button("重置", on_click=self.on_reset_clicked).classes("w-1/2")
 
-        # 创建控制面板
-        control_panel = self.create_control_panel()
-        main_layout.addWidget(control_panel, 1)
+                # 结果显示
+                with ui.card().classes("w-full"):
+                    ui.label("计算结果").classes("text-xl font-bold")
+                    self.result_label = ui.label('点击"计算"按钮开始计算').classes("w-full")
 
-        # 创建绘图区域
-        self.plot_widget = self.create_plot_area()
-        main_layout.addWidget(self.plot_widget, 3)
+            # 绘图区域
+            with ui.card().classes("w-2/3"):
+                ui.label("LSC 曲线图").classes("text-xl font-bold")
+                self.fig = ui.matplotlib(figsize=(8, 6)).figure
+                self.ax = self.fig.add_subplot(111)
 
-        # 计算并绘制初始曲线
-        self.param_group.on_calc()
+    def on_calc(self) -> None:
+        """处理计算事件."""
+        assert self.result_label
 
-    def create_control_panel(self) -> QWidget:
-        """创建控制面板.
+        try:
+            self.lscc = LSCCurve(
+                m=self.inputs["m"].value,
+                m1=self.inputs["m1"].value,
+                s=self.inputs["s"].value,
+                s1=self.inputs["s1"].value,
+                H=self.inputs["H"].value,
+                m2=self.inputs["m2"].value,
+                H1=self.inputs["H1"].value,
+                H2=self.inputs["H2"].value,
+                J=self.inputs["J"].value,
+                J1=self.inputs["J1"].value,
+            )
+        except ValueError:
+            self.result_label.text = "参数输入错误, 请输入有效的数字"
+            return
 
-        Returns:
-            QWidget: 控制面板
-        """
-        panel = QGroupBox("参数控制")
-        layout = QVBoxLayout(panel)
-
-        # 参数输入组
-        self.param_group = ParamInputGroup("基本参数")
-        self.param_group.calculate_finished.connect(self.on_calc_finished)
-        self.param_group.calc_error.connect(self.on_calc_error)
-
-        # 结果显示组
-        result_group = QGroupBox("计算结果")
-        result_layout = QVBoxLayout(result_group)
-        self.result_label = QLabel('点击"计算"按钮开始计算')
-        self.result_label.setWordWrap(True)
-        result_layout.addWidget(self.result_label)
-
-        # 按钮组
-        button_layout = QHBoxLayout()
-        calc_button = QPushButton("计算")
-        calc_button.clicked.connect(self.param_group.on_calc)
-        reset_button = QPushButton("重置")
-        reset_button.clicked.connect(self.on_reset_clicked)
-        button_layout.addWidget(calc_button)
-        button_layout.addWidget(reset_button)
-
-        # 添加到主布局
-        layout.addWidget(self.param_group)
-        layout.addWidget(result_group)
-        layout.addLayout(button_layout)
-        layout.addStretch()
-
-        return panel
-
-    def create_plot_area(self) -> QWidget:
-        """创建绘图区域.
-
-        Returns:
-            QWidget: 绘图区域
-        """
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-
-        # 创建matplotlib图形
-        self.figure = Figure(figsize=(10, 8), dpi=100)
-        self.canvas = FigureCanvas(self.figure)
-        self.ax = self.figure.add_subplot(111)
-
-        layout.addWidget(self.canvas)
-        return widget
+        self.on_calc_finished()
 
     def on_reset_clicked(self) -> None:
         """处理重置按钮点击事件."""
-        self.param_group.reset_inputs()
-        self.param_group.on_calc()
+        # 重置所有输入为默认值
+        self.inputs["m"].value = self.lscc.m
+        self.inputs["m1"].value = self.lscc.m1
+        self.inputs["s"].value = self.lscc.s
+        self.inputs["s1"].value = self.lscc.s1
+        self.inputs["H"].value = self.lscc.H
+        self.inputs["m2"].value = self.lscc.m2
+        self.inputs["H1"].value = self.lscc.H1
+        self.inputs["H2"].value = self.lscc.H2
+        self.inputs["J"].value = self.lscc.J
+        self.inputs["J1"].value = self.lscc.J1
+
+        self.on_calc()
 
     def on_calc_finished(self) -> None:
-        """计算并绘制曲线."""
-        # 显示结果摘要
+        """计算完成并绘制曲线."""
+        assert self.result_label
+        assert self.fig
+
         result_text = "计算成功完成!\n"
-        result_text += f"解向量范数: {np.linalg.norm(self.param_group.lscc.x):.4f}\n"
-        result_text += f"残差: {self.param_group.lscc.R.cost:.6f}"
-        self.result_label.setText(result_text)
+        result_text += f"解向量范数: {np.linalg.norm(self.lscc.x):.4f}\n"
+        result_text += f"残差: {self.lscc.R.cost:.6f}"
+        self.result_label.text = result_text
 
         # 绘制曲线
-        self.param_group.lscc.plot(self.ax)
-
-        if self.canvas:
-            self.canvas.draw()
-        else:
-            self.result_label.setText("画布未初始化!")
-
-    def on_calc_error(self, msg: str) -> None:
-        """错误提示."""
-        self.result_label.setText(msg)
+        self.lscc.plot(self.ax)
+        self.fig.update(props={"figsize": (8, 6)})
