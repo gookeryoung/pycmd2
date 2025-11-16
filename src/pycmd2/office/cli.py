@@ -29,12 +29,12 @@ def main_page() -> None:
         with ui.row().classes("w-full justify-center"):
             ui.label("Universal workflow toolkit").classes("mx-auto text-h4 text-blue-600 font-consolas font-bold italic")
 
-        with ui.row().classes("w-full"):
-            with ui.card().style("height: 72vh"):
+        with ui.grid(columns=6).classes("w-full"):
+            with ui.card().classes("items-center bg-orange-200").style("height: 72vh"):
                 ui.label("PDF系列工具").classes("text-h6")
                 ui.link("PDF合并", Links.PDF_MERGE_APP.value)
 
-            with ui.card().style("height: 72vh"):
+            with ui.card().classes("items-center bg-blue-200").style("height: 72vh"):
                 ui.label("计算工具").classes("text-h6")
                 ui.link("LSC曲线优化", Links.LSC_OPTIMIZER.value)
 

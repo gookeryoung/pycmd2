@@ -51,7 +51,9 @@ class LSCOptimizerApp:
 
         with ui.row().classes("w-full h-full flex flex-row justify-start gap-12"):
             # 控制面板
-            with ui.column().classes("w-1/4 ml-12"), ui.card().classes("w-full gap-0 items-start bg-gradient-to-br from-green-200 to-blue-200"):
+            with ui.column().classes("w-1/4 ml-12"), ui.card().classes(
+                "w-full gap-0 items-start bg-gradient-to-br from-green-200 to-blue-200 rounded-xl",
+            ):
                 ui.label("参数控制").classes("mx-auto text-xl font-bold")
 
                 # 参数输入
@@ -73,7 +75,7 @@ class LSCOptimizerApp:
                 }
 
                 # 按钮
-                with ui.row().classes("w-full mt-2 gap-2 flex flex-row justify-end"):
+                with ui.row().classes("w-full mt-6 gap-2 flex flex-row justify-end"):
                     ui.button("重置", on_click=self.on_reset_clicked).classes("w-1/3")
                     ui.button("计算", on_click=self.on_calc).classes("grow")
 
@@ -81,12 +83,12 @@ class LSCOptimizerApp:
             with ui.column().classes("grow"), ui.card().classes("w-full mx-auto items-center rounded-xl"), ui.column().classes(
                 "w-full mx-auto gap-0",
             ):
-                with ui.row():
-                    ui.label("LSC 曲线图").classes("text-xl font-bold")
-                    self.plotter = ui.matplotlib(figsize=(8, 6))
+                with ui.column().classes("w-full mx-auto"):
+                    ui.label("LSC 曲线图").classes("w-full text-center text-xl font-bold")
+                    self.plotter = ui.matplotlib(figsize=(8, 6)).classes("mx-auto")
                     self.ax = self.plotter.figure.add_subplot(111)
 
-                with ui.row().classes("w-full p-4 bg-green-100 rounded-lg gap-0"):
+                with ui.row().classes("w-full p-2 bg-green-100 rounded-lg gap-0"):
                     ui.label("计算结果:").classes("font-bold text-green-800")
                     self.result_label = ui.label('点击"计算"按钮开始计算').classes("w-full self-start text-slate-600")
 

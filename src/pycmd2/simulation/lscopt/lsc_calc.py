@@ -262,8 +262,8 @@ class LSCCurve:
         )
 
         # 设置图形属性
-        ax.set_xlabel("X", fontfamily="sans-serif", fontsize=16)
-        ax.set_ylabel("Y", fontfamily="sans-serif", fontsize=16)
+        ax.set_xlabel("X", fontfamily="sans-serif", fontsize=12)
+        ax.set_ylabel("Y", fontfamily="sans-serif", fontsize=12)
         ax.legend()
         ax.grid(visible=True, alpha=0.3)
         ax.axis("equal")
