@@ -1,21 +1,29 @@
 from __future__ import annotations
 
 import numpy as np
-from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 from nicegui import ui
 
 from pycmd2.simulation.lscopt.lsc_calc import LSCCurve
 
 
 class LSCOptimizerApp:
-    """LSC 曲线优化器."""
+    """LSC 曲线优化器.
+
+    Properties:
+        lscc (LSCCurve): LSC 曲线对象
+        inputs (dict[str, ui.number]): 参数输入框
+        result_label (ui.label): 结果标签
+        plotter (ui.matplotlib): Matplotlib 图形绘制
+        ax (matplotlib.axes.Axes): Matplotlib 图形对象
+    """
 
     def __init__(self) -> None:
         self.lscc: LSCCurve = LSCCurve()
         self.inputs: dict[str, ui.number] = {}
-        self.result_label = None
-        self.fig: Figure | None = None
-        self.ax = None
+        self.result_label: ui.label | None = None
+        self.plotter: ui.matplotlib | None = None
+        self.ax: Axes | None = None
 
     def setup_ui(self) -> None:
         """设置UI界面."""
@@ -52,8 +60,8 @@ class LSCOptimizerApp:
             # 绘图区域
             with ui.card().classes("w-2/3"):
                 ui.label("LSC 曲线图").classes("text-xl font-bold")
-                self.fig = ui.matplotlib(figsize=(8, 6)).figure
-                self.ax = self.fig.add_subplot(111)
+                self.plotter = ui.matplotlib(figsize=(8, 6))
+                self.ax = self.plotter.figure.add_subplot(111)
 
     def on_calc(self) -> None:
         """处理计算事件."""
@@ -80,7 +88,6 @@ class LSCOptimizerApp:
 
     def on_reset_clicked(self) -> None:
         """处理重置按钮点击事件."""
-        # 重置所有输入为默认值
         self.inputs["m"].value = self.lscc.m
         self.inputs["m1"].value = self.lscc.m1
         self.inputs["s"].value = self.lscc.s
@@ -96,9 +103,9 @@ class LSCOptimizerApp:
 
     def on_calc_finished(self) -> None:
         """计算完成并绘制曲线."""
-        assert self.result_label
-        assert self.fig
         assert self.ax
+        assert self.plotter
+        assert self.result_label
 
         result_text = "计算成功完成!\n"
         result_text += f"解向量范数: {np.linalg.norm(self.lscc.x):.4f}\n"
@@ -106,6 +113,6 @@ class LSCOptimizerApp:
         self.result_label.text = result_text
 
         # 绘制曲线
-        self.ax.clear()  # 清除之前的绘图
+        self.ax.clear()
         self.lscc.plot(self.ax)
-        self.fig.canvas.draw()  # 强制更新画布
+        self.plotter.update()
