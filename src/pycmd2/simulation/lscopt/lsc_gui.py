@@ -7,22 +7,7 @@ from nicegui import ui
 
 from pycmd2.simulation.lscopt.lsc_calc import LSCCurve
 
-# 解决中文显示问题的额外配置
-rcParams["font.family"] = "sans-serif"
-rcParams["font.sans-serif"] = [
-    "Noto Sans CJK SC",  # Linux Noto字体
-    "WenQuanYi Micro Hei",  # Linux文泉驿字体
-    "Noto Sans CJK JP",
-    "Noto Sans CJK KR",
-    "Noto Sans CJK TC",
-    "SimHei",  # Windows常用字体
-    "Songti SC",
-    "Microsoft YaHei",
-    "DejaVu Sans",  # Linux常用字体
-    "Arial Unicode MS",  # 通用Unicode字体
-    "sans-serif",
-]
-rcParams["axes.unicode_minus"] = False
+__version__ = "0.1.0"
 
 
 class LSCOptimizerApp:
@@ -43,43 +28,57 @@ class LSCOptimizerApp:
         self.plotter: ui.matplotlib | None = None
         self.ax: Axes | None = None
 
+        # 解决中文显示问题的额外配置
+        rcParams["font.family"] = "sans-serif"
+        rcParams["font.sans-serif"] = [
+            "Noto Sans CJK SC",  # Linux Noto字体
+            "WenQuanYi Micro Hei",  # Linux文泉驿字体
+            "Noto Sans CJK JP",
+            "Noto Sans CJK KR",
+            "Noto Sans CJK TC",
+            "SimHei",  # Windows常用字体
+            "Songti SC",
+            "Microsoft YaHei",
+            "DejaVu Sans",  # Linux常用字体
+            "Arial Unicode MS",  # 通用Unicode字体
+            "sans-serif",
+        ]
+        rcParams["axes.unicode_minus"] = False
+
     def setup_ui(self) -> None:
         """设置UI界面."""
-        with ui.column().classes("w-full p-4"), ui.row().classes("w-full"):
+        ui.label(f"LSC Optimizer v{__version__}").classes("mx-auto text-red-600 text-4xl font-bold mb-2")
+
+        with ui.row().classes("w-full"), ui.row().classes("w-full"):
             # 控制面板
-            with ui.column().classes("w-1/3"):
-                with ui.card().classes("w-full"):
-                    ui.label("参数控制").classes("text-xl font-bold")
+            with ui.column().classes("w-1/3"), ui.card().classes("w-full gap-0 items-start bg-gradient-to-br from-green-200 to-blue-200"):
+                ui.label("参数控制").classes("mx-auto text-xl font-bold")
 
-                    # 参数输入
-                    self.inputs = {
-                        "m": ui.number(label="第一断点(m)", value=self.lscc.m, min=-5.0, max=0.0, step=0.05).classes("w-full"),
-                        "m1": ui.number(label="第二断点(m1)", value=self.lscc.m1, min=-10.0, max=0.0, step=1.0).classes("w-full"),
-                        "s": ui.number(label="内部坡度(s)", value=self.lscc.s, min=0.0, max=10.0, step=0.1).classes("w-full"),
-                        "s1": ui.number(label="外部坡度(s1)", value=self.lscc.s1, min=0.0, max=20.0, step=0.1).classes("w-full"),
-                        "H": ui.number(label="切割高度(H)", value=self.lscc.H, min=0.0, max=5.0, step=0.1).classes("w-full"),
-                        "m2": ui.number(label="特定点(m2)", value=self.lscc.m2, min=-2.0, max=2.0, step=0.1).classes("w-full"),
-                        "H1": ui.number(label="内部保留高度(H1)", value=self.lscc.H1, min=0.0, max=2.0, step=0.1).classes("w-full"),
-                        "H2": ui.number(label="外部保留高度(H2)", value=self.lscc.H2, min=0.0, max=2.0, step=0.1).classes("w-full"),
-                        "J": ui.number(label="总体夹角(J)", value=self.lscc.J, min=0.0, max=180.0, step=1.0).classes("w-full"),
-                        "J1": ui.number(label="断点夹角(J1)", value=self.lscc.J1, min=0.0, max=180.0, step=1.0).classes("w-full"),
-                    }
+                # 参数输入
+                self.inputs = {
+                    "m": ui.number(label="第一断点(m)", value=self.lscc.m, min=-5.0, max=0.0, step=0.05).classes("w-full"),
+                    "m1": ui.number(label="第二断点(m1)", value=self.lscc.m1, min=-10.0, max=0.0, step=1.0).classes("w-full"),
+                    "s": ui.number(label="内部坡度(s)", value=self.lscc.s, min=0.0, max=10.0, step=0.1).classes("w-full"),
+                    "s1": ui.number(label="外部坡度(s1)", value=self.lscc.s1, min=0.0, max=20.0, step=0.1).classes("w-full"),
+                    "H": ui.number(label="切割高度(H)", value=self.lscc.H, min=0.0, max=5.0, step=0.1).classes("w-full"),
+                    "m2": ui.number(label="特定点(m2)", value=self.lscc.m2, min=-2.0, max=2.0, step=0.1).classes("w-full"),
+                    "H1": ui.number(label="内部保留高度(H1)", value=self.lscc.H1, min=0.0, max=2.0, step=0.1).classes("w-full"),
+                    "H2": ui.number(label="外部保留高度(H2)", value=self.lscc.H2, min=0.0, max=2.0, step=0.1).classes("w-full"),
+                    "J": ui.number(label="总体夹角(J)", value=self.lscc.J, min=0.0, max=180.0, step=1.0).classes("w-full"),
+                    "J1": ui.number(label="断点夹角(J1)", value=self.lscc.J1, min=0.0, max=180.0, step=1.0).classes("w-full"),
+                }
 
-                    # 按钮
-                    with ui.row():
-                        ui.button("计算", on_click=self.on_calc).classes("w-1/2")
-                        ui.button("重置", on_click=self.on_reset_clicked).classes("w-1/2")
-
-                # 结果显示
-                with ui.card().classes("w-full"):
-                    ui.label("计算结果").classes("text-xl font-bold")
-                    self.result_label = ui.label('点击"计算"按钮开始计算').classes("w-full")
+                # 按钮
+                with ui.row().classes("w-full mt-2 flex flex-row gap-2"):
+                    ui.button("计算", on_click=self.on_calc).classes("w-1/2")
+                    ui.button("重置", on_click=self.on_reset_clicked).classes("w-1/2")
 
             # 绘图区域
-            with ui.card().classes("w-2/3"):
+            with ui.column(), ui.card().classes("w-full mx-auto items-center"):
                 ui.label("LSC 曲线图").classes("text-xl font-bold")
                 self.plotter = ui.matplotlib(figsize=(8, 6))
                 self.ax = self.plotter.figure.add_subplot(111)
+                self.result_label = ui.label('点击"计算"按钮开始计算').classes("w-full self-start")
 
     def on_calc(self) -> None:
         """处理计算事件."""
