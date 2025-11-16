@@ -1,0 +1,5 @@
+[target.x86_64-win7-windows-msvc]
+rustflags = [
+    "-C",
+    "link-args=/LIBPATH:C:\\Environment\\Anaconda38\\libs\\",
+] # 尝试静态链接 python 运行时
