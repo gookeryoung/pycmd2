@@ -28,6 +28,12 @@ class PDFMergerConfig(TomlConfigMixin):
     VALID_EXTENSIONS: tuple[str, ...] = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf")
     PREVIEW_PAGES: int = 3
     MAX_PAGES: int = 256
+    MAX_FILE_SIZE: int = 1024**2 * 5
+
+    @property
+    def _max_size(self) -> float:
+        """获取文件最大大小限制."""
+        return self.MAX_FILE_SIZE / (1024**2)
 
 
 __version__ = "0.1.0"
@@ -82,7 +88,13 @@ class PDFMergeApp:
             # Upload
             with ui.row().classes("w-1/2 mx-auto p-6 bg-slate-200 rounded-xl items-center gap-2"):
                 ui.label("上传文件").classes("text-blue-600 text-bold")
-                ui.upload(on_upload=self.handle_upload, multiple=True, auto_upload=True).classes("w-full")
+                ui.upload(
+                    on_upload=self.handle_upload,
+                    on_rejected=lambda: ui.notify(f"文件大小超出 {conf._max_size}MB 限制!"),  # noqa: SLF001
+                    multiple=True,
+                    max_file_size=conf.MAX_FILE_SIZE,
+                    auto_upload=True,
+                ).classes("w-full")
 
             with ui.card().classes("w-1/2 mx-auto p-12 bg-gradient-to-br from-green-200 to-blue-200 rounded-xl shadow-lg"):
                 # Options
