@@ -70,8 +70,10 @@ class PDFMergeApp:
 
     def setup_ui(self) -> None:
         """初始化用户界面."""
-        with ui.row().classes("w-full mx-auto items-center gap-2"):
-            ui.label(f"PDF 合并工具 v{__version__}").classes("mx-auto text-red-600 text-4xl font-bold")
+        # Preview dialog
+        self.preview_dialog = ui.dialog()
+
+        ui.label(f"PDF 合并工具 v{__version__}").classes("mx-auto text-red-600 text-4xl font-bold")
 
         with ui.column().classes("w-full mx-auto items-center gap-4"):
             with ui.row().classes("w-1/2 mx-auto p-6 bg-slate-200 rounded-xl items-center gap-2"):
@@ -291,15 +293,18 @@ class PDFMergeApp:
 
     def preview_pdf(self, file_info: PDFFileInfo) -> None:
         """预览PDF文件."""
-        ui.notification("正在预览文件...")
-        with ui.dialog().classes("w-3/4 h-3/4") as dialog, ui.card().classes("w-full h-full"):
-            with ui.scroll_area().classes("w-full h-full"), ui.column().classes("items-center"):
-                ui.label(f"预览文件: {file_info.path.name}").classes("text-xl")
-                self.images = self.pdf_to_image_data(file_info.path, page_count=conf.MAX_PAGES)
-                for page_num, img in enumerate(self.images):
-                    ui.image(f"data:image/png;base64,{img}").classes("max-w-full h-auto my-2")
+        ui.notification(f"正在预览文件: {file_info.path.name}")
+
+        self.preview_dialog.clear()
+        self.preview_dialog.open()
+        with self.preview_dialog, ui.card().classes("w-full h-full items-center"):
+            ui.label(f"预览文件: {file_info.path.name}").classes("text-xl text-bold")
+            self.images = self.pdf_to_image_data(file_info.path, page_count=conf.MAX_PAGES)
+            for page_num, img in enumerate(self.images):
+                with ui.column().classes("flex flex-col items-center gap-2"), ui.column().classes("w-full h-full"):
+                    ui.image(f"data:image/png;base64,{img.decode()}").classes("w-full h-full object-contain")
                     ui.label(f"Page {page_num + 1}").classes("text-sm text-gray-500")
-            ui.button("Close", on_click=dialog.close).classes("self-center mt-4")
+            ui.button("Close", on_click=self.preview_dialog.close).classes("self-center mt-4")
 
     def merge_to_pdf(self) -> None:
         """Merge selected files to a single PDF."""
