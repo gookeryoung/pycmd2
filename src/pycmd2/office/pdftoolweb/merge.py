@@ -95,9 +95,9 @@ class PDFMergeApp:
 
                 # Action buttons
                 with ui.row().classes("gap-2 mt-4"):
-                    self.select_all_button = ui.button("全选", on_click=self.select_all_files)
-                    self.deselect_all_button = ui.button("取消全选", on_click=self.deselect_all_files)
-                    self.merge_button = ui.button("合并为PDF", on_click=self.merge_to_pdf).bind_visibility_from(
+                    self.select_all_button = ui.button("全选", on_click=self.handle_select_all)
+                    self.deselect_all_button = ui.button("取消全选", on_click=self.handle_deselect_all)
+                    self.merge_button = ui.button("合并为PDF", on_click=self.handle_merge).bind_visibility_from(
                         self,
                         "files",
                         backward=lambda f: len(f) > 0,
@@ -286,7 +286,7 @@ class PDFMergeApp:
         # 只重新排列现有元素而不重新生成预览
         self.update_files_container(reorder=True)
 
-    def select_all_files(self) -> None:
+    def handle_select_all(self) -> None:
         """选择所有文件."""
         for file_info in self.files.values():
             if not file_info.checkbox:
@@ -294,7 +294,7 @@ class PDFMergeApp:
 
             file_info.checkbox.set_value(True)
 
-    def deselect_all_files(self) -> None:
+    def handle_deselect_all(self) -> None:
         """取消选择所有文件."""
         for file_info in self.files.values():
             if not file_info.checkbox:
@@ -320,7 +320,7 @@ class PDFMergeApp:
                     ui.label(f"Page {page_num + 1}").classes("text-sm text-gray-500")
             ui.button("关闭", on_click=self.preview_dialog.close).classes("self-center mt-4")
 
-    def merge_to_pdf(self) -> None:
+    def handle_merge(self) -> None:
         """合并PDF文件."""
         selected_files: set[PDFFileInfo] = {f for f in self.files.values() if f.checkbox and f.checkbox.value}
         # Sort by order
