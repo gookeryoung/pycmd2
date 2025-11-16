@@ -219,11 +219,11 @@ class PDFToolWindow(QMainWindow):
         self.merge_button.setEnabled(False)
         layout.addWidget(self.merge_button)
 
-    def toggle_rotate_option(self, checked: bool) -> None:
+    def toggle_rotate_option(self, *, checked: bool) -> None:
         """Toggle the auto-rotate pages option."""
         self.auto_rotate_pages = checked
 
-    def toggle_width_option(self, checked: bool) -> None:
+    def toggle_width_option(self, *, checked: bool) -> None:
         """Toggle the uniform page width option."""
         self.uniform_page_width = checked
 
@@ -269,8 +269,7 @@ class PDFToolWindow(QMainWindow):
         files: List[pathlib.Path] = [
             f
             for f in pathlib.Path(directory).iterdir()
-            if (pathlib.Path(directory) / f).is_file()
-            and f.suffix.lower().endswith(supported_extensions)
+            if (pathlib.Path(directory) / f).is_file() and f.suffix.lower().endswith(supported_extensions)
         ]
 
         if not files:
@@ -396,7 +395,11 @@ class PDFToolWindow(QMainWindow):
             self.files.append(filepath)
 
     def get_selected_files(self) -> List[pathlib.Path]:
-        """Get list of selected files based on checkboxes."""
+        """Get list of selected files based on checkboxes.
+
+        Returns:
+            List[pathlib.Path]: List of selected files.
+        """
         selected_files = []
         for i in range(self.file_list.count()):
             item = self.file_list.item(i)
@@ -408,7 +411,7 @@ class PDFToolWindow(QMainWindow):
                     selected_files.append(filepath)
         return selected_files
 
-    def merge_to_pdf(self) -> None:
+    def merge_to_pdf(self) -> None:  # noqa: C901
         """Merge selected files to a single PDF."""
         # Get only selected files
         selected_files = self.get_selected_files()
@@ -479,7 +482,11 @@ class PDFToolWindow(QMainWindow):
         self,
         pdf_path: pathlib.Path,
     ) -> pathlib.Path:
-        """Process PDF page with auto-rotation and uniform width if enabled."""
+        """Process PDF page with auto-rotation and uniform width if enabled.
+
+        Returns:
+            pathlib.Path: Path to the processed PDF.
+        """
         # Create a temporary PDF with processed pages
         temp_pdf_path = pdf_path.with_suffix(".processed.temp.pdf")
 
@@ -510,10 +517,6 @@ class PDFToolWindow(QMainWindow):
                 scale_factor = self.page_width / original_width
 
                 # Create new page with uniform width
-                # new_page = new_doc.new_page(
-                #     width=self.page_width,
-                #     height=original_height * scale_factor,
-                # )
                 if original_width > original_height:  # Landscape
                     new_page = new_doc.new_page(
                         width=self.page_width,
