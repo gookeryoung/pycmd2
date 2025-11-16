@@ -12,6 +12,7 @@ from enum import Enum
 from nicegui import ui
 
 from pycmd2.office.pdftoolweb.merge import PDFMergeApp
+from pycmd2.office.system.machine import MachineMonitor
 
 
 class Links(Enum):
@@ -22,9 +23,16 @@ class Links(Enum):
 
 @ui.page("/")
 def main_page() -> None:
+    with ui.row():
+        ui.column()
+        ui.label("Universal workflow toolkit").classes("mx-auto text-h4 text-blue-600 font-consolas font-bold italic")
+
     with ui.card():
         ui.label("PDF系列工具")
         ui.link("PDF merge", Links.PDF_MERGE_APP.value)
+
+    machine_monitor = MachineMonitor()
+    machine_monitor.setup_ui()
 
 
 @ui.page(Links.PDF_MERGE_APP.value)
