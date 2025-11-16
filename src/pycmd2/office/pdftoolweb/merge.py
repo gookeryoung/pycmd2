@@ -141,17 +141,25 @@ class PDFMergeApp:
         self.directory_label.set_text(f"已选目录: 【{path}】, 文件数量: {len(self.files)} 个")
         self.update_files_container()
 
-    def update_files_container(self) -> None:
+    def update_files_container(self, *, reorder: bool = False) -> None:
         """更新文件列表."""
+        if reorder:
+            rows = [file_info.row for file_info in self.files.values() if file_info.row]
+            with self.files_container, self.card:
+                for row in rows:
+                    row.move(self.files_container)
+            return
+
         self.files_container.clear()
+        with self.files_container:
+            self.card = ui.card().classes("w-full")
+            with self.card:
+                if not len(self.files):
+                    ui.label("待合并文件列表为空!").classes("text-red-600 text-lg")
+                    return
 
-        with self.files_container, ui.card().classes("w-full"):
-            if not len(self.files):
-                ui.label("待合并文件列表为空!").classes("text-red-600 text-lg")
-                return
-
-            for pos, file_info in enumerate(self.files.values()):
-                self.generate_container_row(file_info, pos)
+                for pos, file_info in enumerate(self.files.values()):
+                    self.generate_container_row(file_info, pos)
 
     def generate_container_row(self, file_info: PDFFileInfo, pos: int) -> None:
         """创建文件操作行."""
@@ -251,7 +259,9 @@ class PDFMergeApp:
         # 更新当前项的order
         file_info.order += count
         self.files = dict(sorted(self.files.items(), key=lambda item: item[1].order))
-        self.update_files_container()
+
+        # 只重新排列现有元素而不重新生成预览
+        self.update_files_container(reorder=True)
 
     def select_all_files(self) -> None:
         """Select all files."""
