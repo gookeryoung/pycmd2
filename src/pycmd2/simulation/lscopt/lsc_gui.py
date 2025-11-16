@@ -98,6 +98,7 @@ class LSCOptimizerApp:
         """计算完成并绘制曲线."""
         assert self.result_label
         assert self.fig
+        assert self.ax
 
         result_text = "计算成功完成!\n"
         result_text += f"解向量范数: {np.linalg.norm(self.lscc.x):.4f}\n"
@@ -105,5 +106,6 @@ class LSCOptimizerApp:
         self.result_label.text = result_text
 
         # 绘制曲线
+        self.ax.clear()  # 清除之前的绘图
         self.lscc.plot(self.ax)
-        self.fig.update(props={"figsize": (8, 6)})
+        self.fig.canvas.draw()  # 强制更新画布
