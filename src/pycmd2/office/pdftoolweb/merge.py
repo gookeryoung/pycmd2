@@ -67,12 +67,10 @@ class PDFMergeApp:
         self.files: dict[str, PDFFileInfo] = {}
         self.auto_rotate: bool = True
         self.uniform_width: bool = True
+        self.preview_dialog: ui.dialog | None = None
 
     def setup_ui(self) -> None:
         """初始化用户界面."""
-        # Preview dialog
-        self.preview_dialog = ui.dialog()
-
         ui.label(f"PDF 合并工具 v{__version__}").classes("mx-auto text-red-600 text-4xl font-bold")
 
         with ui.column().classes("w-full mx-auto items-center gap-4"):
@@ -295,7 +293,7 @@ class PDFMergeApp:
         """预览PDF文件."""
         ui.notification(f"正在预览文件: {file_info.path.name}")
 
-        self.preview_dialog.clear()
+        self.preview_dialog = ui.dialog()
         self.preview_dialog.open()
         with self.preview_dialog, ui.card().classes("w-full h-full items-center"):
             ui.label(f"预览文件: {file_info.path.name}").classes("text-xl text-bold")
@@ -368,16 +366,16 @@ class PDFMergeApp:
                 tmp_pdf_path = tmp_pdf.name
 
             # Create PDF document
-            pdf = fitz.open()
+            pdf = fitz.open()  # type: ignore
 
             # Load image
-            img = fitz.Pixmap(image_path)
+            img = fitz.Pixmap(image_path)  # type: ignore
 
             # Create page with image dimensions
             page = pdf.new_page(width=img.width, height=img.height)  # type: ignore
 
             # Insert image into page
-            rect = fitz.Rect(0, 0, img.width, img.height)
+            rect = fitz.Rect(0, 0, img.width, img.height)  # type: ignore
             page.insert_image(rect, pixmap=img)
 
             # Save PDF
@@ -409,13 +407,13 @@ class PDFMergeApp:
 
         image_data: list[bytes] = []
         try:
-            doc = fitz.open(filepath)
+            doc = fitz.open(filepath)  # type: ignore
             if len(doc) > 0:
                 for i, page in enumerate(doc.pages()):
                     if i >= page_count:
                         break
 
-                    mat = fitz.Matrix(2.0, 2.0)  # Zoom factor
+                    mat = fitz.Matrix(2.0, 2.0)  # Zoom factor # type: ignore
                     pix = page.get_pixmap(matrix=mat)  # type: ignore
 
                     # Convert to base64 for display

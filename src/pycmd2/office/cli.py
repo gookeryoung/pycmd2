@@ -52,6 +52,8 @@ def main() -> None:
         title="Office tools",
         port=8000,
         favicon="📄",
+        reload=False,
+        show=False,
         prod_js=True,
     )
 

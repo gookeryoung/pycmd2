@@ -16,15 +16,17 @@ class MachineMonitor:
         self.memory_total_gb: float = 0.0
         self.uptime: datetime = datetime.now(timezone.utc)
 
-        ui.timer(1.0, self.update)
+        ui.timer(3.0, self.update)
 
     def update(self) -> None:
         """更新使用率."""
-        self.cpu_usage = psutil.cpu_percent(interval=1)
+        # 移除interval参数以避免阻塞
+        self.cpu_usage = psutil.cpu_percent()
         self.cpu_cores = psutil.cpu_count() or 1
-        self.memory_usage = psutil.virtual_memory().percent
-        self.memory_used_gb = psutil.virtual_memory().used / (1024**3)
-        self.memory_total_gb = psutil.virtual_memory().total / (1024**3)
+        mem = psutil.virtual_memory()
+        self.memory_usage = mem.percent
+        self.memory_used_gb = mem.used / (1024**3)
+        self.memory_total_gb = mem.total / (1024**3)
         self.uptime = datetime.fromtimestamp(psutil.boot_time(), tz=timezone.utc)
 
     def setup_ui(self) -> ui.element:
