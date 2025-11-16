@@ -25,20 +25,22 @@ class Links(Enum):
 
 @ui.page("/")
 def main_page() -> None:
-    with ui.row().classes("w-full justify-center").style("height: 80vh"):
-        ui.label("Universal workflow toolkit").classes("mx-auto text-h4 text-blue-600 font-consolas font-bold italic")
+    with ui.column().classes("w-full justify-between").style("height: 95vh"):
+        with ui.row().classes("w-full justify-center"):
+            ui.label("Universal workflow toolkit").classes("mx-auto text-h4 text-blue-600 font-consolas font-bold italic")
 
-        with ui.row().classes("w-full justify-between"), ui.column().classes("mx-auto"), ui.row().classes("mx-auto"):
-            with ui.column().classes("mx-auto"):
+        with ui.row().classes("w-full"):
+            with ui.card().style("height: 72vh"):
                 ui.label("PDF系列工具").classes("text-h6")
                 ui.link("PDF合并", Links.PDF_MERGE_APP.value)
 
-            with ui.column().classes("mx-auto"):
+            with ui.card().style("height: 72vh"):
                 ui.label("计算工具").classes("text-h6")
                 ui.link("LSC曲线优化", Links.LSC_OPTIMIZER.value)
 
-    machine_monitor = MachineMonitor()
-    machine_monitor.setup_ui()
+        with ui.row().classes("w-full h-24"):
+            machine_monitor = MachineMonitor()
+            machine_monitor.setup_ui()
 
 
 @ui.page(Links.PDF_MERGE_APP.value)
