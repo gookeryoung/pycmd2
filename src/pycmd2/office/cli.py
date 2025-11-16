@@ -37,8 +37,6 @@ def pdftools_page() -> None:
 def main() -> None:
     ui.run(
         title="Office tools",
-        reload=True,  # dev mode
-        show=True,  # dev mode
         port=8000,
         favicon="📄",
         prod_js=True,

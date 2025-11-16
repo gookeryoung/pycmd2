@@ -21,7 +21,9 @@ from pycmd2.config import TomlConfigMixin
 class PDFMergerConfig(TomlConfigMixin):
     """PDF合并工具配置."""
 
-    valid_extensions = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf")
+    SHOW_LOGGING = False
+
+    VALID_EXTENSIONS = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf")
 
 
 __version__ = "0.1.0"
@@ -96,7 +98,7 @@ class PDFMergeApp:
 
         with ui.column().classes("w-1/2 mx-auto gap-0"):
             ui.label("提示:").classes("text-blue-600 text-bold")
-            ui.label(f"支持的文件格式: {','.join([ext[1:] for ext in conf.valid_extensions])}").classes("text-gray-500")
+            ui.label(f"支持的文件格式: {','.join([ext[1:] for ext in conf.VALID_EXTENSIONS])}").classes("text-gray-500")
 
     def select_directory(self) -> None:
         """打开文件目录选择对话框."""
@@ -132,7 +134,7 @@ class PDFMergeApp:
             return
 
         # Get all supported files from directory
-        self.files = {f.name: PDFFileInfo(f) for f in path.iterdir() if f.is_file() and f.suffix.lower() in conf.valid_extensions}
+        self.files = {f.name: PDFFileInfo(f) for f in path.iterdir() if f.is_file() and f.suffix.lower() in conf.VALID_EXTENSIONS}
 
         # Update data
         self.root_dir = path
@@ -234,7 +236,20 @@ class PDFMergeApp:
 
         assert file_info.path.name in self.files
 
-        self.files[file_info.path.name].order += count
+        # 更新所有相关项的order
+        if count > 0:
+            # 向下移动 - 将下面的项向上移动
+            for f in self.files.values():
+                if file_info.order < f.order <= file_info.order + count:
+                    f.order -= 1
+        else:
+            # 向上移动 - 将上面的项向下移动
+            for f in self.files.values():
+                if file_info.order + count <= f.order < file_info.order:
+                    f.order += 1
+
+        # 更新当前项的order
+        file_info.order += count
         self.files = dict(sorted(self.files.items(), key=lambda item: item[1].order))
         self.update_files_container()
 
