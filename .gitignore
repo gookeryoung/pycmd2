@@ -153,4 +153,3 @@ rust/Cargo.lock
 node_modules/
 yarn.lock
 tsconfig.tsbuildinfo
-src/pycmd2/office/todo/todo_rc.py
