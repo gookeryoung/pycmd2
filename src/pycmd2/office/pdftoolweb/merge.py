@@ -34,6 +34,7 @@ class PDFFileInfo:
     """PDF文件信息."""
 
     path: Path
+    order: int = -1
     row: ui.row | None = None
     checkbox: ui.checkbox | None = None
     previewer: ui.row | None = None
@@ -136,9 +137,9 @@ class PDFMergeApp:
         # Update data
         self.root_dir = path
         self.directory_label.set_text(f"已选目录: 【{path}】, 文件数量: {len(self.files)} 个")
-        self.setup_files_container()
+        self.update_files_container()
 
-    def setup_files_container(self) -> None:
+    def update_files_container(self) -> None:
         """更新文件列表."""
         self.files_container.clear()
 
@@ -147,27 +148,36 @@ class PDFMergeApp:
                 ui.label("待合并文件列表为空!").classes("text-red-600 text-lg")
                 return
 
-            for file_info in self.files.values():
-                row = ui.row().classes("items-center w-full")
-                with row:
-                    checkbox = ui.checkbox(file_info.path.name, value=True).classes("flex-grow")
+            for pos, file_info in enumerate(self.files.values()):
+                self.generate_container_row(file_info, pos)
 
-                    # Preview button for PDFs
-                    if file_info.path.suffix.lower() == ".pdf":
-                        ui.button("预览", on_click=lambda _, f=file_info: self.preview_pdf(f)).classes("ml-2")
-                    # Delete button
-                    ui.button(icon="delete", on_click=lambda _, f=file_info: self.remove_file(f)).props("flat round color=red")
+    def generate_container_row(self, file_info: PDFFileInfo, pos: int) -> None:
+        """创建文件操作行."""
+        row = ui.row().classes("items-center w-full")
+        with row:
+            checkbox = ui.checkbox(file_info.path.name, value=True).classes("flex-grow")
 
-                    preview_container = ui.row().classes("w-full justify-center mt-2")
-                    with preview_container:
-                        ui.spinner().classes("w-12 h-12")
+            # Preview button for PDFs
+            if file_info.path.suffix.lower() == ".pdf":
+                ui.button("预览", on_click=lambda _, f=file_info: self.preview_pdf(f)).classes("ml-2")
+            # Delete button
+            ui.button(icon="delete", on_click=lambda _, f=file_info: self.remove_file(f)).props("flat round color=red")
+            # Sort button
+            with ui.button_group().props("outline"):
+                ui.button(icon="keyboard_arrow_up", on_click=lambda _, f=file_info: self.move_item(f, -1)).props("outline")
+                ui.button(icon="keyboard_arrow_down", on_click=lambda _, f=file_info: self.move_item(f, 1)).props("outline")
 
-                file_info.row = row
-                file_info.checkbox = checkbox
-                file_info.previewer = preview_container
+            preview_container = ui.row().classes("w-full justify-center mt-2")
+            with preview_container:
+                ui.spinner().classes("w-12 h-12")
 
-                # Generate preview asynchronously
-                ui.timer(0.1, lambda f=file_info: self.generate_preview(f), once=True)
+        file_info.order = pos
+        file_info.row = row
+        file_info.checkbox = checkbox
+        file_info.previewer = preview_container
+
+        # Generate preview asynchronously
+        ui.timer(0.1, lambda f=file_info: self.generate_preview(f), once=True)
 
     def generate_preview(self, file_info: PDFFileInfo) -> None:
         """生成文件预览."""
@@ -211,6 +221,22 @@ class PDFMergeApp:
 
         if not len(self.files):
             self.files_container.clear()
+
+    def move_item(self, file_info: PDFFileInfo, count: int = 0) -> None:
+        """移动元素."""
+        if not count:
+            ui.notify("移动距离为 0, 不执行操作")
+            return
+
+        if file_info.order + count < 0 or file_info.order + count >= len(self.files):
+            ui.notify("超出文件列表范围, 不执行操作")
+            return
+
+        assert file_info.path.name in self.files
+
+        self.files[file_info.path.name].order += count
+        self.files = dict(sorted(self.files.items(), key=lambda item: item[1].order))
+        self.update_files_container()
 
     def select_all_files(self) -> None:
         """Select all files."""
