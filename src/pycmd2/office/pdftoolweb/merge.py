@@ -23,7 +23,9 @@ class PDFMergerConfig(TomlConfigMixin):
 
     SHOW_LOGGING = False
 
-    VALID_EXTENSIONS = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf")
+    VALID_EXTENSIONS: tuple[str, ...] = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf")
+    PREVIEW_PAGES: int = 3
+    MAX_PAGES: int = 256
 
 
 __version__ = "0.1.0"
@@ -218,18 +220,10 @@ class PDFMergeApp:
                 with file_info.previewer:
                     ui.image(file_info.path).classes("w-32 h-32 object-contain")
             elif file_info.path.suffix.lower() == ".pdf":
-                # For PDFs, show first page as preview
-                doc = fitz.open(file_info.path)
-                if len(doc) > 0:
-                    page = doc[0]
-                    mat = fitz.Matrix(2.0, 2.0)  # Zoom factor
-                    pix = page.get_pixmap(matrix=mat)  # type: ignore
-
-                    # Convert to base64 for display
-                    img_data = base64.b64encode(pix.tobytes()).decode()
-                    with file_info.previewer:
-                        ui.image(f"data:image/png;base64,{img_data}").classes("w-32 h-32 object-contain")
-                doc.close()
+                image_data = self.pdf_to_image_data(file_info.path, page_count=conf.PREVIEW_PAGES)
+                with file_info.previewer:
+                    for img in image_data:
+                        ui.image(f"data:image/png;base64,{img.decode()}").classes("w-32 h-32 object-contain")
         except Exception as e:  # noqa: BLE001
             msg = f"生成文件预览失败: {file_info.path}, 错误信息: {e}"
             with file_info.previewer:
@@ -301,20 +295,10 @@ class PDFMergeApp:
         with ui.dialog().classes("w-3/4 h-3/4") as dialog, ui.card().classes("w-full h-full"):
             with ui.scroll_area().classes("w-full h-full"), ui.column().classes("items-center"):
                 ui.label(f"预览文件: {file_info.path.name}").classes("text-xl")
-                try:
-                    doc = fitz.open(file_info.path)
-                    for page_num in range(len(doc)):
-                        page = doc[page_num]
-                        mat = fitz.Matrix(1.5, 1.5)  # Zoom factor
-                        pix = page.get_pixmap(matrix=mat)  # type: ignore
-
-                        # Convert to base64 for display
-                        img_data = base64.b64encode(pix.tobytes()).decode()
-                        ui.image(f"data:image/png;base64,{img_data}").classes("max-w-full h-auto my-2")
-                        ui.label(f"Page {page_num + 1}").classes("text-sm text-gray-500")
-                    doc.close()
-                except Exception as e:  # noqa: BLE001
-                    ui.label(f"载入PDF文件失败: {e!s}").classes("text-red-500")
+                self.images = self.pdf_to_image_data(file_info.path, page_count=conf.MAX_PAGES)
+                for page_num, img in enumerate(self.images):
+                    ui.image(f"data:image/png;base64,{img}").classes("max-w-full h-auto my-2")
+                    ui.label(f"Page {page_num + 1}").classes("text-sm text-gray-500")
             ui.button("Close", on_click=dialog.close).classes("self-center mt-4")
 
     def merge_to_pdf(self) -> None:
@@ -407,3 +391,33 @@ class PDFMergeApp:
         except Exception as e:  # noqa: BLE001
             msg = f"转换图片失败: {image_path}, 错误信息: {e!s}"
             ui.notify(msg, type="negative")
+
+    def pdf_to_image_data(self, filepath: Path, page_count: int = 1) -> list[bytes]:
+        """转换PDF文件为图片数据.
+
+        Returns:
+            list[bytes]: 图片数据列表
+        """
+        if not filepath.exists() or filepath.suffix.lower() != ".pdf":
+            ui.notify("请选择一个有效的PDF文件")
+            return []
+
+        image_data: list[bytes] = []
+        try:
+            doc = fitz.open(filepath)
+            if len(doc) > 0:
+                for i, page in enumerate(doc.pages()):
+                    if i >= page_count:
+                        break
+
+                    mat = fitz.Matrix(2.0, 2.0)  # Zoom factor
+                    pix = page.get_pixmap(matrix=mat)  # type: ignore
+
+                    # Convert to base64 for display
+                    image_data.append(base64.b64encode(pix.tobytes()))
+            doc.close()
+        except Exception as e:  # noqa: BLE001
+            ui.notify(f"载入PDF文件失败: {e!s}", type="negative")
+            return []
+        else:
+            return image_data
