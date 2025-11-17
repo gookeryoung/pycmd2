@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Dict
 
 import fitz  # pymupdf
-from fastapi.responses import FileResponse
 from nicegui import events
 from nicegui import ui
 from pypdf import PdfReader
@@ -83,6 +82,7 @@ class PDFMergeApp(WebApp):
 
         # 用于存储上传的文件内容
         self.uploaded_files: Dict[str, bytes] = {}
+        self.merged_file: Path | None = None
 
     def setup(self) -> None:
         """初始化用户界面."""
@@ -117,6 +117,11 @@ class PDFMergeApp(WebApp):
                         self,
                         "files",
                         backward=lambda f: len(f) > 0,
+                    )
+                    self.download_button = ui.button("下载", on_click=self.handle_download_pdf).bind_visibility_from(
+                        self,
+                        "merged_file",
+                        backward=lambda f: f is not None and f.exists(),
                     )
 
         with ui.column().classes("w-1/2 mx-auto gap-0"):
@@ -412,25 +417,23 @@ class PDFMergeApp(WebApp):
                     self.image_to_pdf(file_info.path, writer)
 
             # Save the merged PDF
-            output_path = self.root_dir / output_name if self.root_dir else Path(output_name)
-            with Path(output_path).open("wb") as out_file:
-                writer.write(out_file)
+            with tempfile.NamedTemporaryFile(prefix="merged_", suffix=".pdf", delete=False) as tmp_file:
+                writer.write(tmp_file)
+                output_path = tmp_file.name
 
-            # 添加下载功能
-            def download_merged_file() -> FileResponse:
-                """下载合并后的PDF文件.
-
-                Returns:
-                    FileResponse: 合并后的PDF文件
-                """
-                return FileResponse(str(output_path), media_type="application/pdf", filename=output_name)
-
-            download_link = f"/download/{output_name}"
-            ui.link(f"点击下载合并后的PDF文件: {output_name}", download_link).classes("text-blue-500 underline")
+            self.merged_file = Path(output_path)
             ui.notify(f"成功创建PDF文件: {output_path}", type="positive")
 
         except Exception as e:  # noqa: BLE001
             ui.notify(f"创建PDF失败: {output_name}, 错误信息: {e!s}", type="negative")
+
+    def handle_download_pdf(self) -> None:
+        """下载PDF文件."""
+        if not self.merged_file:
+            ui.notify("请先执行合并操作.")
+            return
+
+        ui.download(self.merged_file, "点击下载合并后的PDF文件")
 
     def image_to_pdf(self, image_path: Path, writer: PdfWriter) -> None:
         """转换图片为PDF文件."""
