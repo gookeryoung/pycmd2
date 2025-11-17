@@ -5,12 +5,13 @@ from matplotlib import rcParams
 from matplotlib.axes import Axes
 from nicegui import ui
 
-from pycmd2.simulation.lscopt.lsc_calc import LSCCurve
+from pycmd2.base.webapp import WebApp
+from pycmd2.simulation.lscopt.calc import LSCCurve
 
 __version__ = "0.1.0"
 
 
-class LSCOptimizerApp:
+class LSCOptimizerApp(WebApp):
     """LSC 曲线优化器.
 
     Properties:
@@ -20,6 +21,8 @@ class LSCOptimizerApp:
         plotter (ui.matplotlib): Matplotlib 图形绘制
         ax (matplotlib.axes.Axes): Matplotlib 图形对象
     """
+
+    ROUTER = "/simulation/lsc-optimizer"
 
     def __init__(self) -> None:
         self.lscc: LSCCurve = LSCCurve()
@@ -45,7 +48,7 @@ class LSCOptimizerApp:
         ]
         rcParams["axes.unicode_minus"] = False
 
-    def setup_ui(self) -> None:
+    def setup(self) -> None:
         """设置UI界面."""
         ui.label(f"LSC Optimizer v{__version__}").classes("mx-auto text-red-600 text-4xl font-bold mb-2")
 

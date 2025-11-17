@@ -14,14 +14,13 @@ from nicegui import ui
 from pycmd2.demo.download_demo import DownloadDemoApp
 from pycmd2.office.pdftoolweb.merge import PDFMergeApp
 from pycmd2.office.system.machine import MachineMonitor
-from pycmd2.simulation.lscopt.lsc_gui import LSCOptimizerApp
+from pycmd2.simulation.lscopt.app import LSCOptimizerApp
 
 
 class Links(Enum):
     """Links for the application."""
 
     PDF_MERGE_APP = "/pdf-merge"
-    LSC_OPTIMIZER = "/lsc-optimizer"
 
 
 @ui.page("/")
@@ -37,7 +36,7 @@ def main_page() -> None:
 
             with ui.card().classes("items-center bg-blue-200").style("height: 72vh"):
                 ui.label("计算工具").classes("text-h6")
-                ui.link("LSC曲线优化", Links.LSC_OPTIMIZER.value)
+                ui.link("LSC曲线优化", LSCOptimizerApp.ROUTER)
 
             with ui.card().classes("items-center bg-green-200").style("height: 72vh"):
                 ui.label("Demos").classes("text-h6")
@@ -55,11 +54,9 @@ def pdftools_page() -> None:
     app.setup_ui()
 
 
-@ui.page(Links.LSC_OPTIMIZER.value)
+@ui.page(LSCOptimizerApp.ROUTER)
 def lsc_optimizer_page() -> None:
-    """Main page for the application."""
-    app = LSCOptimizerApp()
-    app.setup_ui()
+    LSCOptimizerApp().setup()
 
 
 @ui.page(DownloadDemoApp.ROUTER)
