@@ -12,11 +12,13 @@ from pathlib import Path
 from typing import Dict
 
 import fitz  # pymupdf
+from fastapi.responses import FileResponse
 from nicegui import events
 from nicegui import ui
 from pypdf import PdfReader
 from pypdf import PdfWriter
 
+from pycmd2.base.webapp import WebApp
 from pycmd2.config import TomlConfigMixin
 
 
@@ -60,7 +62,7 @@ class PDFFileInfo:
         return hash(self.path)
 
 
-class PDFMergeApp:
+class PDFMergeApp(WebApp):
     """PDF合并工具类.
 
     Properties:
@@ -69,6 +71,8 @@ class PDFMergeApp:
         auto_rotate: 是否自动旋转页面
         uniform_width: 是否保持页面宽度一致
     """
+
+    ROUTER = "/office/pdf-merge"
 
     def __init__(self) -> None:
         self.root_dir: Path | None = None
@@ -80,7 +84,7 @@ class PDFMergeApp:
         # 用于存储上传的文件内容
         self.uploaded_files: Dict[str, bytes] = {}
 
-    def setup_ui(self) -> None:
+    def setup(self) -> None:
         """初始化用户界面."""
         ui.label(f"PDF 合并工具 v{__version__}").classes("mx-auto text-red-600 text-4xl font-bold")
 
@@ -412,6 +416,17 @@ class PDFMergeApp:
             with Path(output_path).open("wb") as out_file:
                 writer.write(out_file)
 
+            # 添加下载功能
+            def download_merged_file() -> FileResponse:
+                """下载合并后的PDF文件.
+
+                Returns:
+                    FileResponse: 合并后的PDF文件
+                """
+                return FileResponse(str(output_path), media_type="application/pdf", filename=output_name)
+
+            download_link = f"/download/{output_name}"
+            ui.link(f"点击下载合并后的PDF文件: {output_name}", download_link).classes("text-blue-500 underline")
             ui.notify(f"成功创建PDF文件: {output_path}", type="positive")
 
         except Exception as e:  # noqa: BLE001
