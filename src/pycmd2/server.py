@@ -10,9 +10,10 @@ from __future__ import annotations
 from nicegui import ui
 
 from pycmd2.demo.download_demo import DownloadDemoApp
+from pycmd2.demo.mandelbrot import MandelbrotApp
 from pycmd2.office.pdf.merge import PDFMergeApp
 from pycmd2.office.system.machine import MachineMonitor
-from pycmd2.simulation.lscopt.app import LSCOptimizerApp
+from pycmd2.simulation.lscopt.lsopt import LSCOptimizerApp
 
 
 @ui.page("/")
@@ -33,6 +34,7 @@ def main_page() -> None:
             with ui.card().classes("items-center bg-green-200").style("height: 72vh"):
                 ui.label("Demos").classes("text-h6")
                 ui.link("文件下载演示", DownloadDemoApp.ROUTER)
+                ui.link("Mandelbrot", MandelbrotApp.ROUTER)
 
         with ui.row().classes("w-full h-24"):
             machine_monitor = MachineMonitor()
@@ -53,6 +55,11 @@ def lsc_optimizer_page() -> None:
 @ui.page(DownloadDemoApp.ROUTER)
 def download_demo_page() -> None:
     DownloadDemoApp().setup()
+
+
+@ui.page(MandelbrotApp.ROUTER)
+def mandelbrot_page() -> None:
+    MandelbrotApp().setup()
 
 
 def main() -> None:
