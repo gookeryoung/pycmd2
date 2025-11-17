@@ -26,6 +26,7 @@ version = "0.5.11"
 
 [project.scripts]
 pycmd2 = "pycmd2.cli:cli.app"
+pycmd2-svr = "pycmd2.server:main"
 
 # demo commands
 ggrep = "pycmd2.demo.grep:cli.app"
@@ -65,7 +66,6 @@ pdfmrg = "pycmd2.office.pdf_merge:cli.app"
 pdfspl = "pycmd2.office.pdf_split:cli.app"
 pdft = "pycmd2.office.pdftools.cli:main"
 pdftw = "pycmd2.office.pdftoolweb.cli:main"
-svr = "pycmd2.office.cli:main"
 todo = "pycmd2.office.todo.cli:main"
 videoconv = "pycmd2.office.video_converter:main"
 
@@ -83,17 +83,13 @@ wch = "pycmd2.system.which:cli.app"
 # simulation commands
 lscopt = "pycmd2.simulation.lscopt.lsc_gui:main"
 
-# web commands
-mdb = "pycmd2.web.minidb.gui:main"
-mdb-api = "pycmd2.web.minidb.app:main"
-
 [project.urls]
 Documentation = "https://pycmd2.readthedocs.io/zh-cn/stable/"
 Issues = "https://gitee.com/gooker_young/pycmd2/issues"
 Repository = "https://gitee.com/gooker_young/pycmd2"
 
 [project.optional-dependencies]
-all = ["pycmd2[demo,gui,office,simulation,web]"]
+all = ["pycmd2[demo,gui,office,simulation]"]
 demo = ["pyqtgraph~=0.12.4"]
 gui = [
   "nicegui>=2.24.2",
@@ -111,12 +107,6 @@ office = [
   "pywin32>=311; platform_system == 'Windows'",
 ]
 simulation = ["matplotlib>=3.7.5", "scipy>=1.10.1"]
-web = [
-  "fastapi-offline>=1.7.5",
-  "fastapi[standard]>=0.120.1",
-  "sqlmodel>=0.0.27",
-  "uvicorn[standard]>=0.33.0",
-]
 
 # ---------------------- coverage ----------------------- #
 [tool.coverage]
