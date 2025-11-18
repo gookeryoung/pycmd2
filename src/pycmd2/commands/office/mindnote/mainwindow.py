@@ -13,8 +13,8 @@ from PyQt5.QtWidgets import QGraphicsView
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QToolBar
 
-from pycmd2.office.mindnote.connection import Connection
-from pycmd2.office.mindnote.node import MindNode
+from .connection import Connection
+from .node import MindNode
 
 
 class MindMapWindow(QMainWindow):
