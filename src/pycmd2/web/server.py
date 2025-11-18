@@ -9,11 +9,11 @@ from __future__ import annotations
 
 from nicegui import ui
 
-from pycmd2.office.pdf.merge import PDFMergeApp
-from pycmd2.office.system.machine import MachineMonitor
 from pycmd2.web.demos.downloader import DownloadDemoApp
 from pycmd2.web.demos.mandelbrot import MandelbrotApp
+from pycmd2.web.office.pdf.merge import PDFMergeApp
 from pycmd2.web.simulation.lscopt.lscopt import LSCOptimizerApp
+from pycmd2.web.system.machine import MachineMonitor
 
 
 @ui.page("/")
