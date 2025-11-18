@@ -179,10 +179,8 @@ class AlarmClock(QMainWindow):
         super().__init__()
         self.setWindowTitle(f"{conf.ALARM_CLOCK_TITLE} v{__version__}")
         self.setGeometry(
-            QApplication.desktop().screenGeometry().center().x()
-            - self.width() // 4,
-            QApplication.desktop().screenGeometry().center().y()
-            - self.height() // 2,
+            QApplication.desktop().screenGeometry().center().x() - self.width() // 4,
+            QApplication.desktop().screenGeometry().center().y() - self.height() // 2,
             self.width(),
             self.height(),
         )

@@ -129,9 +129,7 @@ class ImageProcessor:
         """Convert and merge all images into a single PDF file."""
         logger.info(f"Start converting, using dpi={self.dpi}")
 
-        image_files = sorted(
-            entry for entry in self.root_dir.iterdir() if is_valid_image(entry)
-        )
+        image_files = sorted(entry for entry in self.root_dir.iterdir() if is_valid_image(entry))
         if not image_files:
             logger.error(f"No image file found in: {self.root_dir}")
             return

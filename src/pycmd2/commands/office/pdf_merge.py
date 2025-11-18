@@ -56,10 +56,7 @@ class PdfFileInfo:
             root_dir (Path): 根目录
             writer (pypdf.PdfWriter): PdfWriter
         """
-        if info.prefix:
-            root_bookmark = writer.add_outline_item(info.prefix, 0)
-        else:
-            root_bookmark = None
+        root_bookmark = writer.add_outline_item(info.prefix, 0) if info.prefix else None
 
         def _merge_pdf_file(filepath: Path) -> None:
             with filepath.open("rb") as pdf_file:
@@ -130,21 +127,13 @@ def search_directory(
         return None
 
     children: list[PdfFileInfo] = []
-    folders = [
-        d
-        for d in sorted(search_dir.iterdir())
-        if d.is_dir() and d.name not in IGNORED_FOLDERS
-    ]
+    folders = [d for d in sorted(search_dir.iterdir()) if d.is_dir() and d.name not in IGNORED_FOLDERS]
     for folder in folders:
         pdf_info = search_directory(folder, root_dir)
         if pdf_info is not None:
             children.append(pdf_info)
 
-    pdf_files = [
-        x
-        for x in sorted(search_dir.glob("*.pdf"))
-        if not is_encrypted(x) and MERGE_MARK not in x.stem
-    ]
+    pdf_files = [x for x in sorted(search_dir.glob("*.pdf")) if not is_encrypted(x) and MERGE_MARK not in x.stem]
     if not pdf_files and not children:
         return None
 

@@ -50,10 +50,7 @@ def diff_doc(old: Path, new: Path) -> None:
         doc_compare = word.CompareDocuments(doc_old, doc_new)
 
         # Save the comparison result
-        output = (
-            new.parent
-            / f"{conf.DOC_DIFF_TITLE}@{time.strftime('%H_%M_%S')}.docx"
-        )
+        output = new.parent / f"{conf.DOC_DIFF_TITLE}@{time.strftime('%H_%M_%S')}.docx"
 
         if doc_compare:
             doc_compare.SaveAs2(str(output))

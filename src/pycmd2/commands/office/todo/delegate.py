@@ -76,9 +76,7 @@ class TodoItemDelegate(QStyledItemDelegate):
 
         # 绘制文本
         text_left = checkbox_rect.right() + 10
-        text_width = (
-            rect.width() - text_left - 100
-        )  # 为优先级标签和按钮留出空间
+        text_width = rect.width() - text_left - 100  # 为优先级标签和按钮留出空间
 
         # 根据完成状态设置字体样式
         font = painter.font()
@@ -198,9 +196,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         painter.setBrush(
             QBrush(
                 QColor(
-                    conf.CATEGORY_TAG_COLORS[
-                        hash(category) % len(conf.CATEGORY_TAG_COLORS)
-                    ],
+                    conf.CATEGORY_TAG_COLORS[hash(category) % len(conf.CATEGORY_TAG_COLORS)],
                 ),
             ),
         )
@@ -249,10 +245,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         """绘制复选框."""
         painter.save()
 
-        if checked:
-            img = QImage(":/assets/images/done.svg")
-        else:
-            img = QImage(":/assets/images/todo.svg")
+        img = QImage(":/assets/images/done.svg") if checked else QImage(":/assets/images/todo.svg")
 
         painter.drawImage(rect, img, img.rect())
         painter.restore()

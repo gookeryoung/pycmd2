@@ -120,10 +120,7 @@ class MindMapWindow(QMainWindow):
         if self.temp_connection:
             items = self.scene.items(event.pos())
             for item in items:
-                if (
-                    isinstance(item, MindNode)
-                    and item != self.connection_start_node
-                ):
+                if isinstance(item, MindNode) and item != self.connection_start_node:
                     # 完成连接
                     self.temp_connection.end_node = item
                     self.temp_connection.update_path()
@@ -151,9 +148,7 @@ class MindMapWindow(QMainWindow):
         data = {"nodes": [], "connections": []}
 
         # 收集节点数据
-        nodes = [
-            item for item in self.scene.items() if isinstance(item, MindNode)
-        ]
+        nodes = [item for item in self.scene.items() if isinstance(item, MindNode)]
         for node in nodes:
             node_data = {
                 "text": node.text_item.toPlainText(),
@@ -163,9 +158,7 @@ class MindMapWindow(QMainWindow):
             data["nodes"].append(node_data)
 
         # 收集连接数据
-        connections = [
-            item for item in self.scene.items() if isinstance(item, Connection)
-        ]
+        connections = [item for item in self.scene.items() if isinstance(item, Connection)]
         for conn in connections:
             if conn.end_node:
                 start_idx = nodes.index(conn.start_node)

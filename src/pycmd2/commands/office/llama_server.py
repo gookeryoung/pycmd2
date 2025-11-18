@@ -237,8 +237,7 @@ class LlamaServerGUI(QMainWindow):
     def on_process_finished(self, exit_code: int, exit_status: int) -> None:
         """Process finished."""
         self.append_output(
-            f"\nServer stopped, Exit code: {exit_code}, "
-            f"Status: {exit_status}\n",
+            f"\nServer stopped, Exit code: {exit_code}, Status: {exit_status}\n",
             self.info_format,
         )
         self.update_ui_state(running=False)

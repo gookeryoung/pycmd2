@@ -105,10 +105,7 @@ class FileProcessor:
 
         b, e = pos - 1, pos + len(mark)
         if b >= 0 and e <= len(stem) - 1:
-            if (
-                stem[b] not in conf.BRACKETS[0]
-                or stem[e] not in conf.BRACKETS[1]
-            ):
+            if stem[b] not in conf.BRACKETS[0] or stem[e] not in conf.BRACKETS[1]:
                 return stem[:e] + FileProcessor._remove_mark(stem[e:], mark)
             stem = stem.replace(stem[b : e + 1], "")
             return FileProcessor._remove_mark(stem, mark)

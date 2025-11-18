@@ -146,18 +146,13 @@ def main(
     *,
     black: bool = Option(help="黑白模式", default=False),
 ) -> None:
-    image_files = [
-        f
-        for f in pathlib.Path(cli.cwd).glob("*.*")
-        if is_valid_image(f) and not f.stem.endswith("_conv")
-    ]
+    image_files = [f for f in pathlib.Path(cli.cwd).glob("*.*") if is_valid_image(f) and not f.stem.endswith("_conv")]
     if not image_files:
         logger.error(f"No image file found in current directory: {cli.cwd}.")
         return
 
     logger.info(
-        f"Found {len(image_files)} image files"
-        f": {[f.name for f in image_files]}",
+        f"Found {len(image_files)} image files: {[f.name for f in image_files]}",
     )
     conver_func = partial(convert_img, black_mode=black, width=width)
     cli.run(conver_func, image_files)

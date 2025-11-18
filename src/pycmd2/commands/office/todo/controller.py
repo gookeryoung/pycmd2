@@ -103,9 +103,7 @@ class TodoController:
     def on_add_clicked(self) -> None:
         """Handle add button clicked."""
         text = self.view.todo_input.text().strip()
-        category = (
-            self.view.category_input.text().strip() or conf.DEFAULT_CATEGORY
-        )
+        category = self.view.category_input.text().strip() or conf.DEFAULT_CATEGORY
 
         if text:
             self.model.add_item(text, category=category)
@@ -114,10 +112,7 @@ class TodoController:
 
     def on_item_clicked(self, index: QModelIndex) -> None:
         """Handle item clicked."""
-        if (
-            hasattr(self, "_processing_priority_click")
-            and self._processing_priority_click
-        ):
+        if hasattr(self, "_processing_priority_click") and self._processing_priority_click:
             # Reset processing flag
             self._processing_priority_click = False
             return
@@ -195,9 +190,7 @@ class TodoController:
     def on_update_stats(self) -> None:
         """更新统计信息."""
         self.view.stats_label.setText(
-            f"总计: {self.model.count} |"
-            f" 待完成: {self.model.pending_count} |"
-            f" 已完成: {self.model.completed_count}",
+            f"总计: {self.model.count} | 待完成: {self.model.pending_count} | 已完成: {self.model.completed_count}",
         )
 
     def on_update_category_completer(self) -> None:

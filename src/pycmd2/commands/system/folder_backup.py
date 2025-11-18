@@ -32,8 +32,7 @@ def zip_folder(
     if len(zip_files) >= max_zip:
         remove_files = zip_files[: len(zip_files) - max_zip + 1]
         logger.info(
-            f"超过最大备份数量 {max_zip}, "
-            f"删除旧备份: {[f.name for f in remove_files]}",
+            f"超过最大备份数量 {max_zip}, 删除旧备份: {[f.name for f in remove_files]}",
         )
         cli.run(os.remove, remove_files)
 
@@ -45,9 +44,7 @@ def zip_folder(
 @cli.app.command()
 def main(
     directory: Annotated[Path, Argument(help="备份目录, 默认当前")] = cli.cwd,
-    dest: Annotated[Path, Option(help="目标文件夹")] = (
-        cli.cwd.parent / f"_backup_{cli.cwd.name}"
-    ),
+    dest: Annotated[Path, Option(help="目标文件夹")] = (cli.cwd.parent / f"_backup_{cli.cwd.name}"),
     max_count: Annotated[int, Option(help="最大备份数量")] = 5,
     *,
     clean: Annotated[bool, Option("--clean", help="清理已有备份")] = False,

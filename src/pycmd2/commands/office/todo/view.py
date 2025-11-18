@@ -99,9 +99,7 @@ class TodoView(QMainWindow):
             # Set menu items
             edit_action = menu.addAction("编辑")
             priority_menu = menu.addMenu("设置优先级")
-            priority_actions = [
-                priority_menu.addAction(p) for p in conf.PRIORITIES
-            ]
+            priority_actions = [priority_menu.addAction(p) for p in conf.PRIORITIES]
             delete_action = menu.addAction("删除")
 
             action = menu.exec_(event.globalPos())
@@ -170,9 +168,7 @@ class TodoView(QMainWindow):
         input_layout.addWidget(self.todo_input)
 
         # Create category input
-        self.category_input = (
-            ClickableLineEdit()
-        )  # 使用自定义的ClickableLineEdit
+        self.category_input = ClickableLineEdit()  # 使用自定义的ClickableLineEdit
         self.category_input.setSizePolicy(
             QSizePolicy.Policy.Minimum,  # type: ignore
             QSizePolicy.Policy.Minimum,  # type: ignore

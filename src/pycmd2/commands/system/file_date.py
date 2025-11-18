@@ -83,9 +83,7 @@ class FileDateProc:
         b, e = match.start(), match.end()
         if b >= 1 and filestem[b - 1] in conf.DETECT_SEPERATORS:
             filestem = filestem.replace(filestem[b - 1 : e], "")
-        elif e + 1 <= len(filestem) - 1 and (
-            filestem[e] in conf.DETECT_SEPERATORS
-        ):
+        elif e + 1 <= len(filestem) - 1 and (filestem[e] in conf.DETECT_SEPERATORS):
             filestem = filestem.replace(filestem[b : e + 1], "")
 
         return FileDateProc._remove_date_prefix(filestem)

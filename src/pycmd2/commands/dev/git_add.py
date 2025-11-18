@@ -71,12 +71,8 @@ def main() -> None:
 
     # 计算新增的文件信息
     added_files_info = after - before
-    added_filenames = {
-        f.filepath.stem for f in added_files_info if f.status == "A"
-    }
-    modified_filenames = {
-        f.filepath.stem for f in added_files_info if f.status == "M"
-    }
+    added_filenames = {f.filepath.stem for f in added_files_info if f.status == "A"}
+    modified_filenames = {f.filepath.stem for f in added_files_info if f.status == "M"}
 
     # 显示结果
     check_status = {

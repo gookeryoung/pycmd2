@@ -54,12 +54,7 @@ def main(
     ignore: Annotated[str, Option(help="忽略以此开头的目录或文件名")] = "._",
 ) -> None:
     ignores = list(ignore) or []
-    dirs = [
-        d
-        for d in directory.iterdir()
-        if is_valid_entry(d)
-        and all(not d.name.startswith(ig) for ig in ignores)
-    ]
+    dirs = [d for d in directory.iterdir() if is_valid_entry(d) and all(not d.name.startswith(ig) for ig in ignores)]
 
     if dirs:
         cli.run(zip_folder, dirs)

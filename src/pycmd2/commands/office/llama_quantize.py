@@ -67,9 +67,7 @@ class QuantizationWorker(QThread):
         """执行量化转换任务."""
         try:
             for quant_type in self.quant_types:
-                output_file: pathlib.Path = (
-                    self.input_dir / f"{self.base_name}-{quant_type}.gguf"
-                )
+                output_file: pathlib.Path = self.input_dir / f"{self.base_name}-{quant_type}.gguf"
 
                 self.progress_msg_updated.emit(
                     f"正在转换到 {quant_type} 格式...",
@@ -225,8 +223,7 @@ class GGUFQuantizerGUI(QMainWindow):
             # 检查文件名是否包含F16
             if "-F16" not in filename.upper():
                 self.output_text.append(
-                    "注意: 输入文件名不包含F16后缀,"
-                    "输出文件名将直接添加量化类型",
+                    "注意: 输入文件名不包含F16后缀,输出文件名将直接添加量化类型",
                 )
                 self._scroll_to_bottom()
 
@@ -246,9 +243,7 @@ class GGUFQuantizerGUI(QMainWindow):
         dir_path = self.input_file.parent
 
         for quant_type in self.quant_types:
-            filename = (
-                f"{_process_gguf_stem(self.input_file.stem)}-{quant_type}.gguf"
-            )
+            filename = f"{_process_gguf_stem(self.input_file.stem)}-{quant_type}.gguf"
             expected_file = dir_path / filename
             if expected_file.exists():
                 self.quant_checks[quant_type].setChecked(False)
@@ -270,9 +265,7 @@ class GGUFQuantizerGUI(QMainWindow):
 
     def start_conversion(self) -> None:
         """开始转换."""
-        selected_quants: list[str] = [
-            q for q, check in self.quant_checks.items() if check.isChecked()
-        ]
+        selected_quants: list[str] = [q for q, check in self.quant_checks.items() if check.isChecked()]
 
         if not selected_quants:
             self.output_text.append("请至少选择一种量化类型")

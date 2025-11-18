@@ -28,10 +28,7 @@ def _natural_keys(text: str) -> list[str | int]:
     Returns:
         list[str | int]: natural sorted keys.
     """
-    return [
-        int(part) if part.isdigit() else part.lower()
-        for part in re.split(r"(\d+)", text)
-    ]
+    return [int(part) if part.isdigit() else part.lower() for part in re.split(r"(\d+)", text)]
 
 
 class FilterMode(Enum):
@@ -74,12 +71,8 @@ class TodoItem:
         """
         return {
             **asdict(self),
-            "created_at": self.created_at.isoformat()
-            if self.created_at
-            else "",
-            "completed_at": self.completed_at.isoformat()
-            if self.completed_at
-            else "",
+            "created_at": self.created_at.isoformat() if self.created_at else "",
+            "completed_at": self.completed_at.isoformat() if self.completed_at else "",
         }
 
     @classmethod
@@ -203,11 +196,7 @@ class TodoListModel(QAbstractListModel):
                 item.text = kwargs["text"]  # type: ignore
             if "completed" in kwargs:
                 item.completed = kwargs["completed"]  # type: ignore
-                item.completed_at = (
-                    datetime.now(tz=timezone.utc)
-                    if kwargs["completed"]
-                    else None
-                )
+                item.completed_at = datetime.now(tz=timezone.utc) if kwargs["completed"] else None
             if "priority" in kwargs:
                 item.priority = kwargs["priority"]  # type: ignore
             if "category" in kwargs:
@@ -255,13 +244,9 @@ class TodoListModel(QAbstractListModel):
     def update_filtered_items(self) -> None:
         """更新过滤后的项目列表."""
         if self.filter_mode == FilterMode.Pending.value:
-            self.filtered_items = [
-                item for item in self.get_items() if not item.completed
-            ]
+            self.filtered_items = [item for item in self.get_items() if not item.completed]
         elif self.filter_mode == FilterMode.Completed.value:
-            self.filtered_items = [
-                item for item in self.get_items() if item.completed
-            ]
+            self.filtered_items = [item for item in self.get_items() if item.completed]
         else:  # 全部
             self.filtered_items = self.get_items()
 
@@ -288,8 +273,7 @@ class TodoListModel(QAbstractListModel):
                 self.filtered_items,
                 key=lambda item: (
                     item.completed_at is not None,
-                    item.completed_at
-                    or datetime.min.replace(tzinfo=timezone.utc),
+                    item.completed_at or datetime.min.replace(tzinfo=timezone.utc),
                 ),
             )[::ascending]
 
