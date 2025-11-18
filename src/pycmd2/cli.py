@@ -58,9 +58,7 @@ def _is_valid_entry(entry: Path) -> bool:
         return True
 
     return bool(
-        entry.is_dir()
-        and entry.name not in conf.IGNORE_DIRS
-        and (entry / "__init__.py").exists(),
+        entry.is_dir() and entry.name not in conf.IGNORE_DIRS and (entry / "__init__.py").exists(),
     )
 
 
@@ -69,9 +67,7 @@ def _read_entry_doc(entry: Path) -> str:
         content = entry.read_text(encoding="utf-8")
     elif entry.is_dir():
         init_file = entry / "__init__.py"
-        content = (
-            init_file.read_text(encoding="utf-8") if init_file.exists() else ""
-        )
+        content = init_file.read_text(encoding="utf-8") if init_file.exists() else ""
 
     if not content:
         return "[No documentation]"
