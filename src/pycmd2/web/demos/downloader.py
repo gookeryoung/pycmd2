@@ -17,7 +17,7 @@ from nicegui import ui
 from pycmd2.web.base.app import BaseApp
 
 
-class DownloadDemoApp(BaseApp):
+class DownloaderDemoApp(BaseApp):
     """文件下载演示应用程序."""
 
     ROUTER = "/demos/download-demo"
@@ -107,3 +107,8 @@ class DownloadDemoApp(BaseApp):
                 auto_upload=True,
                 multiple=True,
             ).classes("max-w-full")
+
+
+@ui.page(DownloaderDemoApp.ROUTER)
+def downloader_demo_page() -> None:
+    DownloaderDemoApp().setup()

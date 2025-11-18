@@ -9,9 +9,10 @@ from __future__ import annotations
 
 from nicegui import ui
 
-from pycmd2.web.demos.downloader import DownloadDemoApp
+from pycmd2.web.demos.downloader import DownloaderDemoApp
 from pycmd2.web.demos.mandelbrot import MandelbrotApp
-from pycmd2.web.office.pdf.merge import PDFMergeApp
+from pycmd2.web.demos.wavegraph import WaveGraphApp
+from pycmd2.web.office.pdf.pdf_merge import PDFMergeApp
 from pycmd2.web.simulation.lscopt.lscopt import LSCOptimizerApp
 from pycmd2.web.system.machine import MachineMonitor
 
@@ -33,33 +34,13 @@ def main_page() -> None:
 
             with ui.card().classes("items-center bg-green-200").style("height: 72vh"):
                 ui.label("Demos").classes("text-h6")
-                ui.link("文件下载演示", DownloadDemoApp.ROUTER)
+                ui.link("文件下载演示", DownloaderDemoApp.ROUTER)
                 ui.link("Mandelbrot", MandelbrotApp.ROUTER)
+                ui.link("实时波形图", WaveGraphApp.ROUTER)
 
         with ui.row().classes("w-full h-24"):
             machine_monitor = MachineMonitor()
             machine_monitor.setup_ui()
-
-
-@ui.page(PDFMergeApp.ROUTER)
-def pdftools_page() -> None:
-    """Main page for the application."""
-    PDFMergeApp().setup()
-
-
-@ui.page(LSCOptimizerApp.ROUTER)
-def lsc_optimizer_page() -> None:
-    LSCOptimizerApp().setup()
-
-
-@ui.page(DownloadDemoApp.ROUTER)
-def download_demo_page() -> None:
-    DownloadDemoApp().setup()
-
-
-@ui.page(MandelbrotApp.ROUTER)
-def mandelbrot_page() -> None:
-    MandelbrotApp().setup()
 
 
 def main() -> None:

@@ -148,3 +148,8 @@ class LSCOptimizerApp(BaseApp):
         self.ax.clear()
         self.lscc.plot(self.ax)
         self.plotter.update()
+
+
+@ui.page(LSCOptimizerApp.ROUTER)
+def lsc_optimizer_page() -> None:
+    LSCOptimizerApp().setup()

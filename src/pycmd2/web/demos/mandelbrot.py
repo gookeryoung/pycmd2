@@ -158,3 +158,8 @@ class MandelbrotApp(BaseApp):
         """Reset to the default view."""
         self.calculator = MandelbrotCalculator()
         self.on_plot()
+
+
+@ui.page(MandelbrotApp.ROUTER)
+def mandelbrot_demo_page() -> None:
+    MandelbrotApp().setup()

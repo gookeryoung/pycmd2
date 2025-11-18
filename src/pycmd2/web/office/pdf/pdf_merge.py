@@ -532,3 +532,9 @@ class PDFMergeApp(BaseApp):
                 return []
             else:
                 return image_data
+
+
+@ui.page(PDFMergeApp.ROUTER)
+def pdf_merge_page() -> None:
+    """Main page for the application."""
+    PDFMergeApp().setup()
