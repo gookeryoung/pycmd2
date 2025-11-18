@@ -82,66 +82,67 @@ def get_project_scripts() -> dict[str, str]:
     return pyproject_data.get("project", {}).get("scripts", {})
 
 
-@pytest.mark.parametrize("script_name", SAFE_SCRIPTS)
-def test_script_execution_no_args(script_name: str) -> None:
-    """Test that scripts can be executed without arguments and return non-zero exit codes.
+class TestScripts:
+    """Test script entries defined in pyproject.toml."""
 
-    Note: Many CLI tools return non-zero exit codes when called without arguments
-    because they require specific arguments, but they should at least be executable.
-    """
-    scripts = get_project_scripts()
-    assert script_name in scripts, f"Script '{script_name}' not found in pyproject.toml"
+    @pytest.mark.parametrize("script_name", SAFE_SCRIPTS)
+    def test_script_execution_no_args(self, script_name: str) -> None:
+        """Test that scripts can be executed without arguments and return non-zero exit codes.
 
-    # Try to run the script
-    try:
-        # Using shell=True for simplicity, though it's not ideal for production
-        # We're just testing if the entry point works
-        subprocess.run(
-            [sys.executable, "-m", script_name],
-            check=False,
-            capture_output=True,
-            timeout=10,  # Timeout after 10 seconds
-            shell=False,
+        Note: Many CLI tools return non-zero exit codes when called without arguments
+        because they require specific arguments, but they should at least be executable.
+        """
+        scripts = get_project_scripts()
+        assert script_name in scripts, f"Script '{script_name}' not found in pyproject.toml"
+
+        # Try to run the script
+        try:
+            # Using shell=True for simplicity, though it's not ideal for production
+            # We're just testing if the entry point works
+            subprocess.run(
+                [sys.executable, "-m", script_name],
+                check=False,
+                capture_output=True,
+                timeout=10,  # Timeout after 10 seconds
+                shell=False,
+            )
+            # Just check that the process was able to start
+            # Many CLIs will return non-zero when called without args, which is OK
+        except subprocess.TimeoutExpired:
+            # If it times out, it means the process started and was running
+            pytest.skip(f"Script '{script_name}' timed out (probably waiting for input)")
+        except FileNotFoundError:
+            pytest.fail(f"Script '{script_name}' could not be found or executed")
+
+    def test_all_scripts_accounted_for(self) -> None:
+        """Test that our test covers all scripts or explicitly skips them."""
+        scripts = get_project_scripts()
+        all_script_names = set(scripts.keys())
+
+        # Check that all scripts are either in SAFE_SCRIPTS or SKIP_SCRIPTS
+        unaccounted_scripts = all_script_names - SAFE_SCRIPTS - SKIP_SCRIPTS
+
+        assert not unaccounted_scripts, (
+            f"The following scripts are not accounted for in tests: {unaccounted_scripts}. "
+            f"Add them to SAFE_SCRIPTS or SKIP_SCRIPTS in test_scripts.py"
         )
-        # Just check that the process was able to start
-        # Many CLIs will return non-zero when called without args, which is OK
-    except subprocess.TimeoutExpired:
-        # If it times out, it means the process started and was running
-        pytest.skip(f"Script '{script_name}' timed out (probably waiting for input)")
-    except FileNotFoundError:
-        pytest.fail(f"Script '{script_name}' could not be found or executed")
 
+    def test_skip_scripts_exist(self) -> None:
+        """Test that all scripts listed in SKIP_SCRIPTS actually exist in pyproject.toml."""
+        scripts = get_project_scripts()
+        all_script_names = set(scripts.keys())
 
-def test_all_scripts_accounted_for() -> None:
-    """Test that our test covers all scripts or explicitly skips them."""
-    scripts = get_project_scripts()
-    all_script_names = set(scripts.keys())
+        # Check that SKIP_SCRIPTS actually exist
+        missing_skip_scripts = SKIP_SCRIPTS - all_script_names
 
-    # Check that all scripts are either in SAFE_SCRIPTS or SKIP_SCRIPTS
-    unaccounted_scripts = all_script_names - SAFE_SCRIPTS - SKIP_SCRIPTS
+        assert not missing_skip_scripts, f"The following scripts are listed in SKIP_SCRIPTS but don't exist in pyproject.toml: {missing_skip_scripts}"
 
-    assert not unaccounted_scripts, (
-        f"The following scripts are not accounted for in tests: {unaccounted_scripts}. Add them to SAFE_SCRIPTS or SKIP_SCRIPTS in test_scripts.py"
-    )
+    def test_safe_scripts_exist(self) -> None:
+        """Test that all scripts listed in SAFE_SCRIPTS actually exist in pyproject.toml."""
+        scripts = get_project_scripts()
+        all_script_names = set(scripts.keys())
 
+        # Check that SAFE_SCRIPTS actually exist
+        missing_safe_scripts = SAFE_SCRIPTS - all_script_names
 
-def test_skip_scripts_exist() -> None:
-    """Test that all scripts listed in SKIP_SCRIPTS actually exist in pyproject.toml."""
-    scripts = get_project_scripts()
-    all_script_names = set(scripts.keys())
-
-    # Check that SKIP_SCRIPTS actually exist
-    missing_skip_scripts = SKIP_SCRIPTS - all_script_names
-
-    assert not missing_skip_scripts, f"The following scripts are listed in SKIP_SCRIPTS but don't exist in pyproject.toml: {missing_skip_scripts}"
-
-
-def test_safe_scripts_exist() -> None:
-    """Test that all scripts listed in SAFE_SCRIPTS actually exist in pyproject.toml."""
-    scripts = get_project_scripts()
-    all_script_names = set(scripts.keys())
-
-    # Check that SAFE_SCRIPTS actually exist
-    missing_safe_scripts = SAFE_SCRIPTS - all_script_names
-
-    assert not missing_safe_scripts, f"The following scripts are listed in SAFE_SCRIPTS but don't exist in pyproject.toml: {missing_safe_scripts}"
+        assert not missing_safe_scripts, f"The following scripts are listed in SAFE_SCRIPTS but don't exist in pyproject.toml: {missing_safe_scripts}"
