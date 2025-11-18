@@ -23,7 +23,7 @@ class WaveGraphApp:
         self.speed: float = 0.1
 
         # UI元素引用
-        self.plot: ui.line_plot | None = None
+        self.plot: ui.matplotlib | None = None
         self.amplitude_slider: ui.slider | None = None
         self.frequency_slider: ui.slider | None = None
         self.speed_slider: ui.slider | None = None
@@ -58,7 +58,9 @@ class WaveGraphApp:
 
             # 波形显示区域
             with ui.card().classes("grow h-full"):
-                self.plot = ui.line_plot(n=1, limit=100, update_every=5).with_legend(["Wave"], loc="upper right", ncol=1).classes("w-full h-64")
+                self.plot = ui.matplotlib()
+                self.figure = self.plot.figure
+                self.ax = self.figure.add_subplot(111)
 
             # 初始化定时器
             self.timer = ui.timer(0.05, self.on_update_wave, active=False)
@@ -70,6 +72,8 @@ class WaveGraphApp:
 
     def on_update_wave(self) -> None:
         """更新波形数据."""
+        assert self.plot
+
         # 更新相位
         self.phase += self.speed
 
@@ -78,8 +82,11 @@ class WaveGraphApp:
         ys = self.amplitude * np.sin(self.frequency * xs + self.phase)
 
         # 更新图表
-        if self.plot:
-            self.plot.push(xs.tolist(), [ys.tolist()])
+        self.ax.clear()
+        self.ax.set_xlim(0, np.pi)
+        self.ax.set_ylim(-self.amplitude, self.amplitude)
+        self.ax.plot(xs, ys)
+        self.plot.update()
 
     def on_stop_wave(self) -> None:
         """停止波形更新."""
@@ -93,6 +100,7 @@ class WaveGraphApp:
 
         # 重新创建图表以清空数据
         if self.plot:
+            self.ax.clear()
             self.plot.clear()
 
 
