@@ -29,7 +29,6 @@ pycmd2 = "pycmd2.cli:cli.app"
 
 # demo commands
 ggrep = "pycmd2.demos.grep:cli.app"
-wavegraph = "pycmd2.demos.wavegraph:main"
 
 # Commands
 # dev commands
@@ -92,8 +91,7 @@ Issues = "https://gitee.com/gooker_young/pycmd2/issues"
 Repository = "https://gitee.com/gooker_young/pycmd2"
 
 [project.optional-dependencies]
-all = ["pycmd2[demo,gui,office,simulation]"]
-demo = ["pyqtgraph~=0.12.4"]
+all = ["pycmd2[gui,office,simulation]"]
 gui = [
   "nicegui>=2.24.2",
   "pyqt5-sip~=12.9.0",
