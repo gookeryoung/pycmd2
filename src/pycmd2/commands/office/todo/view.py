@@ -32,9 +32,9 @@ from PyQt5.QtWidgets import QToolBar
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
-from pycmd2.office.todo.config import conf
-from pycmd2.office.todo.delegate import TodoItemDelegate
-from pycmd2.office.todo.todo_rc import *  # noqa: F403
+from pycmd2.commands.office.todo.config import conf
+from pycmd2.commands.office.todo.delegate import TodoItemDelegate
+from pycmd2.commands.office.todo.todo_rc import *  # noqa: F403
 
 from .model import FilterMode
 from .model import SortMode

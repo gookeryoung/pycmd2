@@ -5,8 +5,8 @@ import sys
 from PyQt5.QtWidgets import QApplication
 
 from pycmd2.client import get_client
-from pycmd2.office.todo.config import conf
-from pycmd2.office.todo.controller import TodoController
+from pycmd2.commands.office.todo.config import conf
+from pycmd2.commands.office.todo.controller import TodoController
 
 cli = get_client(enable_qt=True, enable_high_dpi=True)
 

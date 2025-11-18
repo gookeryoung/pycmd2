@@ -4,7 +4,7 @@
 """
 
 from pycmd2.client import get_client
-from pycmd2.dev.pip_download import conf
+from pycmd2.commands.dev.pip_download import conf
 
 cli = get_client()
 

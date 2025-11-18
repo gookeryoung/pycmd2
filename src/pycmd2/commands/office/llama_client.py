@@ -29,7 +29,7 @@ class LlamaWorker(QThread):
 
     response_received = pyqtSignal(str)
     error_occurred = pyqtSignal(str)
-    finished = pyqtSignal()
+    is_finished = pyqtSignal()
 
     def __init__(  # noqa: PLR0913, PLR0917
         self,
@@ -93,7 +93,7 @@ class LlamaWorker(QThread):
         except requests.exceptions.RequestException as e:
             self.error_occurred.emit(f"Connection error: {e!s}")
         finally:
-            self.finished.emit()
+            self.is_finished.emit()
 
     def stop(self) -> None:
         """停止工作线程."""
@@ -253,7 +253,7 @@ class LlamaChatApp(QMainWindow):
         # 连接信号
         self.worker_thread.response_received.connect(self.update_response)
         self.worker_thread.error_occurred.connect(self.handle_error)
-        self.worker_thread.finished.connect(self.on_finished)
+        self.worker_thread.is_finished.connect(self.on_finished)
 
         # 更新UI状态
         self.send_btn.setEnabled(False)

@@ -3,16 +3,16 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.dev.git_push_all import _get_cmd_full_path  # noqa: PLC2701
-from pycmd2.dev.git_push_all import check_git_status
-from pycmd2.dev.git_push_all import check_sensitive_data
-from pycmd2.dev.git_push_all import main
-from pycmd2.dev.git_push_all import push
+from pycmd2.commands.dev.git_push_all import _get_cmd_full_path  # noqa: PLC2701
+from pycmd2.commands.dev.git_push_all import check_git_status
+from pycmd2.commands.dev.git_push_all import check_sensitive_data
+from pycmd2.commands.dev.git_push_all import main
+from pycmd2.commands.dev.git_push_all import push
 
 
 @pytest.fixture
 def mock_cli(mocker: MagicMock) -> MagicMock:
-    return mocker.patch("pycmd2.dev.git_push_all.cli")
+    return mocker.patch("pycmd2.commands.dev.git_push_all.cli")
 
 
 def test_get_cmd_full_path_success() -> None:

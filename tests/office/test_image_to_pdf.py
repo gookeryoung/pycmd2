@@ -14,8 +14,8 @@ from PIL import Image
 from pypdf import PdfReader
 from typing_extensions import TypeAlias
 
-from pycmd2.office.image_to_pdf import ImageProcessor
-from pycmd2.office.image_to_pdf import main
+from pycmd2.commands.office.image_to_pdf import ImageProcessor
+from pycmd2.commands.office.image_to_pdf import main
 
 ImageFunc: TypeAlias = Callable[[int, Tuple[int, int]], List[Image.Image]]
 
@@ -55,7 +55,7 @@ class TestImageProcessor:
     ) -> None:
         """Mock is_valid_image."""
         monkeypatch.setattr(
-            "pycmd2.office.image_to_pdf.is_valid_image",
+            "pycmd2.commands.office.image_to_pdf.is_valid_image",
             lambda _: True,
         )
 

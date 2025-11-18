@@ -17,8 +17,8 @@ from typer import Option
 from typing_extensions import Annotated
 
 from pycmd2.client import get_client
+from pycmd2.commands.office.image_gray import is_valid_image
 from pycmd2.config import TomlConfigMixin
-from pycmd2.office.image_gray import is_valid_image
 
 
 class ImageToPdfConfig(TomlConfigMixin):

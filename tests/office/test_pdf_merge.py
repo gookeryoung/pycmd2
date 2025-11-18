@@ -10,14 +10,14 @@ from unittest.mock import patch
 import pytest
 from fpdf import FPDF
 
-from src.pycmd2.office.pdf_merge import main
-from src.pycmd2.office.pdf_merge import PdfFileInfo
-from src.pycmd2.office.pdf_merge import search_directory
+from src.pycmd2.commands.office.pdf_merge import main
+from src.pycmd2.commands.office.pdf_merge import PdfFileInfo
+from src.pycmd2.commands.office.pdf_merge import search_directory
 
 
 @pytest.fixture
 def mock_cli() -> Generator[MagicMock]:
-    with patch("src.pycmd2.office.pdf_merge.cli") as mock:
+    with patch("src.pycmd2.commands.office.pdf_merge.cli") as mock:
         mock.cwd = Path("test_dir")
         mock.logger.error.return_value = None
         mock.logger.info.return_value = None
@@ -126,7 +126,7 @@ class TestPDFMerge:
             for f in files:
                 func(f)
 
-        with patch("src.pycmd2.office.pdf_merge.cli.run", mock_run):
+        with patch("src.pycmd2.commands.office.pdf_merge.cli.run", mock_run):
             mock_cli.cwd = tmp_path
             pdf_info.merge_file_info(pdf_info, tmp_path, mock_writer)
 

@@ -9,7 +9,7 @@ from typer import Option
 from typing_extensions import Annotated
 
 from pycmd2.client import get_client
-from pycmd2.dev.git_push_all import check_git_status
+from pycmd2.commands.dev.git_push_all import check_git_status
 
 __version__ = "0.1.1"
 __build_date__ = "2025-07-30"

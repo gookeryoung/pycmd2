@@ -4,26 +4,26 @@ pycmd2.office package
 Submodules
 ----------
 
-pycmd2.office.pdf\_crypt module
+pycmd2.commands.office.pdf\_crypt module
 -------------------------------
 
-.. automodule:: pycmd2.office.pdf_crypt
+.. automodule:: pycmd2.commands.office.pdf_crypt
    :members:
    :undoc-members:
    :show-inheritance:
 
-pycmd2.office.pdf\_merge module
+pycmd2.commands.office.pdf\_merge module
 -------------------------------
 
-.. automodule:: pycmd2.office.pdf_merge
+.. automodule:: pycmd2.commands.office.pdf_merge
    :members:
    :undoc-members:
    :show-inheritance:
 
-pycmd2.office.pdf\_split module
+pycmd2.commands.office.pdf\_split module
 -------------------------------
 
-.. automodule:: pycmd2.office.pdf_split
+.. automodule:: pycmd2.commands.office.pdf_split
    :members:
    :undoc-members:
    :show-inheritance:

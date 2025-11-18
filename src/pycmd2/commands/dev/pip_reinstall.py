@@ -8,8 +8,8 @@ from typing import List
 import typer
 
 from pycmd2.client import get_client
-from pycmd2.dev.pip_download import conf
-from pycmd2.dev.pip_uninstall import pip_uninstall
+from pycmd2.commands.dev.pip_download import conf
+from pycmd2.commands.dev.pip_uninstall import pip_uninstall
 
 cli = get_client()
 

@@ -7,8 +7,8 @@ from typing import NoReturn
 import pytest
 from PIL import Image
 
-from pycmd2.office.image_gray import convert_img
-from pycmd2.office.image_gray import is_valid_image
+from pycmd2.commands.office.image_gray import convert_img
+from pycmd2.commands.office.image_gray import is_valid_image
 
 
 class _WriteType(Enum):
@@ -69,7 +69,7 @@ class TestImageGray:
     ) -> None:
         """Mock is_valid_image."""
         monkeypatch.setattr(
-            "pycmd2.office.image_gray.is_valid_image",
+            "pycmd2.commands.office.image_gray.is_valid_image",
             self._is_valid_image,
         )
 

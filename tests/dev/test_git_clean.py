@@ -4,18 +4,18 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.dev.git_clean import main
+from pycmd2.commands.dev.git_clean import main
 
 
 @pytest.fixture
 def mock_cli() -> Generator[MagicMock, None, None]:
-    with patch("pycmd2.dev.git_clean.cli") as mock:
+    with patch("pycmd2.commands.dev.git_clean.cli") as mock:
         yield mock
 
 
 @pytest.fixture
 def mock_check_git_status() -> Generator[MagicMock, None, None]:
-    with patch("pycmd2.dev.git_clean.check_git_status") as mock:
+    with patch("pycmd2.commands.dev.git_clean.check_git_status") as mock:
         yield mock
 
 

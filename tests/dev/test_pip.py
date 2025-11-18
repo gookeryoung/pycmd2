@@ -5,13 +5,13 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from pycmd2.dev.pip_download import cli as pip_download_cli
-from pycmd2.dev.pip_download_req import cli as pip_download_req_cli
-from pycmd2.dev.pip_freeze import cli as pip_freeze_cli
-from pycmd2.dev.pip_install import cli as pip_install_cli
-from pycmd2.dev.pip_install_offline import cli as pip_install_offline_cli
-from pycmd2.dev.pip_install_req import cli as pip_install_req_cli
-from pycmd2.dev.pip_uninstall_req import cli as pip_uninstall_req_cli
+from pycmd2.commands.dev.pip_download import cli as pip_download_cli
+from pycmd2.commands.dev.pip_download_req import cli as pip_download_req_cli
+from pycmd2.commands.dev.pip_freeze import cli as pip_freeze_cli
+from pycmd2.commands.dev.pip_install import cli as pip_install_cli
+from pycmd2.commands.dev.pip_install_offline import cli as pip_install_offline_cli
+from pycmd2.commands.dev.pip_install_req import cli as pip_install_req_cli
+from pycmd2.commands.dev.pip_uninstall_req import cli as pip_uninstall_req_cli
 
 
 @pytest.fixture(autouse=True)

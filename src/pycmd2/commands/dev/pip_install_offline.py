@@ -9,7 +9,7 @@ from typer import Argument
 from typing_extensions import Annotated
 
 from pycmd2.client import get_client
-from pycmd2.dev.pip_install import pip_install
+from pycmd2.commands.dev.pip_install import pip_install
 
 cli = get_client()
 StrList = List[str]

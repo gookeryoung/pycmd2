@@ -6,16 +6,16 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.dev.git_add import get_changed_files_info
-from pycmd2.dev.git_add import GitAddFileStatus
-from pycmd2.dev.git_add import main
+from pycmd2.commands.dev.git_add import get_changed_files_info
+from pycmd2.commands.dev.git_add import GitAddFileStatus
+from pycmd2.commands.dev.git_add import main
 
 
 @pytest.fixture
 def mock_subprocess() -> Generator[MagicMock, None, None]:
     with patch("subprocess.run") as mock:
         mock.return_value = MagicMock(
-            stdout="A  new.txt\nM  modified.txt\n?? untracked.txt\nD  deleted.txt\nMM conflicted.txt\nR  renamed.txt\nC  copied.txt\nU  unmerged.txt",  # noqa: E501
+            stdout="A  new.txt\nM  modified.txt\n?? untracked.txt\nD  deleted.txt\nMM conflicted.txt\nR  renamed.txt\nC  copied.txt\nU  unmerged.txt",
             returncode=0,
         )
         yield mock
@@ -23,7 +23,7 @@ def mock_subprocess() -> Generator[MagicMock, None, None]:
 
 @pytest.fixture
 def mock_cli(tmp_path: Path) -> Generator[MagicMock, None, None]:
-    with patch("pycmd2.dev.git_add.cli") as mock:
+    with patch("pycmd2.commands.dev.git_add.cli") as mock:
         mock.cwd = str(tmp_path)
         mock.run_cmd = MagicMock()
         yield mock

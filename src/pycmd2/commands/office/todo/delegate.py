@@ -22,8 +22,8 @@ from PyQt5.QtWidgets import QStyledItemDelegate
 from PyQt5.QtWidgets import QStyleOptionViewItem
 from PyQt5.QtWidgets import QWidget
 
-from pycmd2.office.todo.config import conf
-from pycmd2.office.todo.model import TodoItem
+from pycmd2.commands.office.todo.config import conf
+from pycmd2.commands.office.todo.model import TodoItem
 
 
 class PriorityAction(IntEnum):

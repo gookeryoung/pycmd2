@@ -12,8 +12,8 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QCompleter
 from PyQt5.QtWidgets import QMessageBox
 
-from pycmd2.office.todo.config import conf
-from pycmd2.office.todo.model import TodoListModel
+from pycmd2.commands.office.todo.config import conf
+from pycmd2.commands.office.todo.model import TodoListModel
 
 from .delegate import TodoItemDelegate
 from .model import FilterMode

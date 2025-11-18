@@ -9,8 +9,8 @@ from pathlib import Path
 import typer
 
 from pycmd2.client import get_client
+from pycmd2.commands.dev.env_python import add_env_to_bashrc
 from pycmd2.config import TomlConfigMixin
-from pycmd2.dev.env_python import add_env_to_bashrc
 
 
 class EnvRustConfig(TomlConfigMixin):

@@ -10,7 +10,7 @@ from pathlib import Path
 import pypdf
 
 from pycmd2.client import get_client
-from pycmd2.office.pdf_crypt import is_encrypted
+from pycmd2.commands.office.pdf_crypt import is_encrypted
 
 cli = get_client(help_doc="pdf 合并工具.")
 logger = logging.getLogger(__name__)

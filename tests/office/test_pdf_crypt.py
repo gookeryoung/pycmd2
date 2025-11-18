@@ -13,12 +13,12 @@ from unittest.mock import patch
 import pytest
 from fpdf import FPDF
 
-from src.pycmd2.office.pdf_crypt import decrypt
-from src.pycmd2.office.pdf_crypt import decrypt_pdf
-from src.pycmd2.office.pdf_crypt import encrypt
-from src.pycmd2.office.pdf_crypt import encrypt_pdf
-from src.pycmd2.office.pdf_crypt import is_encrypted
-from src.pycmd2.office.pdf_crypt import list_pdf
+from src.pycmd2.commands.office.pdf_crypt import decrypt
+from src.pycmd2.commands.office.pdf_crypt import decrypt_pdf
+from src.pycmd2.commands.office.pdf_crypt import encrypt
+from src.pycmd2.commands.office.pdf_crypt import encrypt_pdf
+from src.pycmd2.commands.office.pdf_crypt import is_encrypted
+from src.pycmd2.commands.office.pdf_crypt import list_pdf
 
 
 @pytest.fixture
@@ -137,7 +137,7 @@ class TestPdfCryptFunctions:
         mock_cli = MagicMock()
         mock_cli.cwd = tmp_path
 
-        with patch("src.pycmd2.office.pdf_crypt.cli", mock_cli):
+        with patch("src.pycmd2.commands.office.pdf_crypt.cli", mock_cli):
             unencrypted, encrypted = list_pdf()
 
             assert len(unencrypted) == 1
@@ -163,7 +163,7 @@ class TestPdfCryptCommands:
         mock_cli = MagicMock()
         mock_cli.cwd = empty_dir
 
-        with patch("src.pycmd2.office.pdf_crypt.cli", mock_cli):
+        with patch("src.pycmd2.commands.office.pdf_crypt.cli", mock_cli):
             with caplog.at_level(logging.ERROR):
                 encrypt("password123")
 
@@ -185,7 +185,7 @@ class TestPdfCryptCommands:
 
         mock_cli.run = mock_run
 
-        with patch("src.pycmd2.office.pdf_crypt.cli", mock_cli):
+        with patch("src.pycmd2.commands.office.pdf_crypt.cli", mock_cli):
             encrypt("password123")
 
             encrypted_file = tmp_path / "test.enc.pdf"
@@ -209,7 +209,7 @@ class TestPdfCryptCommands:
         mock_cli = MagicMock()
         mock_cli.cwd = plain_dir
 
-        with patch("src.pycmd2.office.pdf_crypt.cli", mock_cli):
+        with patch("src.pycmd2.commands.office.pdf_crypt.cli", mock_cli):
             with caplog.at_level(logging.ERROR):
                 decrypt("password123")
 
@@ -234,7 +234,7 @@ class TestPdfCryptCommands:
         mock_cli.cwd = tmp_path
         mock_cli.run = mock_run
 
-        monkeypatch.setattr("pycmd2.office.pdf_crypt.cli", mock_cli)
+        monkeypatch.setattr("pycmd2.commands.office.pdf_crypt.cli", mock_cli)
 
         decrypt("password123")
 

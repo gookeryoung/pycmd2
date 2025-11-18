@@ -13,10 +13,10 @@ from PyQt5.QtGui import QContextMenuEvent
 from PyQt5.QtWidgets import QMessageBox
 from pytestqt.qtbot import QtBot
 
-from pycmd2.office.todo.config import conf
-from pycmd2.office.todo.controller import TodoController
-from pycmd2.office.todo.model import TodoItem
-from pycmd2.office.todo.model import TodoListModel
+from pycmd2.commands.office.todo.config import conf
+from pycmd2.commands.office.todo.controller import TodoController
+from pycmd2.commands.office.todo.model import TodoItem
+from pycmd2.commands.office.todo.model import TodoListModel
 
 
 class TestTodoItem:
@@ -137,7 +137,7 @@ class TestTodoListView:
     ) -> None:
         """Reset data file."""
         monkeypatch.setattr(
-            "pycmd2.office.todo.controller.TodoController.get_data_file_path",
+            "pycmd2.commands.office.todo.controller.TodoController.get_data_file_path",
             lambda _: str(tmp_path / "todo_data.json"),
         )
 
@@ -372,7 +372,7 @@ class TestTodoListView:
         mock_controller: TodoController,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test context menu event by directly calling the method for edit action."""  # noqa: E501
+        """Test context menu event by directly calling the method for edit action."""
         # Add an item to test with
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
@@ -418,7 +418,7 @@ class TestTodoListView:
         mock_controller: TodoController,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test context menu event by directly calling the method for delete action."""  # noqa: E501
+        """Test context menu event by directly calling the method for delete action."""
         # Add an item to test with
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
@@ -465,7 +465,7 @@ class TestTodoListView:
         mock_controller: TodoController,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test context menu event by directly calling the method for set priority action."""  # noqa: E501
+        """Test context menu event by directly calling the method for set priority action."""
         # Add an item to test with
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
@@ -507,7 +507,7 @@ class TestTodoListView:
         mock_controller: TodoController,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test context menu event when clicking on an invalid index (empty area)."""  # noqa: E501
+        """Test context menu event when clicking on an invalid index (empty area)."""
         # Add an item to test with
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
@@ -565,15 +565,9 @@ class TestTodoListView:
         monkeypatch.setattr(os, "chdir", mock_chdir)
 
         # Find the backup timer
-        timers = [
-            child
-            for child in mock_controller.view.children()
-            if child.__class__.__name__ == "QTimer"
-        ]
+        timers = [child for child in mock_controller.view.children() if child.__class__.__name__ == "QTimer"]
         backup_interval = 1000 * 60 * conf.BACKUP_INTEVAL
-        backup_timers = [
-            timer for timer in timers if timer.interval() == backup_interval
-        ]
+        backup_timers = [timer for timer in timers if timer.interval() == backup_interval]
 
         assert len(backup_timers) == 1
         backup_timer = backup_timers[0]

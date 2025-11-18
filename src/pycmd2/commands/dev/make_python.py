@@ -21,7 +21,7 @@ from urllib.request import pathname2url
 import typer
 
 from pycmd2.client import get_client
-from pycmd2.dev.git_push_all import main as git_push_all
+from pycmd2.commands.dev.git_push_all import main as git_push_all
 
 try:
     import tomllib  # type: ignore[import]
