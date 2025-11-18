@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from pycmd2.system.file_date import FileDateProc
+from pycmd2.commands.system.file_date import FileDateProc
 
 
 class TestFileDate:
@@ -49,7 +49,7 @@ class TestFileDate:
     ) -> None:
         """测试移除日期前缀功能冲突."""
         monkeypatch.setattr(
-            "pycmd2.system.file_date.FileDateProc._time_mark",
+            "pycmd2.commands.system.file_date.FileDateProc._time_mark",
             "20220101",
         )
 
@@ -79,7 +79,7 @@ class TestFileDate:
     ) -> None:
         """测试移除日期前缀功能冲突."""
         monkeypatch.setattr(
-            "pycmd2.system.file_date.FileDateProc._time_mark",
+            "pycmd2.commands.system.file_date.FileDateProc._time_mark",
             "20220101",
         )
 

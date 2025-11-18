@@ -74,7 +74,7 @@ def get_project_scripts() -> dict[str, str]:
     Returns:
         dict[str, str]: A dictionary of script names and their corresponding entry points.
     """
-    pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
 
     with Path(pyproject_path).open("rb") as f:
         pyproject_data = tomli.load(f)

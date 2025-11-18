@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from pycmd2.system.file_level import conf
-from pycmd2.system.file_level import FileProcessor
+from pycmd2.commands.system.file_level import conf
+from pycmd2.commands.system.file_level import FileProcessor
 
 
 class TestFileLevel:
