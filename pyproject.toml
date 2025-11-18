@@ -26,7 +26,6 @@ version = "0.5.11"
 
 [project.scripts]
 pycmd2 = "pycmd2.cli:cli.app"
-pycmd2-svr = "pycmd2.server:main"
 
 # demo commands
 ggrep = "pycmd2.demo.grep:cli.app"
@@ -80,8 +79,11 @@ ld = "pycmd2.system.list_dirs:cli.app"
 taskk = "pycmd2.system.task_kill:cli.app"
 wch = "pycmd2.system.which:cli.app"
 
-# simulation commands
-lscopt = "pycmd2.simulation.lscopt.lsc_gui:main"
+# simulation tools
+lscopt = "pycmd2.web.simulation.lscopt.lscopt_gui:main"
+
+# web
+websvr = "pycmd2.web.server:main"
 
 [project.urls]
 Documentation = "https://pycmd2.readthedocs.io/zh-cn/stable/"

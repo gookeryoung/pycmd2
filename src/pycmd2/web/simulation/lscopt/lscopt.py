@@ -5,13 +5,13 @@ from matplotlib import rcParams
 from matplotlib.axes import Axes
 from nicegui import ui
 
-from pycmd2.base.webapp import WebApp
-from pycmd2.simulation.lscopt.calc import LSCCurve
+from pycmd2.web.base.app import BaseApp
+from pycmd2.web.simulation.lscopt.calc import LSCCurve
 
 __version__ = "0.1.0"
 
 
-class LSCOptimizerApp(WebApp):
+class LSCOptimizerApp(BaseApp):
     """LSC 曲线优化器.
 
     Properties:

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import numpy as np
 from nicegui import ui
 
-from pycmd2.base.webapp import WebApp
+from pycmd2.web.base.app import BaseApp
 
 
 @dataclass
@@ -71,7 +71,7 @@ class MandelbrotCalculator:
         return escape_count
 
 
-class MandelbrotApp(WebApp):
+class MandelbrotApp(BaseApp):
     """曼德勃罗集示例."""
 
     ROUTER = "/demos/mandelbrot"

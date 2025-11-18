@@ -17,8 +17,8 @@ from nicegui import ui
 from pypdf import PdfReader
 from pypdf import PdfWriter
 
-from pycmd2.base.webapp import WebApp
 from pycmd2.config import TomlConfigMixin
+from pycmd2.web.base.app import BaseApp
 
 
 class PDFMergerConfig(TomlConfigMixin):
@@ -61,7 +61,7 @@ class PDFFileInfo:
         return hash(self.path)
 
 
-class PDFMergeApp(WebApp):
+class PDFMergeApp(BaseApp):
     """PDF合并工具类.
 
     Properties:

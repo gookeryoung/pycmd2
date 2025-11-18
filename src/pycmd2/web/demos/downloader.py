@@ -14,10 +14,10 @@ import pandas as pd
 from nicegui import events
 from nicegui import ui
 
-from pycmd2.base.webapp import WebApp
+from pycmd2.web.base.app import BaseApp
 
 
-class DownloadDemoApp(WebApp):
+class DownloadDemoApp(BaseApp):
     """文件下载演示应用程序."""
 
     ROUTER = "/demos/download-demo"

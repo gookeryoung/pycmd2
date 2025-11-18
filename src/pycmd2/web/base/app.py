@@ -2,7 +2,7 @@ from abc import ABC
 from abc import abstractmethod
 
 
-class WebApp(ABC):
+class BaseApp(ABC):
     """Abstract base class for web applications."""
 
     ROUTER: str = ""
