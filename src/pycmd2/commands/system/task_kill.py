@@ -44,7 +44,7 @@ def get_process_list_windows() -> List[dict]:  # noqa: C901
                     name = parts[0].strip('"')
                     pid = parts[1].strip('"')
                     processes.append({"name": name, "pid": pid})
-    except Exception:  # noqa: BLE001
+    except (UnicodeDecodeError, subprocess.CalledProcessError):  # 更具体的异常类型
         # 如果GBK编码失败, 尝试UTF-8
         try:
             result = subprocess.run(
@@ -61,11 +61,14 @@ def get_process_list_windows() -> List[dict]:  # noqa: C901
                         name = parts[0].strip('"')
                         pid = parts[1].strip('"')
                         processes.append({"name": name, "pid": pid})
-        except Exception:
+        except (subprocess.SubprocessError, OSError, ValueError):
             logger.exception("获取进程列表失败")
             return []
         else:
             return processes
+    except (subprocess.SubprocessError, OSError, ValueError):  # 更具体的异常类型
+        logger.exception("获取进程列表失败")
+        return []
     else:
         return processes
 
@@ -92,7 +95,7 @@ def get_process_list_unix() -> List[dict]:
                     pid = parts[0]
                     name = parts[1]
                     processes.append({"name": name, "pid": pid})
-    except Exception:
+    except (subprocess.SubprocessError, OSError, ValueError):  # 更具体的异常类型
         logger.exception("获取进程列表失败")
         return []
     else:
@@ -179,7 +182,7 @@ def main(
 
         logger.info(f"成功终止 {success_count} 个匹配 '{proc}' 的进程")
 
-    except Exception:
+    except (subprocess.SubprocessError, OSError, ValueError):
         logger.exception(f"结束进程 {proc} 失败!")
     else:
         logger.info(f"结束进程 {proc} 完成!")
