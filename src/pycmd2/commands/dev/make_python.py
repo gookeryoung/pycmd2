@@ -10,9 +10,7 @@ import logging
 import re
 import shutil
 import webbrowser
-from dataclasses import dataclass
 from functools import partial
-from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import ClassVar
@@ -37,22 +35,12 @@ cli = get_client()
 logger = logging.getLogger(__name__)
 
 
-@dataclass
 class MakeOption:
     """MakeOption 选项."""
 
-    name: str = "Unknown"
-    commands: ClassVar[list[str | list[str] | Callable[..., Any]]] = []
+    name: str
+    commands: ClassVar[list[str | list[str] | Callable[..., Any]]]
     desc: str = ""
-
-    @classmethod
-    def src_dir(cls) -> Path:
-        """获取源代码目录.
-
-        Returns:
-            Path: 源代码目录
-        """
-        return cli.cwd / "src"
 
     @classmethod
     def build_command(cls) -> str:
@@ -61,12 +49,12 @@ class MakeOption:
         Returns:
             str: 构建命令
         """
-        makefile = Path.cwd() / "Makefile"
+        makefile = cli.cwd / "Makefile"
 
         if makefile.exists():
             return "make"
 
-        pyproject_file = Path.cwd() / "pyproject.toml"
+        pyproject_file = cli.cwd / "pyproject.toml"
         if pyproject_file.exists():
             logger.info("检测到 pyproject.toml 文件")
             with pyproject_file.open("rb") as f:
@@ -102,7 +90,7 @@ class MakeOption:
         Returns:
             str: 发布命令
         """
-        if (Path.cwd() / "dist").exists():
+        if (cli.cwd / "dist").exists():
             # 根据操作系统选择合适的命令
             if cli.is_windows:
                 return ["cmd", "/c", "dir", "dist"]
@@ -152,7 +140,7 @@ class MakeOption:
         build_date = datetime.datetime.now(datetime.timezone.utc).strftime(
             "%Y-%m-%d",
         )
-        init_files = cls.src_dir().rglob("__init__.py")
+        init_files = (cli.cwd / "src").rglob("__init__.py")
 
         updated_files = 0
         skipped_files = 0
