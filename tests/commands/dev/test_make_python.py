@@ -217,7 +217,7 @@ class TestPyprojectMaker:
         """测试调用有效选项."""
         maker = PyprojectMaker()
 
-        with patch.object(maker, "_call_option") as mock_call:
+        with patch.object(maker, "call_option") as mock_call:
             maker.call_option_str("build")
             mock_call.assert_called_once()
 
