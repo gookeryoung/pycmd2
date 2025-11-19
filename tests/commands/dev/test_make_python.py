@@ -137,23 +137,23 @@ build-backend = "poetry.core.masonry.api"
         result = MakeOption.build_command()
         assert not result
 
-    def test_dist_command_with_dist_dir(self, mock_cli: MagicMock, tmp_path: Path) -> None:  # noqa: ARG002
-        """测试存在 dist 目录时的发布命令."""
+    def test_list_dist_dir_with_dist_dir(self, mock_cli: MagicMock, tmp_path: Path) -> None:  # noqa: ARG002
+        """测试存在 dist 目录时的列出发布目录命令."""
         dist_dir = tmp_path / "dist"
         dist_dir.mkdir()
 
-        result = MakeOption.dist_command()
+        result = MakeOption.list_dist_dir()
         assert result == ["ls", "-l", "dist"]
 
-    def test_dist_command_without_dist_dir(self, mock_cli: MagicMock) -> None:  # noqa: ARG002
-        """测试不存在 dist 目录时的发布命令."""
-        result = MakeOption.dist_command()
+    def test_list_dist_dir_without_dist_dir(self, mock_cli: MagicMock) -> None:  # noqa: ARG002
+        """测试不存在 dist 目录时的列出发布目录命令."""
+        result = MakeOption.list_dist_dir()
         assert result == ["ls", "-l"]
 
-    def test_dist_command_windows(self, mock_cli: MagicMock) -> None:
+    def test_list_dist_dir_windows(self, mock_cli: MagicMock) -> None:
         """测试 Windows 系统的发布命令."""
         mock_cli.is_windows = True
-        result = MakeOption.dist_command()
+        result = MakeOption.list_dist_dir()
         assert result == ["cmd", "/c", "dir"]
 
     def test_project_name_from_project(self, mock_cli: MagicMock, sample_pyproject: Path) -> None:  # noqa: ARG002

@@ -83,8 +83,8 @@ class MakeOption:
         return ""
 
     @classmethod
-    def dist_command(cls) -> List[str]:
-        """获取发布命令.
+    def list_dist_dir(cls) -> List[str]:
+        """获取发布目录信息.
 
         Returns:
             str: 发布命令
@@ -345,7 +345,7 @@ class DistributionOption(MakeOption):
         "clean",
         "sync",
         [MakeOption.build_command(), "build"],
-        MakeOption.dist_command(),
+        MakeOption.list_dist_dir(),
     ]
 
 
