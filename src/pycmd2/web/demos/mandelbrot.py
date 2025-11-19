@@ -45,12 +45,6 @@ class MandelbrotCalculator:
     def calculate(self) -> np.ndarray:
         """Calculate the Mandelbrot set using PyTorch acceleration if available, otherwise NumPy.
 
-        Args:
-            xmin, xmax: X-axis boundaries
-            ymin, ymax: Y-axis boundaries
-            width, height: Dimensions of the output array
-            max_iter: Maximum iteration count
-
         Returns:
             2D numpy array representing the Mandelbrot set
         """

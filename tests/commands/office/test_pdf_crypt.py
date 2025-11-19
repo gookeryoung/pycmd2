@@ -43,7 +43,6 @@ def encrypted_pdf(simple_pdf: Path) -> Path | None:
 
     Args:
         simple_pdf (Path): 简单PDF文件路径
-        tmp_path (Path): 临时目录
 
     Returns:
         Path | None: 加密PDF文件路径

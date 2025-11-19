@@ -391,7 +391,6 @@ class LintOption(MakeOption):
     name = "lint"
     desc = "代码质量检查"
     commands: ClassVar = [
-        "sync",
         ["uvx", "ruff", "check", "src", "tests", "--fix"],
     ]
 
