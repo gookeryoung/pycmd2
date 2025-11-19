@@ -7,6 +7,8 @@ organized by category with navigation and search capabilities.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from nicegui import ui
 
 from pycmd2.web.demos.downloader import DownloaderDemoApp
@@ -15,6 +17,124 @@ from pycmd2.web.demos.wavegraph import WaveGraphApp
 from pycmd2.web.office.pdf.pdf_merge import PDFMergeApp
 from pycmd2.web.simulation.lscopt.lscopt import LSCOptimizerApp
 from pycmd2.web.system.machine import MachineMonitor
+
+
+@dataclass
+class ToolCard:
+    """Tool card data class."""
+
+    title: str
+    description: str
+    icon: str
+    color: str
+    router: str
+
+    def setup(self) -> ui.card:
+        """Create a card for the tool.
+
+        Returns:
+            ui.card
+        """
+        with ui.card().classes("tool-card w-full cursor-pointer").on("click", lambda: ui.navigate.to(self.router)) as card, ui.column().classes(
+            "items-center text-center gap-2 p-4",
+        ):
+            ui.icon(self.icon).classes(f"text-3xl text-{self.color}")
+            ui.label(self.title).classes("app-title")
+            ui.label(self.description).classes("app-description")
+
+        return card
+
+
+@dataclass
+class ToolCardGroup:
+    """Tool card group data class."""
+
+    title: str
+    description: str
+    icon: str
+    color: str
+    tools: list[ToolCard]
+
+    def setup(self) -> ui.expansion:
+        """Create a card group for the tool.
+
+        Returns:
+            ui.expansion
+        """
+        with ui.expansion(self.title, icon=self.icon).classes("w-full").props(f"expand-icon-class=text-{self.color}-500") as expansion:
+            with ui.row().classes("w-full items-center p-4"):
+                ui.icon(self.icon).classes(f"category-icon bg-{self.color}-100 text-{self.color}-600")
+                ui.label(self.description).classes("text-h6 font-bold")
+            ui.separator()
+
+            with ui.grid(columns=len(self.tools)).classes("w-full gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"):
+                for tool in self.tools:
+                    tool.setup()
+
+        return expansion
+
+
+CARD_GROUPS: list[ToolCardGroup] = [
+    ToolCardGroup(
+        title="Office Tools",
+        description="Document Processing & Office Automation",
+        icon="picture_as_pdf",
+        color="blue",
+        tools=[
+            ToolCard(
+                title="PDF Merger",
+                description="Merge multiple PDF files into one",
+                icon="merge",
+                color="blue",
+                router=PDFMergeApp.ROUTER,
+            ),
+        ],
+    ),
+    ToolCardGroup(
+        title="Simulation Tools",
+        description="Scientific Computing & Simulations",
+        icon="calculate",
+        color="green",
+        tools=[
+            ToolCard(
+                title="LSC Optimizer",
+                description="Optimize LSC parameters",
+                icon="calculate",
+                color="purple",
+                router=LSCOptimizerApp.ROUTER,
+            ),
+        ],
+    ),
+    ToolCardGroup(
+        title="Demos & Examples",
+        description="Demonstrations & Examples",
+        icon="code",
+        color="yellow",
+        tools=[
+            ToolCard(
+                title="Downloader Demo",
+                description="Download files from the internet",
+                icon="download",
+                color="indigo",
+                router=DownloaderDemoApp.ROUTER,
+            ),
+            ToolCard(
+                title="Mandelbrot Set",
+                description="Visualize the Mandelbrot set",
+                icon="scientist",
+                color="blue",
+                router=MandelbrotApp.ROUTER,
+            ),
+            ToolCard(
+                title="Wave Graph",
+                description="Visualize a wave graph",
+                icon="water_drop",
+                color="green",
+                router=WaveGraphApp.ROUTER,
+            ),
+        ],
+    ),
+]
 
 
 @ui.page("/")
@@ -134,74 +254,8 @@ def main_page() -> None:
 
         # Categories section
         with ui.column().classes("w-full gap-6"):
-            # Office Tools
-            with ui.expansion("Office Tools", icon="picture_as_pdf").classes("w-full").props("expand-icon-class=text-blue-500"):
-                with ui.row().classes("w-full items-center p-4"):
-                    ui.icon("picture_as_pdf").classes("category-icon bg-blue-100 text-blue-600")
-                    ui.label("Document Processing & Office Automation").classes("text-h6 font-bold")
-                ui.separator()
-
-                with ui.grid(columns=1).classes("w-full gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"):
-                    card_element = create_tool_card(
-                        "PDF Merger",
-                        "Merge multiple PDFs with drag-and-drop reordering",
-                        "merge",
-                        "blue-500",
-                        PDFMergeApp.ROUTER,
-                    )
-                    tool_cards.append((card_element, "PDF Merger", "Merge multiple PDFs with drag-and-drop reordering"))
-
-            # Simulation Tools
-            with ui.expansion("Simulation Tools", icon="calculate").classes("w-full").props("expand-icon-class=text-green-500"):
-                with ui.row().classes("w-full items-center p-4"):
-                    ui.icon("calculate").classes("category-icon bg-green-100 text-green-600")
-                    ui.label("Scientific Computing & Simulations").classes("text-h6 font-bold")
-                ui.separator()
-
-                with ui.grid(columns=1).classes("w-full gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"):
-                    card_element = create_tool_card(
-                        "LSC Curve Optimizer",
-                        "Optimize LSC curves for better performance",
-                        "timeline",
-                        "purple-500",
-                        LSCOptimizerApp.ROUTER,
-                    )
-                    tool_cards.append((card_element, "LSC Curve Optimizer", "Optimize LSC curves for better performance"))
-
-            # Demo Tools
-            with ui.expansion("Demos & Examples", icon="code").classes("w-full").props("expand-icon-class=text-yellow-500"):
-                with ui.row().classes("w-full items-center p-4"):
-                    ui.icon("code").classes("category-icon bg-yellow-100 text-yellow-600")
-                    ui.label("Demonstrations & Examples").classes("text-h6 font-bold")
-                ui.separator()
-
-                with ui.grid(columns=1).classes("w-full gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"):
-                    card_element = create_tool_card(
-                        "File Downloader",
-                        "Demonstrate file download capabilities",
-                        "download",
-                        "indigo-500",
-                        DownloaderDemoApp.ROUTER,
-                    )
-                    tool_cards.append((card_element, "File Downloader", "Demonstrate file download capabilities"))
-
-                    card_element = create_tool_card(
-                        "Mandelbrot Set",
-                        "Interactive visualization of Mandelbrot fractals",
-                        "animation",
-                        "pink-500",
-                        MandelbrotApp.ROUTER,
-                    )
-                    tool_cards.append((card_element, "Mandelbrot Set", "Interactive visualization of Mandelbrot fractals"))
-
-                    card_element = create_tool_card(
-                        "Wave Graph",
-                        "Real-time waveform visualization",
-                        "show_chart",
-                        "teal-500",
-                        WaveGraphApp.ROUTER,
-                    )
-                    tool_cards.append((card_element, "Wave Graph", "Real-time waveform visualization"))
+            for group in CARD_GROUPS:
+                group.setup()
 
         # System monitor
         with ui.card().classes("w-full mt-6"):
@@ -210,29 +264,12 @@ def main_page() -> None:
                 ui.label("System Monitor").classes("text-h6 font-bold")
             ui.separator()
             with ui.row().classes("w-full justify-center p-4"):
-                machine_monitor = MachineMonitor()
-                machine_monitor.setup_ui()
+                MachineMonitor().setup()
 
     # Footer
     with ui.footer().classes("bg-gray-100 text-gray-600 p-4"), ui.column().classes("w-full max-w-6xl mx-auto items-center"):
         ui.label("Universal Workflow Toolkit © 2025").classes("text-center")
         ui.label("A powerful collection of tools for everyday tasks").classes("text-center text-sm")
-
-
-def create_tool_card(title: str, description: str, icon: str, color: str, route: str) -> ui.card:
-    """Create a styled tool card.
-
-    Returns:
-        ui.card: The created tool card.
-    """
-    with ui.card().classes("tool-card w-full cursor-pointer").on("click", lambda: ui.navigate.to(route)) as card, ui.column().classes(
-        "items-center text-center gap-2 p-4",
-    ):
-        ui.icon(icon).classes(f"text-3xl text-{color}")
-        ui.label(title).classes("app-title")
-        ui.label(description).classes("app-description")
-
-    return card
 
 
 def main() -> None:

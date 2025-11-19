@@ -29,7 +29,7 @@ class MachineMonitor:
         self.memory_total_gb = mem.total / (1024**3)
         self.uptime = datetime.fromtimestamp(psutil.boot_time(), tz=timezone.utc)
 
-    def setup_ui(self) -> ui.element:
+    def setup(self) -> ui.element:
         """设置UI.
 
         Returns:
