@@ -63,6 +63,14 @@ def main_page() -> None:
         else:
             dark.disable()
 
+    def on_filter_tools(query: str) -> None:
+        """Filter tools based on search query."""
+        # This would be implemented with actual search logic
+        if query:
+            ui.notify(f"Searching for: {query}")
+        else:
+            ui.notify("Showing all tools")
+
     # Header with title and navigation
     with ui.header().classes("items-center justify-between p-4 bg-white text-black shadow"):
         ui.label("Universal Workflow Toolkit").classes("text-h5 font-bold")
@@ -80,11 +88,11 @@ def main_page() -> None:
         # Search section
         with ui.row().classes("w-full justify-center py-4"):
             search_input = (
-                ui.input(placeholder="Search for tools...", on_change=lambda e: filter_tools(e.value))
+                ui.input(placeholder="Search for tools...", on_change=lambda e: on_filter_tools(e.value))
                 .classes("w-full md:w-1/2")
                 .props("outlined rounded")
             )
-            ui.button(icon="search").props("round").on("click", lambda: filter_tools(search_input.value))
+            ui.button(icon="search").props("round").on("click", lambda: on_filter_tools(search_input.value))
 
         # Stats bar
         with ui.row().classes("w-full justify-center gap-4 py-4 flex-wrap"):
@@ -199,15 +207,6 @@ def create_tool_card(title: str, description: str, icon: str, color: str, route:
         ui.icon(icon).classes(f"text-3xl text-{color}")
         ui.label(title).classes("app-title")
         ui.label(description).classes("app-description")
-
-
-def filter_tools(query: str) -> None:
-    """Filter tools based on search query."""
-    # This would be implemented with actual search logic
-    if query:
-        ui.notify(f"Searching for: {query}")
-    else:
-        ui.notify("Showing all tools")
 
 
 def main() -> None:
