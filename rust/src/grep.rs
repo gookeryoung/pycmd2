@@ -24,7 +24,7 @@ pub fn grep(pattern: &str, path: &str) -> PyResult<String> {
         for entry in fs::read_dir(path)? {
             let path = entry?.path();
             if path.is_file() {
-                println!("Search in file: {}", path.display());
+                println!("在文件中查找匹配: {}", path.display());
                 let contents = fs::read_to_string(path)?;
                 for line in contents.lines() {
                     if line.contains(pattern) {
