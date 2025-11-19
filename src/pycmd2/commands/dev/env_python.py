@@ -129,13 +129,14 @@ def write_pypirc(token: str) -> None:
     """永久配置 PyPI Token."""
     token_file = cli.home / ".pypirc"
     if token_file.exists():
-        logger.info(f"已存在 [green bold]{token_file}")
-    else:
-        logger.info(f"创建 [green bold]{token_file}")
-        token_file.write_text(
-            f"[pypi]\nusername = __token__\npassword = {token}\n",
-            encoding="utf-8",
-        )
+        logger.info(f"已存在 [green bold]{token_file}, 移除旧文件")
+        token_file.unlink()
+
+    logger.info(f"创建 [green bold]{token_file}")
+    token_file.write_text(
+        f"[pypi]\nusername = __token__\npassword = {token}\n",
+        encoding="utf-8",
+    )
 
 
 @cli.app.command()
