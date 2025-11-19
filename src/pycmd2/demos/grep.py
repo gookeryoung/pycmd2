@@ -24,10 +24,10 @@ def main(
     path: str = typer.Argument(help="搜索目录", default=str(Path.cwd())),
 ) -> None:
     logger.info(f"grep {__version__}, 构建日期: {__build_date__}")
-    logger.info(f"Searching for [green b]{pattern}[/] in [green b]{path}")
+    logger.info(f"搜索模式: [green b]{pattern}[/], 搜索目录: [green b]{path}")
 
     try:
-        result = grep(pattern, path)
+        results = grep(pattern, path)
     except FileNotFoundError:
         logger.exception(f"未找到文件: {path}")
         return
@@ -35,8 +35,9 @@ def main(
         logger.exception("文件系统错误")
         return
 
-    if not result:
+    if not results.matches:
         logger.info("未找到匹配项")
         return
 
-    logger.info(f"搜索结果: [green]{result}")
+    # 格式化输出匹配结果
+    logger.info(f"搜索结果:\n[green]{results!s}[/]")

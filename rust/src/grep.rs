@@ -1,8 +1,78 @@
+use pyo3::prelude::*;
 use pyo3::{PyResult, pyfunction};
 use std::{fs, path};
 
+/// 表示单个匹配结果的结构体
+#[pyclass]
+#[derive(Debug, Clone)]
+pub struct MatchResult {
+    /// 文件路径
+    #[pyo3(get)]
+    pub file_path: String,
+    /// 行号
+    #[pyo3(get)]
+    pub line_number: usize,
+    /// 匹配的行内容
+    #[pyo3(get)]
+    pub line_content: String,
+}
+
+#[pymethods]
+impl MatchResult {
+    fn __repr__(&self) -> String {
+        format!(
+            "MatchResult(file_path='{}', line_number={}, line_content='{}')",
+            self.file_path, self.line_number, self.line_content
+        )
+    }
+}
+
+/// Grep搜索结果列表
+#[pyclass]
+pub struct GrepResults {
+    #[pyo3(get)]
+    pub matches: Vec<MatchResult>,
+}
+
+#[pymethods]
+impl GrepResults {
+    fn __repr__(&self) -> String {
+        format!(
+            "GrepResults(matches=[{}])",
+            self.matches
+                .iter()
+                .map(|m| format!("{:?}", m))
+                .collect::<Vec<_>>()
+                .join(", ")
+        )
+    }
+
+    fn __str__(&self) -> String {
+        self.matches
+            .iter()
+            .map(|m| format!("[{}]@{}:`{}`\n", m.file_path, m.line_number, m.line_content))
+            .collect::<String>()
+    }
+
+    fn __len__(&self) -> usize {
+        self.matches.len()
+    }
+
+    fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
+        slf
+    }
+
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<MatchResult> {
+        if !slf.matches.is_empty() {
+            Some(slf.matches.remove(0))
+        } else {
+            None
+        }
+    }
+}
+
 #[pyfunction]
-pub fn grep(pattern: &str, path: &str) -> PyResult<String> {
+pub fn grep(pattern: &str, path: &str) -> PyResult<GrepResults> {
     let filepath = path::Path::new(path);
 
     if !filepath.exists() {
@@ -12,20 +82,24 @@ pub fn grep(pattern: &str, path: &str) -> PyResult<String> {
         )));
     }
 
-    let mut match_contents = String::new();
+    let mut results = GrepResults {
+        matches: Vec::new(),
+    };
+
     if filepath.is_file() {
-        // 使用 fs::read 并手动处理 UTF-8 转换，忽略无效编码的文件
         match fs::read_to_string(path) {
             Ok(contents) => {
-                for line in contents.lines() {
+                for (line_num, line) in contents.lines().enumerate() {
                     if line.contains(pattern) {
-                        match_contents.push_str(line);
-                        match_contents.push('\n');
+                        results.matches.push(MatchResult {
+                            file_path: path.to_string(),
+                            line_number: line_num + 1,
+                            line_content: line.to_string(),
+                        });
                     }
                 }
             }
             Err(_) => {
-                // 如果无法读取为UTF-8，则跳过该文件但不中断操作
                 eprintln!("警告：无法读取文件 {} 作为UTF-8文本", path);
             }
         }
@@ -33,19 +107,24 @@ pub fn grep(pattern: &str, path: &str) -> PyResult<String> {
         for entry in fs::read_dir(path)? {
             let path = entry?.path();
             if path.is_file() {
-                println!("在文件中查找匹配: {}", path.display());
-                // 同样处理目录中的每个文件
+                let path_str = match path.to_str() {
+                    Some(s) => s.to_string(),
+                    None => continue,
+                };
+
                 match fs::read_to_string(&path) {
                     Ok(contents) => {
-                        for line in contents.lines() {
+                        for (line_num, line) in contents.lines().enumerate() {
                             if line.contains(pattern) {
-                                match_contents.push_str(line);
-                                match_contents.push('\n');
+                                results.matches.push(MatchResult {
+                                    file_path: path_str.clone(),
+                                    line_number: line_num + 1,
+                                    line_content: line.to_string(),
+                                });
                             }
                         }
                     }
                     Err(_) => {
-                        // 如果无法读取为UTF-8，则跳过该文件但不中断操作
                         eprintln!("警告：无法读取文件 {:?} 作为UTF-8文本", path);
                     }
                 }
@@ -58,5 +137,5 @@ pub fn grep(pattern: &str, path: &str) -> PyResult<String> {
         )));
     }
 
-    Ok(match_contents)
+    Ok(results)
 }
