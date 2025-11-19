@@ -14,6 +14,7 @@ from nicegui import ui
 from pycmd2.web.demos.downloader import DownloaderDemoApp
 from pycmd2.web.demos.mandelbrot import MandelbrotApp
 from pycmd2.web.demos.wavegraph import WaveGraphApp
+from pycmd2.web.help.icons import IconsHelpApp
 from pycmd2.web.office.pdf.pdf_merge import PDFMergeApp
 from pycmd2.web.simulation.lscopt.lscopt import LSCOptimizerApp
 from pycmd2.web.system.machine import MachineMonitor
@@ -35,10 +36,13 @@ class ToolCard:
         Returns:
             ui.card
         """
-        with ui.card().classes("tool-card w-full cursor-pointer").on("click", lambda: ui.navigate.to(self.router)) as card, ui.column().classes(
-            "items-center text-center gap-2 p-4",
+        with ui.card().classes("tool-card cursor-pointer").on(
+            "click",
+            lambda: ui.navigate.to(self.router),
+        ) as card, ui.column().classes(
+            "w-full mx-auto items-center text-center gap-2 p-4",
         ):
-            ui.icon(self.icon).classes(f"text-3xl text-{self.color}")
+            ui.icon(self.icon).classes(f"text-3xl text-{self.color}-400")
             ui.label(self.title).classes("app-title")
             ui.label(self.description).classes("app-description")
 
@@ -121,7 +125,7 @@ CARD_GROUPS: list[ToolCardGroup] = [
             ToolCard(
                 title="Mandelbrot Set",
                 description="Visualize the Mandelbrot set",
-                icon="scientist",
+                icon="functions",
                 color="blue",
                 router=MandelbrotApp.ROUTER,
             ),
@@ -131,6 +135,21 @@ CARD_GROUPS: list[ToolCardGroup] = [
                 icon="water_drop",
                 color="green",
                 router=WaveGraphApp.ROUTER,
+            ),
+        ],
+    ),
+    ToolCardGroup(
+        title="Help & Resources",
+        description="Documentation & Resources",
+        icon="help",
+        color="red",
+        tools=[
+            ToolCard(
+                title="Icons Gallery",
+                description="Browse available Material Icons",
+                icon="grid_view",
+                color="red",
+                router=IconsHelpApp.ROUTER,
             ),
         ],
     ),
@@ -161,7 +180,6 @@ def main_page() -> None:
         }
         .app-title {
             font-weight: 600;
-            margin-bottom: 0.5rem;
         }
         .app-description {
             color: #6b7280;
@@ -273,6 +291,8 @@ def main_page() -> None:
 
 
 def main() -> None:
+    # Setup additional pages
+
     ui.run(
         title="Universal Workflow Toolkit",
         port=8000,
