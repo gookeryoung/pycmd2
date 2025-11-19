@@ -426,7 +426,9 @@ class PyprojectMaker:
 
     options: ClassVar[dict[str, MakeOption]] = {
         "act": ActivateOption(),
+        "b": BuildOption(),
         "build": BuildOption(),
+        "bp": BumpPublishOption(),
         "bpub": BumpPublishOption(),
         "bump": BumpOption(),
         "bumpi": BumpMinorOption(),
