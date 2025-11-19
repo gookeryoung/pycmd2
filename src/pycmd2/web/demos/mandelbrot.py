@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 try:
     import torch
 
-    DEVICE = "cuda" if not torch.cuda.is_available() else "cpu"
+    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     logger.info(f"Using PyTorch, device: [green bold]{DEVICE}")
 except ImportError:
     TORCH_AVAILABLE = False
