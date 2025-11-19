@@ -51,10 +51,16 @@ def main_page() -> None:
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
+        .hidden-card {
+            display: none;
+        }
     </style>
     """)
 
     dark = ui.dark_mode()
+
+    # Store references to tool cards for filtering
+    tool_cards = []
 
     def on_change_theme(theme: str) -> None:
         """Change theme."""
@@ -65,11 +71,20 @@ def main_page() -> None:
 
     def on_filter_tools(query: str) -> None:
         """Filter tools based on search query."""
-        # This would be implemented with actual search logic
-        if query:
-            ui.notify(f"Searching for: {query}")
-        else:
-            ui.notify("Showing all tools")
+        query = query.lower().strip()
+
+        # Show all cards if query is empty
+        if not query:
+            for card, _, _ in tool_cards:
+                card.classes(remove="hidden-card")
+            return
+
+        # Filter cards based on title or description
+        for card, title, description in tool_cards:
+            if query in title.lower() or query in description.lower():
+                card.classes(remove="hidden-card")
+            else:
+                card.classes(add="hidden-card")
 
     # Header with title and navigation
     with ui.header().classes("items-center justify-between p-4 bg-white text-black shadow"):
@@ -127,13 +142,14 @@ def main_page() -> None:
                 ui.separator()
 
                 with ui.grid(columns=1).classes("w-full gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"):
-                    create_tool_card(
+                    card_element = create_tool_card(
                         "PDF Merger",
                         "Merge multiple PDFs with drag-and-drop reordering",
                         "merge",
                         "blue-500",
                         PDFMergeApp.ROUTER,
                     )
+                    tool_cards.append((card_element, "PDF Merger", "Merge multiple PDFs with drag-and-drop reordering"))
 
             # Simulation Tools
             with ui.expansion("Simulation Tools", icon="calculate").classes("w-full").props("expand-icon-class=text-green-500"):
@@ -143,13 +159,14 @@ def main_page() -> None:
                 ui.separator()
 
                 with ui.grid(columns=1).classes("w-full gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"):
-                    create_tool_card(
+                    card_element = create_tool_card(
                         "LSC Curve Optimizer",
                         "Optimize LSC curves for better performance",
                         "timeline",
                         "purple-500",
                         LSCOptimizerApp.ROUTER,
                     )
+                    tool_cards.append((card_element, "LSC Curve Optimizer", "Optimize LSC curves for better performance"))
 
             # Demo Tools
             with ui.expansion("Demos & Examples", icon="code").classes("w-full").props("expand-icon-class=text-yellow-500"):
@@ -159,29 +176,32 @@ def main_page() -> None:
                 ui.separator()
 
                 with ui.grid(columns=1).classes("w-full gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"):
-                    create_tool_card(
+                    card_element = create_tool_card(
                         "File Downloader",
                         "Demonstrate file download capabilities",
                         "download",
                         "indigo-500",
                         DownloaderDemoApp.ROUTER,
                     )
+                    tool_cards.append((card_element, "File Downloader", "Demonstrate file download capabilities"))
 
-                    create_tool_card(
+                    card_element = create_tool_card(
                         "Mandelbrot Set",
                         "Interactive visualization of Mandelbrot fractals",
                         "animation",
                         "pink-500",
                         MandelbrotApp.ROUTER,
                     )
+                    tool_cards.append((card_element, "Mandelbrot Set", "Interactive visualization of Mandelbrot fractals"))
 
-                    create_tool_card(
+                    card_element = create_tool_card(
                         "Wave Graph",
                         "Real-time waveform visualization",
                         "show_chart",
                         "teal-500",
                         WaveGraphApp.ROUTER,
                     )
+                    tool_cards.append((card_element, "Wave Graph", "Real-time waveform visualization"))
 
         # System monitor
         with ui.card().classes("w-full mt-6"):
@@ -199,14 +219,20 @@ def main_page() -> None:
         ui.label("A powerful collection of tools for everyday tasks").classes("text-center text-sm")
 
 
-def create_tool_card(title: str, description: str, icon: str, color: str, route: str) -> None:
-    """Create a styled tool card."""
-    with ui.card().classes("tool-card w-full cursor-pointer").on("click", lambda: ui.navigate.to(route)), ui.column().classes(
+def create_tool_card(title: str, description: str, icon: str, color: str, route: str) -> ui.card:
+    """Create a styled tool card.
+
+    Returns:
+        ui.card: The created tool card.
+    """
+    with ui.card().classes("tool-card w-full cursor-pointer").on("click", lambda: ui.navigate.to(route)) as card, ui.column().classes(
         "items-center text-center gap-2 p-4",
     ):
         ui.icon(icon).classes(f"text-3xl text-{color}")
         ui.label(title).classes("app-title")
         ui.label(description).classes("app-description")
+
+    return card
 
 
 def main() -> None:
