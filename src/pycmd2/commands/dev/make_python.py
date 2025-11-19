@@ -10,6 +10,7 @@ import logging
 import re
 import shutil
 import webbrowser
+from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 from typing import Any
@@ -36,11 +37,12 @@ cli = get_client()
 logger = logging.getLogger(__name__)
 
 
+@dataclass
 class MakeOption:
     """MakeOption 选项."""
 
-    name: str
-    commands: list[str | list[str] | Callable[..., Any]]
+    name: str = "Unknown"
+    commands: ClassVar[list[str | list[str] | Callable[..., Any]]] = []
     desc: str = ""
 
     @classmethod
@@ -69,6 +71,8 @@ class MakeOption:
             logger.info("检测到 pyproject.toml 文件")
             with pyproject_file.open("rb") as f:
                 conf = tomllib.load(f)
+
+                # 检测 hatch 构建后端
                 if all(
                     [
                         "build-system" in conf,
@@ -77,6 +81,16 @@ class MakeOption:
                     ],
                 ):
                     return "hatch"
+
+                # 检测 Poetry 构建后端
+                if all(
+                    [
+                        "build-system" in conf,
+                        "build-backend" in conf["build-system"],
+                        "poetry" in conf["build-system"]["build-backend"],
+                    ],
+                ):
+                    return "poetry"
 
         logger.error("未找到构建工具, 请手动构建")
         return ""
@@ -88,7 +102,16 @@ class MakeOption:
         Returns:
             str: 发布命令
         """
-        return ["ls", "-l", "dist"] if (Path.cwd() / "dist").exists() else ["ls", "-l"]
+        if (Path.cwd() / "dist").exists():
+            # 根据操作系统选择合适的命令
+            if cli.is_windows:
+                return ["cmd", "/c", "dir", "dist"]
+            return ["ls", "-l", "dist"]
+
+        # 根据操作系统选择合适的命令
+        if cli.is_windows:
+            return ["cmd", "/c", "dir"]
+        return ["ls", "-l"]
 
     @classmethod
     def project_name(cls) -> str:
@@ -108,7 +131,14 @@ class MakeOption:
         try:
             with cfg_file.open("rb") as f:
                 config = tomllib.load(f)
-                project_name = config["project"]["name"] or config["tool"]["poetry"]["name"]
+                project_name = ""
+
+                # 尝试从 project.name 获取
+                if "project" in config and "name" in config["project"]:
+                    project_name = config["project"]["name"]
+                # 尝试从 tool.poetry.name 获取
+                elif "tool" in config and "poetry" in config["tool"] and "name" in config["tool"]["poetry"]:
+                    project_name = config["tool"]["poetry"]["name"]
 
                 return project_name or ""
         except Exception as e:
@@ -123,6 +153,9 @@ class MakeOption:
             "%Y-%m-%d",
         )
         init_files = cls.src_dir().rglob("__init__.py")
+
+        updated_files = 0
+        skipped_files = 0
 
         for init_file in init_files:
             try:
@@ -140,12 +173,12 @@ class MakeOption:
                         flags=re.MULTILINE | re.IGNORECASE,
                     )
 
-                    # 查找所有匹配项
-                    matches = pattern.findall(content)
+                    # 查找匹配项
                     match = pattern.search(content)
-                    if not matches or not match:
-                        logger.warning("未找到 __build_date__ 定义")
-                        return
+                    if not match:
+                        logger.debug(f"文件 {init_file} 中未找到 __build_date__ 定义, 跳过")
+                        skipped_files += 1
+                        continue
 
                     # 构造新行(保留原始格式).
                     quote = match.group(3) or ""  # 获取原引号(可能为空)
@@ -154,26 +187,37 @@ class MakeOption:
 
                     # 检查是否需要更新
                     if new_content == content:
-                        logger.info("构建日期已是最新, 无需更新")
+                        logger.debug(f"文件 {init_file} 构建日期已是最新, 无需更新")
+                        skipped_files += 1
+                        continue
 
                     # 回写文件
                     f.seek(0)
                     f.write(new_content)
                     f.truncate()
+
+                    updated_files += 1
+                    logger.info(
+                        f"更新文件: {init_file}, __build_date__ -> {build_date}",
+                    )
             except Exception as e:
                 msg = f"操作失败: [red]{init_file}, {e.__class__.__name__}: {e}"
                 logger.exception(msg)
-                return
+                continue
 
-            logger.info(
-                f"更新文件: {init_file}, __build_date__ -> {build_date}",
-            )
+        # 汇总处理结果
+        if updated_files > 0:
+            logger.info(f"构建日期更新完成, 共更新 {updated_files} 个文件")
+        if skipped_files > 0:
+            logger.info(f"跳过 {skipped_files} 个文件(未找到 __build_date__ 定义或无需更新)")
+        if updated_files == 0 and skipped_files == 0:
+            logger.warning("未找到任何 __init__.py 文件进行处理")
 
 
 def _activate_py_env() -> None:
     extension = ".bat" if cli.is_windows else ""
-    actviate_path = cli.cwd / ".venv" / "Scripts" / f"activate{extension}"
-    cli.run_cmdstr(str(actviate_path))
+    activate_path = cli.cwd / ".venv" / "Scripts" / f"activate{extension}"
+    cli.run_cmdstr(str(activate_path))
 
 
 class ActivateOption(MakeOption):
