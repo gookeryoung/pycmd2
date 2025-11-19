@@ -487,7 +487,7 @@ class PyprojectMaker:
             )
             return
 
-        self._call_option(option)
+        self.call_option(option)
 
     @classmethod
     def options_list(cls) -> list[str]:
@@ -498,7 +498,7 @@ class PyprojectMaker:
         """
         return list(cls.options.keys())
 
-    def _call_option(self, option: MakeOption) -> None:
+    def call_option(self, option: MakeOption) -> None:
         """内部调用选项."""
         logger.info(f"调用选项: mkp [green bold]{option.name}")
         if option.desc:
@@ -509,7 +509,7 @@ class PyprojectMaker:
                 child_opt = self.options.get(command, None)
                 if child_opt:
                     logger.info(f"执行子命令: [purple]{child_opt.name}")
-                    self._call_option(child_opt)
+                    self.call_option(child_opt)
                 else:
                     logger.error(f"未找到匹配选项: {command}")
                     return

@@ -234,7 +234,7 @@ class TestPyprojectMaker:
         option = CleanOption()
 
         with patch.object(maker, "call_option_str") as mock_call:
-            maker._call_option(option)  # noqa: SLF001
+            maker.call_option(option)
             # CleanOption 的命令是 _clean 函数, 不是字符串
             mock_call.assert_not_called()
 
@@ -243,7 +243,7 @@ class TestPyprojectMaker:
         maker = PyprojectMaker()
         option = BuildOption()
 
-        maker._call_option(option)  # noqa: SLF001
+        maker.call_option(option)
 
         # 验证调用了 run_cmd
         mock_cli.run_cmd.assert_called()
@@ -253,7 +253,7 @@ class TestPyprojectMaker:
         maker = PyprojectMaker()
         option = CleanOption()
 
-        maker._call_option(option)  # noqa: SLF001
+        maker.call_option(option)
 
         # CleanOption 的命令是 _clean 函数, 应该被调用
         # 由于 _clean 只是删除目录, 我们可以验证它被调用了
