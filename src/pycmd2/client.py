@@ -44,9 +44,15 @@ def _setup_pyqt(*, enable_high_dpi: bool = False) -> None:
     """初始化 PyQt5 环境."""
     import os  # noqa: PLC0415
 
-    import PyQt5  # noqa: PLC0415
-    from PyQt5.QtCore import Qt  # noqa: PLC0415
-    from PyQt5.QtWidgets import QApplication  # noqa: PLC0415
+    try:
+        import PyQt5  # noqa: PLC0415
+        from PyQt5.QtCore import Qt  # noqa: PLC0415
+        from PyQt5.QtWidgets import QApplication  # noqa: PLC0415
+    except ModuleNotFoundError:
+        logger.exception("PyQt5 未安装, 请安装 PyQt5 以启用高 DPI 支持")
+        return
+    else:
+        logger.info("已初始化 PyQt5 环境")
 
     qt_dir = Path(PyQt5.__file__).parent
     plugin_path = qt_dir / "plugins" / "platforms"
@@ -132,8 +138,7 @@ class Client:
                 logger.info(f"Start Processing: [green bold]{arg!s}")
                 returns.append(t.submit(func, arg))
         logger.info(
-            f"Close threads, time used: "
-            f"[green bold]{perf_counter() - t0:.4f}s.",
+            f"Close threads, time used: [green bold]{perf_counter() - t0:.4f}s.",
         )
 
     @staticmethod
