@@ -19,8 +19,9 @@ index-url = http://mirrors.aliyun.com/pypi/simple/
 [install]
 trusted-host = mirrors.aliyun.com
 """
+    UV_INDEX_URL = "http://mirrors.aliyun.com/pypi/simple/"
     UV_DEFALT_INDEX = "http://mirrors.aliyun.com/pypi/simple/"
-    UV_HTTP_TIMEOUT = 60
+    UV_HTTP_TIMEOUT = 600
     UV_LINK_MODE = "copy"
 
 
