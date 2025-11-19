@@ -11,8 +11,8 @@ import typer
 from pycmd2._pycmd2 import grep
 from pycmd2.client import get_client
 
-__version__ = "0.0.1"
-__build_date__ = "2025-10-23"
+__version__ = "0.0.2"
+__build_date__ = "2025-11-20"
 
 cli = get_client()
 logger = logging.getLogger(__name__)
@@ -23,6 +23,12 @@ def main(
     pattern: str = typer.Argument(help="文件匹配模式"),
     path: str = typer.Argument(help="搜索目录", default=str(Path.cwd())),
 ) -> None:
+    """在指定目录中搜索匹配给定模式的文件内容.
+
+    Args:
+        pattern (str): 文件匹配模式
+        path (str): 搜索目录, 默认为当前工作目录
+    """
     logger.info(f"grep {__version__}, 构建日期: {__build_date__}")
     logger.info(f"搜索模式: [green b]{pattern}[/], 搜索目录: [green b]{path}")
 
