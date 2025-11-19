@@ -1,13 +1,13 @@
-pycmd2.system package
-=====================
+pycmd2.web.base package
+=======================
 
 Submodules
 ----------
 
-pycmd2.system.which module
+pycmd2.web.base.app module
 --------------------------
 
-.. automodule:: pycmd2.system.which
+.. automodule:: pycmd2.web.base.app
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ pycmd2.system.which module
 Module contents
 ---------------
 
-.. automodule:: pycmd2.system
+.. automodule:: pycmd2.web.base
    :members:
    :undoc-members:
    :show-inheritance:

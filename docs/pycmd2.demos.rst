@@ -1,13 +1,13 @@
-pycmd2.task package
-===================
+pycmd2.demos package
+====================
 
 Submodules
 ----------
 
-pycmd2.task.task\_kill module
------------------------------
+pycmd2.demos.grep module
+------------------------
 
-.. automodule:: pycmd2.task.task_kill
+.. automodule:: pycmd2.demos.grep
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ pycmd2.task.task\_kill module
 Module contents
 ---------------
 
-.. automodule:: pycmd2.task
+.. automodule:: pycmd2.demos
    :members:
    :undoc-members:
    :show-inheritance:

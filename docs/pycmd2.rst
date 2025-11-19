@@ -7,19 +7,9 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   pycmd2.common
-   pycmd2.envs
-   pycmd2.files
-   pycmd2.git
-   pycmd2.images
-   pycmd2.llama
-   pycmd2.make
-   pycmd2.network
-   pycmd2.office
-   pycmd2.pip
-   pycmd2.system
-   pycmd2.task
-   pycmd2.video
+   pycmd2.commands
+   pycmd2.demos
+   pycmd2.web
 
 Submodules
 ----------
@@ -28,6 +18,30 @@ pycmd2.cli module
 -----------------
 
 .. automodule:: pycmd2.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pycmd2.client module
+--------------------
+
+.. automodule:: pycmd2.client
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pycmd2.config module
+--------------------
+
+.. automodule:: pycmd2.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pycmd2.tracker module
+---------------------
+
+.. automodule:: pycmd2.tracker
    :members:
    :undoc-members:
    :show-inheritance:
