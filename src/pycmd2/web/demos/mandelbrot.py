@@ -1,11 +1,28 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 
 import numpy as np
 from nicegui import ui
 
+from pycmd2.cli import get_client
 from pycmd2.web.base.app import BaseApp
+
+cli = get_client()
+
+logger = logging.getLogger(__name__)
+
+try:
+    import torch
+
+    DEVICE = "cuda" if not torch.cuda.is_available() else "cpu"
+    logger.info(f"Using PyTorch, device: [green bold]{DEVICE}")
+except ImportError:
+    TORCH_AVAILABLE = False
+    logger.warning("PyTorch not available, falling back to NumPy")
+else:
+    TORCH_AVAILABLE = True
 
 
 @dataclass
@@ -26,13 +43,63 @@ class MandelbrotCalculator:
         return self.xmin, self.xmax, self.ymin, self.ymax
 
     def calculate(self) -> np.ndarray:
-        """Calculate the Mandelbrot set using vectorized operations.
+        """Calculate the Mandelbrot set using PyTorch acceleration if available, otherwise NumPy.
 
         Args:
             xmin, xmax: X-axis boundaries
             ymin, ymax: Y-axis boundaries
             width, height: Dimensions of the output array
             max_iter: Maximum iteration count
+
+        Returns:
+            2D numpy array representing the Mandelbrot set
+        """
+        if TORCH_AVAILABLE:
+            return self._calculate_with_torch()
+        return self._calculate_with_numpy()
+
+    def _calculate_with_torch(self) -> np.ndarray:
+        """Calculate the Mandelbrot set using PyTorch acceleration.
+
+        Returns:
+            2D numpy array representing the Mandelbrot set
+        """
+        # Create coordinate arrays using PyTorch
+        x = torch.linspace(self.xmin, self.xmax, self.width, device=DEVICE)
+        y = torch.linspace(self.ymin, self.ymax, self.height, device=DEVICE)
+
+        # Create complex plane using meshgrid
+        c_real, c_imag = torch.meshgrid(x, y, indexing="xy")
+        c = c_real + 1j * c_imag
+
+        # Initialize arrays
+        z = torch.zeros_like(c)
+        escape_count = torch.zeros((self.height, self.width), dtype=torch.int32)
+        escaped = torch.zeros((self.height, self.width), dtype=torch.bool)
+
+        # Iteratively compute Mandelbrot set
+        for i in range(self.max_iter):
+            # Update only points that haven't escaped yet
+            mask = ~escaped
+            z[mask] = z[mask] ** 2 + c[mask]
+
+            # Check for escaping points
+            escape_mask = (torch.abs(z) > 2) & mask  # noqa: PLR2004
+            escape_count[escape_mask] = i
+            escaped[escape_mask] = True
+
+            # Early exit if all points have escaped
+            if torch.all(escaped):
+                break
+
+        # Points that never escaped are part of the Mandelbrot set
+        escape_count[~escaped] = self.max_iter
+
+        # Convert to numpy array for compatibility
+        return escape_count.numpy()
+
+    def _calculate_with_numpy(self) -> np.ndarray:
+        """Calculate the Mandelbrot set using NumPy operations.
 
         Returns:
             2D numpy array representing the Mandelbrot set
