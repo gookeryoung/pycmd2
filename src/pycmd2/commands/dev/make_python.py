@@ -27,8 +27,8 @@ except ModuleNotFoundError:
     import tomli as tomllib
 
 
-__version__ = "0.1.2"
-__build_date__ = "2025-08-02"
+__version__ = "0.1.3"
+__build_date__ = "2025-11-20"
 
 cli = get_client()
 logger = logging.getLogger(__name__)
@@ -531,3 +531,40 @@ def main(
 
     pm = PyprojectMaker()
     pm.call_option_str(optstr)
+
+
+@cli.app.command("build", help="构建项目, 别名: b")
+@cli.app.command("b", help="构建项目, 别名: build")
+def build() -> None:
+    pm = PyprojectMaker()
+    pm.call_option_str("build")
+
+
+@cli.app.command("clean", help="清理项目, 别名: c")
+@cli.app.command("c", help="清理项目, 别名: clean")
+def clean() -> None:
+    """清理项目."""
+    # 待清理目录
+    dirs = [
+        "dist",
+        ".tox",
+        ".coverage",
+        "htmlcov",
+        ".pytest_cache",
+        ".mypy_cache",
+    ]
+    spec_dirs = [cli.cwd / d for d in dirs]
+    cache_dirs = list(cli.cwd.rglob("**/__pycache__"))
+    remove_func = partial(shutil.rmtree, ignore_errors=True)
+
+    # 移除待清理目录
+    logger.info("清理项目...")
+    if spec_dirs:
+        cli.run(remove_func, spec_dirs)
+    if cache_dirs:
+        cli.run(remove_func, cache_dirs)
+
+
+@cli.app.command("v", help="打印版本信息")
+def version() -> None:
+    logger.info(f"mkp {__version__}, 构建日期: {__build_date__}")
