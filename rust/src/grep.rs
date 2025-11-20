@@ -50,7 +50,13 @@ impl GrepResults {
     fn __str__(&self) -> String {
         self.matches
             .iter()
-            .map(|m| format!("[{}]@{}:`{}`\n", m.file_path, m.line_number, m.line_content))
+            .enumerate()
+            .map(|(idx, m)| {
+                format!(
+                    "[Maches {}] {}@{}:`{}`\n",
+                    idx, m.file_path, m.line_number, m.line_content
+                )
+            })
             .collect::<String>()
     }
 

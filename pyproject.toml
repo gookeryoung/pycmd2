@@ -27,9 +27,6 @@ version = "0.5.14"
 [project.scripts]
 pycmd2 = "pycmd2.cli:cli.app"
 
-# demo commands
-ggrep = "pycmd2.demos.grep:cli.app"
-
 # Commands
 # dev commands
 envjs = "pycmd2.commands.dev.env_javascript:cli.app"
@@ -75,6 +72,7 @@ filedate = "pycmd2.commands.system.file_date:cli.app"
 filelvl = "pycmd2.commands.system.file_level:cli.app"
 folderb = "pycmd2.commands.system.folder_backup:cli.app"
 folderz = "pycmd2.commands.system.folder_zip:cli.app"
+ggrep = "pycmd2.commands.system.grep:cli.app"
 ld = "pycmd2.commands.system.list_dirs:cli.app"
 taskk = "pycmd2.commands.system.task_kill:cli.app"
 wch = "pycmd2.commands.system.which:cli.app"
@@ -108,11 +106,7 @@ office = [
   "pypdf>=5.9.0",
   "pywin32>=311; platform_system == 'Windows'",
 ]
-simulation = [
-    "matplotlib>=3.7.5",
-    "scipy>=1.10.1",
-    "torch~=2.1.0",
-]
+simulation = ["matplotlib>=3.7.5", "scipy>=1.10.1", "torch~=2.1.0"]
 
 # ---------------------- coverage ----------------------- #
 [tool.coverage]
