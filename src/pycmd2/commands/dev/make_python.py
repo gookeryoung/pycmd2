@@ -235,7 +235,7 @@ class BumpPublishOption(MakeOption):
 
     name = "bump and publish"
     desc = "执行版本更新、构建以及推送等系列操作"
-    commands: ClassVar = ["bump", "pub"]
+    commands: ClassVar = ["bumpp", "publish"]
 
 
 class BumpPatchOption(MakeOption):
@@ -314,7 +314,6 @@ class CoverageOption(MakeOption):
     name = "coverage"
     desc = "测试覆盖率检查"
     commands: ClassVar = [
-        "sync",
         [
             "pytest",
             "--cov",
@@ -462,13 +461,12 @@ class PyprojectMaker:
     """
 
     OPTIONS: ClassVar[dict[str, MakeOption]] = {
-        "act": ActivateOption(),
+        "activate": ActivateOption(),
         "build": BuildOption(),
         "bpub": BumpPublishOption(),
         "bumpp": BumpPatchOption(),
         "bumpi": BumpMinorOption(),
         "bumpa": BumpMajorOption(),
-        "c": CleanOption(),
         "clean": CleanOption(),
         "cov": CoverageOption(),
         "covsl": CoverageSlowOption(),
@@ -520,19 +518,15 @@ class PyprojectMaker:
         return list(cls.OPTIONS.keys())
 
 
-@cli.app.command()
-def main(
-    optstr: str = typer.Argument(
-        help=f"构建选项: {PyprojectMaker.get_option_list()}",
-    ),
-) -> None:
-    logger.info(f"mkp {__version__}, 构建日期: {__build_date__}")
-
-    pm = PyprojectMaker()
-    pm.run(optstr)
-
-
 MAKE = PyprojectMaker()
+
+
+@cli.app.command("activate", help="激活虚拟环境, 别名: a")
+@cli.app.command("a", help="激活虚拟环境, 别名: activate")
+def activate() -> None:
+    """激活虚拟环境."""
+    logger.info("激活虚拟环境...")
+    MAKE.run("activate")
 
 
 @cli.app.command("build", help="构建项目, 别名: b")
@@ -553,12 +547,41 @@ def bump(version_type: str = typer.Argument(default="p", help="版本类型")) -
         logger.error(f"未知版本类型: {version_type}")
 
 
+@cli.app.command("bpub", help="版本更新并发布")
+def bpub() -> None:
+    """版本更新并发布."""
+    logger.info("版本更新并发布...")
+    MAKE.run("bpub")
+
+
 @cli.app.command("clean", help="清理项目, 别名: c")
 @cli.app.command("c", help="清理项目, 别名: clean")
 def clean() -> None:
     """清理项目."""
     logger.info("清理项目...")
     MAKE.run("clean")
+
+
+@cli.app.command("cov", help="运行测试并生成覆盖率报告")
+def cov() -> None:
+    """运行测试并生成覆盖率报告."""
+    logger.info("运行测试并生成覆盖率报告...")
+    MAKE.run("cov")
+
+
+@cli.app.command("dist", help="生成发布包")
+def dist() -> None:
+    """生成发布包."""
+    logger.info("生成发布包...")
+    MAKE.run("dist")
+
+
+@cli.app.command("doc", help="生成文档, 别名: d")
+@cli.app.command("d", help="生成文档, 别名: doc")
+def doc() -> None:
+    """生成文档."""
+    logger.info("生成文档...")
+    MAKE.run("doc")
 
 
 @cli.app.command("init", help="初始化项目, 别名: i")
@@ -591,6 +614,22 @@ def sync() -> None:
     """同步项目环境."""
     logger.info("同步项目环境...")
     MAKE.run("sync")
+
+
+@cli.app.command("test", help="运行测试, 别名: t")
+@cli.app.command("t", help="运行测试, 别名: test")
+def test() -> None:
+    """运行测试."""
+    logger.info("运行测试...")
+    MAKE.run("test")
+
+
+@cli.app.command("update", help="更新构建日期, 别名: u")
+@cli.app.command("u", help="更新构建日期, 别名: update")
+def update() -> None:
+    """更新构建日期."""
+    logger.info("更新构建日期...")
+    MAKE.run("update")
 
 
 @cli.app.command("version", help="打印版本信息")

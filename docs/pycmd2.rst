@@ -8,7 +8,6 @@ Subpackages
    :maxdepth: 4
 
    pycmd2.commands
-   pycmd2.demos
    pycmd2.web
 
 Submodules
