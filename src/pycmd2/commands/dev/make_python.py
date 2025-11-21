@@ -463,9 +463,7 @@ class PyprojectMaker:
 
     OPTIONS: ClassVar[dict[str, MakeOption]] = {
         "act": ActivateOption(),
-        "b": BuildOption(),
         "build": BuildOption(),
-        "bp": BumpPublishOption(),
         "bpub": BumpPublishOption(),
         "bumpp": BumpPatchOption(),
         "bumpi": BumpMinorOption(),
@@ -478,7 +476,6 @@ class PyprojectMaker:
         "doc": DocumentationOption(),
         "init": InitializeOption(),
         "lint": LintOption(),
-        "pub": PublishOption(),
         "publish": PublishOption(),
         "sync": SyncronizeOption(),
         "test": TestOption(),
@@ -578,6 +575,14 @@ def lint() -> None:
     """检查代码风格."""
     logger.info("检查代码风格...")
     MAKE.run("lint")
+
+
+@cli.app.command("publish", help="发布项目, 别名: pub / publish")
+@cli.app.command("pub", help="发布项目, 别名: publish")
+def publish() -> None:
+    """发布项目."""
+    logger.info("发布项目...")
+    MAKE.run("publish")
 
 
 @cli.app.command("sync", help="同步项目环境, 别名: s")
