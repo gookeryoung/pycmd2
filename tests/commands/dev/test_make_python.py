@@ -17,7 +17,7 @@ from pycmd2.commands.dev.make_python import ActivateOption
 from pycmd2.commands.dev.make_python import BuildOption
 from pycmd2.commands.dev.make_python import BumpMajorOption
 from pycmd2.commands.dev.make_python import BumpMinorOption
-from pycmd2.commands.dev.make_python import BumpOption
+from pycmd2.commands.dev.make_python import BumpPatchOption
 from pycmd2.commands.dev.make_python import BumpPublishOption
 from pycmd2.commands.dev.make_python import CleanOption
 from pycmd2.commands.dev.make_python import CoverageOption
@@ -263,7 +263,7 @@ class TestOptionClasses:
     def test_bump_options(self) -> None:
         """测试版本更新选项."""
         # Patch version
-        bump = BumpOption()
+        bump = BumpPatchOption()
         assert bump.name == "bump"
         assert "patch" in bump.desc
 

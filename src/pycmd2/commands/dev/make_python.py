@@ -87,7 +87,7 @@ class MakeOption:
         """获取发布目录信息.
 
         Returns:
-            str: 发布命令
+            List[str]: 发布命令
         """
         if (cli.cwd / "dist").exists():
             # 根据操作系统选择合适的命令
@@ -139,26 +139,33 @@ class MakeOption:
         build_date = datetime.datetime.now(datetime.timezone.utc).strftime(
             "%Y-%m-%d",
         )
-        init_files = (cli.cwd / "src").rglob("__init__.py")
+
+        # 检查 src 目录是否存在
+        src_dir = cli.cwd / "src"
+        if not src_dir.exists():
+            logger.warning("src 目录不存在, 无法更新构建日期")
+            return
+
+        init_files = src_dir.rglob("__init__.py")
 
         updated_files = 0
         skipped_files = 0
+
+        # 预编译正则表达式以提高性能
+        pattern = re.compile(
+            r"^(\s*)"  # 缩进
+            r"(__build_date__)\s*=\s*"  # 变量名
+            r"([\"\']?)"  # 引号类型(第3组)
+            r"(\d{4}-\d{2}-\d{2})"  # 原日期(第4组)
+            r"\3"  # 闭合引号
+            r"(\s*(#.*)?)$",  # 尾部空格和注释(第5组)
+            flags=re.MULTILINE | re.IGNORECASE,
+        )
 
         for init_file in init_files:
             try:
                 with init_file.open("r+", encoding="utf-8") as f:
                     content = f.read()
-
-                    # 使用正则表达式匹配各种格式的日期声明
-                    pattern = re.compile(
-                        r"^(\s*)"  # 缩进
-                        r"(__build_date__)\s*=\s*"  # 变量名
-                        r"([\"\']?)"  # 引号类型(第3组)
-                        r"(\d{4}-\d{2}-\d{2})"  # 原日期(第4组)
-                        r"\3"  # 闭合引号
-                        r"(\s*(#.*)?)$",  # 尾部空格和注释(第5组)
-                        flags=re.MULTILINE | re.IGNORECASE,
-                    )
 
                     # 查找匹配项
                     match = pattern.search(content)
@@ -231,7 +238,7 @@ class BumpPublishOption(MakeOption):
     commands: ClassVar = ["bump", "pub"]
 
 
-class BumpOption(MakeOption):
+class BumpPatchOption(MakeOption):
     """更新 patch 版本."""
 
     name = "bump"
@@ -460,7 +467,7 @@ class PyprojectMaker:
         "build": BuildOption(),
         "bp": BumpPublishOption(),
         "bpub": BumpPublishOption(),
-        "bump": BumpOption(),
+        "bumpp": BumpPatchOption(),
         "bumpi": BumpMinorOption(),
         "bumpa": BumpMajorOption(),
         "c": CleanOption(),
@@ -537,6 +544,18 @@ def build() -> None:
     MAKE.run("build")
 
 
+@cli.app.command("bump", help="版本更新, 别名: bp")
+@cli.app.command("bp", help="版本更新, 别名: bump")
+def bump(version: str = typer.Argument(default="p", help="版本类型")) -> None:
+    """版本更新."""
+    logger.info("版本更新...")
+
+    if version in list("pia"):
+        MAKE.run(f"bump{version}")
+    else:
+        logger.error(f"未知版本类型: {version}")
+
+
 @cli.app.command("clean", help="清理项目, 别名: c")
 @cli.app.command("c", help="清理项目, 别名: clean")
 def clean() -> None:
@@ -561,6 +580,15 @@ def lint() -> None:
     MAKE.run("lint")
 
 
+@cli.app.command("sync", help="同步项目环境, 别名: s")
+@cli.app.command("s", help="同步项目环境, 别名: sync")
+def sync() -> None:
+    """同步项目环境."""
+    logger.info("同步项目环境...")
+    MAKE.run("sync")
+
+
+@cli.app.command("version", help="打印版本信息")
 @cli.app.command("v", help="打印版本信息")
 def version() -> None:
     logger.info(f"mkp {__version__}, 构建日期: {__build_date__}")
