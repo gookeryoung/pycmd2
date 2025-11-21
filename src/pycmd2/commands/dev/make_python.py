@@ -550,7 +550,7 @@ def bump(version: str = typer.Argument(default="p", help="版本类型")) -> Non
     """版本更新."""
     logger.info("版本更新...")
 
-    if version in list("pia"):
+    if version.lower() in list("pia"):
         MAKE.run(f"bump{version}")
     else:
         logger.error(f"未知版本类型: {version}")
