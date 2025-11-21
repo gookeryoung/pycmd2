@@ -543,14 +543,14 @@ def build() -> None:
 
 @cli.app.command("bump", help="版本更新, 别名: bp")
 @cli.app.command("bp", help="版本更新, 别名: bump")
-def bump(version: str = typer.Argument(default="p", help="版本类型")) -> None:
+def bump(version_type: str = typer.Argument(default="p", help="版本类型")) -> None:
     """版本更新."""
     logger.info("版本更新...")
 
-    if version.lower() in list("pia"):
-        MAKE.run(f"bump{version}")
+    if version_type.lower() in list("pia"):
+        MAKE.run(f"bump{version_type}")
     else:
-        logger.error(f"未知版本类型: {version}")
+        logger.error(f"未知版本类型: {version_type}")
 
 
 @cli.app.command("clean", help="清理项目, 别名: c")
