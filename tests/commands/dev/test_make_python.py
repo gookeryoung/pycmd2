@@ -228,36 +228,20 @@ class TestPyprojectMaker:
 
         mock_logger.error.assert_called_once()
 
-    def test_call_option_with_string_command(self, mock_cli: MagicMock) -> None:  # noqa: ARG002
-        """测试执行字符串命令."""
-        maker = PyprojectMaker()
-        option = CleanOption()
-
-        with patch.object(maker, "run") as mock_call:
-            maker.call_option(option)
-            # CleanOption 的命令是 _clean 函数, 不是字符串
-            mock_call.assert_not_called()
-
-    def test_call_option_with_list_command(self, mock_cli: MagicMock) -> None:
+    def test_run_with_list_command(self, mock_cli: MagicMock) -> None:
         """测试执行列表命令."""
         maker = PyprojectMaker()
-        option = BuildOption()
 
-        maker.call_option(option)
+        maker.run("build")
 
         # 验证调用了 run_cmd
         mock_cli.run_cmd.assert_called()
 
-    def test_call_option_with_callable_command(self, mock_cli: MagicMock) -> None:  # noqa: ARG002
+    def test_run_with_callable_command(self, mock_cli: MagicMock) -> None:  # noqa: ARG002
         """测试执行可调用命令."""
         maker = PyprojectMaker()
-        option = CleanOption()
 
-        maker.call_option(option)
-
-        # CleanOption 的命令是 _clean 函数, 应该被调用
-        # 由于 _clean 只是删除目录, 我们可以验证它被调用了
-        # 这里我们主要确保没有抛出异常
+        maker.run("clean")
 
 
 class TestOptionClasses:

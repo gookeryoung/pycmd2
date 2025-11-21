@@ -515,28 +515,6 @@ class PyprojectMaker:
         """
         return list(cls.OPTIONS.keys())
 
-    def call_option(self, option: MakeOption) -> None:
-        """内部调用选项."""
-        logger.info(f"调用选项: mkp [green bold]{option.name}")
-        if option.desc:
-            logger.info(f"功能描述: [purple bold]{option.desc}")
-
-        for command in option.commands:
-            if isinstance(command, str):
-                child_opt = self.OPTIONS.get(command, None)
-                if child_opt:
-                    logger.info(f"执行子命令: [purple]{child_opt.name}")
-                    self.call_option(child_opt)
-                else:
-                    logger.error(f"未找到匹配选项: {command}")
-                    return
-            elif isinstance(command, list):
-                cli.run_cmd(command)
-            elif callable(command):
-                command()
-            else:
-                logger.error(f"未知命令类型: {type(command)}, 内容: {command}")
-
 
 @cli.app.command()
 def main(
@@ -563,25 +541,8 @@ def build() -> None:
 @cli.app.command("c", help="清理项目, 别名: clean")
 def clean() -> None:
     """清理项目."""
-    # 待清理目录
-    dirs = [
-        "dist",
-        ".tox",
-        ".coverage",
-        "htmlcov",
-        ".pytest_cache",
-        ".mypy_cache",
-    ]
-    spec_dirs = [cli.cwd / d for d in dirs]
-    cache_dirs = list(cli.cwd.rglob("**/__pycache__"))
-    remove_func = partial(shutil.rmtree, ignore_errors=True)
-
-    # 移除待清理目录
     logger.info("清理项目...")
-    if spec_dirs:
-        cli.run(remove_func, spec_dirs)
-    if cache_dirs:
-        cli.run(remove_func, cache_dirs)
+    MAKE.run("clean")
 
 
 @cli.app.command("init", help="初始化项目, 别名: i")
@@ -590,6 +551,14 @@ def init() -> None:
     """初始化项目."""
     logger.info("初始化项目...")
     MAKE.run("init")
+
+
+@cli.app.command("lint", help="检查代码风格, 别名: l")
+@cli.app.command("l", help="检查代码风格, 别名: lint")
+def lint() -> None:
+    """检查代码风格."""
+    logger.info("检查代码风格...")
+    MAKE.run("lint")
 
 
 @cli.app.command("v", help="打印版本信息")
