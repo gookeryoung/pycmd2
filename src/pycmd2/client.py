@@ -21,6 +21,7 @@ from rich.console import Console
 from rich.logging import RichHandler
 
 logger = logging.getLogger(__name__)
+MAX_TARGET_COUNT = 5
 
 
 def _log_stream(
@@ -132,13 +133,14 @@ class Client:
         t0 = perf_counter()
         returns: list[concurrent.futures.Future[Any]] = []
 
-        logger.info(f"Start threads, targets: [green]{len(args)}[/]")
+        logger.info(f"启动线程池, 目标: [green]{len(args)}[/]")
         with concurrent.futures.ThreadPoolExecutor() as t:
-            for arg in args:
-                logger.info(f"Start Processing: [green bold]{arg!s}")
-                returns.append(t.submit(func, arg))
+            returns.extend(t.submit(func, arg) for arg in args)
+
+        info = args if len(args) < MAX_TARGET_COUNT else f"[{args[:MAX_TARGET_COUNT]}]...({len(args)}个)"
+        logger.info(f"处理目标: [green bold]{info}")
         logger.info(
-            f"Close threads, time used: [green bold]{perf_counter() - t0:.4f}s.",
+            f"关闭线程池, 共计用时: [green bold]{perf_counter() - t0:.4f}s.",
         )
 
     @staticmethod

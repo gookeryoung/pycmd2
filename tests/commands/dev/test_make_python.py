@@ -207,7 +207,7 @@ class TestPyprojectMaker:
 
     def test_options_list(self) -> None:
         """测试获取选项列表."""
-        options = PyprojectMaker.options_list()
+        options = PyprojectMaker.get_option_list()
         assert isinstance(options, list)
         assert "build" in options
         assert "clean" in options
@@ -217,14 +217,14 @@ class TestPyprojectMaker:
         """测试调用有效选项."""
         maker = PyprojectMaker()
 
-        with patch.object(maker, "call_option") as mock_call:
-            maker.call_option_str("build")
+        with patch.object(maker, "run") as mock_call:
+            maker.run("build")
             mock_call.assert_called_once()
 
     def test_call_option_str_invalid(self, mock_cli: MagicMock, mock_logger: MagicMock) -> None:  # noqa: ARG002
         """测试调用无效选项."""
         maker = PyprojectMaker()
-        maker.call_option_str("invalid_option")
+        maker.run("invalid_option")
 
         mock_logger.error.assert_called_once()
 
@@ -233,7 +233,7 @@ class TestPyprojectMaker:
         maker = PyprojectMaker()
         option = CleanOption()
 
-        with patch.object(maker, "call_option_str") as mock_call:
+        with patch.object(maker, "run") as mock_call:
             maker.call_option(option)
             # CleanOption 的命令是 _clean 函数, 不是字符串
             mock_call.assert_not_called()
@@ -376,7 +376,7 @@ class TestMainFunction:
 
             main("build")
 
-            mock_maker.call_option_str.assert_called_once_with("build")
+            mock_maker.run.assert_called_once_with("build")
 
     def test_main_version_info(self, mock_cli: MagicMock, mock_logger: MagicMock) -> None:  # noqa: ARG002
         """测试主函数版本信息."""
@@ -413,7 +413,7 @@ build-backend = "hatchling.build"
 
         # 测试 update 选项
         with patch.object(mock_cli, "run_cmd"):
-            maker.call_option_str("update")
+            maker.run("update")
 
         # 验证构建日期被更新
         updated_content = init_file.read_text()
@@ -434,6 +434,6 @@ build-backend = "hatchling.build"
         }
 
         for alias, expected in aliases.items():
-            option = maker.options.get(alias)
+            option = maker.OPTIONS.get(alias)
             assert option is not None
             assert expected in option.name or option.name == expected

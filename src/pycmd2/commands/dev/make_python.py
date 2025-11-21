@@ -454,7 +454,7 @@ class PyprojectMaker:
         内部调用选项, 执行其命令并处理描述信息
     """
 
-    options: ClassVar[dict[str, MakeOption]] = {
+    OPTIONS: ClassVar[dict[str, MakeOption]] = {
         "act": ActivateOption(),
         "b": BuildOption(),
         "build": BuildOption(),
@@ -478,25 +478,42 @@ class PyprojectMaker:
         "update": UpdateOption(),
     }
 
-    def call_option_str(self, option_name: str) -> None:
+    def run(self, option_name: str) -> None:
         """调用指定的构建选项."""
-        option = self.options.get(option_name, None)
+        option = self.OPTIONS.get(option_name, None)
         if not option:
             logger.error(
-                f"未找到匹配选项: {option_name}, 选项列表: [red]{self.options_list()}",
+                f"未找到匹配选项: {option_name}, 选项列表: [red]{self.get_option_list()}",
             )
             return
 
-        self.call_option(option)
+        logger.info(f"调用选项: mkp [green bold]{option.name}")
+        if option.desc:
+            logger.info(f"功能描述: [purple bold]{option.desc}")
+
+        for command in option.commands:
+            if isinstance(command, str):
+                if command not in set(self.get_option_list()):
+                    logger.error(f"未找到匹配选项: {command}")
+                    continue
+
+                logger.info(f"执行子命令: [purple]{command}")
+                self.run(command)
+            elif isinstance(command, list):
+                cli.run_cmd(command)
+            elif callable(command):
+                command()
+            else:
+                logger.error(f"未知命令类型: {type(command)}, 内容: {command}")
 
     @classmethod
-    def options_list(cls) -> list[str]:
+    def get_option_list(cls) -> list[str]:
         """获取所有可用的选项名称列表.
 
         Returns:
             list[str]: 可用选项名称列表
         """
-        return list(cls.options.keys())
+        return list(cls.OPTIONS.keys())
 
     def call_option(self, option: MakeOption) -> None:
         """内部调用选项."""
@@ -506,7 +523,7 @@ class PyprojectMaker:
 
         for command in option.commands:
             if isinstance(command, str):
-                child_opt = self.options.get(command, None)
+                child_opt = self.OPTIONS.get(command, None)
                 if child_opt:
                     logger.info(f"执行子命令: [purple]{child_opt.name}")
                     self.call_option(child_opt)
@@ -524,20 +541,22 @@ class PyprojectMaker:
 @cli.app.command()
 def main(
     optstr: str = typer.Argument(
-        help=f"构建选项: {PyprojectMaker.options_list()}",
+        help=f"构建选项: {PyprojectMaker.get_option_list()}",
     ),
 ) -> None:
     logger.info(f"mkp {__version__}, 构建日期: {__build_date__}")
 
     pm = PyprojectMaker()
-    pm.call_option_str(optstr)
+    pm.run(optstr)
+
+
+MAKE = PyprojectMaker()
 
 
 @cli.app.command("build", help="构建项目, 别名: b")
 @cli.app.command("b", help="构建项目, 别名: build")
 def build() -> None:
-    pm = PyprojectMaker()
-    pm.call_option_str("build")
+    MAKE.run("build")
 
 
 @cli.app.command("clean", help="清理项目, 别名: c")
@@ -563,6 +582,14 @@ def clean() -> None:
         cli.run(remove_func, spec_dirs)
     if cache_dirs:
         cli.run(remove_func, cache_dirs)
+
+
+@cli.app.command("init", help="初始化项目, 别名: i")
+@cli.app.command("i", help="初始化项目, 别名: init")
+def init() -> None:
+    """初始化项目."""
+    logger.info("初始化项目...")
+    MAKE.run("init")
 
 
 @cli.app.command("v", help="打印版本信息")
