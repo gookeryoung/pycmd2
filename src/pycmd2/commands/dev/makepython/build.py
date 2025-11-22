@@ -2,50 +2,17 @@ from __future__ import annotations
 
 import logging
 import platform
-import shutil
-from abc import ABC
-from abc import abstractmethod
-from typing import ClassVar
-from typing import List
 
 from pycmd2.client import get_client
 from pycmd2.compat import tomllib
+
+from .base import BaseCommand
 
 cli = get_client()
 logger = logging.getLogger(__name__)
 
 
-class BaseBuild(ABC):
-    """BaseMake 基类."""
-
-    EXECUTABLE: str | None = None
-    OPTIONS: ClassVar[List[str]] = []
-
-    @abstractmethod
-    def run(self) -> None:
-        """Make project.
-
-        Raises:
-            ValueError: 如果 EXECUTABLE 未设置
-        """
-        if not self.is_valid():
-            msg = f"EXECUTABLE `{self.EXECUTABLE}` is not set"
-            raise ValueError(msg)
-
-        if not cli.cwd.is_dir():
-            msg = f"{cli.cwd} is not a directory"
-            raise ValueError(msg)
-
-    def is_valid(self) -> bool:
-        """检查构建工具是否可用.
-
-        Returns:
-            bool: 是否可用
-        """
-        return bool(self.EXECUTABLE) and shutil.which(self.EXECUTABLE) is not None
-
-
-class HatchlingBuild(BaseBuild):
+class HatchlingBuild(BaseCommand):
     """HatchlingBuild 类."""
 
     EXECUTABLE = "hatchling"
@@ -55,7 +22,7 @@ class HatchlingBuild(BaseBuild):
         super().run()
 
 
-class MaturinBuild(BaseBuild):
+class MaturinBuild(BaseCommand):
     """MaturinMake 类."""
 
     EXECUTABLE = "maturin"
@@ -65,11 +32,11 @@ class MaturinBuild(BaseBuild):
         super().run()
 
         arch = platform.machine()
-        target = f"{arch}-win7-windows-msvc" if platform.system() == "Windows" else f"{arch}-unknown-linux-gnu"
+        target = f"{arch}-win7-windows-msvc" if platform.system() == "Windows" else f"{arch}-unknown-linux-musl"
         cli.run_cmd(["maturin", "build", *self.OPTIONS, "--release", "--target", target])
 
 
-class PoetryBuild(BaseBuild):
+class PoetryBuild(BaseCommand):
     """PoetryBuild 类."""
 
     EXECUTABLE = "poetry"
@@ -79,14 +46,14 @@ class PoetryBuild(BaseBuild):
         super().run()
 
 
-_build_tools: dict[str, BaseBuild] = {
+_build_tools: dict[str, BaseCommand] = {
     "hatchling": HatchlingBuild(),
     "maturin": MaturinBuild(),
     "poetry": PoetryBuild(),
 }
 
 
-def get_build_tool() -> BaseBuild | None:
+def get_build_command() -> BaseCommand | None:
     """获取构建工具.
 
     Returns:

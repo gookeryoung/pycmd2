@@ -3,8 +3,9 @@ import logging
 import typer
 
 from pycmd2.client import get_client
-from pycmd2.commands.dev.makepython.build import get_build_tool
 from pycmd2.commands.dev.makepython.options import PyprojectMaker
+
+from .runner import get_runner
 
 __version__ = "0.1.3"
 __build_date__ = "2025-11-20"
@@ -19,22 +20,14 @@ MAKE = PyprojectMaker()
 @cli.app.command("a", help="激活虚拟环境, 别名: activate")
 def activate() -> None:
     """激活虚拟环境."""
-    logger.info("激活虚拟环境...")
-    MAKE.run("activate")
+    get_runner("activate").run()
 
 
 @cli.app.command("build", help="构建项目, 别名: b")
 @cli.app.command("b", help="构建项目, 别名: build")
 def build() -> None:
     """构建项目."""
-    logger.info("构建项目...")
-    build_tool = get_build_tool()
-
-    if build_tool is None:
-        logger.error("未找到构建工具, 退出")
-        return
-
-    build_tool.run()
+    get_runner("build").run()
 
 
 @cli.app.command("bump", help="版本更新, 别名: bp")

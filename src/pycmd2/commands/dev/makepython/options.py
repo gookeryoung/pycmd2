@@ -194,9 +194,10 @@ class MakeOption:
 
 
 def _activate_py_env() -> None:
-    extension = ".bat" if cli.is_windows else ""
-    activate_path = cli.cwd / ".venv" / "Scripts" / f"activate{extension}"
-    cli.run_cmdstr(str(activate_path))
+    if cli.is_windows:
+        cli.run_cmdstr(f"cmd /c {cli.cwd / '.venv' / 'Scripts' / 'activate.bat'}")
+    else:
+        cli.run_cmdstr(f"source {cli.cwd / '.venv' / 'bin' / 'activate'}", executable="/bin/bash")
 
 
 class ActivateOption(MakeOption):
