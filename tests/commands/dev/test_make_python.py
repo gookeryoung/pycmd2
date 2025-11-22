@@ -10,29 +10,27 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.commands.dev.make_python import _activate_py_env  # noqa: PLC2701
-from pycmd2.commands.dev.make_python import _browse_coverage  # noqa: PLC2701
-from pycmd2.commands.dev.make_python import _clean  # noqa: PLC2701
-from pycmd2.commands.dev.make_python import ActivateOption
-from pycmd2.commands.dev.make_python import BuildOption
-from pycmd2.commands.dev.make_python import BumpMajorOption
-from pycmd2.commands.dev.make_python import BumpMinorOption
-from pycmd2.commands.dev.make_python import BumpPatchOption
-from pycmd2.commands.dev.make_python import BumpPublishOption
-from pycmd2.commands.dev.make_python import CleanOption
-from pycmd2.commands.dev.make_python import CoverageOption
-from pycmd2.commands.dev.make_python import CoverageSlowOption
-from pycmd2.commands.dev.make_python import DistributionOption
-from pycmd2.commands.dev.make_python import DocumentationOption
-from pycmd2.commands.dev.make_python import InitializeOption
-from pycmd2.commands.dev.make_python import LintOption
-from pycmd2.commands.dev.make_python import main
-from pycmd2.commands.dev.make_python import MakeOption
-from pycmd2.commands.dev.make_python import PublishOption
-from pycmd2.commands.dev.make_python import PyprojectMaker
-from pycmd2.commands.dev.make_python import SyncronizeOption
-from pycmd2.commands.dev.make_python import TestOption
-from pycmd2.commands.dev.make_python import UpdateOption
+from pycmd2.commands.dev.makepython.options import _activate_py_env  # noqa: PLC2701
+from pycmd2.commands.dev.makepython.options import _browse_coverage  # noqa: PLC2701
+from pycmd2.commands.dev.makepython.options import _clean  # noqa: PLC2701
+from pycmd2.commands.dev.makepython.options import ActivateOption
+from pycmd2.commands.dev.makepython.options import BumpMajorOption
+from pycmd2.commands.dev.makepython.options import BumpMinorOption
+from pycmd2.commands.dev.makepython.options import BumpPatchOption
+from pycmd2.commands.dev.makepython.options import BumpPublishOption
+from pycmd2.commands.dev.makepython.options import CleanOption
+from pycmd2.commands.dev.makepython.options import CoverageOption
+from pycmd2.commands.dev.makepython.options import CoverageSlowOption
+from pycmd2.commands.dev.makepython.options import DistributionOption
+from pycmd2.commands.dev.makepython.options import DocumentationOption
+from pycmd2.commands.dev.makepython.options import InitializeOption
+from pycmd2.commands.dev.makepython.options import LintOption
+from pycmd2.commands.dev.makepython.options import MakeOption
+from pycmd2.commands.dev.makepython.options import PublishOption
+from pycmd2.commands.dev.makepython.options import PyprojectMaker
+from pycmd2.commands.dev.makepython.options import SyncronizeOption
+from pycmd2.commands.dev.makepython.options import TestOption
+from pycmd2.commands.dev.makepython.options import UpdateOption
 
 
 @pytest.fixture
@@ -42,7 +40,7 @@ def mock_cli(tmp_path: Path) -> Generator[MagicMock, None, None]:
     Yields:
         模拟的 CLI 客户端对象.
     """
-    with patch("pycmd2.commands.dev.make_python.cli") as mock:
+    with patch("pycmd2.commands.dev.makepython.options.cli") as mock:
         mock.cwd = tmp_path
         mock.is_windows = False
         yield mock
@@ -55,7 +53,7 @@ def mock_logger() -> Generator[MagicMock, None, None]:
     Yields:
         模拟的日志记录器对象.
     """
-    with patch("pycmd2.commands.dev.make_python.logger") as mock:
+    with patch("pycmd2.commands.dev.makepython.options.logger") as mock:
         yield mock
 
 
@@ -209,7 +207,6 @@ class TestPyprojectMaker:
         """测试获取选项列表."""
         options = PyprojectMaker.get_option_list()
         assert isinstance(options, list)
-        assert "build" in options
         assert "clean" in options
         assert "test" in options
 
@@ -232,10 +229,10 @@ class TestPyprojectMaker:
         """测试执行列表命令."""
         maker = PyprojectMaker()
 
-        maker.run("build")
+        maker.run("clean")
 
         # 验证调用了 run_cmd
-        mock_cli.run_cmd.assert_called()
+        mock_cli.run.assert_called()
 
     def test_run_with_callable_command(self, mock_cli: MagicMock) -> None:  # noqa: ARG002
         """测试执行可调用命令."""
@@ -253,12 +250,6 @@ class TestOptionClasses:
         assert option.name == "activate"
         assert "激活" in option.desc
         assert _activate_py_env in option.commands
-
-    def test_build_option(self) -> None:
-        """测试 BuildOption."""
-        option = BuildOption()
-        assert option.name == "build"
-        assert "构建" in option.desc
 
     def test_bump_options(self) -> None:
         """测试版本更新选项."""
@@ -349,28 +340,6 @@ class TestUtilityFunctions:
             mock_open.assert_called_once()
 
 
-class TestMainFunction:
-    """测试主函数."""
-
-    def test_main(self, mock_cli: MagicMock) -> None:  # noqa: ARG002
-        """测试主函数."""
-        with patch("pycmd2.commands.dev.make_python.PyprojectMaker") as mock_maker_class:
-            mock_maker = MagicMock()
-            mock_maker_class.return_value = mock_maker
-
-            main("build")
-
-            mock_maker.run.assert_called_once_with("build")
-
-    def test_main_version_info(self, mock_cli: MagicMock, mock_logger: MagicMock) -> None:  # noqa: ARG002
-        """测试主函数版本信息."""
-        with patch("pycmd2.commands.dev.make_python.PyprojectMaker"):
-            main("build")
-
-            # 验证版本信息被记录
-            mock_logger.info.assert_called()
-
-
 class TestIntegration:
     """集成测试."""
 
@@ -403,21 +372,3 @@ build-backend = "hatchling.build"
         updated_content = init_file.read_text()
         today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
         assert f'__build_date__ = "{today}"' in updated_content
-
-    def test_option_aliases(self) -> None:
-        """测试选项别名."""
-        maker = PyprojectMaker()
-
-        # 测试各种别名都能正确映射
-        aliases = {
-            "act": "activate",
-            "b": "build",
-            "c": "clean",
-            "pub": "publish",
-            "sync": "sync",
-        }
-
-        for alias, expected in aliases.items():
-            option = maker.OPTIONS.get(alias)
-            assert option is not None
-            assert expected in option.name or option.name == expected

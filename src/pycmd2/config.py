@@ -4,18 +4,12 @@ import atexit
 import logging
 import re
 from dataclasses import dataclass
-
-from pycmd2.client import get_client
-
-try:
-    import tomllib  # type: ignore[import]
-except ModuleNotFoundError:
-    import tomli as tomllib
-
-
 from pathlib import Path
 
 import tomli_w
+
+from pycmd2.client import get_client
+from pycmd2.compat import tomllib
 
 __all__ = [
     "TomlConfigMixin",
@@ -95,16 +89,14 @@ class TomlConfigMixin:
                 cls_value=getattr(self, attr),
             )
             for attr in self._cls_attrs
-            if attr in self._file_attrs
-            and self._file_attrs[attr] != getattr(self, attr)
+            if attr in self._file_attrs and self._file_attrs[attr] != getattr(self, attr)
         ]
         if diff_attrs:
             logger.debug(f"Diff attributes: [u]{diff_attrs}")
 
             for diff in diff_attrs:
                 logger.debug(
-                    f"Setting attributes: [u green]{diff.attr} = "
-                    f"{self._file_attrs[diff.attr]}",
+                    f"Setting attributes: [u green]{diff.attr} = {self._file_attrs[diff.attr]}",
                 )
 
                 setattr(self, diff.attr, diff.file_value)
@@ -141,11 +133,7 @@ class TomlConfigMixin:
     @property
     def _cls_attrs(self) -> dict[str, object]:
         """Get all attributes of the class."""
-        return {
-            attr: getattr(self, attr)
-            for attr in dir(self.__class__)
-            if not attr.startswith("_") and not callable(getattr(self, attr))
-        }
+        return {attr: getattr(self, attr) for attr in dir(self.__class__) if not attr.startswith("_") and not callable(getattr(self, attr))}
 
     @staticmethod
     def clear() -> None:
