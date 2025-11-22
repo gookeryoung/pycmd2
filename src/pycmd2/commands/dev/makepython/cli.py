@@ -57,14 +57,14 @@ def cov() -> None:
     get_runner("cov").run()
 
 
-@cli.app.command("dist", help="生成发布包")
+@cli.app.command("dist", help="生成发布包, 别名: d")
+@cli.app.command("d", help="生成发布包, 别名: dist")
 def dist() -> None:
     """生成发布包."""
     get_runner("dist").run()
 
 
-@cli.app.command("doc", help="生成文档, 别名: d")
-@cli.app.command("d", help="生成文档, 别名: doc")
+@cli.app.command("doc", help="生成文档")
 def doc() -> None:
     """生成文档."""
     get_runner("doc").run()

@@ -1,6 +1,14 @@
 pycmd2.commands.dev package
 ===========================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   pycmd2.commands.dev.makepython
+
 Submodules
 ----------
 
@@ -64,14 +72,6 @@ pycmd2.commands.dev.git\_restart\_tgitcache module
 --------------------------------------------------
 
 .. automodule:: pycmd2.commands.dev.git_restart_tgitcache
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pycmd2.commands.dev.make\_python module
----------------------------------------
-
-.. automodule:: pycmd2.commands.dev.make_python
    :members:
    :undoc-members:
    :show-inheritance:

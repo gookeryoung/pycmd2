@@ -29,6 +29,14 @@ pycmd2.client module
    :undoc-members:
    :show-inheritance:
 
+pycmd2.compat module
+--------------------
+
+.. automodule:: pycmd2.compat
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pycmd2.config module
 --------------------
 

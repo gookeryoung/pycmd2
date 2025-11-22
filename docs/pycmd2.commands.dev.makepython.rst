@@ -4,6 +4,14 @@ pycmd2.commands.dev.makepython package
 Submodules
 ----------
 
+pycmd2.commands.dev.makepython.base module
+------------------------------------------
+
+.. automodule:: pycmd2.commands.dev.makepython.base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pycmd2.commands.dev.makepython.build module
 -------------------------------------------
 
@@ -20,10 +28,10 @@ pycmd2.commands.dev.makepython.cli module
    :undoc-members:
    :show-inheritance:
 
-pycmd2.commands.dev.makepython.options module
----------------------------------------------
+pycmd2.commands.dev.makepython.runner module
+--------------------------------------------
 
-.. automodule:: pycmd2.commands.dev.makepython.options
+.. automodule:: pycmd2.commands.dev.makepython.runner
    :members:
    :undoc-members:
    :show-inheritance:

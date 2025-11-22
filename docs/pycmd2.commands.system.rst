@@ -45,14 +45,6 @@ pycmd2.commands.system.folder\_zip module
    :undoc-members:
    :show-inheritance:
 
-pycmd2.commands.system.grep module
-----------------------------------
-
-.. automodule:: pycmd2.commands.system.grep
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pycmd2.commands.system.list\_dirs module
 ----------------------------------------
 
