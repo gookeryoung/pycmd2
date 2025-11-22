@@ -53,6 +53,11 @@ class BaseRunner:
             else:
                 logger.error(f"未知子命令: {subcommand}")
 
+    @property
+    def name(self) -> str:
+        """获取执行器名称."""
+        return self.__class__.__name__.replace("Runner", "").lower()
+
 
 class EmptyRunner(BaseRunner):
     """EmptyRunner 类."""
@@ -237,7 +242,7 @@ class CoverageRunner(BaseRunner):
 class CoverageSlowRunner(BaseRunner):
     """CoverageSlowRunner 类."""
 
-    DESCRIPTION = "生成测试覆盖率报告, 别名: cov / coverage"
+    DESCRIPTION = "生成测试覆盖率报告, 别名: covsl / coverage --slow"
     SUBCOMMANDS: ClassVar = [
         ["pytest", "--cov", "--runslow"],
         ["coverage", "report", "-m"],
@@ -246,7 +251,7 @@ class CoverageSlowRunner(BaseRunner):
     ]
 
 
-class DistRunner(BaseRunner):
+class DistributionRunner(BaseRunner):
     """DistRunner 类."""
 
     DESCRIPTION = "发布项目, 别名: dist"
@@ -258,7 +263,7 @@ class DistRunner(BaseRunner):
     ]
 
 
-class DocRunner(BaseRunner):
+class DocumentationRunner(BaseRunner):
     """DocRunner 类."""
 
     DESCRIPTION = "生成 Sphinx HTML 文档, 包括 API 文档, 别名: d / doc"
@@ -279,7 +284,7 @@ class DocRunner(BaseRunner):
     ]
 
 
-class InitRunner(BaseRunner):
+class InitializeRunner(BaseRunner):
     """InitRunner 类."""
 
     DESCRIPTION = "初始化项目, 别名: i / init"
@@ -326,7 +331,7 @@ class PublishRunner(BaseRunner):
     ]
 
 
-class SyncRunner(BaseRunner):
+class SyncronizeRunner(BaseRunner):
     """SyncRunner 类."""
 
     DESCRIPTION = "同步项目, 别名: s / sync"
@@ -436,12 +441,12 @@ _runners: dict[str, BaseRunner] = {
     "clean": CleanRunner(),
     "cov": CoverageRunner(),
     "covsl": CoverageSlowRunner(),
-    "dist": DistRunner(),
-    "doc": DocRunner(),
-    "init": InitRunner(),
+    "dist": DistributionRunner(),
+    "doc": DocumentationRunner(),
+    "init": InitializeRunner(),
     "lint": LintRunner(),
     "publish": PublishRunner(),
-    "sync": SyncRunner(),
+    "sync": SyncronizeRunner(),
     "test": TestRunner(),
     "update": UpdateRunner(),
 }
