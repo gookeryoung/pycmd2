@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import logging
 import shutil
-from abc import ABC
-from abc import abstractmethod
 from typing import ClassVar
 from typing import List
 
@@ -13,13 +11,12 @@ cli = get_client()
 logger = logging.getLogger(__name__)
 
 
-class BaseCommand(ABC):
+class BaseCommand:
     """BaseCommand 基类."""
 
     EXECUTABLE: str | None = None
     OPTIONS: ClassVar[List[str]] = []
 
-    @abstractmethod
     def run(self) -> None:
         """Make project.
 

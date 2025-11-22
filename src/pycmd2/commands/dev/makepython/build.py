@@ -12,17 +12,30 @@ cli = get_client()
 logger = logging.getLogger(__name__)
 
 
-class HatchlingBuild(BaseCommand):
-    """HatchlingBuild 类."""
-
-    EXECUTABLE = "hatchling"
+class BaseBuild(BaseCommand):
+    """BaseBuild 类."""
 
     def run(self) -> None:
         """Make project."""
         super().run()
 
+        assert self.EXECUTABLE
+        cli.run_cmd([self.EXECUTABLE, "build", *self.OPTIONS])
 
-class MaturinBuild(BaseCommand):
+
+class HatchlingBuild(BaseBuild):
+    """HatchlingBuild 类."""
+
+    EXECUTABLE = "hatchling"
+
+
+class MakeBuild(BaseBuild):
+    """MakeBuild 类."""
+
+    EXECUTABLE = "make"
+
+
+class MaturinBuild(BaseBuild):
     """MaturinMake 类."""
 
     EXECUTABLE = "maturin"
@@ -36,24 +49,20 @@ class MaturinBuild(BaseCommand):
         cli.run_cmd(["maturin", "build", *self.OPTIONS, "--release", "--target", target])
 
 
-class PoetryBuild(BaseCommand):
+class PoetryBuild(BaseBuild):
     """PoetryBuild 类."""
 
     EXECUTABLE = "poetry"
 
-    def run(self) -> None:
-        """Make project."""
-        super().run()
 
-
-_build_tools: dict[str, BaseCommand] = {
+_build_tools: dict[str, BaseBuild] = {
     "hatchling": HatchlingBuild(),
     "maturin": MaturinBuild(),
     "poetry": PoetryBuild(),
 }
 
 
-def get_build_command() -> BaseCommand | None:
+def get_build_command() -> BaseBuild | None:
     """获取构建工具.
 
     Returns:
