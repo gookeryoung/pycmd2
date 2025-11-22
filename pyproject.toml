@@ -1,7 +1,7 @@
 # -------------------- build-system --------------------- #
 [build-system]
-build-backend = "maturin"
-requires = ["maturin>=1.9,<2.0"]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
@@ -72,7 +72,6 @@ filedate = "pycmd2.commands.system.file_date:cli.app"
 filelvl = "pycmd2.commands.system.file_level:cli.app"
 folderb = "pycmd2.commands.system.folder_backup:cli.app"
 folderz = "pycmd2.commands.system.folder_zip:cli.app"
-ggrep = "pycmd2.commands.system.grep:cli.app"
 ld = "pycmd2.commands.system.list_dirs:cli.app"
 taskk = "pycmd2.commands.system.task_kill:cli.app"
 wch = "pycmd2.commands.system.which:cli.app"

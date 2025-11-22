@@ -8,14 +8,27 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import List
 
 import typer
 
-from pycmd2._pycmd2 import list_names
 from pycmd2.client import get_client
 
 cli = get_client()
 logger = logging.getLogger(__name__)
+
+
+def list_names(root_dir_str: str) -> List[str]:
+    root_dir = Path(root_dir_str)
+    if not root_dir.exists():
+        logger.error(f"路径不存在: {root_dir}")
+        return []
+
+    if not root_dir.is_dir():
+        logger.error(f"路径不是目录: {root_dir}")
+        return []
+
+    return [item.name for item in root_dir.iterdir()]
 
 
 @cli.app.command()
