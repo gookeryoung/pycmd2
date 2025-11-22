@@ -28,7 +28,6 @@ SKIP_SCRIPTS = {
 # Scripts that should run without arguments and exit successfully
 SAFE_SCRIPTS = {
     "pycmd2",
-    "ggrep",
     "envjs",
     "envpy",
     "envrs",
