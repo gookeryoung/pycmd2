@@ -11,7 +11,7 @@ from typing import Callable
 from typing import ClassVar
 
 from pycmd2.client import get_client
-from pycmd2.commands.dev.makepython.runner import BaseRunner
+from pycmd2.commands.runner import BaseRunner
 
 cli = get_client()
 

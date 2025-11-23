@@ -6,9 +6,9 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.commands.dev.git_add import get_changed_files_info
-from pycmd2.commands.dev.git_add import GitAddFileStatus
-from pycmd2.commands.dev.git_add import main
+from pycmd2.commands.dev.gittools.git_add import get_changed_files_info
+from pycmd2.commands.dev.gittools.git_add import GitAddFileStatus
+from pycmd2.commands.dev.gittools.git_add import main
 
 
 @pytest.fixture

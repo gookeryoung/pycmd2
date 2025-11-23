@@ -4,59 +4,21 @@ import logging
 import shutil
 import webbrowser
 from functools import partial
-from typing import Any
-from typing import Callable
 from typing import ClassVar
 from typing import List
 from urllib.request import pathname2url
 
 from pycmd2.client import get_client
 from pycmd2.commands.dev.makepython.update import update_build_date
+from pycmd2.commands.runner import BaseRunner
 from pycmd2.compat import tomllib
 
 from .build import get_build_command
 
-__all__ = ("BaseRunner", "get_runner")
+__all__ = ("get_runner",)
 
 cli = get_client()
 logger = logging.getLogger(__name__)
-
-
-class BaseRunner:
-    """BaseRunner 基类."""
-
-    DESCRIPTION: str = ""
-    SUBCOMMANDS: ClassVar[list[list[str] | str | Callable[..., Any]]] = []
-
-    def run(self) -> None:
-        """执行系列命令."""
-        if self.DESCRIPTION:
-            logger.info(f"功能描述: {self.DESCRIPTION}")
-
-        if not self.SUBCOMMANDS:
-            logger.info("没有子命令, 退出")
-            return
-
-        for subcommand in self.SUBCOMMANDS:
-            if isinstance(subcommand, str):
-                if subcommand not in _runner_keys:
-                    logger.error(f"未找到执行器: {subcommand}")
-                    continue
-
-                logger.info(f"执行子命令: {subcommand}")
-                get_runner(subcommand).run()
-            elif isinstance(subcommand, list):
-                cli.run_cmd(list(subcommand))
-            elif isinstance(subcommand, Callable):
-                logger.info(f"执行可调用对象: [purple b]{subcommand.__name__}")
-                subcommand()
-            else:
-                logger.error(f"未知子命令: {subcommand}")
-
-    @property
-    def name(self) -> str:
-        """获取执行器名称."""
-        return self.__class__.__name__.replace("Runner", "").lower()
 
 
 class EmptyRunner(BaseRunner):
@@ -118,17 +80,27 @@ class BuildRunner(BaseRunner):
     SUBCOMMANDS: ClassVar = [_build_func]
 
 
+class UpdateRunner(BaseRunner):
+    """UpdateRunner 类."""
+
+    DESCRIPTION = "更新构建日期, 别名: u / update"
+    SUBCOMMANDS: ClassVar = [update_build_date, ["git", "add", "*/**/__init__.py"], ["git", "commit", "-m", "更新构建日期"]]
+
+
 class BumpPatchRunner(BaseRunner):
     """BumpPatchRunner 类."""
 
     DESCRIPTION = "更新 patch 版本"
+    CHILD_RUNNERS: ClassVar = {
+        "update": UpdateRunner(),
+    }
     SUBCOMMANDS: ClassVar = [
         "update",
         ["uvx", "--from", "bump2version", "bumpversion", "patch"],
     ]
 
 
-class BumpMinorRunner(BaseRunner):
+class BumpMinorRunner(BumpPatchRunner):
     """BumpMinorRunner 类."""
 
     DESCRIPTION = "更新 minor 版本"
@@ -138,7 +110,7 @@ class BumpMinorRunner(BaseRunner):
     ]
 
 
-class BumpMajorRunner(BaseRunner):
+class BumpMajorRunner(BumpPatchRunner):
     """BumpMajorRunner 类."""
 
     DESCRIPTION = "更新 major 版本"
@@ -148,10 +120,40 @@ class BumpMajorRunner(BaseRunner):
     ]
 
 
+def _publish_func() -> None:
+    """发布项目."""
+    command = get_build_command()
+    if command is None:
+        logger.error("未找到构建工具, 退出")
+        return
+
+    executable = command.EXECUTABLE
+    if executable is None:
+        logger.error("未找到构建工具, 退出")
+        return
+
+    cli.run_cmd([executable, "publish"])
+
+
+class PublishRunner(BaseRunner):
+    """PublishRunner 类."""
+
+    DESCRIPTION = "执行发布以及推送等系列操作, 别名: p / publish"
+    SUBCOMMANDS: ClassVar = [
+        _publish_func,
+        ["gitc", "-f"],
+        ["gitpa"],
+    ]
+
+
 class BumpPublishRunner(BaseRunner):
     """BumpPublishRunner 类."""
 
     DESCRIPTION = "执行版本更新、构建以及推送等系列操作"
+    CHILD_RUNNERS: ClassVar = {
+        "bumpp": BumpPatchRunner(),
+        "publish": PublishRunner(),
+    }
     SUBCOMMANDS: ClassVar = [
         "bumpp",
         "publish",
@@ -278,10 +280,25 @@ class CoverageSlowRunner(BaseRunner):
     ]
 
 
+class SyncronizeRunner(BaseRunner):
+    """SyncRunner 类."""
+
+    DESCRIPTION = "同步项目, 别名: s / sync"
+    SUBCOMMANDS: ClassVar = [
+        ["uv", "sync"],
+        ["uvx", "pre-commit", "install"],
+    ]
+
+
 class DistributionRunner(BaseRunner):
     """DistRunner 类."""
 
     DESCRIPTION = "发布项目, 别名: dist"
+    CHILD_RUNNERS: ClassVar = {
+        "clean": CleanRunner(),
+        "sync": SyncronizeRunner(),
+        "build": BuildRunner(),
+    }
     SUBCOMMANDS: ClassVar = [
         "clean",
         "sync",
@@ -315,6 +332,10 @@ class InitializeRunner(BaseRunner):
     """InitRunner 类."""
 
     DESCRIPTION = "初始化项目, 别名: i / init"
+    CHILD_RUNNERS: ClassVar = {
+        "clean": CleanRunner(),
+        "sync": SyncronizeRunner(),
+    }
     SUBCOMMANDS: ClassVar = [
         "clean",
         "sync",
@@ -332,42 +353,6 @@ class LintRunner(BaseRunner):
     ]
 
 
-def _publish_func() -> None:
-    """发布项目."""
-    command = get_build_command()
-    if command is None:
-        logger.error("未找到构建工具, 退出")
-        return
-
-    executable = command.EXECUTABLE
-    if executable is None:
-        logger.error("未找到构建工具, 退出")
-        return
-
-    cli.run_cmd([executable, "publish"])
-
-
-class PublishRunner(BaseRunner):
-    """PublishRunner 类."""
-
-    DESCRIPTION = "执行发布以及推送等系列操作, 别名: p / publish"
-    SUBCOMMANDS: ClassVar = [
-        _publish_func,
-        ["gitc", "-f"],
-        ["gitpa"],
-    ]
-
-
-class SyncronizeRunner(BaseRunner):
-    """SyncRunner 类."""
-
-    DESCRIPTION = "同步项目, 别名: s / sync"
-    SUBCOMMANDS: ClassVar = [
-        ["uv", "sync"],
-        ["uvx", "pre-commit", "install"],
-    ]
-
-
 class TestRunner(BaseRunner):
     """TestRunner 类."""
 
@@ -375,13 +360,6 @@ class TestRunner(BaseRunner):
     SUBCOMMANDS: ClassVar = [
         ["pytest", "-vv"],
     ]
-
-
-class UpdateRunner(BaseRunner):
-    """UpdateRunner 类."""
-
-    DESCRIPTION = "更新构建日期, 别名: u / update"
-    SUBCOMMANDS: ClassVar = [update_build_date, ["git", "add", "*/**/__init__.py"], ["git", "commit", "-m", "更新构建日期"]]
 
 
 # 定义执行器字典和键集合, 确保在BaseRunner使用前已定义
@@ -404,7 +382,6 @@ _runners: dict[str, BaseRunner] = {
     "test": TestRunner(),
     "update": UpdateRunner(),
 }
-_runner_keys = set(_runners.keys())
 
 
 def get_runner(command: str) -> BaseRunner:

@@ -4,12 +4,11 @@
 """
 
 import logging
-
-from typer import Option
-from typing_extensions import Annotated
+from typing import ClassVar
 
 from pycmd2.client import get_client
 from pycmd2.commands.dev.gittools.git_push_all import check_git_status
+from pycmd2.commands.runner import BaseRunner
 
 __version__ = "0.1.1"
 __build_date__ = "2025-07-30"
@@ -27,11 +26,7 @@ exclude_dirs = [
 ]
 
 
-@cli.app.command()
-def main(
-    *,
-    force: Annotated[bool, Option("--force", "-f", help="强制清理")] = False,
-) -> None:
+def _clean(*, force: bool = False) -> None:
     logger.info(f"gitc {__version__}, 构建日期: {__build_date__}")
 
     if force:
@@ -46,3 +41,17 @@ def main(
 
     cli.run_cmd(clean_cmd)
     cli.run_cmd(["git", "checkout", "."])
+
+
+class GitCleanRunner(BaseRunner):
+    """GitCleanRunner 类."""
+
+    DESCRIPTION = "清理git"
+    SUBCOMMANDS: ClassVar = [lambda _: _clean(force=False)]
+
+
+class GitCleanForceRunner(BaseRunner):
+    """GitCleanForceRunner 类."""
+
+    DESCRIPTION = "清理git, 强制模式"
+    SUBCOMMANDS: ClassVar = [lambda _: _clean(force=True)]

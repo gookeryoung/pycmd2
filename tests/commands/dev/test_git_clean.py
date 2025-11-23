@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.commands.dev.git_clean import main
+from pycmd2.commands.dev.gittools.git_clean import main
 
 
 @pytest.fixture

@@ -1,17 +1,24 @@
 from __future__ import annotations
 
-from pycmd2.client import get_client
-from pycmd2.commands.dev.makepython.runner import BaseRunner
+import typer
 
+from pycmd2.client import get_client
+from pycmd2.commands.runner import BaseRunner
+
+from .git_clean import GitCleanForceRunner
+from .git_clean import GitCleanRunner
 from .git_init import GitInitRunner
 
 
 class _Config:
-    init = "init"
     clean = "clean"
+    clean_force = "clean_force"
+    init = "init"
 
 
 _tools: dict[str, BaseRunner] = {
+    _Config.clean: GitCleanRunner(),
+    _Config.clean_force: GitCleanForceRunner(),
     _Config.init: GitInitRunner(),
 }
 
@@ -46,5 +53,8 @@ def init() -> None:
 
 @cli.app.command("clean", help="清理 git 目录, 别名: c")
 @cli.app.command("c", help="清理 git 目录, 别名: clean")
-def clean() -> None:
-    get_runner(_Config.clean).run()
+def clean(*, force: bool = typer.Option(False, "--force", "-f", help="强制清理")) -> None:  # noqa: FBT003
+    if force:
+        get_runner(_Config.clean_force).run()
+    else:
+        get_runner(_Config.clean).run()
