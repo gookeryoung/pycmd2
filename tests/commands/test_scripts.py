@@ -28,14 +28,8 @@ SKIP_SCRIPTS = {
 # Scripts that should run without arguments and exit successfully
 SAFE_SCRIPTS = {
     "pycmd2",
-    "envjs",
-    "envpy",
-    "envrs",
-    "gitadd",
-    "gitc",
-    "gitinit",
-    "gitpa",
-    "gitre",
+    "envt",
+    "gitt",
     "mkp",
     "pipd",
     "pipdr",
