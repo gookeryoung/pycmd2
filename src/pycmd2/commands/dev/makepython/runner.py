@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import datetime
 import logging
-import re
 import shutil
 import webbrowser
 from functools import partial
@@ -13,11 +11,12 @@ from typing import List
 from urllib.request import pathname2url
 
 from pycmd2.client import get_client
+from pycmd2.commands.dev.makepython.update import update_build_date
 from pycmd2.compat import tomllib
 
 from .build import get_build_command
 
-__all__ = ("get_runner",)
+__all__ = ("BaseRunner", "get_runner")
 
 cli = get_client()
 logger = logging.getLogger(__name__)
@@ -68,10 +67,28 @@ class EmptyRunner(BaseRunner):
 
 
 def _activate_py_env() -> None:
+    """激活Python虚拟环境."""
+    venv_path = cli.cwd / ".venv"
+
     if cli.is_windows:
-        cli.run_cmdstr(f"cmd /c {cli.cwd / '.venv' / 'Scripts' / 'activate.bat'}")
+        activate_script = venv_path / "Scripts" / "activate.bat"
+        if activate_script.exists():
+            try:
+                cli.run_cmd([str(activate_script)], shell=True)
+            except Exception:
+                logger.exception("激活虚拟环境失败")
+        else:
+            logger.error(f"虚拟环境激活脚本不存在: {activate_script}")
     else:
-        cli.run_cmdstr(f"source {cli.cwd / '.venv' / 'bin' / 'activate'}", executable="/bin/bash")
+        activate_script = venv_path / "bin" / "activate"
+        if activate_script.exists():
+            try:
+                # 尝试使用source命令激活虚拟环境
+                cli.run_cmd(["source", str(activate_script)], shell=True)
+            except Exception:
+                logger.exception("激活虚拟环境失败")
+        else:
+            logger.error(f"虚拟环境激活脚本不存在: {activate_script}")
 
 
 class ActivateRunner(BaseRunner):
@@ -157,9 +174,11 @@ def _clean() -> None:
 
     # 移除待清理目录
     if spec_dirs:
-        cli.run(remove_func, spec_dirs)
+        for dir_path in spec_dirs:
+            remove_func(dir_path)
     if cache_dirs:
-        cli.run(remove_func, cache_dirs)
+        for dir_path in cache_dirs:
+            remove_func(dir_path)
 
 
 class CleanRunner(BaseRunner):
@@ -196,8 +215,12 @@ def _get_project_name() -> str:
                 project_name = config["tool"]["poetry"]["name"]
 
             return project_name or ""
-    except Exception as e:
+    except (OSError, tomllib.TOMLDecodeError) as e:
         msg = f"读取 pyproject.toml 失败: {e.__class__.__name__}: {e}"
+        logger.exception(msg)
+        return ""
+    except Exception as e:
+        msg = f"处理 pyproject.toml 时发生未知错误: {e.__class__.__name__}: {e}"
         logger.exception(msg)
         return ""
 
@@ -350,87 +373,14 @@ class TestRunner(BaseRunner):
     ]
 
 
-def _update_build_date() -> None:
-    """更新构建日期."""
-    build_date = datetime.datetime.now(datetime.timezone.utc).strftime(
-        "%Y-%m-%d",
-    )
-
-    # 检查 src 目录是否存在
-    src_dir = cli.cwd / "src"
-    if not src_dir.exists():
-        logger.warning("src 目录不存在, 无法更新构建日期")
-        return
-
-    init_files = src_dir.rglob("__init__.py")
-
-    updated_files = 0
-    skipped_files = 0
-
-    # 预编译正则表达式以提高性能
-    pattern = re.compile(
-        r"^(\s*)"  # 缩进
-        r"(__build_date__)\s*=\s*"  # 变量名
-        r"([\"\']?)"  # 引号类型(第3组)
-        r"(\d{4}-\d{2}-\d{2})"  # 原日期(第4组)
-        r"\3"  # 闭合引号
-        r"(\s*(#.*)?)$",  # 尾部空格和注释(第5组)
-        flags=re.MULTILINE | re.IGNORECASE,
-    )
-
-    for init_file in init_files:
-        try:
-            with init_file.open("r+", encoding="utf-8") as f:
-                content = f.read()
-
-                # 查找匹配项
-                match = pattern.search(content)
-                if not match:
-                    logger.debug(f"文件 {init_file} 中未找到 __build_date__ 定义, 跳过")
-                    skipped_files += 1
-                    continue
-
-                # 构造新行(保留原始格式).
-                quote = match.group(3) or ""  # 获取原引号(可能为空)
-                new_line = f"{match.group(1)}{match.group(2)} = {quote}{build_date}{quote}{match.group(5)}"
-                new_content = pattern.sub(new_line, content, count=1)
-
-                # 检查是否需要更新
-                if new_content == content:
-                    logger.debug(f"文件 {init_file} 构建日期已是最新, 无需更新")
-                    skipped_files += 1
-                    continue
-
-                # 回写文件
-                f.seek(0)
-                f.write(new_content)
-                f.truncate()
-
-                updated_files += 1
-                logger.info(
-                    f"更新文件: {init_file}, __build_date__ -> {build_date}",
-                )
-        except Exception as e:
-            msg = f"操作失败: [red]{init_file}, {e.__class__.__name__}: {e}"
-            logger.exception(msg)
-            continue
-
-    # 汇总处理结果
-    if updated_files > 0:
-        logger.info(f"构建日期更新完成, 共更新 {updated_files} 个文件")
-    if skipped_files > 0:
-        logger.info(f"跳过 {skipped_files} 个文件(未找到 __build_date__ 定义或无需更新)")
-    if updated_files == 0 and skipped_files == 0:
-        logger.warning("未找到任何 __init__.py 文件进行处理")
-
-
 class UpdateRunner(BaseRunner):
     """UpdateRunner 类."""
 
     DESCRIPTION = "更新构建日期, 别名: u / update"
-    SUBCOMMANDS: ClassVar = [_update_build_date, ["git", "add", "*/**/__init__.py"], ["git", "commit", "-m", "更新构建日期"]]
+    SUBCOMMANDS: ClassVar = [update_build_date, ["git", "add", "*/**/__init__.py"], ["git", "commit", "-m", "更新构建日期"]]
 
 
+# 定义执行器字典和键集合, 确保在BaseRunner使用前已定义
 _runners: dict[str, BaseRunner] = {
     "activate": ActivateRunner(),
     "build": BuildRunner(),

@@ -36,7 +36,7 @@ class MakeBuild(BaseBuild):
 
 
 class MaturinBuild(BaseBuild):
-    """MaturinMake 类."""
+    """MaturinBuild 类."""
 
     EXECUTABLE = "maturin"
 

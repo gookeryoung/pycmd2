@@ -146,11 +146,14 @@ class Client:
     @staticmethod
     def run_cmd(
         commands: list[str],
+        *,
+        shell: bool = False,
     ) -> None:
         """执行命令并实时记录输出到日志.
 
         Args:
             commands (List[str]): 命令列表
+            shell (bool, optional): 是否使用 shell 执行, 默认值 `False`.
 
         Raises:
             FileNotFoundError: 找不到命令
@@ -170,6 +173,7 @@ class Client:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=False,  # 手动解码
+            shell=shell,
         )
 
         # 创建并启动记录线程
