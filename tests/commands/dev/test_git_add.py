@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
+from pycmd2.commands.dev.gittools.git_add import _get_changed_files_info  # noqa: PLC2701
 from pycmd2.commands.dev.gittools.git_add import _git_add  # noqa: PLC2701
-from pycmd2.commands.dev.gittools.git_add import get_changed_files_info
 from pycmd2.commands.dev.gittools.git_add import GitAddFileStatus
 
 
@@ -23,7 +23,7 @@ def mock_subprocess() -> Generator[MagicMock, None, None]:
 
 @pytest.fixture
 def mock_cli(tmp_path: Path) -> Generator[MagicMock, None, None]:
-    with patch("pycmd2.commands.dev.git_add.cli") as mock:
+    with patch("pycmd2.commands.dev.gittools.git_add.cli") as mock:
         mock.cwd = str(tmp_path)
         mock.run_cmd = MagicMock()
         yield mock
@@ -46,7 +46,7 @@ def test_git_add_file_status() -> None:
 def test_get_changed_files_info(mock_subprocess: MagicMock) -> None:
     # 测试获取变更文件信息
     mock_subprocess.return_value.stdout = "A  new.txt\nM  modified.txt"
-    files = get_changed_files_info()
+    files = _get_changed_files_info()
     assert len(files) == 2  # noqa: PLR2004
     assert GitAddFileStatus("A", Path("new.txt")) in files
     assert GitAddFileStatus("M", Path("modified.txt")) in files

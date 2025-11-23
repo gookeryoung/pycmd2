@@ -40,7 +40,7 @@ class GitAddFileStatus:
         return hash((self.status, str(self.filepath)))
 
 
-def get_changed_files_info() -> set[GitAddFileStatus]:
+def _get_changed_files_info() -> set[GitAddFileStatus]:
     """获取git状态变化的文件列表.
 
     Returns:
@@ -66,9 +66,9 @@ def _git_add() -> None:
     os.chdir(str(cli.cwd))
 
     # 计算新增的文件
-    before = get_changed_files_info()
+    before = _get_changed_files_info()
     cli.run_cmd(["git", "add", "."])
-    after = get_changed_files_info()
+    after = _get_changed_files_info()
 
     # 计算新增的文件信息
     added_files_info = after - before

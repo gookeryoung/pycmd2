@@ -15,7 +15,7 @@ def mock_cli() -> Generator[MagicMock, None, None]:
 
 @pytest.fixture
 def mock_check_git_status() -> Generator[MagicMock, None, None]:
-    with patch("pycmd2.commands.dev.gittools.git_clean.check_git_status") as mock:
+    with patch("pycmd2.commands.dev.gittools.git_clean._check_git_status") as mock:
         yield mock
 
 
