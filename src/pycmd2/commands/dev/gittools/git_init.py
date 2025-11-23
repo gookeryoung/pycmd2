@@ -16,17 +16,12 @@ from pycmd2.commands.runner import BaseRunner
 cli = get_client()
 
 
-def _chdir() -> None:
-    """切换到当前工作目录."""
-    os.chdir(str(cli.cwd))
-
-
 class GitInitRunner(BaseRunner):
     """GitInitRunner 类."""
 
     DESCRIPTION: str = "初始化 git 目录"
     SUBCOMMANDS: ClassVar[list[list[str] | str | Callable[..., Any]]] = [
-        _chdir,
+        lambda: os.chdir(str(cli.cwd)),
         ["git", "init"],
         ["git", "add", "."],
         ["git", "commit", "-m", "initial commit"],
