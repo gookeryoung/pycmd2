@@ -3,10 +3,6 @@
 build-backend = "hatchling.build"
 requires = ["hatchling"]
 
-[tool.maturin]
-features = ["pyo3/extension-module"]
-module-name = "pycmd2._pycmd2"
-
 [project]
 authors = [{ name = "gooker_young", email = "gooker_young@qq.com" }]
 classifiers = []
@@ -233,7 +229,6 @@ pycmd2 = { workspace = true }
 [dependency-groups]
 build = ["hatch>=1.14.1", "pip>=25.0.1", "wheel>=0.45.1"]
 dev = [
-  "maturin>=1.9.6",
   "pre-commit>=3.5.0",
   "pycmd2[all]",
   { include-group = "build" },

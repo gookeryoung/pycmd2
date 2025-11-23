@@ -48,6 +48,7 @@ class BaseRunner:
             elif isinstance(subcommand, list):
                 cli.run_cmd(list(subcommand))
             elif isinstance(subcommand, Callable):
+                logger.info(f"执行可调用对象: [purple b]{subcommand.__name__}")
                 subcommand()
             else:
                 logger.error(f"未知子命令: {subcommand}")
@@ -173,9 +174,12 @@ def _clean() -> None:
     remove_func = partial(shutil.rmtree, ignore_errors=True)
 
     # 移除待清理目录
+    logger.info(f"开始清理目录: {[str(_) for _ in spec_dirs]}")
     if spec_dirs:
         for dir_path in spec_dirs:
             remove_func(dir_path)
+
+    logger.info(f"开始清理目录: {[str(_) for _ in cache_dirs]}")
     if cache_dirs:
         for dir_path in cache_dirs:
             remove_func(dir_path)
