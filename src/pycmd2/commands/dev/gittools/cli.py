@@ -10,6 +10,7 @@ from .git_clean import GitCleanForceRunner
 from .git_clean import GitCleanRunner
 from .git_init import GitInitRunner
 from .git_push_all import GitPushAllRunner
+from .git_restart_tgitcache import GitRestartTGitCacheRunner
 
 
 class _Config:
@@ -20,6 +21,7 @@ class _Config:
     clean_force = "clean_force"
     init = "init"
     push = "push"
+    restart_tgitcache = "restart_tgitcache"
 
 
 _tools: dict[str, BaseRunner] = {
@@ -28,6 +30,7 @@ _tools: dict[str, BaseRunner] = {
     _Config.clean_force: GitCleanForceRunner(),
     _Config.init: GitInitRunner(),
     _Config.push: GitPushAllRunner(),
+    _Config.restart_tgitcache: GitRestartTGitCacheRunner(),
 }
 
 cli = get_client()
@@ -78,3 +81,9 @@ def init() -> None:
 @cli.app.command("p", help="推送所有分支, 别名: push")
 def push() -> None:
     get_runner(_Config.push).run()
+
+
+@cli.app.command("re", help="重新启动 TGitCache.exe, 刷新缓存, 别名: restart")
+@cli.app.command("restart", help="重新启动 TGitCache.exe, 刷新缓存, 别名: re")
+def restart_tgitcache() -> None:
+    get_runner(_Config.restart_tgitcache).run()
