@@ -26,7 +26,7 @@ exclude_dirs = [
 ]
 
 
-def _clean(*, force: bool = False) -> None:
+def _git_clean(*, force: bool = False) -> None:
     logger.info(f"gitc {__version__}, 构建日期: {__build_date__}")
 
     if force:
@@ -47,11 +47,11 @@ class GitCleanRunner(BaseRunner):
     """GitCleanRunner 类."""
 
     DESCRIPTION = "清理git"
-    SUBCOMMANDS: ClassVar = [lambda: _clean(force=False)]
+    SUBCOMMANDS: ClassVar = [lambda: _git_clean(force=False)]
 
 
 class GitCleanForceRunner(BaseRunner):
     """GitCleanForceRunner 类."""
 
     DESCRIPTION = "清理git, 强制模式"
-    SUBCOMMANDS: ClassVar = [lambda: _clean(force=True)]
+    SUBCOMMANDS: ClassVar = [lambda: _git_clean(force=True)]

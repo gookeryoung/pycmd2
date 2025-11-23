@@ -4,18 +4,18 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.commands.dev.gittools.git_clean import main
+from pycmd2.commands.dev.gittools.git_clean import _git_clean  # noqa: PLC2701
 
 
 @pytest.fixture
 def mock_cli() -> Generator[MagicMock, None, None]:
-    with patch("pycmd2.commands.dev.git_clean.cli") as mock:
+    with patch("pycmd2.commands.dev.gittools.git_clean.cli") as mock:
         yield mock
 
 
 @pytest.fixture
 def mock_check_git_status() -> Generator[MagicMock, None, None]:
-    with patch("pycmd2.commands.dev.git_clean.check_git_status") as mock:
+    with patch("pycmd2.commands.dev.gittools.git_clean.check_git_status") as mock:
         yield mock
 
 
@@ -24,7 +24,7 @@ def test_main_with_force(
     mock_check_git_status: MagicMock,
 ) -> None:
     # 测试强制清理模式
-    main(force=True)
+    _git_clean(force=True)
 
     # 验证命令执行
     mock_cli.run_cmd.assert_any_call(["git", "checkout", "."])
@@ -37,7 +37,7 @@ def test_main_without_force_clean(
 ) -> None:
     # 测试非强制模式且工作区干净
     mock_check_git_status.return_value = True
-    main(force=False)
+    _git_clean(force=False)
 
     mock_cli.run_cmd.assert_any_call(["git", "checkout", "."])
 
@@ -48,7 +48,7 @@ def test_main_without_force_dirty(
 ) -> None:
     # 测试非强制模式且工作区不干净
     mock_check_git_status.return_value = False
-    main(force=False)
+    _git_clean(force=False)
 
     # 验证没有执行清理命令
     mock_cli.run_cmd.assert_not_called()
@@ -56,7 +56,7 @@ def test_main_without_force_dirty(
 
 def test_main_exclude_dirs(mock_cli: MagicMock) -> None:
     # 测试排除目录参数
-    main(force=True)
+    _git_clean(force=True)
 
     # 获取clean命令参数
     call_args = mock_cli.run_cmd.call_args_list[0][0][0]
