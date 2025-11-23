@@ -57,6 +57,12 @@ def cov() -> None:
     get_runner("cov").run()
 
 
+@cli.app.command("covsl", help="运行测试并生成覆盖率报告, Slow 模式")
+def covsl() -> None:
+    """运行测试并生成覆盖率报告."""
+    get_runner("covsl").run()
+
+
 @cli.app.command("dist", help="生成发布包, 别名: d")
 @cli.app.command("d", help="生成发布包, 别名: dist")
 def dist() -> None:
