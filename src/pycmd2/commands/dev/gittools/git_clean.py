@@ -47,11 +47,11 @@ class GitCleanRunner(BaseRunner):
     """GitCleanRunner 类."""
 
     DESCRIPTION = "清理git"
-    SUBCOMMANDS: ClassVar = [lambda _: _clean(force=False)]
+    SUBCOMMANDS: ClassVar = [lambda: _clean(force=False)]
 
 
 class GitCleanForceRunner(BaseRunner):
     """GitCleanForceRunner 类."""
 
     DESCRIPTION = "清理git, 强制模式"
-    SUBCOMMANDS: ClassVar = [lambda _: _clean(force=True)]
+    SUBCOMMANDS: ClassVar = [lambda: _clean(force=True)]
