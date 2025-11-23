@@ -35,7 +35,7 @@ def _get_cmd_full_path(cmd: str) -> str:
     return full_path
 
 
-def check_git_status() -> bool:
+def _check_git_status() -> bool:
     """检查是否存在未提交的修改.
 
     Returns:
@@ -53,7 +53,7 @@ def check_git_status() -> bool:
     return True
 
 
-def check_sensitive_data() -> bool:
+def _check_sensitive_data() -> bool:
     """检查敏感提交信息(正则表达式可根据需求扩展).
 
     Returns:
@@ -73,13 +73,13 @@ def check_sensitive_data() -> bool:
     return True
 
 
-def push(
+def git_push(
     remote: str,
 ) -> None:
-    if not check_git_status():
+    if not _check_git_status():
         return
 
-    if not check_sensitive_data():
+    if not _check_sensitive_data():
         return
 
     cli.run_cmd(["git", "fetch", remote])
@@ -92,7 +92,7 @@ class GitPushAllRunner(BaseRunner):
 
     DESCRIPTION = "推送到所有远端, 别名: push_all"
     SUBCOMMANDS: ClassVar = [
-        lambda: push("origin"),
-        lambda: push("gitee.com"),
-        lambda: push("github.com"),
+        lambda: git_push("origin"),
+        lambda: git_push("gitee.com"),
+        lambda: git_push("github.com"),
     ]
