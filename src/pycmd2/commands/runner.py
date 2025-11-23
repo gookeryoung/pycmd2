@@ -21,7 +21,7 @@ class BaseRunner:
     def run(self) -> None:
         """执行系列命令."""
         if self.DESCRIPTION:
-            logger.info(f"功能描述: {self.DESCRIPTION}")
+            logger.info(f"功能描述: [green b]{self.DESCRIPTION}")
 
         if not self.SUBCOMMANDS:
             logger.info("没有子命令, 退出")
