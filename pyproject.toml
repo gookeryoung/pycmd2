@@ -29,9 +29,7 @@ pycmd2 = "pycmd2.cli:cli.app"
 
 # Commands
 # dev commands
-envjs = "pycmd2.commands.dev.env_javascript:cli.app"
-envpy = "pycmd2.commands.dev.env_python:cli.app"
-envrs = "pycmd2.commands.dev.env_rust:cli.app"
+envt = "pycmd2.commands.dev.envtools.cli:cli.app"
 gitadd = "pycmd2.commands.dev.git_add:cli.app"
 gitc = "pycmd2.commands.dev.git_clean:cli.app"
 gitinit = "pycmd2.commands.dev.git_init:cli.app"

@@ -5,10 +5,10 @@ from __future__ import annotations
 import logging
 import re
 
-import typer
-
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
+
+from .base import BaseEnvTool
 
 
 class EnvPythonConfig(TomlConfigMixin):
@@ -30,7 +30,7 @@ conf = EnvPythonConfig(show_logging=False)
 logger = logging.getLogger(__name__)
 
 # 用户文件夹
-BASHRC_PATH = cli.home / ".bashrc"
+_bashrc_path = cli.home / ".bashrc"
 
 
 def add_env_to_bashrc(
@@ -56,7 +56,7 @@ def add_env_to_bashrc(
 
     try:
         # 读取现有内容
-        content = BASHRC_PATH.read_text(encoding="utf-8") if BASHRC_PATH.exists() else ""
+        content = _bashrc_path.read_text(encoding="utf-8") if _bashrc_path.exists() else ""
 
         # 匹配现有配置的正则模式
         pattern = re.compile(
@@ -76,7 +76,7 @@ def add_env_to_bashrc(
                 new_content = new_content.rstrip("\n") + "\n"
                 new_content += entry.lstrip("\n")
 
-                BASHRC_PATH.write_text(new_content, encoding="utf-8")
+                _bashrc_path.write_text(new_content, encoding="utf-8")
                 logger.info(f"✅ 成功覆盖 {variable} 配置: {value}")
                 return True
             logger.warning(f"⚠️ 已存在 {variable} 配置, 跳过添加")
@@ -86,9 +86,9 @@ def add_env_to_bashrc(
             last_char = content[-1]
             entry = entry if last_char == "\n" else "\n" + entry.lstrip("\n")
 
-        with BASHRC_PATH.open("a", encoding="utf-8") as f:
+        with _bashrc_path.open("a", encoding="utf-8") as f:
             f.write(entry)
-        logger.info(f"✅ 成功添加 {variable} 到 {BASHRC_PATH}")
+        logger.info(f"✅ 成功添加 {variable} 到 {_bashrc_path}")
     except OSError as e:
         msg = f"❌ 操作失败: [red]{e.__class__.__name__}: {e}"
         logger.exception(msg)
@@ -97,58 +97,58 @@ def add_env_to_bashrc(
         return True
 
 
-def write_pip_conf() -> None:
-    """初始化 pip 配置."""
-    pip_dir = cli.home / "pip" if cli.is_windows else cli.home / ".pip"
-    pip_conf = pip_dir / "pip.ini" if cli.is_windows else pip_dir / "pip.conf"
+class PythonEnvtool(BaseEnvTool):
+    """python 环境配置工具."""
 
-    if not pip_dir.exists():
-        logger.info(f"创建 pip 文件夹: [green bold]{pip_dir}")
-        pip_dir.mkdir(parents=True)
-    else:
-        logger.info(f"已存在 pip 文件夹: [green bold]{pip_dir}")
+    desc = "初始化 python 环境变量"
 
-    logger.info(f"写入文件: [green bold]{pip_conf}")
-    pip_conf.write_text(conf.CONFIG_CONTENT)
+    def run(self, pypi_token: str = "", *, override: bool = True) -> None:
+        """运行环境配置."""
+        super().run()
 
+        self.write_pip_conf()
+        self.setup_uv_env(override=override)
 
-def setup_uv_env(*, override: bool = True) -> None:
-    """配置 uv 环境变量."""
-    logger.info("配置 [purple bold]uv 环境变量")
+        if pypi_token:
+            logger.info("设置 [purple bold]pypi token")
+            self.write_pypirc(pypi_token)
 
-    uv_envs = {k: v for k, v in conf.get_fileattrs().items() if k.startswith("UV_")}
+    def write_pip_conf(self) -> None:
+        """初始化 pip 配置."""
+        pip_dir = cli.home / "pip" if cli.is_windows else cli.home / ".pip"
+        pip_conf = pip_dir / "pip.ini" if cli.is_windows else pip_dir / "pip.conf"
 
-    if cli.is_windows:
-        for k, v in uv_envs.items():
-            cli.run_cmd(["setx", str(k), str(v)])
-    else:
-        for k, v in uv_envs.items():
-            add_env_to_bashrc(str(k), str(v), override=override)
+        if not pip_dir.exists():
+            logger.info(f"创建 pip 文件夹: [green bold]{pip_dir}")
+            pip_dir.mkdir(parents=True)
+        else:
+            logger.info(f"已存在 pip 文件夹: [green bold]{pip_dir}")
 
+        logger.info(f"写入文件: [green bold]{pip_conf}")
+        pip_conf.write_text(conf.CONFIG_CONTENT)
 
-def write_pypirc(token: str) -> None:
-    """永久配置 PyPI Token."""
-    token_file = cli.home / ".pypirc"
-    if token_file.exists():
-        logger.info(f"已存在 [green bold]{token_file}, 移除旧文件")
-        token_file.unlink()
+    def setup_uv_env(self, *, override: bool = True) -> None:
+        """配置 uv 环境变量."""
+        logger.info("配置 [purple bold]uv 环境变量")
 
-    logger.info(f"创建 [green bold]{token_file}")
-    token_file.write_text(
-        f"[pypi]\nusername = __token__\npassword = {token}\n",
-        encoding="utf-8",
-    )
+        uv_envs = {k: v for k, v in conf.get_fileattrs().items() if k.startswith("UV_")}
 
+        if cli.is_windows:
+            for k, v in uv_envs.items():
+                cli.run_cmd(["setx", str(k), str(v)])
+        else:
+            for k, v in uv_envs.items():
+                add_env_to_bashrc(str(k), str(v), override=override)
 
-@cli.app.command()
-def main(
-    pypi_token: str = typer.Argument(help="PyPI token值", default=""),
-    *,
-    override: bool = typer.Option(help="是否覆盖已存在选项", default=True),
-) -> None:
-    write_pip_conf()
-    setup_uv_env(override=override)
+    def write_pypirc(self, token: str) -> None:
+        """永久配置 PyPI Token."""
+        token_file = cli.home / ".pypirc"
+        if token_file.exists():
+            logger.info(f"已存在 [green bold]{token_file}, 移除旧文件")
+            token_file.unlink()
 
-    if pypi_token:
-        logger.info("设置 [purple bold]pypi token")
-        write_pypirc(pypi_token)
+        logger.info(f"创建 [green bold]{token_file}")
+        token_file.write_text(
+            f"[pypi]\nusername = __token__\npassword = {token}\n",
+            encoding="utf-8",
+        )
