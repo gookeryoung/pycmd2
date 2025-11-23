@@ -6,9 +6,9 @@ from unittest.mock import patch
 
 import pytest
 
+from pycmd2.commands.dev.gittools.git_add import _git_add  # noqa: PLC2701
 from pycmd2.commands.dev.gittools.git_add import get_changed_files_info
 from pycmd2.commands.dev.gittools.git_add import GitAddFileStatus
-from pycmd2.commands.dev.gittools.git_add import main
 
 
 @pytest.fixture
@@ -72,7 +72,7 @@ def test_main_with_added_files(
     ]
 
     with caplog.at_level(logging.INFO):
-        main()
+        _git_add()
 
     # 验证命令执行
 
@@ -96,7 +96,7 @@ def test_main_with_modified_files(
     ]
 
     with caplog.at_level(logging.INFO):
-        main()
+        _git_add()
 
     # 验证命令执行
     mock_os_chdir.assert_called_once_with(mock_cli.cwd)
@@ -119,7 +119,7 @@ def test_main_with_no_changes(
     ]
 
     with caplog.at_level(logging.WARNING):
-        main()
+        _git_add()
 
     # 验证日志输出
     assert "没有新增的文件" in caplog.text

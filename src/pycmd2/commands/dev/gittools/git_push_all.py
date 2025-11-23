@@ -3,8 +3,10 @@
 import logging
 import shutil
 import subprocess
+from typing import ClassVar
 
 from pycmd2.client import get_client
+from pycmd2.commands.runner import BaseRunner
 
 cli = get_client()
 logger = logging.getLogger(__name__)
@@ -85,7 +87,12 @@ def push(
     cli.run_cmd(["git", "push", "--all", remote])
 
 
-@cli.app.command()
-def main() -> None:
-    remotes = ["origin", "gitee.com", "github.com"]
-    cli.run(push, remotes)
+class GitPushAllRunner(BaseRunner):
+    """GitPushAllRunner 类."""
+
+    DESCRIPTION = "推送到所有远端, 别名: push_all"
+    SUBCOMMANDS: ClassVar = [
+        lambda: push("origin"),
+        lambda: push("gitee.com"),
+        lambda: push("github.com"),
+    ]
