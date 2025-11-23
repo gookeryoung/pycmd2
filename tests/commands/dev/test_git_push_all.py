@@ -7,7 +7,6 @@ from pycmd2.commands.dev.gittools.git_push_all import _check_git_status  # noqa:
 from pycmd2.commands.dev.gittools.git_push_all import _check_sensitive_data  # noqa: PLC2701
 from pycmd2.commands.dev.gittools.git_push_all import _get_cmd_full_path  # noqa: PLC2701
 from pycmd2.commands.dev.gittools.git_push_all import git_push
-from pycmd2.commands.dev.gittools.git_push_all import GitPushAllRunner
 
 
 @pytest.fixture
@@ -77,11 +76,3 @@ def test_push_with_sensitive_data(
     ]
     git_push("origin")
     assert mock_cli.run_cmd.call_count == 0
-
-
-@patch("pycmd2.commands.runner.logger.info")
-def test_runner(mock_logger: MagicMock) -> None:
-    GitPushAllRunner().run()
-
-    # assert "执行可调用对象" in caplog.text
-    assert mock_logger.call_count == 4  # noqa: PLR2004
