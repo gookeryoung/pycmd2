@@ -1,0 +1,404 @@
+---
+description:
+alwaysApply: false
+enabled: true
+updatedAt: 2025-11-25T14:02:18.055Z
+provider:
+---
+
+# pycmd2 翻译指南
+
+## 概述
+
+本指南为 pycmd2 项目提供翻译工作的具体指导和最佳实践，确保项目本地化的质量和一致性。
+
+## 翻译原则
+
+### 1. 准确性
+- 保持原文技术含义不变
+- 使用正确的技术术语
+- 避免歧义和误解
+
+### 2. 一致性
+- 在整个项目中使用统一的术语
+- 保持相似表达方式的一致
+- 建立并遵守术语表
+
+### 3. 自然性
+- 使用符合中文表达习惯的语言
+- 避免生硬的直译
+- 保持语句流畅通顺
+
+### 4. 简洁性
+- 使用简洁明了的表达
+- 避免冗长复杂的句子
+- 保持信息传达的高效性
+
+## 具体翻译规范
+
+### 代码注释翻译
+
+#### 单行注释
+```python
+# 原英文
+# Calculate the total size of all files
+
+# 中文翻译
+# 计算所有文件的总大小
+```
+
+#### 多行注释
+```python
+# 原英文
+"""
+This function processes the input data and returns
+a dictionary containing the results.
+"""
+
+# 中文翻译
+"""
+此函数处理输入数据并返回
+包含结果的字典。
+"""
+```
+
+#### 行内注释
+```python
+# 原英文
+result = process_data(input)  # Process the raw input
+
+# 中文翻译
+result = process_data(input)  # 处理原始输入
+```
+
+### 函数和方法文档字符串
+
+#### 简单函数
+```python
+# 原英文
+def calculate_sum(a, b):
+    """Calculate the sum of two numbers."""
+    return a + b
+
+# 中文翻译
+def calculate_sum(a, b):
+    """计算两个数字的和。"""
+    return a + b
+```
+
+#### 复杂函数
+```python
+# 原英文
+def process_files(file_paths, output_dir, options=None):
+    """
+    Process a list of files and save results to output directory.
+
+    Args:
+        file_paths (List[str]): List of file paths to process
+        output_dir (str): Directory to save processed files
+        options (dict, optional): Additional processing options
+
+    Returns:
+        bool: True if processing was successful, False otherwise
+
+    Raises:
+        FileNotFoundError: If any file in file_paths does not exist
+        PermissionError: If unable to write to output_dir
+    """
+    # Implementation...
+
+# 中文翻译
+def process_files(file_paths, output_dir, options=None):
+    """
+    处理文件列表并将结果保存到输出目录。
+
+    Args:
+        file_paths (List[str]): 要处理的文件路径列表
+        output_dir (str): 保存处理文件的目录
+        options (dict, optional): 额外的处理选项
+
+    Returns:
+        bool: 处理成功返回True，否则返回False
+
+    Raises:
+        FileNotFoundError: 如果file_paths中的任何文件不存在
+        PermissionError: 如果无法写入output_dir
+    """
+    # 实现...
+```
+
+### 类文档字符串
+
+```python
+# 原英文
+class FileManager:
+    """
+    A class for managing file operations including reading, writing,
+    and organizing files in various directories.
+
+    Attributes:
+        base_path (str): The base directory for file operations
+        permissions (dict): Default permissions for new files
+    """
+
+# 中文翻译
+class FileManager:
+    """
+    用于管理文件操作的类，包括读取、写入
+    和组织不同目录中的文件。
+
+    Attributes:
+        base_path (str): 文件操作的基础目录
+        permissions (dict): 新文件的默认权限
+    """
+```
+
+### 用户界面文本
+
+#### 按钮和标签
+```python
+# 原英文
+ui.button("Submit", on_click=self.submit_form)
+ui.label("Enter your name:")
+
+# 中文翻译
+ui.button("提交", on_click=self.submit_form)
+ui.label("请输入您的姓名：")
+```
+
+#### 错误消息
+```python
+# 原英文
+if not file.exists():
+    logger.error(f"File not found: {file}")
+    ui.notify("Please check if the file path is correct", type="negative")
+
+# 中文翻译
+if not file.exists():
+    logger.error(f"文件不存在: {file}")
+    ui.notify("请检查文件路径是否正确", type="negative")
+```
+
+#### 确认对话框
+```python
+# 原英文
+result = dialog.confirm("Are you sure you want to delete this file?")
+
+# 中文翻译
+result = dialog.confirm("您确定要删除此文件吗？")
+```
+
+### 配置和设置文本
+
+```python
+# 原英文
+class AppSettings:
+    """Application settings and configuration."""
+
+    # Server settings
+    SERVER_HOST = "localhost"  # Server hostname
+    SERVER_PORT = 8080  # Server port
+
+    # File settings
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # Maximum file size in bytes (10MB)
+    ALLOWED_EXTENSIONS = [".txt", ".pdf", ".jpg"]  # Allowed file extensions
+
+# 中文翻译
+class AppSettings:
+    """应用程序设置和配置。"""
+
+    # 服务器设置
+    SERVER_HOST = "localhost"  # 服务器主机名
+    SERVER_PORT = 8080  # 服务器端口
+
+    # 文件设置
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 最大文件大小(字节，10MB)
+    ALLOWED_EXTENSIONS = [".txt", ".pdf", ".jpg"]  # 允许的文件扩展名
+```
+
+## 术语表
+
+| 英文术语 | 中文翻译 | 使用场景 |
+|---------|---------|---------|
+| File | 文件 | 通用 |
+| Directory/Folder | 目录/文件夹 | 通用 |
+| Path | 路径 | 通用 |
+| Configuration | 配置 | 通用 |
+| Settings | 设置 | UI |
+| Error | 错误 | 通用 |
+| Warning | 警告 | 通用 |
+| Process | 处理/进程 | 根据上下文 |
+| Execute/Run | 执行/运行 | 根据上下文 |
+| Install | 安装 | 通用 |
+| Uninstall | 卸载 | 通用 |
+| Download | 下载 | 通用 |
+| Upload | 上传 | 通用 |
+| Merge | 合并 | 通用 |
+| Split | 分割 | 通用 |
+| Encrypt | 加密 | 通用 |
+| Decrypt | 解密 | 通用 |
+| Convert | 转换 | 通用 |
+| Compress | 压缩 | 通用 |
+| Extract | 解压/提取 | 根据上下文 |
+| Backup | 备份 | 通用 |
+| Restore | 恢复 | 通用 |
+
+## 常见翻译问题
+
+### 1. 被动语态
+
+英文中常用的被动语态在中文中应转换为主动语态：
+
+```python
+# 原英文
+# The file was processed successfully.
+
+# 不佳翻译
+# 文件被成功处理了。
+
+# 推荐翻译
+# 文件处理成功。
+```
+
+### 2. 长句拆分
+
+英文中的长复合句在中文中应拆分为短句：
+
+```python
+# 原英文
+# To ensure that your data is properly backed up, please verify that you have sufficient storage space before initiating the backup process.
+
+# 不佳翻译
+# 为了确保您的数据被正确备份，请在启动备份过程之前验证您有足够的存储空间。
+
+# 推荐翻译
+# 为确保数据正确备份，请在启动备份前确认存储空间充足。
+```
+
+### 3. 技术术语一致性
+
+保持技术术语的一致性：
+
+```python
+# 统一使用"配置"而非"设定"或"设置"
+config = load_config()
+show_config_dialog()
+
+# 统一使用"路径"而非"路径名"
+file_path = get_file_path()
+validate_path(file_path)
+```
+
+## 特殊情况处理
+
+### 1. 保留英文的情况
+
+- 品牌名称、产品名称
+- API 函数名和参数名
+- 变量名、类名、函数名
+- 文件名和扩展名
+- 技术标准名称
+- 国际通用缩写
+
+```python
+# 示例
+# 使用 HTTP API 获取数据
+# 连接 MySQL 数据库
+# 生成 PDF 文件
+# 检查 JSON 格式
+```
+
+### 2. 混合文本处理
+
+当代码中包含混合文本时，应明确区分：
+
+```python
+# 原英文
+logger.info(f"Processing {file_count} files in {directory_name}")
+
+# 中文翻译
+logger.info(f"正在处理 {file_count} 个文件，位于 {directory_name}")
+```
+
+### 3. 格式化字符串处理
+
+确保翻译后的格式化字符串仍然有效：
+
+```python
+# 原英文
+error_msg = f"Failed to open file '{filename}': {error_message}"
+
+# 中文翻译
+error_msg = f"无法打开文件 '{filename}': {error_message}"
+```
+
+## 质量检查
+
+### 翻译检查清单
+
+- [ ] 技术含义是否准确
+- [ ] 术语使用是否一致
+- [ ] 表达是否符合中文习惯
+- [ ] 是否有语法错误
+- [ ] 代码功能是否受影响
+- [ ] 格式化字符串是否有效
+- [ ] 文档字符串格式是否正确
+
+### 自动化检查
+
+使用以下工具检查翻译质量：
+
+```bash
+# 检查未翻译的英文文本
+pycmd2-check-untranslated
+
+# 检查术语一致性
+pycmd2-check-terminology
+
+# 检查文档字符串格式
+pycmd2-check-docstrings
+```
+
+## 翻译流程
+
+### 新功能翻译
+
+1. 编写功能代码（英文）
+2. 识别所有用户可见文本
+3. 根据本指南翻译文本
+4. 更新术语表（如有新术语）
+5. 运行质量检查工具
+6. 测试翻译后的界面
+
+### 现有代码更新
+
+1. 检查更新的代码中是否有新文本
+2. 翻译新增文本
+3. 检查是否影响现有翻译
+4. 更新相关文档
+
+## 常见问题
+
+### Q: 如何翻译技术文档中的术语？
+
+A: 优先考虑行业通用译法，如无通用译法则采用直译加注释，并在术语表中记录。
+
+### Q: 代码注释是否需要翻译？
+
+A: 是的，所有面向用户的代码注释都应该翻译，但内部实现细节的注释可以保留英文。
+
+### Q: 如何处理长文本的翻译？
+
+A: 长文本应保持逻辑结构清晰，适当拆分长句，确保翻译后的文本易于理解。
+
+### Q: 如何保证翻译的一致性？
+
+A: 建立项目术语表，使用自动化检查工具，定期审查现有翻译。
+
+## 参考资料
+
+- [中文技术写作风格指南](mdc:chinese-writing-style.md)
+- [项目术语表](mdc:project-terminology.md)
+- [代码国际化最佳实践](mdc:i18n-best-practices.md)
+
+本指南将根据项目发展和反馈持续更新，欢迎贡献和建议。
