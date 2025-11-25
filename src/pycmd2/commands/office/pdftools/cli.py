@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-"""PDF Tools Module.
+"""PDF 工具模块.
 
-A PyQt5-based tool for previewing images and PDF files,
-allowing drag-and-drop reordering of pages and merging them into a single PDF.
+一个基于 PyQt5 的工具, 用于预览图像和 PDF 文件,
+允许拖拽重新排序页面并将它们合并为单个 PDF.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ from PyQt5.QtWidgets import QWidget
 
 
 class DraggableListWidget(QListWidget):
-    """A QListWidget that supports drag and drop reordering of items."""
+    """支持拖拽重新排序项目的 QListWidget."""
 
     item_dropped = pyqtSignal()
 
@@ -52,13 +52,13 @@ class DraggableListWidget(QListWidget):
         self.setDefaultDropAction(Qt.MoveAction)
 
     def dropEvent(self, event: QDropEvent) -> None:
-        """Override the drop event to emit a signal when an item is dropped."""
+        """重写拖放事件, 在项目被放下时发出信号."""
         super().dropEvent(event)
         self.item_dropped.emit()
 
 
 class PDFPreviewDialog(QDialog):
-    """Dialog for previewing PDF pages."""
+    """用于预览 PDF 页面的对话框."""
 
     def __init__(
         self,
@@ -73,7 +73,7 @@ class PDFPreviewDialog(QDialog):
         self.load_pdf_pages()
 
     def init_ui(self) -> None:
-        """Initialize the user interface."""
+        """初始化用户界面."""
         layout = QVBoxLayout()
         self.setLayout(layout)
 
@@ -87,7 +87,7 @@ class PDFPreviewDialog(QDialog):
         scroll_area.setWidget(self.content_widget)
 
     def load_pdf_pages(self) -> None:
-        """Load and display all PDF pages."""
+        """加载并显示所有 PDF 页面."""
         try:
             doc = fitz.open(self.pdf_path)  # type: ignore
 
@@ -146,7 +146,7 @@ class PDFPreviewDialog(QDialog):
 
 
 class PDFToolWindow(QMainWindow):
-    """Main window for the PDF tools application."""
+    """PDF 工具应用程序的主窗口."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -162,7 +162,7 @@ class PDFToolWindow(QMainWindow):
         self.files: List[pathlib.Path] = []
 
     def init_ui(self) -> None:
-        """Initialize the user interface."""
+        """初始化用户界面."""
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
@@ -220,15 +220,15 @@ class PDFToolWindow(QMainWindow):
         layout.addWidget(self.merge_button)
 
     def toggle_rotate_option(self, *, checked: bool) -> None:
-        """Toggle the auto-rotate pages option."""
+        """切换自动旋转页面选项."""
         self.auto_rotate_pages = checked
 
     def toggle_width_option(self, *, checked: bool) -> None:
-        """Toggle the uniform page width option."""
+        """切换统一页面宽度选项."""
         self.uniform_page_width = checked
 
     def select_all_files(self) -> None:
-        """Select all files in the list."""
+        """选择列表中的所有文件."""
         for i in range(self.file_list.count()):
             item = self.file_list.item(i)
             widget = self.file_list.itemWidget(item)
@@ -238,7 +238,7 @@ class PDFToolWindow(QMainWindow):
                     checkbox.setChecked(True)
 
     def deselect_all_files(self) -> None:
-        """Deselect all files in the list."""
+        """取消选择列表中的所有文件."""
         for i in range(self.file_list.count()):
             item = self.file_list.item(i)
             widget = self.file_list.itemWidget(item)
@@ -248,7 +248,7 @@ class PDFToolWindow(QMainWindow):
                     checkbox.setChecked(False)
 
     def select_directory(self) -> None:
-        """Open directory selection dialog and load files."""
+        """打开目录选择对话框并加载文件."""
         directory: str = QFileDialog.getExistingDirectory(
             self,
             "Select Directory",
@@ -258,7 +258,7 @@ class PDFToolWindow(QMainWindow):
             self.load_files_from_directory(directory)
 
     def load_files_from_directory(self, directory: str) -> None:
-        """Load supported files from the selected directory."""
+        """从选定目录加载支持的文件."""
         self.file_list.clear()
         self.files = []
 
@@ -290,7 +290,7 @@ class PDFToolWindow(QMainWindow):
         self.merge_button.setEnabled(len(self.files) > 0)
 
     def add_file(self, filepath: pathlib.Path) -> None:
-        """Add a file to the list with preview."""
+        """添加文件到列表并显示预览."""
         filename = pathlib.Path(filepath).name
 
         # Create a container widget for the item
@@ -380,14 +380,14 @@ class PDFToolWindow(QMainWindow):
         self.files.append(filepath)
 
     def preview_item(self, item: QListWidgetItem) -> None:
-        """Preview the selected item."""
+        """预览选定项目."""
         filepath = item.data(Qt.UserRole)
         if filepath.suffix.lower().endswith(".pdf"):
             dialog = PDFPreviewDialog(filepath, self)
             dialog.exec_()
 
     def update_order(self) -> None:
-        """Update the file order after drag and drop."""
+        """拖放后更新文件顺序."""
         self.files = []
         for i in range(self.file_list.count()):
             item = self.file_list.item(i)
@@ -395,10 +395,10 @@ class PDFToolWindow(QMainWindow):
             self.files.append(filepath)
 
     def get_selected_files(self) -> List[pathlib.Path]:
-        """Get list of selected files based on checkboxes.
+        """根据复选框获取选定文件列表.
 
         Returns:
-            List[pathlib.Path]: List of selected files.
+            List[pathlib.Path]: 选定文件列表
         """
         selected_files = []
         for i in range(self.file_list.count()):
@@ -412,7 +412,7 @@ class PDFToolWindow(QMainWindow):
         return selected_files
 
     def merge_to_pdf(self) -> None:  # noqa: C901
-        """Merge selected files to a single PDF."""
+        """将选定文件合并为单个 PDF."""
         # Get only selected files
         selected_files = self.get_selected_files()
 
@@ -482,10 +482,10 @@ class PDFToolWindow(QMainWindow):
         self,
         pdf_path: pathlib.Path,
     ) -> pathlib.Path:
-        """Process PDF page with auto-rotation and uniform width if enabled.
+        """处理 PDF 页面, 如果启用则自动旋转和统一宽度.
 
         Returns:
-            pathlib.Path: Path to the processed PDF.
+            pathlib.Path: 处理后的 PDF 路径
         """
         # Create a temporary PDF with processed pages
         temp_pdf_path = pdf_path.with_suffix(".processed.temp.pdf")
@@ -552,14 +552,14 @@ class PDFToolWindow(QMainWindow):
         image_path: pathlib.Path,
         pdf_path: pathlib.Path,
     ) -> None:
-        """Convert an image to a PDF file.
+        """将图像转换为 PDF 文件.
 
         Args:
-            image_path: Path to the image file
-            pdf_path: Path to save the PDF file
+            image_path: 图像文件路径
+            pdf_path: 保存 PDF 文件的路径
 
         Raises:
-            Exception: If the image cannot be loaded
+            Exception: 如果无法加载图像
         """
         image = QImage(str(image_path))
 
@@ -606,7 +606,7 @@ class PDFToolWindow(QMainWindow):
 
 
 def main() -> None:
-    """Main entry point for the application."""
+    """应用程序主入口点."""
     app = QApplication(sys.argv)
     window = PDFToolWindow()
     window.show()

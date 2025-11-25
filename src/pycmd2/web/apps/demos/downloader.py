@@ -14,7 +14,7 @@ import pandas as pd
 from nicegui import events
 from nicegui import ui
 
-from pycmd2.web.apps.app import BaseApp
+from pycmd2.web.apps.base import BaseApp
 
 
 class DownloaderDemoApp(BaseApp):

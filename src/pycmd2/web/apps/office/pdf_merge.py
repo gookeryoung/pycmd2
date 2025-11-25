@@ -18,7 +18,7 @@ from pypdf import PdfReader
 from pypdf import PdfWriter
 
 from pycmd2.config import TomlConfigMixin
-from pycmd2.web.apps.app import BaseApp
+from pycmd2.web.apps.base import BaseApp
 
 
 class PDFMergerConfig(TomlConfigMixin):

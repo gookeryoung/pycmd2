@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from nicegui import ui
 
-from pycmd2.web.apps.app import BaseApp
+from pycmd2.web.apps.base import BaseApp
 
 # 常用的 Material Icons
 # 这不是一个详尽的列表, 但涵盖了许多常用图标
@@ -715,7 +715,7 @@ class IconsHelpApp(BaseApp):
         with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-4"):
             ui.label("Material Icons 图标库").classes("text-h4 font-bold self-center")
             ui.markdown(
-                "本页面展示了NiceGUI中常用的Material Icons。点击任意图标可将其名称复制到剪贴板。",
+                "本页面展示了NiceGUI中常用的Material Icons, 点击任意图标可将其名称复制到剪贴板.",
             ).classes("self-center text-center")
 
             # 搜索输入框
