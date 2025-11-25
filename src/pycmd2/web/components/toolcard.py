@@ -4,6 +4,9 @@ from dataclasses import dataclass
 
 from nicegui import ui
 
+from pycmd2.web.components.navigator import NavigationGroup
+from pycmd2.web.components.navigator import NavigationItem
+
 
 @dataclass
 class ToolCard:
@@ -36,6 +39,18 @@ class ToolCard:
 
         return card
 
+    def to_navigation_item(self) -> NavigationItem:
+        """将工具卡片转换为导航项.
+
+        Returns:
+            NavigationItem: 导航项对象.
+        """
+        return NavigationItem(
+            title=self.title,
+            icon=self.icon,
+            router=self.router,
+        )
+
 
 @dataclass
 class ToolCardGroup:
@@ -67,3 +82,15 @@ class ToolCardGroup:
                     tool.setup()
 
         return expansion
+
+    def to_navigation_group(self) -> NavigationGroup:
+        """将工具卡片组转换为导航组.
+
+        Returns:
+            NavigationGroup: 导航组对象.
+        """
+        return NavigationGroup(
+            title=self.title,
+            icon=self.icon,
+            items=[tool.to_navigation_item() for tool in self.tools],
+        )

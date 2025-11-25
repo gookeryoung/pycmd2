@@ -23,6 +23,43 @@ class NavigationItem:
     disabled: bool = False
     on_click: Callable[[], None] | None = None
 
+    def setup_nav(self, parent: Navigator) -> None:
+        """设置导航项."""
+        with ui.row().classes("w-full navigation-item"):
+            # Navigation button
+            nav_button = (
+                ui.button(
+                    self.title,
+                    icon=self.icon,
+                )
+                .props(
+                    "flat align-left dense full-width",
+                )
+                .classes(
+                    "justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700",
+                )
+            )
+
+            # Store reference for search functionality
+            parent.all_items.append((self, nav_button))
+
+            # Add badge if present
+            if self.badge:
+                with ui.element("div").classes("ml-auto"):
+                    ui.badge(self.badge).props("color=red floating")
+
+            # Handle click events
+            if self.disabled:
+                nav_button.props("disabled")
+            else:
+                if self.on_click:
+                    nav_button.on("click", self.on_click)
+                elif self.router:
+                    nav_button.on("click", lambda: ui.navigate.to(self.router))
+
+                # Close drawer on navigation
+                nav_button.on("click", lambda: parent.drawer.hide() if parent.drawer else None)
+
 
 @dataclass
 class NavigationGroup:
@@ -35,6 +72,12 @@ class NavigationGroup:
     icon: str
     items: list[NavigationItem]
     expanded: bool = True
+
+    def setup_nav(self, parent: Navigator) -> None:
+        """设置导航组."""
+        with ui.expansion(self.title, icon=self.icon, value=self.expanded).classes("w-full navigation-group"), ui.column().classes("w-full gap-1"):
+            for item in self.items:
+                item.setup_nav(parent)
 
 
 class Navigator:
@@ -55,8 +98,8 @@ class Navigator:
         self.groups: list[NavigationGroup] = []
         self.drawer: ui.drawer | None = None
         self.top_bar: ui.row | None = None
-        self.search_input: ui.input | None = None
         self.all_items: list[tuple[NavigationItem, ui.button]] = []
+        self.search_input: ui.input | None = None
 
         # 加载配置
         self.config = WebServerConfig()
@@ -138,7 +181,7 @@ class Navigator:
 
             # Navigation groups and items
             for group in self.groups:
-                self._create_group(group)
+                group.setup_nav(self)
 
         return self.drawer
 
@@ -225,61 +268,10 @@ class Navigator:
                 if item.on_click:
                     nav_button.on("click", item.on_click)
                 elif item.router:
-                    nav_button.on("click", lambda: self._navigate(item.router))
+                    nav_button.on("click", lambda: ui.navigate.to(item.router))
 
                 # Close dropdown on navigation
                 nav_button.on("click", lambda: dropdown.set_visibility(False))
-
-    def _create_group(self, group: NavigationGroup) -> None:
-        """创建导航组.
-
-        Args:
-            group: 要创建的导航组
-        """
-        with ui.expansion(group.title, icon=group.icon, value=group.expanded).classes("w-full navigation-group"), ui.column().classes("w-full gap-1"):
-            for item in group.items:
-                self._create_item(item)
-
-    def _create_item(self, item: NavigationItem) -> None:
-        """创建导航项.
-
-        Args:
-            item: 要创建的导航项
-        """
-        with ui.row().classes("w-full navigation-item"):
-            # Navigation button
-            nav_button = (
-                ui.button(
-                    item.title,
-                    icon=item.icon,
-                )
-                .props(
-                    "flat align-left dense full-width",
-                )
-                .classes(
-                    "justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700",
-                )
-            )
-
-            # Store reference for search functionality
-            self.all_items.append((item, nav_button))
-
-            # Add badge if present
-            if item.badge:
-                with ui.element("div").classes("ml-auto"):
-                    ui.badge(item.badge).props("color=red floating")
-
-            # Handle click events
-            if item.disabled:
-                nav_button.props("disabled")
-            else:
-                if item.on_click:
-                    nav_button.on("click", item.on_click)
-                elif item.router:
-                    nav_button.on("click", lambda: self._navigate(item.router))
-
-                # Close drawer on navigation
-                nav_button.on("click", lambda: self.drawer.hide() if self.drawer else None)
 
     def _on_search(self, query: str) -> None:
         """处理搜索功能.
@@ -301,14 +293,6 @@ class Navigator:
                 button.classes(remove="hidden")
             else:
                 button.classes(add="hidden")
-
-    def _navigate(self, router: str) -> None:
-        """导航到指定的路由.
-
-        Args:
-            router: 要导航到的路由路径
-        """
-        ui.navigate.to(router)
 
     def toggle(self) -> None:
         """切换导航可见性."""
@@ -341,171 +325,4 @@ def create_main_navigator(page_title: str) -> Navigator:
     Returns:
         Navigator: 配置好的导航器实例
     """
-    navigator = Navigator(page_title)
-
-    # Main navigation groups
-    navigator.add_group(
-        NavigationGroup(
-            title="主页",
-            icon="home",
-            items=[
-                NavigationItem(
-                    title="首页",
-                    icon="dashboard",
-                    router="/",
-                    badge="New",
-                ),
-                NavigationItem(
-                    title="所有工具",
-                    icon="apps",
-                    router="/tools",
-                ),
-            ],
-        ),
-    )
-
-    navigator.add_group(
-        NavigationGroup(
-            title="Office Tools",
-            icon="work",
-            items=[
-                NavigationItem(
-                    title="PDF Tools",
-                    icon="picture_as_pdf",
-                    router="/office/pdf",
-                ),
-                NavigationItem(
-                    title="Document Processor",
-                    icon="description",
-                    router="/office/docs",
-                ),
-            ],
-        ),
-    )
-
-    navigator.add_group(
-        NavigationGroup(
-            title="Development",
-            icon="code",
-            items=[
-                NavigationItem(
-                    title="Code Generator",
-                    icon="auto_fix_high",
-                    router="/dev/generator",
-                ),
-                NavigationItem(
-                    title="API Tester",
-                    icon="api",
-                    router="/dev/api",
-                ),
-            ],
-        ),
-    )
-
-    navigator.add_group(
-        NavigationGroup(
-            title="System",
-            icon="settings",
-            items=[
-                NavigationItem(
-                    title="System Monitor",
-                    icon="monitor",
-                    router="/system/monitor",
-                ),
-                NavigationItem(
-                    title="File Manager",
-                    icon="folder",
-                    router="/system/files",
-                ),
-            ],
-        ),
-    )
-
-    navigator.add_group(
-        NavigationGroup(
-            title="Help & Support",
-            icon="help",
-            items=[
-                NavigationItem(
-                    title="Documentation",
-                    icon="menu_book",
-                    router="/help/docs",
-                ),
-                NavigationItem(
-                    title="Icons Gallery",
-                    icon="grid_view",
-                    router="/help/icons",
-                ),
-                NavigationItem(
-                    title="About",
-                    icon="info",
-                    router="/help/about",
-                ),
-            ],
-        ),
-    )
-
-    navigator.add_group(
-        NavigationGroup(
-            title="Settings",
-            icon="settings",
-            items=[
-                NavigationItem(
-                    title="Configuration",
-                    icon="tune",
-                    router="/settings/config",
-                ),
-            ],
-        ),
-    )
-
-    return navigator
-
-
-def create_page_with_navigation(
-    navigator: Navigator,
-    content_callback: Callable[[], None],
-) -> None:
-    """创建带导航的页面.
-
-    Args:
-        navigator: 要使用的导航器实例
-        content_callback: 创建页面内容的函数
-    """
-    # Create navigation component
-    if navigator.position == "left":
-        nav_component = navigator.setup()
-        # Left navigation layout
-        # Header with menu button
-        with ui.header().classes("items-center justify-between p-4 bg-white dark:bg-gray-900 text-black dark:text-white shadow"), ui.row().classes(
-            "items-center ",
-        ):
-            ui.button(icon="menu", on_click=lambda: nav_component.set_visibility(False)).props("flat dense")
-
-        # Main content area
-        with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6"):
-            content_callback()
-
-        # Footer
-        with ui.footer().classes("bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 p-4"), ui.column().classes(
-            "w-full max-w-6xl mx-auto items-center",
-        ):
-            ui.label("通用工作流工具包 © 2025").classes("text-center")
-            ui.label("用于日常任务的强大工具集合").classes("text-center text-sm")
-
-    else:
-        # Top navigation layout - integrated into header
-        # Create fixed header with integrated navigation
-        with ui.header().classes("items-center justify-between p-0 bg-white dark:bg-gray-900 text-black dark:text-white shadow"):
-            nav_component = navigator.setup()
-
-        # Main content area with proper spacing for fixed header
-        with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6 mt-4"):
-            content_callback()
-
-        # Footer
-        with ui.footer().classes("bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 p-4"), ui.column().classes(
-            "w-full max-w-6xl mx-auto items-center",
-        ):
-            ui.label("通用工作流工具包 © 2025").classes("text-center")
-            ui.label("用于日常任务的强大工具集合").classes("text-center text-sm")
+    return Navigator(page_title)
