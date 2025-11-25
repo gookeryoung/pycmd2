@@ -3,69 +3,17 @@ from __future__ import annotations
 from nicegui import ui
 
 from pycmd2.web.apps.system.machine import MachineMonitor
-from pycmd2.web.components.navigator import Navigator
 from pycmd2.web.routes import CARDS
-from pycmd2.web.routes import GROUPS
 
 
-class MainNavigator(Navigator):
-    """主导航."""
+class MainContent:
+    """主内容区域."""
 
-    def __init__(
-        self,
-        title: str,
-    ) -> None:
-        super().__init__(title=title)
+    def __init__(self) -> None:
+        self.tool_cards: list[tuple[ui.card, str, str]] = []
 
-        # 存储工具卡片的引用以便过滤
-        self.tool_cards = []
-
-        for group in GROUPS:
-            self.add_group(group)
-
-    def setup_page(self) -> None:
-        """设置导航器."""
-        if self.position == "left":
-            nav_component = self.setup()
-            # 左侧导航布局
-            # 带菜单按钮的头部
-            with ui.header().classes(
-                "items-center justify-between p-4 bg-white dark:bg-gray-900 text-black dark:text-white shadow",
-            ), ui.row().classes(
-                "items-center ",
-            ):
-                ui.button(icon="menu", on_click=lambda: nav_component.set_visibility(False)).props("flat dense")
-
-            # 主内容区域
-            with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6"):
-                self.page_content()
-
-            # 页脚
-            with ui.footer().classes("bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 p-4"), ui.column().classes(
-                "w-full max-w-6xl mx-auto items-center",
-            ):
-                ui.label("通用工作流工具包 © 2025").classes("text-center")
-                ui.label("用于日常任务的强大工具集合").classes("text-center text-sm")
-
-        else:
-            # 顶部导航布局 - 集成到头部
-            # 创建带有集成导航的固定头部
-            with ui.header().classes("items-center justify-between p-0 bg-white dark:bg-gray-900 text-black dark:text-white shadow"):
-                nav_component = self.setup()
-
-            # 带有固定头部适当间距的主内容区域
-            with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6 mt-4"):
-                self.page_content()
-
-            # 页脚
-            with ui.footer().classes("bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 p-4"), ui.column().classes(
-                "w-full max-w-6xl mx-auto items-center",
-            ):
-                ui.label("通用工作流工具包 © 2025").classes("text-center")
-                ui.label("用于日常任务的强大工具集合").classes("text-center text-sm")
-
-    def page_content(self) -> None:
-        """创建页面内容."""
+    def setup_ui(self) -> None:
+        """设置主内容区域."""
         # 主横幅区域
         with ui.column().classes("w-full text-center py-8"):
             ui.label("通用工作流工具包").classes("text-h3 font-bold text-blue-600")
@@ -133,3 +81,10 @@ class MainNavigator(Navigator):
                 card.classes(remove="hidden-card")
             else:
                 card.classes(add="hidden-card")
+
+
+_main_content = MainContent()
+
+
+def get_main_content() -> MainContent:
+    return _main_content

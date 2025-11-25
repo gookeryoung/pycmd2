@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pycmd2.web.layouts.settings_navigator import SettingsNavigator
+from pycmd2.web.layouts.settings_page import SettingsPage
 
 
 class SettingsApp:
@@ -12,5 +12,5 @@ class SettingsApp:
 
     def setup(self) -> None:
         """设置配置页面."""
-        navigator = SettingsNavigator("配置设置")
-        navigator.setup_page()
+        navigator = SettingsPage("配置设置")
+        navigator.setup_ui()

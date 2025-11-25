@@ -2,10 +2,10 @@ from nicegui import ui
 
 from pycmd2.web.config import conf
 from pycmd2.web.config import WebServerConfig
-from pycmd2.web.layouts.main_navigator import MainNavigator
+from pycmd2.web.layouts.main_page import MainPage
 
 
-class SettingsNavigator(MainNavigator):
+class SettingsPage(MainPage):
     """设置导航器."""
 
     def __init__(self, title: str) -> None:

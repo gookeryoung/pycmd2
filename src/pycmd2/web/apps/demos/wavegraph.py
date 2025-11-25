@@ -9,8 +9,10 @@ from __future__ import annotations
 import numpy as np
 from nicegui import ui
 
+from pycmd2.web.apps.base import BaseApp
 
-class WaveGraphApp:
+
+class WaveGraphApp(BaseApp):
     """实时波形显示应用."""
 
     ROUTER = "/demos/wavegraph"

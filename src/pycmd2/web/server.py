@@ -11,7 +11,7 @@ from nicegui import ui
 
 from pycmd2.web.apps.system.settings import SettingsApp
 from pycmd2.web.config import conf
-from pycmd2.web.layouts.main_navigator import MainNavigator
+from pycmd2.web.layouts.main_page import get_main_page
 
 
 @ui.page(SettingsApp.ROUTER)
@@ -29,10 +29,8 @@ def main_page() -> None:
     ui.add_head_html(conf.MAIN_PAGE_STYLE)
 
     # 创建主导航器
-    navigator = MainNavigator(title="通用工作流工具包")
-
-    # 创建带导航的页面
-    navigator.setup_page()
+    page = get_main_page()
+    page.setup_ui()
 
 
 def main() -> None:
