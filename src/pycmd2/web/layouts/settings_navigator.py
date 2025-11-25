@@ -1,10 +1,17 @@
 from nicegui import ui
 
+from pycmd2.web.config import conf
+from pycmd2.web.config import WebServerConfig
 from pycmd2.web.layouts.main_navigator import MainNavigator
 
 
 class SettingsNavigator(MainNavigator):
     """设置导航器."""
+
+    def __init__(self, title: str) -> None:
+        super().__init__(title)
+
+        self.config: WebServerConfig = conf
 
     def page_content(self) -> None:
         """页面内容."""

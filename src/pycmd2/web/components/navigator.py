@@ -6,7 +6,6 @@ from typing import Callable
 from nicegui import ui
 
 from pycmd2.web.config import conf
-from pycmd2.web.config import WebServerConfig
 
 
 @dataclass
@@ -102,9 +101,8 @@ class Navigator:
         self.search_input: ui.input | None = None
 
         # 加载配置
-        self.config = WebServerConfig()
-        self.position = self.config.navigation_position
-        self.show_search = self.config.show_navigation_search
+        self.position = conf.navigation_position
+        self.show_search = conf.show_navigation_search
 
     def add_group(self, group: NavigationGroup) -> None:
         """添加导航组.
@@ -146,6 +144,7 @@ class Navigator:
 
         if self.position == "left":
             return self._setup_left_navigation()
+
         return self._setup_top_navigation()
 
     def _setup_left_navigation(self) -> ui.drawer:

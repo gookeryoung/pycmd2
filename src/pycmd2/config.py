@@ -121,6 +121,8 @@ class TomlConfigMixin:
         Returns:
             TomlConfigMixin: 单例对象
         """
+        logger.info(f"获取配置单例对象: [purple b]{cls.__name__}")
+
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance  # type: ignore
