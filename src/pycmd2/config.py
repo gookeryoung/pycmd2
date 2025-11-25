@@ -5,6 +5,8 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Type
+from typing import TypeVar
 
 import tomli_w
 
@@ -17,6 +19,8 @@ __all__ = [
 
 cli = get_client()
 logger = logging.getLogger(__name__)
+
+T = TypeVar("T", bound="TomlConfigMixin")
 
 
 @dataclass
@@ -56,6 +60,8 @@ class TomlConfigMixin:
     """Base class for toml config mixin."""
 
     NAME: str = ""
+
+    _instance: TomlConfigMixin | None = None
 
     def __init__(self, *, show_logging: bool = True) -> None:
         if show_logging:
@@ -107,6 +113,17 @@ class TomlConfigMixin:
             )
 
         atexit.register(self.save)
+
+    @classmethod
+    def get_instance(cls: Type[T]) -> T:
+        """获取单例对象.
+
+        Returns:
+            TomlConfigMixin: 单例对象
+        """
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance  # type: ignore
 
     def get_fileattrs(self) -> dict[str, object]:
         """Get all attributes of the config file.

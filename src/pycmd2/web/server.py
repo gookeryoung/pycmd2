@@ -20,6 +20,7 @@ from pycmd2.web.components.navigator import create_main_navigator
 from pycmd2.web.components.navigator import create_page_with_navigation
 from pycmd2.web.components.toolcard import ToolCard
 from pycmd2.web.components.toolcard import ToolCardGroup
+from pycmd2.web.config import conf
 from pycmd2.web.help.icons import IconsHelpApp
 
 CARD_GROUPS: list[ToolCardGroup] = [
@@ -104,41 +105,7 @@ CARD_GROUPS: list[ToolCardGroup] = [
 def main_page() -> None:
     """主页面."""
     # 添加自定义 CSS 以获得更好的样式
-    ui.add_head_html("""
-    <style>
-        .tool-card {
-            transition: all 0.3s ease;
-            border-radius: 12px;
-        }
-        .tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        .category-icon {
-            font-size: 2rem !important;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-        }
-        .app-title {
-            font-weight: 600;
-        }
-        .app-description {
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        .stat-card {
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        .hidden-card {
-            display: none;
-        }
-    </style>
-    """)
+    ui.add_head_html(conf.MAIN_PAGE_STYLE)
 
     # 创建主导航器
     navigator = create_main_navigator(page_title="通用工作流工具包")
