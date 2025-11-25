@@ -70,7 +70,7 @@ class LlamaWorker(QThread):
             ) as response:
                 if response.status_code != requests.codes.ok:
                     self.error_occurred.emit(
-                        f"Error: {response.status_code} - {response.text}",
+                        f"错误: {response.status_code} - {response.text}",
                     )
                     return
 
@@ -91,7 +91,7 @@ class LlamaWorker(QThread):
                                 continue
 
         except requests.exceptions.RequestException as e:
-            self.error_occurred.emit(f"Connection error: {e!s}")
+            self.error_occurred.emit(f"连接错误: {e!s}")
         finally:
             self.is_finished.emit()
 
@@ -105,7 +105,7 @@ class LlamaChatApp(QMainWindow):
 
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("Llama Local Model Tool")
+        self.setWindowTitle("Llama 本地模型工具")
         self.setGeometry(100, 100, 800, 600)
 
         # 初始化UI
@@ -230,7 +230,7 @@ class LlamaChatApp(QMainWindow):
             return
 
         # 添加到聊天显示
-        self.append_to_chat(f"You: {prompt}\nAI:", is_user=True)
+        self.append_to_chat(f"你: {prompt}\nAI:", is_user=True)
         self.user_input.clear()
 
         # 获取参数
@@ -311,7 +311,7 @@ class LlamaChatApp(QMainWindow):
 
     def handle_error(self, error_msg: str) -> None:
         """处理错误."""
-        self.append_to_chat(f"Error: {error_msg}")
+        self.append_to_chat(f"错误: {error_msg}")
         self.statusBar().showMessage(error_msg)
 
     def on_finished(self) -> None:

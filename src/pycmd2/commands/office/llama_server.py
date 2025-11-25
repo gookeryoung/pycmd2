@@ -73,18 +73,18 @@ class LlamaServerGUI(QMainWindow):
             self.model_path_input.setPlaceholderText("Choose model file...")
 
     def init_ui(self) -> None:
-        """Initialize UI."""
-        # Main layout
+        """初始化用户界面."""
+        # 主布局
         main_widget = QWidget()
         main_layout = QVBoxLayout()  # type: ignore
 
-        # Configuration panel
-        config_group = QGroupBox("Server Configuration")
+        # 配置面板
+        config_group = QGroupBox("服务器配置")
         config_layout = QVBoxLayout(config_group)
 
-        # Model path selection
+        # 模型路径选择
         model_path_layout = QHBoxLayout()  # type: ignore
-        model_path_layout.addWidget(QLabel("Model Path:"))
+        model_path_layout.addWidget(QLabel("模型路径:"))
         self.model_path_input = QLineEdit()
 
         model_path_layout.addWidget(self.model_path_input)
@@ -93,17 +93,17 @@ class LlamaServerGUI(QMainWindow):
         model_path_layout.addWidget(self.load_model_btn)
         config_layout.addLayout(model_path_layout)
 
-        # Server parameters
+        # 服务器参数
         params_layout = QHBoxLayout()  # type: ignore
         params_layout.addStretch(1)
-        params_layout.addWidget(QLabel("Port:"))
+        params_layout.addWidget(QLabel("端口:"))
         self.port_spin = QSpinBox()
         self.port_spin.setRange(*conf.LISTEN_PORT_RNG)
         self.port_spin.setValue(conf.LISTEN_PORT)
         params_layout.addWidget(self.port_spin)
         self.port_spin.valueChanged.connect(self.on_config_changed)  # type: ignore
 
-        params_layout.addWidget(QLabel("Thread Count:"))
+        params_layout.addWidget(QLabel("线程数:"))
         self.threads_spin = QSpinBox()
         self.threads_spin.setRange(*conf.THREAD_COUNT_RNG)
         self.threads_spin.setValue(conf.THREAD_COUNT)
@@ -114,25 +114,25 @@ class LlamaServerGUI(QMainWindow):
         config_group.setLayout(config_layout)
         main_layout.addWidget(config_group)
 
-        # Control buttons
+        # 控制按钮
         control_layout = QHBoxLayout()  # type: ignore
-        self.start_btn = QPushButton("Start Server")
+        self.start_btn = QPushButton("启动服务器")
         self.start_btn.clicked.connect(self.toggle_server)  # type: ignore
-        self.browser_btn = QPushButton("Start Browser")
+        self.browser_btn = QPushButton("启动浏览器")
         self.browser_btn.setEnabled(False)
         self.browser_btn.clicked.connect(self.on_start_browser)  # type: ignore
         control_layout.addWidget(self.start_btn)
         control_layout.addWidget(self.browser_btn)
         main_layout.addLayout(control_layout)
 
-        # Output display
-        output_group = QGroupBox("Server Output")
+        # 输出显示
+        output_group = QGroupBox("服务器输出")
         output_layout = QVBoxLayout(output_group)
         self.output_area = QTextEdit("")
         self.output_area.setReadOnly(True)
         self.output_area.setLineWrapMode(QTextEdit.NoWrap)  # type: ignore
 
-        # Set colors for different message types
+        # 为不同消息类型设置颜色
         self.error_format = self.create_text_format(QColor(255, 0, 0))  # type: ignore
         self.warning_format = self.create_text_format(QColor(255, 165, 0))  # type: ignore
         self.info_format = self.create_text_format(QColor(0, 0, 0))  # type: ignore
@@ -149,17 +149,17 @@ class LlamaServerGUI(QMainWindow):
         """Create text format.
 
         Args:
-            color: Color.
+            color: 颜色.
 
         Returns:
-            Text format.
+            文本格式.
         """
         text_format = QTextCharFormat()  # type: ignore
         text_format.setForeground(QBrush(color))  # type: ignore
         return text_format
 
     def setup_process(self) -> None:
-        """Initialize process."""
+        """初始化进程."""
         self.process = QProcess(self)
         self.process.readyReadStandardOutput.connect(self.handle_stdout)  # type: ignore
         self.process.readyReadStandardError.connect(self.handle_stderr)  # type: ignore
@@ -193,11 +193,11 @@ class LlamaServerGUI(QMainWindow):
             self.start_server()
 
     def start_server(self) -> None:
-        """Start server."""
+        """启动服务器."""
         model_path = pathlib.Path(self.model_path_input.text().strip())
         if not model_path.exists():
             self.append_output(
-                "Error: Invalid model file path",
+                "错误: 模型文件路径无效",
                 self.error_format,
             )
             return
@@ -219,7 +219,7 @@ class LlamaServerGUI(QMainWindow):
             self.process.start(cmd[0], cmd[1:])
             self.update_ui_state(running=True)
         except QProcess.ProcessError as e:  # type: ignore
-            self.append_output(f"Stop failed: {e!s}", self.error_format)
+            self.append_output(f"停止失败: {e!s}", self.error_format)
 
     def stop_server(self) -> None:
         """Stop server."""
@@ -243,13 +243,13 @@ class LlamaServerGUI(QMainWindow):
         self.update_ui_state(running=False)
 
     def handle_stdout(self) -> None:
-        """Handle standard output."""
+        """处理标准输出."""
         data = self.process.readAllStandardOutput()
         text = QTextStream(data).readAll()  # type: ignore
         self.append_output(text, self.info_format)
 
     def handle_stderr(self) -> None:
-        """Handle standard error."""
+        """处理标准错误."""
         data = self.process.readAllStandardError()
         text = QTextStream(data).readAll()  # type: ignore
         self.append_output(text, self.error_format)
@@ -259,7 +259,7 @@ class LlamaServerGUI(QMainWindow):
         text: str,
         text_format: QTextCharFormat | None = None,
     ) -> None:
-        """Append output."""
+        """追加输出."""
         cursor: QTextCursor = self.output_area.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.End)  # type: ignore
 

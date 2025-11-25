@@ -221,8 +221,8 @@ class TodoController:
             file_path = self.get_data_file_path()
             with Path(file_path).open("w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
-        except Exception:  # noqa: BLE001
-            pass
+        except OSError:
+            logger.exception("保存待办事项数据失败")
 
     def load_data(self) -> None:
         """从文件加载数据."""
@@ -239,8 +239,8 @@ class TodoController:
                     self.model.items.append(item)
 
                 self.model.data_changed.emit()  # type: ignore
-        except Exception:  # noqa: BLE001
-            pass
+        except (OSError, json.JSONDecodeError, KeyError):
+            logger.exception("加载待办事项数据失败")
 
     def show(self) -> None:
         """显示视图."""
