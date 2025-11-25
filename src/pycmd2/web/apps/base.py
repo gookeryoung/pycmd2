@@ -7,9 +7,9 @@ class BaseApp:
     ROUTER: str = ""
 
     def __init__(self) -> None:
-        self.setup_navigator()
+        self._setup_navigator()
 
-    def setup_navigator(self) -> None:
+    def _setup_navigator(self) -> None:
         """获取主导航器实例."""
         from pycmd2.web.layouts.main_page import get_main_navigator  # noqa: PLC0415
 

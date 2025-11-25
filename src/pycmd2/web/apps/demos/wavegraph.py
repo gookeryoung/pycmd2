@@ -19,6 +19,8 @@ class WaveGraphApp(BaseApp):
 
     def __init__(self) -> None:
         """初始化波形图应用."""
+        super().__init__()
+
         self.amplitude: float = 1.0
         self.frequency: float = 3.0
         self.phase: float = 0.0

@@ -74,6 +74,8 @@ class PDFMergeApp(BaseApp):
     ROUTER = "/office/pdf-merge"
 
     def __init__(self) -> None:
+        super().__init__()
+
         self.root_dir: Path | None = None
         self.files: Dict[str, PDFFileInfo] = {}
         self.auto_rotate: bool = True

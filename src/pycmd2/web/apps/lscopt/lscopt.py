@@ -25,6 +25,8 @@ class LSCOptimizerApp(BaseApp):
     ROUTER = "/simulation/lsc-optimizer"
 
     def __init__(self) -> None:
+        super().__init__()
+
         self.lscc: LSCCurve = LSCCurve()
         self.inputs: dict[str, ui.number] = {}
         self.result_label: ui.label | None = None

@@ -6,6 +6,7 @@ from nicegui import ui
 
 from pycmd2.web.components.navigator import NavigationGroup
 from pycmd2.web.components.navigator import Navigator
+from pycmd2.web.routes import GROUPS
 
 
 class MainNavigator(Navigator):
@@ -16,7 +17,7 @@ class MainNavigator(Navigator):
             groups = []
         super().__init__(title=title)
 
-        for group in self.groups:
+        for group in groups:
             self.add_group(group)
 
     def setup_ui(self) -> None:
@@ -35,7 +36,7 @@ class MainNavigator(Navigator):
                 nav_component = self.setup()
 
 
-_main_navigator = MainNavigator(title="通用工作流工具包")
+_main_navigator = MainNavigator(title="通用工作流工具包", groups=GROUPS)
 
 
 def get_main_navigator() -> MainNavigator:

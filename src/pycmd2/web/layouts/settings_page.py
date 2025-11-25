@@ -8,8 +8,8 @@ from pycmd2.web.layouts.main_page import MainPage
 class SettingsPage(MainPage):
     """设置导航器."""
 
-    def __init__(self, title: str) -> None:
-        super().__init__(title)
+    def __init__(self) -> None:
+        super().__init__()
 
         self.config: WebServerConfig = conf
 
