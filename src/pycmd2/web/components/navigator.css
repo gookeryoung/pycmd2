@@ -1,0 +1,55 @@
+/* Navigation Menu Styles */
+.navigation-group .q-expansion-item__header {
+    border-radius: 8px;
+    margin-bottom: 4px;
+    background-color: transparent;
+}
+
+.navigation-group .q-expansion-item__header:hover {
+    background-color: rgba(156, 163, 175, 0.1);
+}
+
+.dark .navigation-group .q-expansion-item__header:hover {
+    background-color: rgba(75, 85, 99, 0.3);
+}
+
+.navigation-item {
+    border-radius: 6px;
+    margin: 2px 0;
+}
+
+.navigation-item .q-btn {
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.navigation-item .q-btn:hover {
+    transform: translateX(4px);
+}
+
+/* Drawer styles */
+.q-drawer {
+    border-right: 1px solid #e5e7eb;
+}
+
+.dark .q-drawer {
+    border-right: 1px solid #374151;
+}
+
+/* Badge styles */
+.navigation-item .q-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    min-height: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .navigation-item .q-btn {
+        font-size: 14px;
+    }
+
+    .navigation-group .q-expansion-item__header {
+        font-size: 15px;
+    }
+}

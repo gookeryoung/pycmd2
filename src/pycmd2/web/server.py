@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from nicegui import ui
 
+from pycmd2.web.components.navigator import create_main_navigator
+from pycmd2.web.components.navigator import create_page_with_navigation
 from pycmd2.web.components.toolcard import ToolCard
 from pycmd2.web.components.toolcard import ToolCardGroup
 from pycmd2.web.demos.downloader import DownloaderDemoApp
@@ -16,6 +18,7 @@ from pycmd2.web.demos.mandelbrot import MandelbrotApp
 from pycmd2.web.demos.wavegraph import WaveGraphApp
 from pycmd2.web.help.icons import IconsHelpApp
 from pycmd2.web.office.pdf.pdf_merge import PDFMergeApp
+from pycmd2.web.settings.config_app import ConfigApp
 from pycmd2.web.simulation.lscopt.lscopt import LSCOptimizerApp
 from pycmd2.web.system.machine import MachineMonitor
 
@@ -136,17 +139,11 @@ def main_page() -> None:
     </style>
     """)
 
-    dark = ui.dark_mode()
+    # Create main navigator
+    navigator = create_main_navigator(page_title="Universal Workflow Toolkit")
 
     # Store references to tool cards for filtering
     tool_cards = []
-
-    def on_change_theme(theme: str) -> None:
-        """Change theme."""
-        if theme == "dark":
-            dark.enable()
-        else:
-            dark.disable()
 
     def on_filter_tools(query: str) -> None:
         """Filter tools based on search query."""
@@ -165,15 +162,8 @@ def main_page() -> None:
             else:
                 card.classes(add="hidden-card")
 
-    # Header with title and navigation
-    with ui.header().classes("items-center justify-between p-4 bg-white text-black shadow"):
-        ui.label("Universal Workflow Toolkit").classes("text-h5 font-bold")
-
-        # Dark mode toggle
-        ui.toggle(["light", "dark"], value="light", on_change=lambda e: on_change_theme(e.value)).classes("scale-75")
-
-    # Main content
-    with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6"):
+    # Define main page content
+    def page_content() -> None:
         # Hero section
         with ui.column().classes("w-full text-center py-8"):
             ui.label("Universal Workflow Toolkit").classes("text-h3 font-bold text-blue-600")
@@ -225,10 +215,18 @@ def main_page() -> None:
             with ui.row().classes("w-full justify-center p-4"):
                 MachineMonitor().setup()
 
-    # Footer
-    with ui.footer().classes("bg-gray-100 text-gray-600 p-4"), ui.column().classes("w-full max-w-6xl mx-auto items-center"):
-        ui.label("Universal Workflow Toolkit © 2025").classes("text-center")
-        ui.label("A powerful collection of tools for everyday tasks").classes("text-center text-sm")
+    # Create page with navigation
+    create_page_with_navigation(
+        navigator=navigator,
+        page_title="Universal Workflow Toolkit",
+        content_callback=page_content,
+    )
+
+
+@ui.page("/settings/config")
+def config_page() -> None:
+    """Configuration settings page."""
+    ConfigApp().setup()
 
 
 def main() -> None:
