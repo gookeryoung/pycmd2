@@ -7,10 +7,10 @@ organized by category with navigation and search capabilities.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 from nicegui import ui
 
+from pycmd2.web.components.toolcard import ToolCard
+from pycmd2.web.components.toolcard import ToolCardGroup
 from pycmd2.web.demos.downloader import DownloaderDemoApp
 from pycmd2.web.demos.mandelbrot import MandelbrotApp
 from pycmd2.web.demos.wavegraph import WaveGraphApp
@@ -18,65 +18,6 @@ from pycmd2.web.help.icons import IconsHelpApp
 from pycmd2.web.office.pdf.pdf_merge import PDFMergeApp
 from pycmd2.web.simulation.lscopt.lscopt import LSCOptimizerApp
 from pycmd2.web.system.machine import MachineMonitor
-
-
-@dataclass
-class ToolCard:
-    """Tool card data class."""
-
-    title: str
-    description: str
-    icon: str
-    color: str
-    router: str
-
-    def setup(self) -> ui.card:
-        """Create a card for the tool.
-
-        Returns:
-            ui.card
-        """
-        with ui.card().classes("tool-card cursor-pointer").on(
-            "click",
-            lambda: ui.navigate.to(self.router),
-        ) as card, ui.column().classes(
-            "w-full mx-auto items-center text-center gap-2 p-4",
-        ):
-            ui.icon(self.icon).classes(f"text-3xl text-{self.color}-400")
-            ui.label(self.title).classes("app-title")
-            ui.label(self.description).classes("app-description")
-
-        return card
-
-
-@dataclass
-class ToolCardGroup:
-    """Tool card group data class."""
-
-    title: str
-    description: str
-    icon: str
-    color: str
-    tools: list[ToolCard]
-
-    def setup(self) -> ui.expansion:
-        """Create a card group for the tool.
-
-        Returns:
-            ui.expansion
-        """
-        with ui.expansion(self.title, icon=self.icon).classes("w-full").props(f"expand-icon-class=text-{self.color}-500") as expansion:
-            with ui.row().classes("w-full items-center p-4"):
-                ui.icon(self.icon).classes(f"category-icon bg-{self.color}-100 text-{self.color}-600")
-                ui.label(self.description).classes("text-h6 font-bold")
-            ui.separator()
-
-            with ui.grid(columns=len(self.tools)).classes("w-full gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"):
-                for tool in self.tools:
-                    tool.setup()
-
-        return expansion
-
 
 CARD_GROUPS: list[ToolCardGroup] = [
     ToolCardGroup(
