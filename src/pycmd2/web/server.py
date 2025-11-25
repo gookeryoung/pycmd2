@@ -9,15 +9,15 @@ from __future__ import annotations
 
 from nicegui import ui
 
-from pycmd2.web.apps.system.settings import SettingsApp
 from pycmd2.web.config import conf
 from pycmd2.web.layouts.main_page import get_main_page
+from pycmd2.web.layouts.settings_page import SettingsPage
 
 
-@ui.page(SettingsApp.ROUTER)
+@ui.page(SettingsPage.ROUTER)
 def config_page() -> None:
     """配置设置页面."""
-    SettingsApp().setup()
+    SettingsPage().setup_ui()
 
 
 @ui.page("/")

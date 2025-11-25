@@ -192,7 +192,9 @@ class Navigator:
         """
         with ui.row().classes("top-navigation w-full px-4 py-3 gap-4 items-center flex-wrap") as self.top_bar:
             # Logo/标题
-            ui.label(self.title).classes("text-lg font-bold text-gray-800 dark:text-gray-200 mr-4")
+            ui.button(icon="home", text=self.title, on_click=lambda: ui.navigate.to("/")).classes(
+                "text-lg font-bold text-gray-800 dark:text-gray-200 mr-4",
+            ).props("flat")
 
             # 导航组和项, 水平布局
             for group in self.groups:

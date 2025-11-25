@@ -3,13 +3,13 @@ from __future__ import annotations
 from pycmd2.web.apps.demos import MandelbrotApp
 from pycmd2.web.apps.demos.downloader import DownloaderDemoApp
 from pycmd2.web.apps.demos.wavegraph import WaveGraphApp
+from pycmd2.web.apps.help.icons import IconsHelpApp
 from pycmd2.web.apps.lscopt.lscopt import LSCOptimizerApp
 from pycmd2.web.apps.office.pdf_merge import PDFMergeApp
 from pycmd2.web.components.navigator import NavigationGroup
 from pycmd2.web.components.navigator import NavigationItem
 from pycmd2.web.components.toolcard import ToolCard
 from pycmd2.web.components.toolcard import ToolCardGroup
-from pycmd2.web.help.icons import IconsHelpApp
 
 # 工具卡片定义
 CARDS: list[ToolCardGroup] = [
@@ -90,23 +90,6 @@ CARDS: list[ToolCardGroup] = [
 ]
 _CARD_GROUPS: list[NavigationGroup] = [card.to_navigation_group() for card in CARDS]
 GROUPS = [
-    NavigationGroup(
-        title="主页",
-        icon="home",
-        items=[
-            NavigationItem(
-                title="首页",
-                icon="dashboard",
-                router="/",
-                badge="New",
-            ),
-            NavigationItem(
-                title="所有工具",
-                icon="apps",
-                router="/tools",
-            ),
-        ],
-    ),
     *_CARD_GROUPS,
     NavigationGroup(
         title="帮助与支持",
