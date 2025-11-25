@@ -7,6 +7,7 @@ from nicegui import ui
 from pycmd2.web.components.navigator import create_page_with_navigation
 from pycmd2.web.components.navigator import Navigator
 from pycmd2.web.config import conf
+from pycmd2.web.config import WebServerConfig
 
 
 class ConfigApp:
@@ -16,10 +17,10 @@ class ConfigApp:
 
     def __init__(self) -> None:
         """Initialize the configuration app."""
-        self.config = conf
+        self.config: WebServerConfig = conf
 
     def setup(self) -> None:
-        """Setup the configuration page."""
+        """Set up the configuration page."""
 
         def page_content() -> None:
             with ui.card().classes("w-full"), ui.column().classes("w-full gap-4 p-6"):
@@ -65,11 +66,7 @@ class ConfigApp:
 
         # Create page with navigation
         navigator = Navigator("Settings")
-        create_page_with_navigation(
-            navigator=navigator,
-            page_title="Configuration Settings",
-            content_callback=page_content,
-        )
+        create_page_with_navigation(navigator=navigator, content_callback=page_content)
 
     def _update_navigation_position(self, value: str) -> None:
         """Update navigation position.
@@ -80,7 +77,7 @@ class ConfigApp:
         self.config.navigation_position = value
         ui.notify(f"Navigation position set to: {value}. Please refresh the page to see changes.", type="positive")
 
-    def _update_show_search(self, value: bool) -> None:
+    def _update_show_search(self, *, value: bool) -> None:
         """Update show search setting.
 
         Args:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from nicegui import ui
 
-from pycmd2.web.base.app import BaseApp
+from pycmd2.web.apps.app import BaseApp
 
 # Commonly used Material Icons
 # This is not an exhaustive list, but covers many frequently used icons

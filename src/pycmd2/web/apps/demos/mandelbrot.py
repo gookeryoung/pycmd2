@@ -7,7 +7,7 @@ import numpy as np
 from nicegui import ui
 
 from pycmd2.cli import get_client
-from pycmd2.web.base.app import BaseApp
+from pycmd2.web.apps.app import BaseApp
 
 cli = get_client()
 

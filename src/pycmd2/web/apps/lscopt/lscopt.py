@@ -5,8 +5,8 @@ from matplotlib import rcParams
 from matplotlib.axes import Axes
 from nicegui import ui
 
-from pycmd2.web.base.app import BaseApp
-from pycmd2.web.simulation.lscopt.calc import LSCCurve
+from pycmd2.web.apps.app import BaseApp
+from pycmd2.web.apps.lscopt.calc import LSCCurve
 
 __version__ = "0.1.0"
 

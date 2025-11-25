@@ -525,24 +525,23 @@ def create_main_navigator(page_title: str) -> Navigator:
 
 def create_page_with_navigation(
     navigator: Navigator,
-    page_title: str,
     content_callback: Callable[[], None],
 ) -> None:
     """Create a page with navigation.
 
     Args:
         navigator: Navigator instance to use
-        page_title: Title of the page
         content_callback: Function to create page content
     """
     # Create navigation component
     if navigator.position == "left":
+        nav_component = navigator.setup()
         # Left navigation layout
         # Header with menu button
-        with ui.header().classes("items-center justify-between p-4 bg-white dark:bg-gray-900 text-black dark:text-white shadow"):
-            nav_component = navigator.setup()
-            with ui.row().classes("items-center "):
-                ui.button(icon="menu", on_click=lambda: nav_component.set_visibility(False)).props("flat dense")
+        with ui.header().classes("items-center justify-between p-4 bg-white dark:bg-gray-900 text-black dark:text-white shadow"), ui.row().classes(
+            "items-center ",
+        ):
+            ui.button(icon="menu", on_click=lambda: nav_component.set_visibility(False)).props("flat dense")
 
         # Main content area
         with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6"):

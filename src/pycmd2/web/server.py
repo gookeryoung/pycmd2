@@ -9,18 +9,18 @@ from __future__ import annotations
 
 from nicegui import ui
 
+from pycmd2.web.apps.demos import MandelbrotApp
+from pycmd2.web.apps.demos.downloader import DownloaderDemoApp
+from pycmd2.web.apps.demos.wavegraph import WaveGraphApp
+from pycmd2.web.apps.lscopt.lscopt import LSCOptimizerApp
+from pycmd2.web.apps.office.pdf_merge import PDFMergeApp
+from pycmd2.web.apps.system import MachineMonitor
+from pycmd2.web.apps.system.config import ConfigApp
 from pycmd2.web.components.navigator import create_main_navigator
 from pycmd2.web.components.navigator import create_page_with_navigation
 from pycmd2.web.components.toolcard import ToolCard
 from pycmd2.web.components.toolcard import ToolCardGroup
-from pycmd2.web.demos.downloader import DownloaderDemoApp
-from pycmd2.web.demos.mandelbrot import MandelbrotApp
-from pycmd2.web.demos.wavegraph import WaveGraphApp
 from pycmd2.web.help.icons import IconsHelpApp
-from pycmd2.web.office.pdf.pdf_merge import PDFMergeApp
-from pycmd2.web.settings.config_app import ConfigApp
-from pycmd2.web.simulation.lscopt.lscopt import LSCOptimizerApp
-from pycmd2.web.system.machine import MachineMonitor
 
 CARD_GROUPS: list[ToolCardGroup] = [
     ToolCardGroup(
@@ -216,11 +216,7 @@ def main_page() -> None:
                 MachineMonitor().setup()
 
     # Create page with navigation
-    create_page_with_navigation(
-        navigator=navigator,
-        page_title="Universal Workflow Toolkit",
-        content_callback=page_content,
-    )
+    create_page_with_navigation(navigator=navigator, content_callback=page_content)
 
 
 @ui.page("/settings/config")
