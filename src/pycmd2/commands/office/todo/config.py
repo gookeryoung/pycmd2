@@ -7,7 +7,7 @@ from pycmd2.config import TomlConfigMixin
 
 
 class TodoConfig(TomlConfigMixin):
-    """Todo configuration."""
+    """待办事项配置."""
 
     _CWD = Path(__file__).parent
     _DIR_ASSETS = _CWD / "assets"

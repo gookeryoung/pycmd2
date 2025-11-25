@@ -40,7 +40,7 @@ def main() -> None:
     # 设置额外的页面
 
     ui.run(
-        title="Universal Workflow Toolkit",
+        title="通用工作流工具包",
         port=8000,
         favicon="🔧",
         reload=False,

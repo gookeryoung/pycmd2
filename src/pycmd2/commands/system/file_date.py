@@ -20,7 +20,7 @@ from pycmd2.config import TomlConfigMixin
 
 
 class FileDateConfig(TomlConfigMixin):
-    """File date config."""
+    """文件日期配置."""
 
     DETECT_SEPERATORS: str = "-_#.~"
     SEPERATOR: str = "_"
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class FileDateProc:
-    """File date processor."""
+    """文件日期处理器."""
 
     src: Path
     filestem: str = ""
@@ -47,7 +47,7 @@ class FileDateProc:
         )
 
     def rename(self) -> None:
-        """Rename file with time mark."""
+        """使用时间标记重命名文件."""
         self.filestem = self._remove_date_prefix(self.src.stem)
 
         target_path = self.src.with_name(

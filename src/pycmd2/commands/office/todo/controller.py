@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class TodoController:
-    """Todo List Application Controller."""
+    """待办事项列表应用程序控制器."""
 
     def __init__(self) -> None:
         self.view = TodoView()

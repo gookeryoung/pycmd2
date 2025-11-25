@@ -100,7 +100,7 @@ MATERIAL_ICONS = [
     "textsms",
     "voicemail",
     "vpn_key",
-    # Content
+    # 内容
     "add_box",
     "add_circle_outline",
     "archive",
@@ -137,7 +137,7 @@ MATERIAL_ICONS = [
     "unarchive",
     "undo",
     "weekend",
-    # Device
+    # 设备
     "access_alarm",
     "access_alarms",
     "access_time",
@@ -190,7 +190,7 @@ MATERIAL_ICONS = [
     "wifi",
     "wifi_lock",
     "wifi_tethering",
-    # Editor
+    # 编辑器
     "attach_file",
     "attach_money",
     "border_all",
@@ -248,7 +248,7 @@ MATERIAL_ICONS = [
     "vertical_align_center",
     "vertical_align_top",
     "wrap_text",
-    # File
+    # 文件
     "attachment",
     "cloud",
     "cloud_circle",
@@ -262,7 +262,7 @@ MATERIAL_ICONS = [
     "folder",
     "folder_open",
     "folder_shared",
-    # Hardware
+    # 硬件
     "cast",
     "cast_connected",
     "computer",
@@ -310,7 +310,7 @@ MATERIAL_ICONS = [
     "toys",
     "tv",
     "watch",
-    # Image
+    # 图像
     "add_a_photo",
     "add_to_photos",
     "adjust",
@@ -462,7 +462,7 @@ MATERIAL_ICONS = [
     "wb_incandescent",
     "wb_iridescent",
     "wb_sunny",
-    # Maps
+    # 地图
     "add_location",
     "beenhere",
     "directions",
@@ -531,7 +531,7 @@ MATERIAL_ICONS = [
     "tram",
     "transfer_within_a_station",
     "zoom_out_map",
-    # Navigation
+    # 导航
     "apps",
     "arrow_back",
     "arrow_downward",
@@ -557,7 +557,7 @@ MATERIAL_ICONS = [
     "refresh",
     "subdirectory_arrow_left",
     "subdirectory_arrow_right",
-    # Notification
+    # 通知
     "adb",
     "airline_seat_flat",
     "airline_seat_flat_angled",
@@ -610,7 +610,7 @@ MATERIAL_ICONS = [
     "vpn_lock",
     "wc",
     "wifi",
-    # Places
+    # 地点
     "ac_unit",
     "airport_shuttle",
     "all_inclusive",
@@ -630,7 +630,7 @@ MATERIAL_ICONS = [
     "smoke_free",
     "smoking_rooms",
     "spa",
-    # Social
+    # 社交
     "cake",
     "domain",
     "group",
@@ -661,7 +661,7 @@ MATERIAL_ICONS = [
     "sentiment_very_satisfied",
     "share",
     "whatshot",
-    # Toggle
+    # 切换
     "check_box",
     "check_box_outline_blank",
     "indeterminate_check_box",
@@ -681,7 +681,7 @@ class IconsHelpApp(BaseApp):
     def on_icon_click(self, icon_name: str) -> None:
         """处理图标点击事件."""
         ui.clipboard.write(icon_name)
-        ui.notify(f"Copied '{icon_name}' to clipboard", type="positive")
+        ui.notify(f"已复制 '{icon_name}' 到剪贴板", type="positive")
 
     def setup(self) -> None:
         """设置图标帮助应用程序."""
@@ -711,20 +711,20 @@ class IconsHelpApp(BaseApp):
         </style>
         """)
 
-        # Main content
+        # 主要内容
         with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-4"):
             ui.label("Material Icons 图标库").classes("text-h4 font-bold self-center")
             ui.markdown(
-                "This page shows commonly used Material Icons in NiceGUI. Click on any icon to copy its name to clipboard.",
+                "本页面展示了NiceGUI中常用的Material Icons。点击任意图标可将其名称复制到剪贴板。",
             ).classes("self-center text-center")
 
-            # Search input
+            # 搜索输入框
             ui.input(
                 placeholder="搜索图标...",
                 on_change=lambda e: filter_icons(e.value),
             ).classes("w-full md:w-1/2 self-center").props("outlined rounded")
 
-            # Icons grid
+            # 图标网格
             with ui.grid(columns=6).classes("w-full gap-4"):
                 icon_cards = []
                 for icon_name in MATERIAL_ICONS:
@@ -735,18 +735,18 @@ class IconsHelpApp(BaseApp):
                         card.on("click", lambda n=icon_name: self.on_icon_click(str(n)))
                         icon_cards.append((card, icon_name))
 
-            # Filter function
+            # 过滤函数
             def filter_icons(query: str) -> None:
                 """根据搜索查询过滤图标."""
                 query = query.lower().strip()
 
-                # Show all if query is empty
+                # 如果查询为空则显示所有图标
                 if not query:
                     for card, _ in icon_cards:
                         card.classes(remove="hidden")
                     return
 
-                # Filter based on icon name
+                # 根据图标名称过滤
                 for card, icon_name in icon_cards:
                     if query in icon_name.lower():
                         card.classes(remove="hidden")
@@ -756,9 +756,9 @@ class IconsHelpApp(BaseApp):
             ui.separator()
 
             ui.markdown("""
-            ### How to use
+            ### 使用方法
 
-            To use these icons in your NiceGUI application:
+            要在您的NiceGUI应用程序中使用这些图标:
 
             ```python
             from nicegui import ui
@@ -766,7 +766,7 @@ class IconsHelpApp(BaseApp):
             ui.icon('icon_name').classes('text-2xl')
             ```
 
-            For example:
+            例如:
             ```python
             ui.icon('home')
             ui.icon('favorite')

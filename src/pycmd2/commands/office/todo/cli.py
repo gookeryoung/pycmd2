@@ -1,4 +1,4 @@
-"""Todo List Application CLI Interface."""
+"""待办事项列表应用程序命令行界面."""
 
 import sys
 

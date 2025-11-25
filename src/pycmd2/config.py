@@ -26,7 +26,7 @@ T = TypeVar("T", bound="TomlConfigMixin")
 
 @dataclass(frozen=True)
 class AttributeDiff:
-    """Attribute difference."""
+    """属性差异."""
 
     attr: str
     file_value: object
@@ -55,7 +55,7 @@ def _to_snake_case(name: str) -> str:
 
 
 class TomlConfigMixin:
-    """Base class for toml config mixin."""
+    """TOML 配置混入基类."""
 
     NAME: str = ""
 
@@ -130,18 +130,18 @@ class TomlConfigMixin:
         return cls._instance  # type: ignore
 
     def get_fileattrs(self) -> dict[str, object]:
-        """Get all attributes of the config file.
+        """获取配置文件的所有属性.
 
         Returns:
-            dict[str, object]: All attributes of the config file.
+            dict[str, object]: 配置文件的所有属性.
         """
         return self._file_attrs
 
     def setattr(self, attr: str, value: object) -> None:
-        """Set an attribute.
+        """设置属性.
 
         Raises:
-            AttributeError: If the attribute does not exist.
+            AttributeError: 如果属性不存在.
         """
         if attr in self._cls_attrs:
             logger.debug(f"Setting attributes: {attr} = {value}")
@@ -153,7 +153,7 @@ class TomlConfigMixin:
 
     @property
     def _cls_attrs(self) -> dict[str, object]:
-        """Get all attributes of the class."""
+        """获取类的所有属性."""
         # 使用缓存避免重复计算
         if not hasattr(self, "_cached_cls_attrs"):
             self._cached_cls_attrs = {
@@ -163,7 +163,7 @@ class TomlConfigMixin:
 
     @staticmethod
     def clear() -> None:
-        """Delete all config files."""
+        """删除所有配置文件."""
         if not cli.settings_dir.exists():
             return
 
@@ -176,7 +176,7 @@ class TomlConfigMixin:
             logger.exception(msg)
 
     def load(self) -> None:
-        """Load config from file."""
+        """从文件加载配置."""
         if not self._config_file.is_file() or not self._config_file.exists():
             logger.error(f"Config file not found: {self._config_file}")
             return
@@ -192,7 +192,7 @@ class TomlConfigMixin:
             logger.debug(f"Load config: [u green]{self._config_file}")
 
     def save(self) -> None:
-        """Save config to file."""
+        """保存配置到文件."""
         # 确保目录存在
         if not cli.settings_dir.exists():
             cli.settings_dir.mkdir(parents=True)

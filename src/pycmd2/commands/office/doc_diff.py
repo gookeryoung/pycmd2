@@ -15,7 +15,7 @@ from pycmd2.config import TomlConfigMixin
 
 
 class DocDiffConfig(TomlConfigMixin):
-    """Docdiff config."""
+    """文档对比配置."""
 
     DOC_DIFF_TITLE = "对比结果"
 
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 def diff_doc(old: Path, new: Path) -> None:
-    """Diff doc using win32 api."""
+    """使用win32 api对比文档."""
     if not old.exists():
         logger.error(f"Old file not exist: {old}")
         return

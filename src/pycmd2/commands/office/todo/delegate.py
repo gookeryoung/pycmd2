@@ -27,14 +27,14 @@ from pycmd2.commands.office.todo.model import TodoItem
 
 
 class PriorityAction(IntEnum):
-    """Priority adjustment action."""
+    """优先级调整动作."""
 
     UPGRADE = 1
     DOWNGRADE = 2
 
 
 class TodoItemDelegate(QStyledItemDelegate):
-    """Delegate for todo item view."""
+    """待办事项视图的委托."""
 
     inc_priority = pyqtSignal(QModelIndex)
     dec_priority = pyqtSignal(QModelIndex)

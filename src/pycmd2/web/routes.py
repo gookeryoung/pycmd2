@@ -11,6 +11,7 @@ from pycmd2.web.components.toolcard import ToolCard
 from pycmd2.web.components.toolcard import ToolCardGroup
 from pycmd2.web.help.icons import IconsHelpApp
 
+# 工具卡片定义
 CARDS: list[ToolCardGroup] = [
     ToolCardGroup(
         title="办公工具",
@@ -108,32 +109,32 @@ GROUPS = [
     ),
     *_CARD_GROUPS,
     NavigationGroup(
-        title="Help & Support",
+        title="帮助与支持",
         icon="help",
         items=[
             NavigationItem(
-                title="Documentation",
+                title="文档",
                 icon="menu_book",
                 router="/help/docs",
             ),
             NavigationItem(
-                title="Icons Gallery",
+                title="图标库",
                 icon="grid_view",
                 router="/help/icons",
             ),
             NavigationItem(
-                title="About",
+                title="关于",
                 icon="info",
                 router="/help/about",
             ),
         ],
     ),
     NavigationGroup(
-        title="Settings",
+        title="设置",
         icon="settings",
         items=[
             NavigationItem(
-                title="Configuration",
+                title="配置",
                 icon="tune",
                 router="/system/settings",
             ),

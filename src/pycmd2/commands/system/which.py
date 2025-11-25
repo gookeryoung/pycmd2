@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Usage: Find executable matches in system path.
+"""用法: 在系统路径中查找可执行文件匹配项.
 
-Command: wch
+命令: wch
 """
 
 from __future__ import annotations

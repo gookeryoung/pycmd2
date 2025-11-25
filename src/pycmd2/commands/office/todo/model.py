@@ -23,16 +23,16 @@ logger = logging.getLogger(__name__)
 
 
 def _natural_keys(text: str) -> list[str | int]:
-    """Sort keys that are string with a natural sorting algorithm.
+    """使用自然排序算法对字符串键进行排序.
 
     Returns:
-        list[str | int]: natural sorted keys.
+        list[str | int]: 自然排序的键.
     """
     return [int(part) if part.isdigit() else part.lower() for part in re.split(r"(\d+)", text)]
 
 
 class FilterMode(Enum):
-    """Filter Mode Enum."""
+    """过滤模式枚举."""
 
     All = "全部"
     Pending = "待完成"
@@ -40,7 +40,7 @@ class FilterMode(Enum):
 
 
 class SortMode(Enum):
-    """Sort Mode Enum."""
+    """排序模式枚举."""
 
     Priority = "优先级"
     Category = "类别"
@@ -50,7 +50,7 @@ class SortMode(Enum):
 
 @dataclass
 class TodoItem:
-    """Data class for single todo item."""
+    """单个待办事项的数据类."""
 
     text: str
     completed: bool = False
@@ -60,14 +60,18 @@ class TodoItem:
     category: str = conf.DEFAULT_CATEGORY
 
     def __str__(self) -> str:
-        """Return string representation."""
+        """返回字符串表示.
+
+        Returns:
+            str: 字符串表示.
+        """
         return f"{self.text} - {self.priority} - {self.category}"
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dict.
+        """转换为字典.
 
         Returns:
-            Dict[str, Any]: dict representation.
+            Dict[str, Any]: 字典表示.
         """
         return {
             **asdict(self),
@@ -77,10 +81,10 @@ class TodoItem:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> TodoItem:
-        """Create TodoItem from dict.
+        """从字典创建TodoItem.
 
         Returns:
-            TodoItem: TodoItem instance.
+            TodoItem: TodoItem 实例.
         """
         item = cls(
             text=data["text"],
@@ -98,7 +102,7 @@ class TodoItem:
 
 
 class TodoListModel(QAbstractListModel):
-    """List model for todo items."""
+    """待办事项的列表模型."""
 
     data_changed = pyqtSignal()
     item_added = pyqtSignal(int)
@@ -118,42 +122,42 @@ class TodoListModel(QAbstractListModel):
 
     @property
     def items(self) -> List[TodoItem]:
-        """Get all todo items.
+        """获取所有待办事项.
 
         Returns:
-            List[TodoItem]: All todo items.
+            List[TodoItem]: 所有待办事项.
         """
         return self._items
 
     @property
     def count(self) -> int:
-        """Get todo item count.
+        """获取待办事项数量.
 
         Returns:
-            int: todo item count.
+            int: 待办事项数量.
         """
         return len(self._items)
 
     @property
     def completed_count(self) -> int:
-        """Get completed todo item count.
+        """获取已完成的待办事项数量.
 
         Returns:
-            int: completed todo item count.
+            int: 已完成的待办事项数量.
         """
         return len([item for item in self._items if item.completed])
 
     @property
     def pending_count(self) -> int:
-        """Get pending todo item count.
+        """获取待完成的待办事项数量.
 
         Returns:
-            int: pending todo item count.
+            int: 待完成的待办事项数量.
         """
         return len([item for item in self._items if not item.completed])
 
     def clear_completed(self) -> None:
-        """Clear completed todo items."""
+        """清除已完成的待办事项."""
         logger.info("Clear completed todo items.")
 
         self._items = [item for item in self._items if not item.completed]
@@ -165,7 +169,7 @@ class TodoListModel(QAbstractListModel):
         priority: int = 2,
         category: str = "",
     ) -> None:
-        """Add item."""
+        """添加项目."""
         logger.info(f"Add item: {text}")
 
         item = TodoItem(text=text, priority=priority, category=category)
@@ -205,10 +209,10 @@ class TodoListModel(QAbstractListModel):
             self.data_changed.emit()  # type: ignore
 
     def get_item(self, index: int) -> TodoItem | None:
-        """Get a todo item by index.
+        """根据索引获取待办事项.
 
         Returns:
-            TodoItem | None: todo item by index.
+            TodoItem | None: 根据索引获取的待办事项.
         """
         if 0 <= index < len(self._items):
             return self._items[index]

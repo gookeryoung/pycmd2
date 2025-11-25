@@ -145,7 +145,7 @@ def search_directory(
 def main() -> None:
     pdf_info = search_directory(cli.cwd, cli.cwd)
     if not pdf_info or pdf_info.count() <= 1:
-        logger.error("PDF files not found, exit")
+        logger.error("未找到 PDF 文件, 退出")
         return
 
     writer = pypdf.PdfWriter()

@@ -25,7 +25,7 @@ class NavigationItem:
     def setup_nav(self, parent: Navigator) -> None:
         """设置导航项."""
         with ui.row().classes("w-full navigation-item"):
-            # Navigation button
+            # 导航按钮
             nav_button = (
                 ui.button(
                     self.title,
@@ -39,15 +39,15 @@ class NavigationItem:
                 )
             )
 
-            # Store reference for search functionality
+            # 存储引用以实现搜索功能
             parent.all_items.append((self, nav_button))
 
-            # Add badge if present
+            # 如有徽章则添加
             if self.badge:
                 with ui.element("div").classes("ml-auto"):
                     ui.badge(self.badge).props("color=red floating")
 
-            # Handle click events
+            # 处理点击事件
             if self.disabled:
                 nav_button.props("disabled")
             else:
@@ -56,7 +56,7 @@ class NavigationItem:
                 elif self.router:
                     nav_button.on("click", lambda: ui.navigate.to(self.router))
 
-                # Close drawer on navigation
+                # 导航时关闭抽屉
                 nav_button.on("click", lambda: parent.drawer.hide() if parent.drawer else None)
 
 
@@ -85,7 +85,7 @@ class Navigator:
     支持左侧边栏和顶部导航两种布局模式.
     """
 
-    def __init__(self, title: str = "Navigation", *, show_search: bool = True) -> None:
+    def __init__(self, title: str = "导航", *, show_search: bool = True) -> None:
         """初始化导航器.
 
         Args:
@@ -124,7 +124,7 @@ class Navigator:
                 group.items.append(item)
                 break
         else:
-            # Create new group if not found
+            # 如果未找到则创建新组
             self.add_group(
                 NavigationGroup(
                     title=group_title,
@@ -139,7 +139,7 @@ class Navigator:
         Returns:
             ui.drawer | ui.row: 导航组件(左侧为抽屉, 顶部为行)
         """
-        # Add custom CSS for navigation
+        # 添加自定义CSS样式用于导航
         ui.add_head_html(conf.NAVIGATOR_STYLE)
 
         if self.position == "left":
@@ -154,18 +154,18 @@ class Navigator:
             ui.drawer: 左侧导航抽屉
         """
         with ui.drawer(side="left").classes("bg-gray-50 dark:bg-gray-800") as self.drawer, ui.column().classes("w-full gap-2 p-4"):
-            # Navigation title
+            # 导航标题
             with ui.row().classes("w-full items-center justify-between mb-4"):
                 ui.label(self.title).classes("text-lg font-bold text-gray-800 dark:text-gray-200")
                 ui.button(icon="close", on_click=self.drawer.hide).props("flat dense").classes("text-gray-600 dark:text-gray-400")
 
-            # Dark mode toggle
+            # 深色模式切换
             dark = ui.dark_mode()
             ui.toggle(["light", "dark"], value="light", on_change=lambda e: dark.enable() if e.value == "dark" else dark.disable()).classes(
                 "scale-75",
             )
 
-            # Search functionality
+            # 搜索功能
             if self.show_search:
                 self.search_input = (
                     ui.input(
@@ -178,7 +178,7 @@ class Navigator:
 
             ui.separator().classes("mb-2")
 
-            # Navigation groups and items
+            # 导航组和项
             for group in self.groups:
                 group.setup_nav(self)
 
@@ -191,23 +191,23 @@ class Navigator:
             ui.row: 顶部导航栏
         """
         with ui.row().classes("top-navigation w-full px-4 py-3 gap-4 items-center flex-wrap") as self.top_bar:
-            # Logo/Title
+            # Logo/标题
             ui.label(self.title).classes("text-lg font-bold text-gray-800 dark:text-gray-200 mr-4")
 
-            # Navigation groups and items (horizontal layout)
+            # 导航组和项, 水平布局
             for group in self.groups:
                 self._create_top_nav_group(group)
 
-            # Dark mode toggle
+            # 深色模式切换
             dark = ui.dark_mode()
             ui.toggle(["light", "dark"], value="light", on_change=lambda e: dark.enable() if e.value == "dark" else dark.disable()).classes(
                 "scale-75",
             )
 
-            # Spacer to push search to the right
+            # 间隔元素将搜索推到右侧
             ui.element("div").classes("flex-grow")
 
-            # Search functionality
+            # 搜索功能
             if self.show_search:
                 self.search_input = (
                     ui.input(
@@ -238,7 +238,7 @@ class Navigator:
             dropdown: 父下拉组件
         """
         with ui.row().classes("w-full navigation-item"):
-            # Navigation button
+            # 导航按钮
             nav_button = (
                 ui.button(
                     item.title,
@@ -252,15 +252,15 @@ class Navigator:
                 )
             )
 
-            # Store reference for search functionality
+            # 存储引用以实现搜索功能
             self.all_items.append((item, nav_button))
 
-            # Add badge if present
+            # 如有徽章则添加
             if item.badge:
                 with ui.element("div").classes("ml-auto"):
                     ui.badge(item.badge).props("color=red floating")
 
-            # Handle click events
+            # 处理点击事件
             if item.disabled:
                 nav_button.props("disabled")
             else:
@@ -269,7 +269,7 @@ class Navigator:
                 elif item.router:
                     nav_button.on("click", lambda: ui.navigate.to(item.router))
 
-                # Close dropdown on navigation
+                # 导航时关闭下拉菜单
                 nav_button.on("click", lambda: dropdown.set_visibility(False))
 
     def _on_search(self, query: str) -> None:
@@ -281,12 +281,12 @@ class Navigator:
         query = query.lower().strip()
 
         if not query:
-            # Show all items if query is empty
+            # 如果查询为空则显示所有项
             for _, button in self.all_items:
                 button.classes(remove="hidden")
             return
 
-        # Filter items based on title
+        # 根据标题过滤项
         for item, button in self.all_items:
             if query in item.title.lower():
                 button.classes(remove="hidden")

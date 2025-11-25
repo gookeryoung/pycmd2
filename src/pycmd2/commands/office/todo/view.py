@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 class ClickableLineEdit(QLineEdit):
-    """A QLineEdit that emits a clicked signal when clicked."""
+    """点击时发出点击信号的QLineEdit."""
 
     clicked = pyqtSignal()
 

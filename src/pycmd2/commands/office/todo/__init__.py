@@ -1,4 +1,4 @@
-"""Todo List Application Module."""
+"""待办事项列表应用程序模块."""
 
 from .controller import TodoController
 from .model import TodoItem

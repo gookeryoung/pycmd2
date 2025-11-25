@@ -20,7 +20,7 @@ from pycmd2.config import TomlConfigMixin
 
 
 class FileLevelConfig(TomlConfigMixin):
-    """File level config."""
+    """文件级别配置."""
 
     LEVELS: ClassVar[dict[str, str]] = {
         "0": "",
@@ -40,13 +40,13 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class FileProcessor:
-    """Rename target."""
+    """文件处理器."""
 
     src: Path
     filestem: str
 
     def rename(self, level: int = 0) -> None:
-        """Rename file."""
+        """重命名文件."""
         # Remove all file level marks.
         for level_names in conf.LEVELS.values():
             self._remove_marks(marks=level_names.split(","))

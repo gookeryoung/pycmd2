@@ -27,8 +27,8 @@ class MainNavigator(Navigator):
         """设置导航器."""
         if self.position == "left":
             nav_component = self.setup()
-            # Left navigation layout
-            # Header with menu button
+            # 左侧导航布局
+            # 带菜单按钮的头部
             with ui.header().classes(
                 "items-center justify-between p-4 bg-white dark:bg-gray-900 text-black dark:text-white shadow",
             ), ui.row().classes(
@@ -36,11 +36,11 @@ class MainNavigator(Navigator):
             ):
                 ui.button(icon="menu", on_click=lambda: nav_component.set_visibility(False)).props("flat dense")
 
-            # Main content area
+            # 主内容区域
             with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6"):
                 self.page_content()
 
-            # Footer
+            # 页脚
             with ui.footer().classes("bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 p-4"), ui.column().classes(
                 "w-full max-w-6xl mx-auto items-center",
             ):
@@ -48,16 +48,16 @@ class MainNavigator(Navigator):
                 ui.label("用于日常任务的强大工具集合").classes("text-center text-sm")
 
         else:
-            # Top navigation layout - integrated into header
-            # Create fixed header with integrated navigation
+            # 顶部导航布局 - 集成到头部
+            # 创建带有集成导航的固定头部
             with ui.header().classes("items-center justify-between p-0 bg-white dark:bg-gray-900 text-black dark:text-white shadow"):
                 nav_component = self.setup()
 
-            # Main content area with proper spacing for fixed header
+            # 带有固定头部适当间距的主内容区域
             with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6 mt-4"):
                 self.page_content()
 
-            # Footer
+            # 页脚
             with ui.footer().classes("bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 p-4"), ui.column().classes(
                 "w-full max-w-6xl mx-auto items-center",
             ):

@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class CommandEntry:
-    """Entry for command."""
+    """命令条目."""
 
     name: str
     path: Path
@@ -45,7 +45,11 @@ class CommandEntry:
     __slots__ = "doc", "name", "path"
 
     def __str__(self) -> str:
-        """Return entry string."""
+        """返回条目字符串.
+
+        Returns:
+            str: 条目字符串
+        """
         return f"[green]{self.name:<20}[/] - [u purple]{self.doc}"
 
 
@@ -77,10 +81,10 @@ def _read_entry_doc(entry: Path) -> str:
 
 
 def find_commands() -> list[CommandEntry]:
-    """Find all commands in the current directory.
+    """在当前目录中查找所有命令.
 
     Returns:
-        list[CommandEntry]: All commands found.
+        list[CommandEntry]: 找到的所有命令.
     """
     commands: list[CommandEntry] = []
     dirs = [f for f in Path(__file__).parent.iterdir() if f.is_dir()]

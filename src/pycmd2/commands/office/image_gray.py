@@ -20,7 +20,7 @@ from pycmd2.config import TomlConfigMixin
 
 
 class ImageGrayConfig(TomlConfigMixin):
-    """ImageToGray config."""
+    """图像转灰度配置."""
 
     GRAYSCALE_THRESHOLD: int = 128
     EXTENSIONS: ClassVar[list[str]] = [

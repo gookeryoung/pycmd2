@@ -18,7 +18,7 @@ class BaseCommand:
     OPTIONS: ClassVar[List[str]] = []
 
     def run(self) -> None:
-        """Make project.
+        """构建项目.
 
         Raises:
             ValueError: 如果 EXECUTABLE 未设置
