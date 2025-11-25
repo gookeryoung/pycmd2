@@ -5,6 +5,7 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 from typing import Type
 from typing import TypeVar
 
@@ -23,11 +24,9 @@ logger = logging.getLogger(__name__)
 T = TypeVar("T", bound="TomlConfigMixin")
 
 
-@dataclass
+@dataclass(frozen=True)
 class AttributeDiff:
     """Attribute difference."""
-
-    __slots__ = ("attr", "cls_value", "file_value")
 
     attr: str
     file_value: object
@@ -55,15 +54,15 @@ def _to_snake_case(name: str) -> str:
     return name.lower()
 
 
-@dataclass
 class TomlConfigMixin:
     """Base class for toml config mixin."""
 
     NAME: str = ""
 
-    _instance: TomlConfigMixin | None = None
+    _instance: Optional[TomlConfigMixin] = None
+    _exit_handler_registered: bool = False
 
-    def __init__(self, *, show_logging: bool = True) -> None:
+    def __init__(self, *, show_logging: bool = False) -> None:
         if show_logging:
             logger.setLevel(logging.DEBUG)
         else:
@@ -73,7 +72,7 @@ class TomlConfigMixin:
         self.NAME = cls_name if not self.NAME else self.NAME
 
         self._config_file: Path = cli.settings_dir / f"{cls_name}.toml"
-        self._file_attrs = {}
+        self._file_attrs: dict[str, object] = {}
 
         if not cli.settings_dir.exists():
             logger.debug(
@@ -112,7 +111,10 @@ class TomlConfigMixin:
                 "No difference between config file and class attributes.",
             )
 
-        atexit.register(self.save)
+        # 只有在实例是首次创建时才注册atexit处理器
+        if not self.__class__._exit_handler_registered:  # noqa: SLF001
+            atexit.register(self.save)
+            self.__class__._exit_handler_registered = True  # noqa: SLF001
 
     @classmethod
     def get_instance(cls: Type[T]) -> T:
@@ -121,7 +123,7 @@ class TomlConfigMixin:
         Returns:
             TomlConfigMixin: 单例对象
         """
-        logger.info(f"获取配置单例对象: [purple b]{cls.__name__}")
+        logger.debug(f"获取配置单例对象: [purple b]{cls.__name__}")
 
         if cls._instance is None:
             cls._instance = cls()
@@ -152,11 +154,19 @@ class TomlConfigMixin:
     @property
     def _cls_attrs(self) -> dict[str, object]:
         """Get all attributes of the class."""
-        return {attr: getattr(self, attr) for attr in dir(self.__class__) if not attr.startswith("_") and not callable(getattr(self, attr))}
+        # 使用缓存避免重复计算
+        if not hasattr(self, "_cached_cls_attrs"):
+            self._cached_cls_attrs = {
+                attr: getattr(self, attr) for attr in dir(self.__class__) if not attr.startswith("_") and not callable(getattr(self, attr))
+            }
+        return self._cached_cls_attrs
 
     @staticmethod
     def clear() -> None:
         """Delete all config files."""
+        if not cli.settings_dir.exists():
+            return
+
         config_files = cli.settings_dir.glob("*.toml")
         try:
             for config_file in config_files:
@@ -183,6 +193,10 @@ class TomlConfigMixin:
 
     def save(self) -> None:
         """Save config to file."""
+        # 确保目录存在
+        if not cli.settings_dir.exists():
+            cli.settings_dir.mkdir(parents=True)
+
         try:
             with self._config_file.open("wb") as f:
                 tomli_w.dump(self._cls_attrs, f)
