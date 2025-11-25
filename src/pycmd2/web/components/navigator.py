@@ -10,7 +10,10 @@ from pycmd2.web.config import WebServerConfig
 
 @dataclass
 class NavigationItem:
-    """Navigation menu item data class."""
+    """导航菜单项数据类.
+
+    用于定义导航栏中的单个菜单项.
+    """
 
     title: str
     icon: str
@@ -22,7 +25,10 @@ class NavigationItem:
 
 @dataclass
 class NavigationGroup:
-    """Navigation menu group data class."""
+    """导航菜单组数据类.
+
+    用于组织相关的导航菜单项.
+    """
 
     title: str
     icon: str
@@ -31,14 +37,17 @@ class NavigationGroup:
 
 
 class Navigator:
-    """Navigation menu component for the web application."""
+    """Web 应用程序的导航菜单组件.
+
+    支持左侧边栏和顶部导航两种布局模式.
+    """
 
     def __init__(self, title: str = "Navigation", *, show_search: bool = True) -> None:
-        """Initialize the navigator.
+        """初始化导航器.
 
         Args:
-            title: Navigation menu title
-            show_search: Whether to show search functionality
+            title: 导航菜单标题
+            show_search: 是否显示搜索功能
         """
         self.title = title
         self.show_search = show_search
@@ -48,25 +57,25 @@ class Navigator:
         self.search_input: ui.input | None = None
         self.all_items: list[tuple[NavigationItem, ui.button]] = []
 
-        # Load configuration
+        # 加载配置
         self.config = WebServerConfig()
         self.position = self.config.navigation_position
         self.show_search = self.config.show_navigation_search
 
     def add_group(self, group: NavigationGroup) -> None:
-        """Add a navigation group.
+        """添加导航组.
 
         Args:
-            group: Navigation group to add
+            group: 要添加的导航组
         """
         self.groups.append(group)
 
     def add_item(self, group_title: str, item: NavigationItem) -> None:
-        """Add an item to an existing group.
+        """向现有组添加导航项.
 
         Args:
-            group_title: Title of the group to add item to
-            item: Navigation item to add
+            group_title: 要添加项的组标题
+            item: 要添加的导航项
         """
         for group in self.groups:
             if group.title == group_title:
@@ -83,10 +92,10 @@ class Navigator:
             )
 
     def setup(self) -> ui.drawer | ui.row:
-        """Create and setup the navigation component.
+        """创建并设置导航组件.
 
         Returns:
-            ui.drawer | ui.row: The navigation component (drawer for left, row for top)
+            ui.drawer | ui.row: 导航组件(左侧为抽屉, 顶部为行)
         """
         # Add custom CSS for navigation
         ui.add_head_html("""
@@ -167,10 +176,10 @@ class Navigator:
         return self._setup_top_navigation()
 
     def _setup_left_navigation(self) -> ui.drawer:
-        """Setup left sidebar navigation.
+        """设置左侧边栏导航.
 
         Returns:
-            ui.drawer: The left navigation drawer
+            ui.drawer: 左侧导航抽屉
         """
         with ui.drawer(side="left").classes("bg-gray-50 dark:bg-gray-800") as self.drawer, ui.column().classes("w-full gap-2 p-4"):
             # Navigation title
@@ -188,7 +197,7 @@ class Navigator:
             if self.show_search:
                 self.search_input = (
                     ui.input(
-                        placeholder="Search navigation...",
+                        placeholder="搜索导航...",
                         on_change=lambda e: self._on_search(e.value or ""),
                     )
                     .props("outlined dense clearable")
@@ -204,10 +213,10 @@ class Navigator:
         return self.drawer
 
     def _setup_top_navigation(self) -> ui.row:
-        """Setup top horizontal navigation.
+        """设置顶部水平导航.
 
         Returns:
-            ui.row: The top navigation bar
+            ui.row: 顶部导航栏
         """
         with ui.row().classes("top-navigation w-full px-4 py-3 gap-4 items-center flex-wrap") as self.top_bar:
             # Logo/Title
@@ -230,7 +239,7 @@ class Navigator:
             if self.show_search:
                 self.search_input = (
                     ui.input(
-                        placeholder="Search navigation...",
+                        placeholder="搜索导航...",
                         on_change=lambda e: self._on_search(e.value or ""),
                     )
                     .props("outlined dense clearable")
@@ -240,21 +249,21 @@ class Navigator:
         return self.top_bar
 
     def _create_top_nav_group(self, group: NavigationGroup) -> None:
-        """Create a navigation group for top navigation.
+        """为顶部导航创建导航组.
 
         Args:
-            group: Navigation group to create
+            group: 要创建的导航组
         """
         with ui.dropdown_button(group.title, icon=group.icon).props("flat dense") as dropdown, ui.column().classes("w-full gap-1 p-2"):
             for item in group.items:
                 self._create_top_nav_item(item, dropdown)
 
     def _create_top_nav_item(self, item: NavigationItem, dropdown: ui.dropdown_button) -> None:
-        """Create a navigation item for top navigation.
+        """为顶部导航创建导航项.
 
         Args:
-            item: Navigation item to create
-            dropdown: Parent dropdown component
+            item: 要创建的导航项
+            dropdown: 父下拉组件
         """
         with ui.row().classes("w-full navigation-item"):
             # Navigation button
@@ -292,20 +301,20 @@ class Navigator:
                 nav_button.on("click", lambda: dropdown.set_visibility(False))
 
     def _create_group(self, group: NavigationGroup) -> None:
-        """Create a navigation group.
+        """创建导航组.
 
         Args:
-            group: Navigation group to create
+            group: 要创建的导航组
         """
         with ui.expansion(group.title, icon=group.icon, value=group.expanded).classes("w-full navigation-group"), ui.column().classes("w-full gap-1"):
             for item in group.items:
                 self._create_item(item)
 
     def _create_item(self, item: NavigationItem) -> None:
-        """Create a navigation item.
+        """创建导航项.
 
         Args:
-            item: Navigation item to create
+            item: 要创建的导航项
         """
         with ui.row().classes("w-full navigation-item"):
             # Navigation button
@@ -343,10 +352,10 @@ class Navigator:
                 nav_button.on("click", lambda: self.drawer.hide() if self.drawer else None)
 
     def _on_search(self, query: str) -> None:
-        """Handle search functionality.
+        """处理搜索功能.
 
         Args:
-            query: Search query string
+            query: 搜索查询字符串
         """
         query = query.lower().strip()
 
@@ -364,15 +373,15 @@ class Navigator:
                 button.classes(add="hidden")
 
     def _navigate(self, router: str) -> None:
-        """Navigate to the specified router.
+        """导航到指定的路由.
 
         Args:
-            router: Router path to navigate to
+            router: 要导航到的路由路径
         """
         ui.navigate.to(router)
 
     def toggle(self) -> None:
-        """Toggle the navigation visibility."""
+        """切换导航可见性."""
         if self.position == "left" and self.drawer:
             self.drawer.toggle()
         elif self.position == "top" and self.top_bar:
@@ -382,14 +391,14 @@ class Navigator:
             )
 
     def show(self) -> None:
-        """Show the navigation."""
+        """显示导航."""
         if self.position == "left" and self.drawer:
             self.drawer.show()
         elif self.position == "top" and self.top_bar:
             self.top_bar.classes(remove="hidden")
 
     def hide(self) -> None:
-        """Hide the navigation."""
+        """隐藏导航."""
         if self.position == "left" and self.drawer:
             self.drawer.hide()
         elif self.position == "top" and self.top_bar:
@@ -397,27 +406,27 @@ class Navigator:
 
 
 def create_main_navigator(page_title: str) -> Navigator:
-    """Create the main navigation menu for the application.
+    """为应用程序创建主导航菜单.
 
     Returns:
-        Navigator: Configured navigator instance
+        Navigator: 配置好的导航器实例
     """
     navigator = Navigator(page_title)
 
     # Main navigation groups
     navigator.add_group(
         NavigationGroup(
-            title="Main",
+            title="主页",
             icon="home",
             items=[
                 NavigationItem(
-                    title="Home",
+                    title="首页",
                     icon="dashboard",
                     router="/",
                     badge="New",
                 ),
                 NavigationItem(
-                    title="All Tools",
+                    title="所有工具",
                     icon="apps",
                     router="/tools",
                 ),
@@ -527,11 +536,11 @@ def create_page_with_navigation(
     navigator: Navigator,
     content_callback: Callable[[], None],
 ) -> None:
-    """Create a page with navigation.
+    """创建带导航的页面.
 
     Args:
-        navigator: Navigator instance to use
-        content_callback: Function to create page content
+        navigator: 要使用的导航器实例
+        content_callback: 创建页面内容的函数
     """
     # Create navigation component
     if navigator.position == "left":
@@ -551,8 +560,8 @@ def create_page_with_navigation(
         with ui.footer().classes("bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 p-4"), ui.column().classes(
             "w-full max-w-6xl mx-auto items-center",
         ):
-            ui.label("Universal Workflow Toolkit © 2025").classes("text-center")
-            ui.label("A powerful collection of tools for everyday tasks").classes("text-center text-sm")
+            ui.label("通用工作流工具包 © 2025").classes("text-center")
+            ui.label("用于日常任务的强大工具集合").classes("text-center text-sm")
 
     else:
         # Top navigation layout - integrated into header
@@ -568,5 +577,5 @@ def create_page_with_navigation(
         with ui.footer().classes("bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 p-4"), ui.column().classes(
             "w-full max-w-6xl mx-auto items-center",
         ):
-            ui.label("Universal Workflow Toolkit © 2025").classes("text-center")
-            ui.label("A powerful collection of tools for everyday tasks").classes("text-center text-sm")
+            ui.label("通用工作流工具包 © 2025").classes("text-center")
+            ui.label("用于日常任务的强大工具集合").classes("text-center text-sm")

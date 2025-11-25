@@ -334,10 +334,10 @@ def _log_update_summary(updated_count: int, skipped_count: int, failed_count: in
 def update_build_date() -> None:
     """更新构建日期.
 
-    遍历 src 目录下的所有 __init__.py 文件, 更新其中的 __build_date__ 变量。
+    遍历 src 目录下的所有 __init__.py 文件, 更新其中的 __build_date__ 变量.
 
-    使用原子性操作确保文件更新的安全性, 并在失败时自动恢复。
-    处理完成后会清理可能残留的临时文件。
+    使用原子性操作确保文件更新的安全性, 并在失败时自动恢复.
+    处理完成后会清理可能残留的临时文件.
     """
     # 验证配置
     if not _validate_config():

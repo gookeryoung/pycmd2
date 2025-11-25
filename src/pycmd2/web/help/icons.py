@@ -1,4 +1,4 @@
-"""Icon gallery page for NiceGUI Material Icons."""
+"""NiceGUI Material Icons 图标库页面."""
 
 from __future__ import annotations
 
@@ -6,10 +6,10 @@ from nicegui import ui
 
 from pycmd2.web.apps.app import BaseApp
 
-# Commonly used Material Icons
-# This is not an exhaustive list, but covers many frequently used icons
+# 常用的 Material Icons
+# 这不是一个详尽的列表, 但涵盖了许多常用图标
 MATERIAL_ICONS = [
-    # Action
+    # 操作
     "account_circle",
     "add",
     "add_circle",
@@ -24,7 +24,7 @@ MATERIAL_ICONS = [
     "book",
     "bookmark",
     "build",
-    # Alert
+    # 警告
     "error",
     "warning",
     "info",
@@ -32,7 +32,7 @@ MATERIAL_ICONS = [
     "cancel",
     "check_circle",
     "highlight_off",
-    # Audio/Video
+    # 音频/视频
     "album",
     "av_timer",
     "closed_caption",
@@ -64,7 +64,7 @@ MATERIAL_ICONS = [
     "volume_mute",
     "volume_off",
     "volume_up",
-    # Communication
+    # 通信
     "business",
     "call",
     "call_end",
@@ -674,17 +674,17 @@ MATERIAL_ICONS = [
 
 
 class IconsHelpApp(BaseApp):
-    """Icons help app."""
+    """图标帮助应用程序."""
 
     ROUTER = "/help/icons"
 
     def on_icon_click(self, icon_name: str) -> None:
-        """Handle icon click."""
+        """处理图标点击事件."""
         ui.clipboard.write(icon_name)
         ui.notify(f"Copied '{icon_name}' to clipboard", type="positive")
 
     def setup(self) -> None:
-        """Setup the icons help app."""
+        """设置图标帮助应用程序."""
         ui.add_head_html("""
         <style>
             .icon-card {
@@ -713,14 +713,14 @@ class IconsHelpApp(BaseApp):
 
         # Main content
         with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-4"):
-            ui.label("Material Icons Gallery").classes("text-h4 font-bold self-center")
+            ui.label("Material Icons 图标库").classes("text-h4 font-bold self-center")
             ui.markdown(
                 "This page shows commonly used Material Icons in NiceGUI. Click on any icon to copy its name to clipboard.",
             ).classes("self-center text-center")
 
             # Search input
             ui.input(
-                placeholder="Search icons...",
+                placeholder="搜索图标...",
                 on_change=lambda e: filter_icons(e.value),
             ).classes("w-full md:w-1/2 self-center").props("outlined rounded")
 
@@ -737,7 +737,7 @@ class IconsHelpApp(BaseApp):
 
             # Filter function
             def filter_icons(query: str) -> None:
-                """Filter icons based on search query."""
+                """根据搜索查询过滤图标."""
                 query = query.lower().strip()
 
                 # Show all if query is empty
@@ -777,5 +777,5 @@ class IconsHelpApp(BaseApp):
 
 @ui.page(IconsHelpApp.ROUTER)
 def icons_page() -> None:
-    """Display a gallery of Material Icons."""
+    """显示 Material Icons 图标库."""
     IconsHelpApp().setup()

@@ -90,7 +90,7 @@ def decrypt_pdf(
         if reader.decrypt(password):
             logger.info(f"尝试解密[{filepath.name}文件]成功!")
         else:
-            logger.error(f"尝试解密[{filepath.name}文件]失败, 密码不正确。")
+            logger.error(f"尝试解密[{filepath.name}文件]失败, 密码不正确.")
             return filepath, None
 
         # 创建一个新的 PdfWriter 对象

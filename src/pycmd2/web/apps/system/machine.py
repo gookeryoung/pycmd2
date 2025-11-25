@@ -6,9 +6,10 @@ from nicegui import ui
 
 
 class MachineMonitor:
-    """获取机器使用率."""
+    """机器监控器, 用于获取系统资源使用率."""
 
     def __init__(self) -> None:
+        """初始化机器监控器."""
         self.cpu_usage: float = 0.0
         self.cpu_cores: int = 1
         self.memory_usage: float = 0.0
@@ -19,7 +20,7 @@ class MachineMonitor:
         ui.timer(3.0, self.update)
 
     def update(self) -> None:
-        """更新使用率."""
+        """更新系统资源使用率数据."""
         # 移除interval参数以避免阻塞
         self.cpu_usage = psutil.cpu_percent()
         self.cpu_cores = psutil.cpu_count() or 1
@@ -30,10 +31,10 @@ class MachineMonitor:
         self.uptime = datetime.fromtimestamp(psutil.boot_time(), tz=timezone.utc)
 
     def setup(self) -> ui.element:
-        """设置UI.
+        """设置用户界面.
 
         Returns:
-            ui.row: UI行
+            ui.element: UI元素
         """
         element = ui.element().classes("mx-auto px-4 py-2 items-center flex flex-row justify-center gap-1 bg-slate-100 rounded")
         with element:

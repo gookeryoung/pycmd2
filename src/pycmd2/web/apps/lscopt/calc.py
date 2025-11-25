@@ -210,7 +210,7 @@ class LSCCurve:
         return self.R.x
 
     def calculate_angles(self) -> None:
-        """Calculate angles."""
+        """计算角度."""
         # 在点m处计算角度
         y3 = self.x[0] + self.x[1] * self.m + self.x[2] * self.ms + self.x[3] * self.mc
         # 使用arctan2处理除零情况
@@ -223,7 +223,7 @@ class LSCCurve:
         np.degrees(np.arctan2((g3 - self.x[12]), self.m1))
 
     def plot(self, ax: plt.Axes | None = None) -> None:
-        """Plot LSC curves."""
+        """绘制 LSC 曲线."""
         # 计算内部段曲线 (-1.3 到 0)
         y1 = self.x[0] + self.x[1] * self.i + self.x[2] * self.i**2 + self.x[3] * self.i**3  # 内部上部
         y2 = self.x[4] + self.x[5] * self.i + self.x[6] * self.i**2 + self.x[7] * self.i**3  # 内部下部

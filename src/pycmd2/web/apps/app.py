@@ -3,10 +3,10 @@ from abc import abstractmethod
 
 
 class BaseApp(ABC):
-    """Abstract base class for web applications."""
+    """Web 应用程序的抽象基类."""
 
     ROUTER: str = ""
 
     @abstractmethod
     def setup(self) -> None:
-        """Setup the web application."""
+        """设置并初始化应用程序."""

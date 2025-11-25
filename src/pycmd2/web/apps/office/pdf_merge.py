@@ -355,7 +355,7 @@ class PDFMergeApp(BaseApp):
         dialog = ui.dialog()
         with dialog, ui.card():
             ui.label("输入合并文件名:")
-            input_field = ui.input(label="File name", placeholder="e.g. merged_document.pdf").classes("w-full")
+            input_field = ui.input(label="文件名", placeholder="例如: merged_document.pdf").classes("w-full")
 
             with ui.row():
                 ui.button("取消", on_click=dialog.close)
@@ -536,5 +536,5 @@ class PDFMergeApp(BaseApp):
 
 @ui.page(PDFMergeApp.ROUTER)
 def pdf_merge_page() -> None:
-    """Main page for the application."""
+    """应用程序主页面."""
     PDFMergeApp().setup()

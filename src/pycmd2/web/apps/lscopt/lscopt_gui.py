@@ -117,7 +117,7 @@ class ParamInputGroup(QGroupBox):
             param_input.spinbox.valueChanged.connect(self.on_calc)
 
     def on_calc(self) -> None:
-        """求解."""
+        """计算求解."""
         try:
             self.lscc = LSCCurve(
                 m=self.inputs["m"].spinbox.value(),
@@ -228,7 +228,7 @@ class LSCOptimizer(QMainWindow):
         self.param_group.on_calc()
 
     def on_calc_finished(self) -> None:
-        """计算并绘制曲线."""
+        """计算完成并绘制曲线."""
         # 显示结果摘要
         result_text = "计算成功完成!\n"
         result_text += f"解向量范数: {np.linalg.norm(self.param_group.lscc.x):.4f}\n"
@@ -244,7 +244,7 @@ class LSCOptimizer(QMainWindow):
             self.result_label.setText("画布未初始化!")
 
     def on_calc_error(self, msg: str) -> None:
-        """错误提示."""
+        """计算错误提示."""
         self.result_label.setText(msg)
 
 

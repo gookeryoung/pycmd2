@@ -1,4 +1,4 @@
-"""Web demos package."""
+"""Web 演示应用包."""
 
 from .downloader import DownloaderDemoApp
 from .mandelbrot import MandelbrotApp

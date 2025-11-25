@@ -1,4 +1,4 @@
-"""Web configuration settings."""
+"""Web 应用配置设置."""
 
 from __future__ import annotations
 
@@ -6,18 +6,21 @@ from pycmd2.config import TomlConfigMixin
 
 
 class WebServerConfig(TomlConfigMixin):
-    """Web application configuration."""
+    """Web 应用程序配置类.
 
-    # Navigation position: 'left' or 'top'
+    继承自 TomlConfigMixin, 支持将配置保存到 TOML 文件中.
+    """
+
+    # 导航位置: 'left' 或 'top'
     navigation_position: str = "left"
 
-    # Whether to show search in navigation
+    # 是否在导航中显示搜索功能
     show_navigation_search: bool = True
 
-    # Navigation drawer width (only for left navigation)
+    # 导航抽屉宽度
     navigation_width: str = "300px"
 
-    # Whether to collapse navigation by default (only for left navigation)
+    # 是否默认折叠导航
     navigation_collapsed: bool = False
 
 

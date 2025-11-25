@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """NiceGUI 文件下载按钮演示.
 
-展示如何在 NiceGUI 中实现不同类型的文件下载功能。
+展示如何在 NiceGUI 中实现不同类型的文件下载功能.
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ class DownloaderDemoApp(BaseApp):
         Returns:
             bytes: 示例 TXT 数据
         """
-        content = "这是一个示例文本文件。\n它包含了一些中文内容。\n第三行内容。"
+        content = "这是一个示例文本文件.\n它包含了一些中文内容.\n第三行内容."
         return content.encode("utf-8")
 
     def setup(self) -> None:

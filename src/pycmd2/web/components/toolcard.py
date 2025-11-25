@@ -7,7 +7,10 @@ from nicegui import ui
 
 @dataclass
 class ToolCard:
-    """Tool card data class."""
+    """工具卡片数据类.
+
+    用于表示单个工具的卡片信息.
+    """
 
     title: str
     description: str
@@ -16,10 +19,10 @@ class ToolCard:
     router: str
 
     def setup(self) -> ui.card:
-        """Create a card for the tool.
+        """为工具创建卡片.
 
         Returns:
-            ui.card
+            ui.card: 工具卡片组件
         """
         with ui.card().classes("tool-card cursor-pointer").on(
             "click",
@@ -36,7 +39,10 @@ class ToolCard:
 
 @dataclass
 class ToolCardGroup:
-    """Tool card group data class."""
+    """工具卡片组数据类.
+
+    用于组织相关的工具卡片.
+    """
 
     title: str
     description: str
@@ -45,10 +51,10 @@ class ToolCardGroup:
     tools: list[ToolCard]
 
     def setup(self) -> ui.expansion:
-        """Create a card group for the tool.
+        """为工具创建卡片组.
 
         Returns:
-            ui.expansion
+            ui.expansion: 可展开的卡片组组件
         """
         with ui.expansion(self.title, icon=self.icon).classes("w-full").props(f"expand-icon-class=text-{self.color}-500") as expansion:
             with ui.row().classes("w-full items-center p-4"):
