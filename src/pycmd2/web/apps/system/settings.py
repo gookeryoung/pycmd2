@@ -10,7 +10,7 @@ from pycmd2.web.layouts.settings_navigator import SettingsNavigator
 class SettingsApp:
     """配置设置应用程序."""
 
-    ROUTER = "/settings/config"
+    ROUTER = "/system/settings"
 
     def __init__(self) -> None:
         """初始化配置应用程序."""
