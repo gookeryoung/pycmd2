@@ -3,7 +3,7 @@ from pycmd2.web.components.main_navigator import get_main_navigator
 from pycmd2.web.components.settings_content import get_settings_content
 from pycmd2.web.config import conf
 from pycmd2.web.config import WebServerConfig
-from pycmd2.web.layouts.main_page import MainPage
+from pycmd2.web.pages.main_page import MainPage
 
 
 class SettingsPage(MainPage):

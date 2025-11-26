@@ -89,7 +89,16 @@ class ComponentMeta(type(ABC)):
     _instances: ClassVar[Dict[Type, BaseComponent]] = {}
     _registry: ClassVar[Dict[str, Type[BaseComponent]]] = {}
 
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls, *args: Any, **kwargs: Any) -> BaseComponent:
+        """创建或获取组件实例.
+
+        Args:
+            *args: 创建组件时使用的位置参数
+            **kwargs: 创建组件时使用的关键字参数
+
+        Returns:
+            BaseComponent: 组件实例
+        """
         # 创建组件的唯一键
         key = cls._create_key(*args, **kwargs)
 
@@ -104,7 +113,7 @@ class ComponentMeta(type(ABC)):
 
         return instance
 
-    def _create_key(cls, *args, **kwargs) -> str:
+    def _create_key(cls, *args: Any, **kwargs: Any) -> str:
         """创建组件的唯一键.
 
         Args:
@@ -156,7 +165,7 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
     # 组件的唯一标识符
     COMPONENT_ID: ClassVar[str] = ""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """初始化组件.
 
         Args:
@@ -299,6 +308,14 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
         """
         return f"{self.__class__.__name__}(id={self.COMPONENT_ID}, key={self._key})"
 
+    def __str__(self) -> str:
+        """组件的字符串表示.
+
+        Returns:
+            str: 组件的字符串表示
+        """
+        return f"{self.__class__.__name__}(id={self.COMPONENT_ID})"
+
 
 class ContainerComponent(BaseComponent):
     """容器组件基类.
@@ -306,7 +323,7 @@ class ContainerComponent(BaseComponent):
     用于包含其他组件的容器组件.
     """
 
-    def __init__(self, *args, direction: str = "column", **kwargs) -> None:
+    def __init__(self, *args: Any, direction: str = "column", **kwargs: Any) -> None:
         """初始化容器组件.
 
         Args:
@@ -337,7 +354,7 @@ class ContentComponent(BaseComponent):
     用于显示文本、图标等内容的组件.
     """
 
-    def __init__(self, *args, content: str = "", **kwargs) -> None:
+    def __init__(self, *args: Any, content: str = "", **kwargs: Any) -> None:
         """初始化内容组件.
 
         Args:
@@ -367,16 +384,36 @@ def register_component(name: str) -> Callable:
     return decorator
 
 
-# 组件工厂
 class ComponentFactory:
-    """组件工厂类."""
+    """组件工厂类.
+
+    用于创建组件实例.
+
+    Examples:
+        >>> from pycmd2.web.component import BaseComponent, ComponentFactory, register_component
+        >>> from nicegui import ui
+        >>> @register_component("demo-button")
+        ... class ButtonComponent(BaseComponent):
+        ...     COMPONENT_ID = "demo-button"
+        ...     CSS_CLASSES = ["demo-button"]
+        ...
+        ...     def __init__(self, *args: Any, label: str = "Button", **kwargs: Any) -> None:
+        ...         super().__init__(*args, **kwargs)
+        ...         self.label = label
+        ...
+        ...     def render(self) -> ui.button:
+        ...         return ui.button(self.label)
+        >>> button = ComponentFactory.create("demo-button", label="Click Me")
+        >>> button
+        'ButtonComponent(id=demo-button)'
+    """
 
     @staticmethod
     def create(comp_name: str, *args, **kwargs) -> Optional[BaseComponent]:
         """创建组件实例.
 
         Args:
-            name: 组件名称
+            comp_name: 组件名称
             *args: 位置参数
             **kwargs: 关键字参数
 

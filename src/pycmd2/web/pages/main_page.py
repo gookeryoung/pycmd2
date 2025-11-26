@@ -26,7 +26,7 @@ class MainPage:
             with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6 mt-4"):
                 get_main_content().setup_ui()
 
-        MainFooter().build()
+        MainFooter().render()
 
 
 _main_page = MainPage()

@@ -10,8 +10,8 @@ from __future__ import annotations
 from nicegui import ui
 
 from pycmd2.web.config import conf
-from pycmd2.web.layouts.main_page import get_main_page
-from pycmd2.web.layouts.settings_page import SettingsPage
+from pycmd2.web.pages.main_page import get_main_page
+from pycmd2.web.pages.settings_page import SettingsPage
 
 
 @ui.page(SettingsPage.ROUTER)

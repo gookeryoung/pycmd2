@@ -75,7 +75,7 @@ wch = "pycmd2.commands.system.which:cli.app"
 lscopt = "pycmd2.web.simulation.lscopt.lscopt_gui:main"
 
 # web
-websvr = "pycmd2.web.server:main"
+websvr = "pycmd2.web.cli:main"
 
 [project.urls]
 Documentation = "https://pycmd2.readthedocs.io/zh-cn/stable/"
