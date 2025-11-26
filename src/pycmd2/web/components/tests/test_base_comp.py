@@ -9,9 +9,9 @@ import unittest
 
 from nicegui import ui
 
-from pycmd2.web.components.base_comp import BaseComponent
-from pycmd2.web.components.base_comp import cache_result
-from pycmd2.web.components.base_comp import ComponentFactory
+from pycmd2.web.component import BaseComponent
+from pycmd2.web.component import cache_result
+from pycmd2.web.component import ComponentFactory
 from pycmd2.web.components.demos.examples_comp import ButtonComponent
 from pycmd2.web.components.demos.examples_comp import CardComponent
 

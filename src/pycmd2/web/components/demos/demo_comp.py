@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from nicegui import ui
 
-from pycmd2.web.apps.base_app import BaseApp
-from pycmd2.web.components.base_comp import ComponentFactory
+from pycmd2.web.app import BaseApp
+from pycmd2.web.component import ComponentFactory
 from pycmd2.web.components.demos.examples_comp import ButtonComponent
 from pycmd2.web.components.demos.examples_comp import CardComponent
 from pycmd2.web.components.demos.examples_comp import DialogComponent

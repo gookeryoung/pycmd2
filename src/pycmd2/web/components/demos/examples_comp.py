@@ -9,9 +9,9 @@ from typing import Any
 
 from nicegui import ui
 
-from pycmd2.web.components.base_comp import ContainerComponent
-from pycmd2.web.components.base_comp import ContentComponent
-from pycmd2.web.components.base_comp import register_component
+from pycmd2.web.component import ContainerComponent
+from pycmd2.web.component import ContentComponent
+from pycmd2.web.component import register_component
 
 
 @register_component("card")
