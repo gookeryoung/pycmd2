@@ -47,7 +47,7 @@ class DownloaderDemoApp(BaseApp):
         content = "这是一个示例文本文件.\n它包含了一些中文内容.\n第三行内容."
         return content.encode("utf-8")
 
-    def setup(self) -> None:
+    def render(self) -> None:
         """文件下载演示页面."""
         ui.label("NiceGUI 文件下载按钮演示").classes("text-2xl font-bold mb-4")
 
@@ -111,4 +111,4 @@ class DownloaderDemoApp(BaseApp):
 
 @ui.page(DownloaderDemoApp.ROUTER)
 def downloader_demo_page() -> None:
-    DownloaderDemoApp().setup()
+    DownloaderDemoApp().build()

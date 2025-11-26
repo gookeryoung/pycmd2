@@ -86,7 +86,7 @@ class PDFMergeApp(BaseApp):
         self.uploaded_files: Dict[str, bytes] = {}
         self.merged_file: Path | None = None
 
-    def setup(self) -> None:
+    def render(self) -> None:
         """初始化用户界面."""
         ui.label(f"PDF 合并工具 v{__version__}").classes("mx-auto text-red-600 text-4xl font-bold")
 
@@ -539,4 +539,4 @@ class PDFMergeApp(BaseApp):
 @ui.page(PDFMergeApp.ROUTER)
 def pdf_merge_page() -> None:
     """应用程序主页面."""
-    PDFMergeApp().setup()
+    PDFMergeApp().build()

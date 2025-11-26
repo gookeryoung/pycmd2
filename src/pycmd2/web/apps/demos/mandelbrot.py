@@ -137,7 +137,7 @@ class MandelbrotApp(BaseApp):
 
     ROUTER = "/demos/mandelbrot"
 
-    def setup(self) -> None:
+    def render(self) -> None:
         """设置应用程序."""
         ui.label("曼德勃罗集").classes("w-full mx-auto text-center text-2xl")
 
@@ -223,4 +223,4 @@ class MandelbrotApp(BaseApp):
 
 @ui.page(MandelbrotApp.ROUTER)
 def mandelbrot_demo_page() -> None:
-    MandelbrotApp().setup()
+    MandelbrotApp().build()

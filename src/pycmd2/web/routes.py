@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from pycmd2.web.apps.demos import MandelbrotApp
-from pycmd2.web.apps.demos.downloader import DownloaderDemoApp
-from pycmd2.web.apps.demos.wavegraph import WaveGraphApp
-from pycmd2.web.apps.help.icons import IconsHelpApp
-from pycmd2.web.apps.lscopt.lscopt import LSCOptimizerApp
-from pycmd2.web.apps.office.pdf_merge import PDFMergeApp
+from pycmd2.web.apps import DownloaderDemoApp
+from pycmd2.web.apps import IconsHelpApp
+from pycmd2.web.apps import LSCOptimizerApp
+from pycmd2.web.apps import MandelbrotApp
+from pycmd2.web.apps import PDFMergeApp
+from pycmd2.web.apps import WaveGraphApp
 from pycmd2.web.components.demos.demo_comp import DemoComponentApp
 from pycmd2.web.components.navigator import NavigationGroup
 from pycmd2.web.components.navigator import NavigationItem

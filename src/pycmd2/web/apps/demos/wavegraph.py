@@ -35,7 +35,7 @@ class WaveGraphApp(BaseApp):
 
         self.precision: int = 100
 
-    def setup(self) -> None:
+    def render(self) -> None:
         """设置UI界面."""
         ui.label("Demo - 实时波形显示").classes("w-full text-2xl text-center font-bold text-purple-600 italic")
 
@@ -112,4 +112,4 @@ class WaveGraphApp(BaseApp):
 def wavegraph_page() -> None:
     """波形图页面."""
     app = WaveGraphApp()
-    app.setup()
+    app.build()

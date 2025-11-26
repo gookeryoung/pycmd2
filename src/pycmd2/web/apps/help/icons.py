@@ -683,7 +683,7 @@ class IconsHelpApp(BaseApp):
         ui.clipboard.write(icon_name)
         ui.notify(f"已复制 '{icon_name}' 到剪贴板", type="positive")
 
-    def setup(self) -> None:
+    def render(self) -> None:
         """设置图标帮助应用程序."""
         ui.add_head_html("""
         <style>
@@ -778,4 +778,4 @@ class IconsHelpApp(BaseApp):
 @ui.page(IconsHelpApp.ROUTER)
 def icons_page() -> None:
     """显示 Material Icons 图标库."""
-    IconsHelpApp().setup()
+    IconsHelpApp().build()

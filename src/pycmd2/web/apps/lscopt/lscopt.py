@@ -50,7 +50,7 @@ class LSCOptimizerApp(BaseApp):
         ]
         rcParams["axes.unicode_minus"] = False
 
-    def setup(self) -> None:
+    def render(self) -> None:
         """设置UI界面."""
         ui.label(f"LSC Optimizer v{__version__}").classes("mx-auto text-red-600 text-4xl font-bold mb-2")
 
@@ -154,4 +154,4 @@ class LSCOptimizerApp(BaseApp):
 
 @ui.page(LSCOptimizerApp.ROUTER)
 def lsc_optimizer_page() -> None:
-    LSCOptimizerApp().setup()
+    LSCOptimizerApp().build()

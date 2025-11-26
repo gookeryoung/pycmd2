@@ -16,13 +16,13 @@ from pycmd2.web.pages.settings_page import SettingsPage
 @ui.page(SettingsPage.ROUTER)
 def config_page() -> None:
     """配置设置页面."""
-    ComponentFactory.create("settings-page").render()
+    ComponentFactory.create("settings-page").build()
 
 
 @ui.page("/")
 def main_page() -> None:
     """主页面."""
-    ComponentFactory.create("main-page").render()
+    ComponentFactory.create("main-page").build()
 
 
 def main() -> None:
