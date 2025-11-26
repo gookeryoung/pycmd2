@@ -9,7 +9,7 @@ from __future__ import annotations
 import numpy as np
 from nicegui import ui
 
-from pycmd2.web.app import BaseApp
+from pycmd2.web.components.app import BaseApp
 
 
 class WaveGraphApp(BaseApp):

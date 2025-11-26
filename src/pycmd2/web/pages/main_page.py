@@ -4,18 +4,21 @@ import logging
 
 from nicegui import ui
 
+from pycmd2.web.components.app import App
 from pycmd2.web.components.main_content import get_main_content
 from pycmd2.web.components.main_footer import MainFooter
 from pycmd2.web.components.main_navigator import get_main_navigator
+from pycmd2.web.config import conf
 
 logger = logging.getLogger(__name__)
 
 
-class MainPage:
+class MainPage(App):
     """主页."""
 
-    def setup_ui(self) -> None:
-        """设置导航器."""
+    def render(self) -> None:
+        """渲染主页."""
+        ui.add_head_html(conf.MAIN_PAGE_STYLE)
         main_nav = get_main_navigator()
         main_nav.setup_ui()
 
@@ -27,15 +30,3 @@ class MainPage:
                 get_main_content().setup_ui()
 
         MainFooter().render()
-
-
-_main_page = MainPage()
-
-
-def get_main_page() -> MainPage:
-    """获取主页.
-
-    Returns:
-        MainPage: 主页.
-    """
-    return _main_page

@@ -9,15 +9,14 @@ from __future__ import annotations
 
 from nicegui import ui
 
-from pycmd2.web.config import conf
-from pycmd2.web.pages.main_page import get_main_page
+from pycmd2.web.pages.main_page import MainPage
 from pycmd2.web.pages.settings_page import SettingsPage
 
 
 @ui.page(SettingsPage.ROUTER)
 def config_page() -> None:
     """配置设置页面."""
-    SettingsPage().setup_ui()
+    # SettingsPage().render()
 
 
 @ui.page("/")
@@ -26,11 +25,7 @@ def main_page() -> None:
     # 定义主页面内容
 
     # 添加自定义 CSS 以获得更好的样式
-    ui.add_head_html(conf.MAIN_PAGE_STYLE)
-
-    # 创建主导航器
-    page = get_main_page()
-    page.setup_ui()
+    MainPage().render()
 
 
 def main() -> None:

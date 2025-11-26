@@ -72,7 +72,7 @@ CARDS: list[ToolCardGroup] = [
                 router=WaveGraphApp.ROUTER,
             ),
             ToolCard(
-                title="BaseComponent 演示",
+                title="单元创建演示",
                 description="展示如何使用 BaseComponent 创建的各种组件示例",
                 icon="widgets",
                 color="orange",

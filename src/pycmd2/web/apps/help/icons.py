@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from nicegui import ui
 
-from pycmd2.web.app import BaseApp
+from pycmd2.web.components.app import BaseApp
 
 # 常用的 Material Icons
 # 这不是一个详尽的列表, 但涵盖了许多常用图标
