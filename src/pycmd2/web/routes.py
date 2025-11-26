@@ -6,7 +6,6 @@ from pycmd2.web.apps import LSCOptimizerApp
 from pycmd2.web.apps import MandelbrotApp
 from pycmd2.web.apps import PDFMergeApp
 from pycmd2.web.apps import WaveGraphApp
-from pycmd2.web.components.demos.demo_comp import DemoComponentApp
 from pycmd2.web.components.navigator import NavigationGroup
 from pycmd2.web.components.navigator import NavigationItem
 from pycmd2.web.components.toolcard import ToolCard
@@ -70,13 +69,6 @@ CARDS: list[ToolCardGroup] = [
                 icon="water_drop",
                 color="green",
                 router=WaveGraphApp.ROUTER,
-            ),
-            ToolCard(
-                title="单元创建演示",
-                description="展示如何使用 BaseComponent 创建的各种组件示例",
-                icon="widgets",
-                color="orange",
-                router=DemoComponentApp.ROUTER,
             ),
         ],
     ),

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from nicegui import ui
 
 from pycmd2.web.component import BaseComponent
@@ -14,7 +16,7 @@ class SettingsContent(BaseComponent):
 
     COMPONENT_ID = "settings-content"
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> None:
         super().__init__(*args, **kwargs)
 
         self.config: WebServerConfig = conf
@@ -40,7 +42,7 @@ class SettingsContent(BaseComponent):
                 ui.label("导航中显示搜索").classes("text-body1")
                 ui.switch(
                     value=self.config.show_navigation_search,
-                    on_change=lambda e: self._update_show_search(bool(e.value)),
+                    on_change=lambda e: self._update_show_search(e.value),
                 )
 
             ui.separator()
@@ -71,7 +73,7 @@ class SettingsContent(BaseComponent):
         self.config.navigation_position = value
         ui.notify(f"导航位置设置为: {value}.请刷新页面查看更改.", type="positive")
 
-    def _update_show_search(self, *, value: bool) -> None:
+    def _update_show_search(self, value: bool) -> None:  # noqa: FBT001
         """更新显示搜索设置.
 
         Args:

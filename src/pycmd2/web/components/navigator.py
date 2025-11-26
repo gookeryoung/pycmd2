@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 from typing import Callable
 
 from nicegui import ui
@@ -90,12 +91,14 @@ class Navigator(BaseComponent):
 
     COMPONENT_ID = "navigator"
 
-    def __init__(self, *args, title: str = "导航", show_search: bool = True, **kwargs) -> None:
+    def __init__(self, *args: tuple[Any, ...], title: str = "导航", show_search: bool = True, **kwargs: dict[str, Any]) -> None:
         """初始化导航器.
 
         Args:
             title: 导航菜单标题
             show_search: 是否显示搜索功能
+            *args: 其他参数
+            **kwargs: 其他参数
         """
         super().__init__(*args, **kwargs)
 
@@ -325,12 +328,3 @@ class Navigator(BaseComponent):
             self.drawer.hide()
         elif self.position == "top" and self.top_bar:
             self.top_bar.classes(add="hidden")
-
-
-def create_main_navigator(page_title: str) -> Navigator:
-    """为应用程序创建主导航菜单.
-
-    Returns:
-        Navigator: 配置好的导航器实例
-    """
-    return Navigator(page_title)
