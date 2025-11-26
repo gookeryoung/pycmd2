@@ -2,19 +2,24 @@ from __future__ import annotations
 
 from nicegui import ui
 
+from pycmd2.web.component import BaseComponent
+from pycmd2.web.component import register_component
 from pycmd2.web.config import conf
 from pycmd2.web.config import WebServerConfig
 
 
-class SettingsContent:
+@register_component("settings-content")
+class SettingsContent(BaseComponent):
     """主内容区域."""
 
-    def __init__(self) -> None:
-        super().__init__()
+    COMPONENT_ID = "settings-content"
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
         self.config: WebServerConfig = conf
 
-    def setup_ui(self) -> None:
+    def render(self) -> None:
         """页面内容."""
         with ui.card().classes("w-full"), ui.column().classes("w-full gap-4 p-6"):
             ui.label("导航设置").classes("text-h5 font-bold mb-4")
@@ -97,15 +102,3 @@ class SettingsContent:
         self.config.navigation_collapsed = False
         self.config.save()
         ui.notify("设置已重置为默认值! 请刷新页面查看更改.", type="info")
-
-
-_settings_content = SettingsContent()
-
-
-def get_settings_content() -> SettingsContent:
-    """获取设置内容.
-
-    Returns:
-        SettingsContent: 设置内容.
-    """
-    return _settings_content

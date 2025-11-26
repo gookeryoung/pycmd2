@@ -5,6 +5,8 @@ from typing import Callable
 
 from nicegui import ui
 
+from pycmd2.web.component import BaseComponent
+from pycmd2.web.component import register_component
 from pycmd2.web.config import conf
 
 
@@ -79,19 +81,24 @@ class NavigationGroup:
                 item.setup_nav(parent)
 
 
-class Navigator:
+@register_component("navigator")
+class Navigator(BaseComponent):
     """Web 应用程序的导航菜单组件.
 
     支持左侧边栏和顶部导航两种布局模式.
     """
 
-    def __init__(self, title: str = "导航", *, show_search: bool = True) -> None:
+    COMPONENT_ID = "navigator"
+
+    def __init__(self, *args, title: str = "导航", show_search: bool = True, **kwargs) -> None:
         """初始化导航器.
 
         Args:
             title: 导航菜单标题
             show_search: 是否显示搜索功能
         """
+        super().__init__(*args, **kwargs)
+
         self.title = title
         self.show_search = show_search
         self.groups: list[NavigationGroup] = []
@@ -133,7 +140,7 @@ class Navigator:
                 ),
             )
 
-    def setup(self) -> ui.drawer | ui.row:
+    def render(self) -> ui.drawer | ui.row:
         """创建并设置导航组件.
 
         Returns:

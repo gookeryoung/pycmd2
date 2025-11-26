@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pycmd2.web.component import ComponentFactory
+
 
 class BaseApp:
     """Web 应用程序的抽象基类."""
@@ -11,7 +13,4 @@ class BaseApp:
 
     def _setup_navigator(self) -> None:
         """获取主导航器实例."""
-        from pycmd2.web.pages.main_page import get_main_navigator  # noqa: PLC0415
-
-        main_nav = get_main_navigator()
-        main_nav.setup_ui()
+        ComponentFactory.create("main-navigator", title="通用工作流工具包").build()
