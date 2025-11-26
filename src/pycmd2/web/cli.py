@@ -9,23 +9,20 @@ from __future__ import annotations
 
 from nicegui import ui
 
-from pycmd2.web.pages.main_page import MainPage
+from pycmd2.web.component import ComponentFactory
 from pycmd2.web.pages.settings_page import SettingsPage
 
 
 @ui.page(SettingsPage.ROUTER)
 def config_page() -> None:
     """配置设置页面."""
-    # SettingsPage().render()
+    ComponentFactory.create("settings-page").render()
 
 
 @ui.page("/")
 def main_page() -> None:
     """主页面."""
-    # 定义主页面内容
-
-    # 添加自定义 CSS 以获得更好的样式
-    MainPage().render()
+    ComponentFactory.create("main-page").render()
 
 
 def main() -> None:

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Any
-from typing import ClassVar
 
 from nicegui import ui
 
@@ -13,7 +12,6 @@ from pycmd2.web.component import register_component
 class MainFooter(BaseComponent):
     """主页脚组件."""
 
-    CSS_CLASSES: ClassVar = ["bg-gray-100", "dark:bg-gray-800", "text-gray-600", "dark:text-gray-400", "p-4"]
     COMPONENT_ID = "main-footer"
 
     def __init__(
@@ -35,7 +33,7 @@ class MainFooter(BaseComponent):
         Returns:
             ui.footer: 主页脚元素
         """
-        with ui.footer() as footer, ui.row().classes(
+        with ui.footer(fixed=True).style("background-color: lightblue") as footer, ui.row().classes(
             "w-full mx-auto items-center flex flex-row justify-end",
         ):
             ui.label(self.title).classes(f"text-center text-{self.color}-600 dark:text-white font-bold")

@@ -1,15 +1,26 @@
+from __future__ import annotations
+
 from datetime import datetime
 from datetime import timezone
+from typing import Any
 
 import psutil
 from nicegui import ui
 
+from pycmd2.web.component import BaseComponent
+from pycmd2.web.component import register_component
 
-class MachineMonitor:
+
+@register_component("system-monitor")
+class SystemMonitor(BaseComponent):
     """机器监控器, 用于获取系统资源使用率."""
 
-    def __init__(self) -> None:
+    COMPONENT_ID = "system-monitor"
+
+    def __init__(self, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> None:
         """初始化机器监控器."""
+        super().__init__(*args, **kwargs)
+
         self.cpu_usage: float = 0.0
         self.cpu_cores: int = 1
         self.memory_usage: float = 0.0
@@ -17,9 +28,9 @@ class MachineMonitor:
         self.memory_total_gb: float = 0.0
         self.uptime: datetime = datetime.now(timezone.utc)
 
-        ui.timer(3.0, self.update)
+        ui.timer(3.0, self._update_timer)
 
-    def update(self) -> None:
+    def _update_timer(self) -> None:
         """更新系统资源使用率数据."""
         # 移除interval参数以避免阻塞
         self.cpu_usage = psutil.cpu_percent()
@@ -30,7 +41,7 @@ class MachineMonitor:
         self.memory_total_gb = mem.total / (1024**3)
         self.uptime = datetime.fromtimestamp(psutil.boot_time(), tz=timezone.utc)
 
-    def setup(self) -> ui.element:
+    def render(self) -> ui.element:
         """设置用户界面.
 
         Returns:
