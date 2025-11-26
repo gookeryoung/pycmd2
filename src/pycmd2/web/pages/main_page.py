@@ -4,9 +4,9 @@ import logging
 
 from nicegui import ui
 
+from pycmd2.web.component import ComponentFactory
 from pycmd2.web.components.app import App
 from pycmd2.web.components.main_content import get_main_content
-from pycmd2.web.components.main_footer import MainFooter
 from pycmd2.web.components.main_navigator import get_main_navigator
 from pycmd2.web.config import conf
 
@@ -29,4 +29,4 @@ class MainPage(App):
             with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6 mt-4"):
                 get_main_content().setup_ui()
 
-        MainFooter().render()
+        ComponentFactory.create("main-footer").render()

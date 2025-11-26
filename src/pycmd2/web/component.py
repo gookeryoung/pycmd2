@@ -354,7 +354,7 @@ class ContentComponent(BaseComponent):
     用于显示文本、图标等内容的组件.
     """
 
-    def __init__(self, *args: Any, content: str = "", **kwargs: Any) -> None:
+    def __init__(self, content: str = "", *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> None:
         """初始化内容组件.
 
         Args:
@@ -384,6 +384,24 @@ def register_component(name: str) -> Callable:
     return decorator
 
 
+class InvalidComponent(BaseComponent):
+    """无效组件.
+
+    用于表示无效的组件.
+    """
+
+    COMPONENT_ID = "invalid-component"
+    CSS_CLASSES: ClassVar = ["invalid-component"]
+
+    def render(self) -> ui.element:
+        """渲染无效组件.
+
+        Returns:
+            ui.element: 无效组件元素
+        """
+        return ui.label("无效组件")
+
+
 class ComponentFactory:
     """组件工厂类.
 
@@ -409,7 +427,7 @@ class ComponentFactory:
     """
 
     @staticmethod
-    def create(comp_name: str, *args, **kwargs) -> Optional[BaseComponent]:
+    def create(comp_name: str, *args, **kwargs) -> BaseComponent:
         """创建组件实例.
 
         Args:
@@ -423,7 +441,7 @@ class ComponentFactory:
         component_class = ComponentMeta.get_registered(comp_name)
         if component_class:
             return component_class(*args, **kwargs)
-        return None
+        return InvalidComponent(*args, **kwargs)
 
     @staticmethod
     def list_registered() -> List[str]:

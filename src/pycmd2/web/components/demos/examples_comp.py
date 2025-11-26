@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from typing import Any
+from typing import ClassVar
 
 from nicegui import ui
 
@@ -62,7 +63,7 @@ class CardComponent(ContainerComponent):
 class ButtonComponent(ContentComponent):
     """按钮组件示例."""
 
-    CSS_CLASSES = ["btn", "rounded", "px-4", "py-2"]
+    CSS_CLASSES: ClassVar = ["btn", "rounded", "px-4", "py-2"]
     COMPONENT_ID = "button"
 
     def __init__(
@@ -105,7 +106,7 @@ class ButtonComponent(ContentComponent):
 class IconComponent(ContentComponent):
     """图标组件示例."""
 
-    CSS_CLASSES = ["icon"]
+    CSS_CLASSES: ClassVar = ["icon"]
     COMPONENT_ID = "icon"
 
     def __init__(
