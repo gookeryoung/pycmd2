@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from .mixins.router_comp import RouterComponent
-
 
 class BaseApp:
     """Web 应用程序的抽象基类."""
@@ -17,10 +15,3 @@ class BaseApp:
 
         main_nav = get_main_navigator()
         main_nav.setup_ui()
-
-
-class App(RouterComponent):
-    """Web 应用程序组件."""
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)

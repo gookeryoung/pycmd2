@@ -4,9 +4,9 @@ import logging
 
 from nicegui import ui
 
+from pycmd2.web.component import BaseComponent
 from pycmd2.web.component import ComponentFactory
 from pycmd2.web.component import register_component
-from pycmd2.web.components.app import App
 from pycmd2.web.components.main_content import MainContent
 from pycmd2.web.components.main_navigator import get_main_navigator
 from pycmd2.web.config import conf
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 @register_component("main-page")
-class MainPage(App):
+class MainPage(BaseComponent):
     """主页."""
 
     def render(self) -> None:
