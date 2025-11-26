@@ -9,10 +9,10 @@ import hashlib
 import json
 from abc import ABC
 from abc import abstractmethod
-from functools import lru_cache
-from functools import wraps
+from types import TracebackType
 from typing import Any
 from typing import Callable
+from typing import cast
 from typing import ClassVar
 from typing import Dict
 from typing import List
@@ -23,6 +23,7 @@ from typing import TypeVar
 
 from nicegui import ui
 from typing_extensions import ParamSpec
+from typing_extensions import Self
 
 T = TypeVar("T", bound="BaseComponent")
 P = ParamSpec("P")
@@ -34,53 +35,8 @@ __all__ = [
     "ComponentMeta",
     "ContainerComponent",
     "ContentComponent",
-    "cache_result",
     "register_component",
 ]
-
-
-def cache_result(maxsize: int = 128) -> Callable:
-    """缓存函数结果的装饰器.
-
-    Args:
-        maxsize: 缓存大小, 默认为128
-
-    Returns:
-        装饰器函数
-    """
-
-    def decorator(func: Callable[P, R]) -> Callable[P, R]:
-        # 使用LRU缓存
-        cache_func = lru_cache(maxsize=maxsize)(func)
-
-        @wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-            # 对于可变对象, 如字典、列表, 转换为可哈希的元组
-            # 以便能够被缓存
-            hashable_args = []
-            for arg in args:
-                if isinstance(arg, (dict, list)):
-                    # 对于字典和列表, 转换为JSON字符串以确保可哈希
-                    hashable_args.append(json.dumps(arg, sort_keys=True))
-                else:
-                    hashable_args.append(arg)
-
-            hashable_kwargs = {}
-            for key, value in kwargs.items():
-                if isinstance(value, (dict, list)):
-                    hashable_kwargs[key] = json.dumps(value, sort_keys=True)
-                else:
-                    hashable_kwargs[key] = value
-
-            return cache_func(*tuple(hashable_args), **hashable_kwargs)
-
-        # 添加缓存控制方法
-        wrapper.cache_clear = cache_func.cache_clear  # type: ignore
-        wrapper.cache_info = cache_func.cache_info  # type: ignore
-
-        return wrapper
-
-    return decorator
 
 
 class ComponentMeta(type(ABC)):
@@ -89,7 +45,7 @@ class ComponentMeta(type(ABC)):
     _instances: ClassVar[Dict[Type, BaseComponent]] = {}
     _registry: ClassVar[Dict[str, Type[BaseComponent]]] = {}
 
-    def __call__(cls, *args: Any, **kwargs: Any) -> BaseComponent:
+    def __call__(cls, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> BaseComponent:
         """创建或获取组件实例.
 
         Args:
@@ -113,7 +69,7 @@ class ComponentMeta(type(ABC)):
 
         return instance
 
-    def _create_key(cls, *args: Any, **kwargs: Any) -> str:
+    def _create_key(cls, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> str:
         """创建组件的唯一键.
 
         Args:
@@ -138,7 +94,7 @@ class ComponentMeta(type(ABC)):
         Args:
             name: 组件名称
         """
-        cls._registry[name] = cls
+        cls._registry[name] = cast(Type[BaseComponent], cls)
 
     @classmethod
     def get_registered(cls, name: str) -> Optional[Type[BaseComponent]]:
@@ -163,9 +119,9 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
     CSS_CLASSES: ClassVar[List[str]] = []
 
     # 组件的唯一标识符
-    COMPONENT_ID: ClassVar[str] = ""
+    COMPONENT_ID: str = ""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> None:
         """初始化组件.
 
         Args:
@@ -198,15 +154,6 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
             ui.element: nicegui元素
         """
 
-    @cache_result(maxsize=64)
-    def _get_cached_element(self) -> ui.element:
-        """获取缓存的组件元素.
-
-        Returns:
-            ui.element: 组件元素
-        """
-        return self.render()
-
     def build(self) -> ui.element:
         """构建组件.
 
@@ -215,10 +162,9 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
         Returns:
             ui.element: nicegui元素
         """
-        if self._element is None:
-            self._element = self._get_cached_element()
-            self._apply_classes()
-            self._apply_props()
+        self._element = self.render()
+        self._apply_classes()
+        self._apply_props()
 
         return self._element
 
@@ -233,53 +179,6 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
             for key, value in self._props.items():
                 self._element.props(f"{key}={value}")
 
-    def add_child(self, child: T) -> T:
-        """添加子组件.
-
-        Args:
-            child: 子组件
-
-        Returns:
-            T: 子组件实例
-        """
-        child._parent = self
-        self._children.append(child)
-        return child
-
-    def remove_child(self, child: T) -> bool:
-        """移除子组件.
-
-        Args:
-            child: 子组件
-
-        Returns:
-            bool: 是否成功移除
-        """
-        if child in self._children:
-            child._parent = None
-            self._children.remove(child)
-            return True
-        return False
-
-    def clear_cache(self) -> None:
-        """清除组件缓存."""
-        if hasattr(self._get_cached_element, "cache_clear"):
-            self._get_cached_element.cache_clear()
-
-        # 递归清除子组件缓存
-        for child in self._children:
-            child.clear_cache()
-
-    def delete(self) -> None:
-        """删除组件."""
-        if self._element:
-            self._element.delete()
-            self._element = None
-
-        # 递归删除子组件
-        for child in self._children:
-            child.delete()
-
     def get_key(self) -> str:
         """获取组件的唯一键.
 
@@ -288,7 +187,7 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
         """
         return self._key
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """上下文管理器入口.
 
         Returns:
@@ -297,7 +196,7 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
         self.build()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]) -> None:
         """上下文管理器出口."""
 
     def __repr__(self) -> str:
@@ -323,7 +222,7 @@ class ContainerComponent(BaseComponent):
     用于包含其他组件的容器组件.
     """
 
-    def __init__(self, *args: Any, direction: str = "column", **kwargs: Any) -> None:
+    def __init__(self, *args: tuple[Any, ...], direction: str = "column", **kwargs: dict[str, Any]) -> None:
         """初始化容器组件.
 
         Args:
@@ -422,12 +321,12 @@ class ComponentFactory:
         ...     def render(self) -> ui.button:
         ...         return ui.button(self.label)
         >>> button = ComponentFactory.create("demo-button", label="Click Me")
-        >>> button
+        >>> str(button)
         'ButtonComponent(id=demo-button)'
     """
 
     @staticmethod
-    def create(comp_name: str, *args, **kwargs) -> BaseComponent:
+    def create(comp_name: str, *args: Any, **kwargs: Any) -> BaseComponent:  # noqa: ANN401
         """创建组件实例.
 
         Args:
@@ -436,7 +335,7 @@ class ComponentFactory:
             **kwargs: 关键字参数
 
         Returns:
-            Optional[BaseComponent]: 组件实例, 如果未找到组件类则返回None
+            BaseComponent: 组件实例, 如果未找到组件类则返回InvalidComponent实例
         """
         component_class = ComponentMeta.get_registered(comp_name)
         if component_class:

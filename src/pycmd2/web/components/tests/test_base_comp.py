@@ -10,7 +10,6 @@ import unittest
 from nicegui import ui
 
 from pycmd2.web.component import BaseComponent
-from pycmd2.web.component import cache_result
 from pycmd2.web.component import ComponentFactory
 from pycmd2.web.components.demos.examples_comp import ButtonComponent
 from pycmd2.web.components.demos.examples_comp import CardComponent
@@ -33,46 +32,6 @@ class TestCardComponent(BaseComponent):
             ui.label(self.title)
 
         return card
-
-
-class TestCacheResult(unittest.TestCase):
-    """测试缓存装饰器."""
-
-    def test_cache_result(self) -> None:
-        """测试缓存装饰器的功能."""
-        call_count = 0
-
-        @cache_result(maxsize=2)
-        def expensive_function(x, y):
-            nonlocal call_count
-            call_count += 1
-            return x + y
-
-        # 第一次调用, 应该执行函数
-        result1 = expensive_function(1, 2)
-        assert result1 == 3
-        assert call_count == 1
-
-        # 第二次调用相同参数, 应该使用缓存
-        result2 = expensive_function(1, 2)
-        assert result2 == 3
-        assert call_count == 1  # 没有增加
-
-        # 调用不同参数, 应该执行函数
-        result3 = expensive_function(2, 3)
-        assert result3 == 5
-        assert call_count == 2
-
-        # 再次调用第一个参数, 应该使用缓存
-        result4 = expensive_function(1, 2)
-        assert result4 == 3
-        assert call_count == 2  # 没有增加
-
-        # 清除缓存
-        expensive_function.cache_clear()
-        result5 = expensive_function(1, 2)
-        assert result5 == 3
-        assert call_count == 3  # 增加了
 
 
 class TestBaseComponent(unittest.TestCase):
@@ -139,26 +98,6 @@ class TestBaseComponent(unittest.TestCase):
 
         # 不同参数的组件应该有不同的键
         assert component1.get_key() != component3.get_key()
-
-    def test_component_children(self) -> None:
-        """测试组件子节点管理."""
-        parent = TestCardComponent(title="父组件")
-        child = TestCardComponent(title="子组件")
-
-        # 添加子组件
-        parent.add_child(child)
-        assert child in parent._children
-        assert child._parent == parent
-
-        # 移除子组件
-        result = parent.remove_child(child)
-        assert result
-        assert child not in parent._children
-        assert child._parent is None
-
-        # 尝试移除不存在的子组件
-        result = parent.remove_child(child)
-        assert not result
 
     def test_component_classes(self) -> None:
         """测试CSS类应用."""

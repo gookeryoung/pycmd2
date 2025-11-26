@@ -31,4 +31,4 @@ class MainPage(App):
             with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6 mt-4"):
                 MainContent().build()
 
-        ComponentFactory.create("main-footer", title="通用工作流工具包 © 2025").render()
+        ComponentFactory.create("main-footer", title="通用工作流工具包 © 2025").build()
