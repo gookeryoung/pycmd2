@@ -372,7 +372,7 @@ class ComponentFactory:
     """组件工厂类."""
 
     @staticmethod
-    def create(name: str, *args, **kwargs) -> Optional[BaseComponent]:
+    def create(comp_name: str, *args, **kwargs) -> Optional[BaseComponent]:
         """创建组件实例.
 
         Args:
@@ -383,7 +383,7 @@ class ComponentFactory:
         Returns:
             Optional[BaseComponent]: 组件实例, 如果未找到组件类则返回None
         """
-        component_class = ComponentMeta.get_registered(name)
+        component_class = ComponentMeta.get_registered(comp_name)
         if component_class:
             return component_class(*args, **kwargs)
         return None

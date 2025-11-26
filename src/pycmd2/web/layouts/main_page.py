@@ -5,7 +5,7 @@ import logging
 from nicegui import ui
 
 from pycmd2.web.components.main_content import get_main_content
-from pycmd2.web.components.main_footer import get_main_footer
+from pycmd2.web.components.main_footer import MainFooter
 from pycmd2.web.components.main_navigator import get_main_navigator
 
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class MainPage:
             with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6 mt-4"):
                 get_main_content().setup_ui()
 
-        get_main_footer().setup_ui()
+        MainFooter().build()
 
 
 _main_page = MainPage()

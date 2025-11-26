@@ -1,28 +1,31 @@
+from typing import ClassVar
+
 from nicegui import ui
 
+from pycmd2.web.components.base_comp import ContentComponent
+from pycmd2.web.components.base_comp import register_component
 
-class MainFooter:
+
+@register_component("main-footer")
+class MainFooter(ContentComponent):
     """主页脚组件."""
 
-    def __init__(self) -> None:
-        pass
+    CSS_CLASSES: ClassVar = ["bg-gray-100", "dark:bg-gray-800", "text-gray-600", "dark:text-gray-400", "p-4"]
+    COMPONENT_ID = "main-footer"
 
-    def setup_ui(self) -> None:
-        """设置页脚."""
-        with ui.footer().classes("bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 p-4"), ui.column().classes(
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def render(self) -> ui.footer:
+        """渲染主页脚组件.
+
+        Returns:
+            ui.footer: 主页脚元素
+        """
+        with ui.footer() as footer, ui.column().classes(
             "w-full max-w-6xl mx-auto items-center",
         ):
             ui.label("通用工作流工具包 © 2025").classes("text-center")
             ui.label("用于日常任务的强大工具集合").classes("text-center text-sm")
 
-
-_main_footer = MainFooter()
-
-
-def get_main_footer() -> MainFooter:
-    """获取主页脚组件.
-
-    Returns:
-        MainFooter: 主页脚组件.
-    """
-    return _main_footer
+        return footer

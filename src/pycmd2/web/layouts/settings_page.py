@@ -1,4 +1,4 @@
-from pycmd2.web.components.main_footer import get_main_footer
+from pycmd2.web.components.main_footer import MainFooter
 from pycmd2.web.components.main_navigator import get_main_navigator
 from pycmd2.web.components.settings_content import get_settings_content
 from pycmd2.web.config import conf
@@ -20,4 +20,4 @@ class SettingsPage(MainPage):
         """设置导航器 UI."""
         get_main_navigator().setup_ui()
         get_settings_content().setup_ui()
-        get_main_footer().setup_ui()
+        MainFooter().render()
