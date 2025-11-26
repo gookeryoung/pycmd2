@@ -7,13 +7,14 @@ from __future__ import annotations
 
 from nicegui import ui
 
+from pycmd2.web.apps.base_app import BaseApp
 from pycmd2.web.components.base_comp import ComponentFactory
-from pycmd2.web.components.examples import ButtonComponent
-from pycmd2.web.components.examples import CardComponent
-from pycmd2.web.components.examples import DialogComponent
-from pycmd2.web.components.examples import IconComponent
-from pycmd2.web.components.examples import InputComponent
-from pycmd2.web.components.examples import LabelComponent
+from pycmd2.web.components.demos.examples_comp import ButtonComponent
+from pycmd2.web.components.demos.examples_comp import CardComponent
+from pycmd2.web.components.demos.examples_comp import DialogComponent
+from pycmd2.web.components.demos.examples_comp import IconComponent
+from pycmd2.web.components.demos.examples_comp import InputComponent
+from pycmd2.web.components.demos.examples_comp import LabelComponent
 
 
 def demo_basic_components() -> None:
@@ -158,36 +159,40 @@ def demo_component_caching() -> None:
         ).build()
 
 
-@ui.page("/demo")
+class DemoComponentApp(BaseApp):
+    """BaseComponent 组件系统演示应用."""
+
+    APP_NAME = "BaseComponent 组件系统演示"
+    APP_DESCRIPTION = "展示如何使用 BaseComponent 创建的各种组件示例."
+    APP_AUTHOR = "pycmd2 开发团队"
+
+    ROUTER = "/demo/base-components"
+
+    def setup_ui(self) -> None:
+        """创建演示页面."""
+        ui.label("BaseComponent 组件系统演示").classes("text-h2 text-center mb-6")
+
+        with ui.tabs().classes("w-full") as tabs:
+            ui.tab("基本组件")
+            ui.tab("组件工厂")
+            ui.tab("对话框")
+            ui.tab("组件缓存")
+
+        with ui.tab_panels(tabs, value="基本组件").classes("w-full"):
+            with ui.tab_panel("基本组件"):
+                demo_basic_components()
+
+            with ui.tab_panel("组件工厂"):
+                demo_component_factory()
+
+            with ui.tab_panel("对话框"):
+                demo_dialog_component()
+
+            with ui.tab_panel("组件缓存"):
+                demo_component_caching()
+
+
+@ui.page(DemoComponentApp.ROUTER)
 def demo_page() -> None:
     """创建完整的演示页面."""
-    ui.label("BaseComponent 组件系统演示").classes("text-h2 text-center mb-6")
-
-    with ui.tabs().classes("w-full") as tabs:
-        ui.tab("基本组件")
-        ui.tab("组件工厂")
-        ui.tab("对话框")
-        ui.tab("组件缓存")
-
-    with ui.tab_panels(tabs, value="基本组件").classes("w-full"):
-        with ui.tab_panel("基本组件"):
-            demo_basic_components()
-
-        with ui.tab_panel("组件工厂"):
-            demo_component_factory()
-
-        with ui.tab_panel("对话框"):
-            demo_dialog_component()
-
-        with ui.tab_panel("组件缓存"):
-            demo_component_caching()
-
-
-if __name__ in {"__main__", "__mp_main__"}:
-    ui.run(
-        title="BaseComponent 组件系统演示",
-        dark=True,
-        port=8080,
-        reload=False,
-        show=False,
-    )
+    DemoComponentApp().setup_ui()
