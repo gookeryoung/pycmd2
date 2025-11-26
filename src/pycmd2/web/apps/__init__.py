@@ -3,6 +3,6 @@ __all__ = ["DownloaderDemoApp", "IconsHelpApp", "LSCOptimizerApp", "MandelbrotAp
 from .demos.downloader import DownloaderDemoApp
 from .demos.mandelbrot import MandelbrotApp
 from .demos.wavegraph import WaveGraphApp
-from .help.icons import IconsHelpApp
+from .help.icon_searcher import IconsHelpApp
 from .lscopt.lscopt import LSCOptimizerApp
 from .office.pdf_merge import PDFMergeApp

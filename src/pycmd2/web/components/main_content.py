@@ -29,7 +29,7 @@ class MainContent(BaseComponent):
         """
         with ui.element().classes("w-full") as self.container:
             # 主横幅区域
-            with ui.column().classes("w-full text-center py-8"):
+            with ui.column().classes("w-full items-center py-8"):
                 ui.label("通用工作流工具包").classes("text-h3 font-bold text-blue-600")
                 ui.label("用于开发、办公自动化和系统管理的综合工具套件").classes("text-lg text-gray-600")
 

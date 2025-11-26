@@ -678,10 +678,10 @@ class IconsHelpApp(BaseApp):
 
     ROUTER = "/help/icons"
 
-    def on_icon_click(self, icon_name: str) -> None:
-        """处理图标点击事件."""
-        ui.clipboard.write(icon_name)
-        ui.notify(f"已复制 '{icon_name}' 到剪贴板", type="positive")
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.icon_cards: list[tuple[ui.card, str]] = []
 
     def render(self) -> None:
         """设置图标帮助应用程序."""
@@ -721,37 +721,19 @@ class IconsHelpApp(BaseApp):
             # 搜索输入框
             ui.input(
                 placeholder="搜索图标...",
-                on_change=lambda e: filter_icons(e.value),
+                on_change=lambda e: self.on_filter_icons(e.value),
             ).classes("w-full md:w-1/2 self-center").props("outlined rounded")
 
             # 图标网格
             with ui.grid(columns=6).classes("w-full gap-4"):
-                icon_cards = []
+                self.icon_cards.clear()
                 for icon_name in MATERIAL_ICONS:
                     with ui.card().classes("icon-card") as card:
                         with ui.column().classes("w-full mx-auto gap-0 flex flex-col items-center"):
                             ui.icon(icon_name).classes("text-2xl")
                             ui.label(icon_name).classes("icon-label")
                         card.on("click", lambda n=icon_name: self.on_icon_click(str(n)))
-                        icon_cards.append((card, icon_name))
-
-            # 过滤函数
-            def filter_icons(query: str) -> None:
-                """根据搜索查询过滤图标."""
-                query = query.lower().strip()
-
-                # 如果查询为空则显示所有图标
-                if not query:
-                    for card, _ in icon_cards:
-                        card.classes(remove="hidden")
-                    return
-
-                # 根据图标名称过滤
-                for card, icon_name in icon_cards:
-                    if query in icon_name.lower():
-                        card.classes(remove="hidden")
-                    else:
-                        card.classes(add="hidden")
+                        self.icon_cards.append((card, icon_name))
 
             ui.separator()
 
@@ -773,6 +755,29 @@ class IconsHelpApp(BaseApp):
             ui.icon('settings')
             ```
             """).classes("w-full")
+
+    # 过滤函数
+    def on_filter_icons(self, query: str) -> None:
+        """根据搜索查询过滤图标."""
+        query = query.lower().strip()
+
+        # 如果查询为空则显示所有图标
+        if not query:
+            for card, _ in self.icon_cards:
+                card.classes(remove="hidden")
+            return
+
+        # 根据图标名称过滤
+        for card, icon_name in self.icon_cards:
+            if query in icon_name.lower():
+                card.classes(remove="hidden")
+            else:
+                card.classes(add="hidden")
+
+    def on_icon_click(self, icon_name: str) -> None:
+        """处理图标点击事件."""
+        ui.clipboard.write(icon_name)
+        ui.notify(f"已复制 '{icon_name}' 到剪贴板", type="positive")
 
 
 @ui.page(IconsHelpApp.ROUTER)
