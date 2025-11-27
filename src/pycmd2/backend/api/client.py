@@ -1,4 +1,4 @@
-"""HTTP客户端模块，提供API请求功能."""
+"""HTTP客户端模块, 提供API请求功能."""
 
 from __future__ import annotations
 

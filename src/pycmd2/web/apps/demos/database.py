@@ -6,9 +6,9 @@ from typing import List
 
 from nicegui import ui
 
-from pycmd2.web.api import fetch
+from pycmd2.backend.api import fetch
+from pycmd2.backend.models.hero import Hero
 from pycmd2.web.components.app import BaseApp
-from pycmd2.web.dbengine import Hero
 
 
 class DatabaseDemoApp(BaseApp):

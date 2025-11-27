@@ -2,58 +2,28 @@ from __future__ import annotations
 
 from typing import Dict
 from typing import List
-from typing import Optional
 
-from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Query
-from fastapi_offline import FastAPIOffline
-from sqlmodel import create_engine
-from sqlmodel import Field
 from sqlmodel import select
-from sqlmodel import Session
-from sqlmodel import SQLModel
 from typing_extensions import Annotated
 
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
-
-
-class Hero(SQLModel, table=True):
-    """英雄模型."""
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str = Field(index=True)
-    description: Optional[str] = Field(default=None)
-    power_level: int = Field(default=1)
-    is_active: bool = Field(default=True)
-
-
-def create_db_and_tables() -> None:
-    SQLModel.metadata.create_all(engine)
-
-
-def get_session():
-    """生成数据库会话."""
-    with Session(engine) as session:
-        yield session
-
-
-SessionDep = Annotated[Session, Depends(get_session)]
-
-app = FastAPIOffline()
-
-
-@app.on_event("startup")
-def on_startup() -> None:
-    create_db_and_tables()
+from pycmd2.backend.cli import app
+from pycmd2.backend.database import SessionDep
+from pycmd2.backend.models.hero import Hero
 
 
 @app.post("/api/heroes/")
 def create_hero(hero: Hero, session: SessionDep) -> Hero:
-    # 确保传入的hero没有id，让数据库自动生成
+    """创建新英雄.
+
+    Args:
+        hero: 新英雄数据
+        session: 数据库会话
+
+    Returns:
+        Hero: 新英雄对象
+    """
     hero_data = Hero(
         name=hero.name,
         description=hero.description,
@@ -114,7 +84,7 @@ def update_hero(hero_id: int, hero_data: Hero, session: SessionDep) -> Hero:
     if not hero:
         raise HTTPException(status_code=404, detail="Hero not found")
 
-    # 更新英雄数据，但不更改id
+    # 更新英雄数据, 但不更改id
     hero.name = hero_data.name
     hero.description = hero_data.description
     hero.power_level = hero_data.power_level
