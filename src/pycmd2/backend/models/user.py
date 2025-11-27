@@ -7,9 +7,10 @@ from fastapi import HTTPException
 from fastapi import Query
 from sqlmodel import Field
 from sqlmodel import select
-from sqlmodel import Session as SessionDep
 from sqlmodel import SQLModel
 from typing_extensions import Annotated
+
+from pycmd2.backend.database import SessionDep
 
 router = APIRouter(
     prefix="/api/users",
@@ -21,15 +22,15 @@ router = APIRouter(
 class UserBase(SQLModel):
     """用户基础模型."""
 
-    name: str
-    email: str
+    name: str = Field(index=True, nullable=False)
+    email: str = Field(nullable=True, default="")
 
 
 class User(UserBase, table=True):
     """用户数据库模型."""
 
     id: int = Field(primary_key=True)
-    hashed_password: str
+    hashed_password: str = Field(nullable=False)
 
 
 class UserCreate(UserBase):
