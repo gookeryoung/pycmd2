@@ -24,11 +24,11 @@ class DBTableColumn:
     name: str
     label: str
     field: str
-    # align: str = "left"
-    # sortable: bool = False
-    # width: str = "auto"
-    # format: str = ""
-    # visible: bool = True
+    align: str = "left"
+    sortable: bool = False
+    width: str = "auto"
+    format: str = ""
+    visible: bool = True
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典格式.
@@ -40,11 +40,11 @@ class DBTableColumn:
             "name": self.name,
             "label": self.label,
             "field": self.field,
-            # "align": self.align,
-            # "sortable": self.sortable,
-            # "width": self.width,
-            # "format": self.format,
-            # "visible": self.visible,
+            "align": self.align,
+            "sortable": self.sortable,
+            "width": self.width,
+            "format": self.format,
+            "visible": self.visible,
         }
 
 
