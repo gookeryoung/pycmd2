@@ -92,6 +92,8 @@ gui = [
   "qdarkstyle>=3.2.3",
 ]
 office = [
+  "fastapi-offline>=1.7.5",
+  "fastapi[all]>=0.122.0",
   "numpy>=1.24.4",
   "pandas>=2.0.3",
   "pillow>=10",
@@ -99,6 +101,7 @@ office = [
   "pymupdf>=1.24.11",
   "pypdf>=5.9.0",
   "pywin32>=311; platform_system == 'Windows'",
+  "sqlmodel>=0.0.27",
 ]
 simulation = ["matplotlib>=3.7.5", "scipy>=1.10.1", "torch~=2.1.0"]
 
