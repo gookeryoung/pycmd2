@@ -94,6 +94,7 @@ gui = [
 office = [
   "fastapi-offline>=1.7.5",
   "fastapi[all]>=0.122.0",
+  "httpx>=0.24.0",
   "numpy>=1.24.4",
   "pandas>=2.0.3",
   "pillow>=10",

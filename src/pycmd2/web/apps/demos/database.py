@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import asyncio
 from typing import List
 
 from nicegui import ui
 
+from pycmd2.web.api import fetch
 from pycmd2.web.components.app import BaseApp
-from pycmd2.web.models import Hero
+from pycmd2.web.dbengine import Hero
 
 
 class DatabaseDemoApp(BaseApp):
@@ -29,39 +29,67 @@ class DatabaseDemoApp(BaseApp):
     async def load_heroes(self) -> None:
         """从API加载英雄."""
         try:
-            # 模拟API调用
-            await asyncio.sleep(0.5)  # 模拟网络延迟
-            # 在真实应用中，这里会是:
-            response = await fetch("http://localhost/heroes/")
-            self.heroes = [Hero(**hero_data) for hero_data in await response.json()]
+            # 真实API调用
+            response = await fetch("heroes")
+            if response.is_success():
+                heroes_data = await response.json()
+                self.heroes = [Hero(**hero_data) for hero_data in heroes_data]
+                ui.notify("英雄数据加载成功", type="positive")
+            else:
+                ui.notify(f"加载英雄数据失败: HTTP {response.status_code}", type="negative")
 
-            # 模拟数据
+            # 如果API失败, 使用模拟数据作为后备
+            if not self.heroes:
+                self.heroes = [
+                    Hero(
+                        id=1,
+                        name="钢铁侠",
+                        description="天才发明家, 拥有高科技装甲",
+                        power_level=95,
+                        is_active=True,
+                    ),
+                    Hero(
+                        id=2,
+                        name="美国队长",
+                        description="二战时期的超级士兵, 拥有超强体能",
+                        power_level=80,
+                        is_active=True,
+                    ),
+                    Hero(
+                        id=3,
+                        name="雷神",
+                        description="阿斯加德的雷神, 拥有神力",
+                        power_level=90,
+                        is_active=False,
+                    ),
+                ]
+                ui.notify("使用模拟数据", type="info")
+        except Exception as e:
+            # 如果API调用失败, 使用模拟数据
             self.heroes = [
                 Hero(
                     id=1,
                     name="钢铁侠",
-                    description="天才发明家，拥有高科技装甲",
+                    description="天才发明家, 拥有高科技装甲",
                     power_level=95,
                     is_active=True,
                 ),
                 Hero(
                     id=2,
                     name="美国队长",
-                    description="二战时期的超级士兵，拥有超强体能",
+                    description="二战时期的超级士兵, 拥有超强体能",
                     power_level=80,
                     is_active=True,
                 ),
                 Hero(
                     id=3,
                     name="雷神",
-                    description="阿斯加德的雷神，拥有神力",
+                    description="阿斯加德的雷神, 拥有神力",
                     power_level=90,
                     is_active=False,
                 ),
             ]
-            ui.notify("英雄数据加载成功", type="positive")
-        except Exception as e:
-            ui.notify(f"加载英雄数据失败: {e!s}", type="negative")
+            ui.notify(f"API调用失败, 使用模拟数据: {e!s}", type="info")
 
     async def add_hero(self) -> None:
         """添加新英雄."""
@@ -70,20 +98,36 @@ class DatabaseDemoApp(BaseApp):
             return
 
         try:
-            # 模拟API调用
-            await asyncio.sleep(0.5)  # 模拟网络延迟
+            # 创建英雄数据
+            hero_data = Hero(
+                name=self.new_hero_name,
+                description=self.new_hero_description,
+                power_level=self.new_hero_power_level,
+                is_active=self.new_hero_is_active,
+            )
 
-            # 在真实应用中，这里会是:
-            # hero_data = HeroCreate(
-            #     name=self.new_hero_name,
-            #     description=self.new_hero_description,
-            #     power_level=self.new_hero_power_level,
-            #     is_active=self.new_hero_is_active
-            # )
-            # response = await fetch('/api/heroes/', method='POST', body=json.dumps(hero_data.dict()))
-            # new_hero = Hero(**await response.json())
+            # 调用API
+            response = await fetch(
+                "api/heroes/",
+                method="POST",
+                data=hero_data.dict(),
+            )
 
-            # 模拟添加英雄
+            if response.is_success():
+                new_hero_data = await response.json()
+                new_hero = Hero(**new_hero_data)
+                self.heroes.append(new_hero)
+                ui.notify("英雄添加成功", type="positive")
+            else:
+                ui.notify(f"添加英雄失败: HTTP {response.status_code}", type="negative")
+
+            # 清空输入字段
+            self.new_hero_name = ""
+            self.new_hero_description = ""
+            self.new_hero_power_level = 1
+            self.new_hero_is_active = True
+        except Exception as e:
+            # 如果API调用失败, 模拟添加英雄
             new_hero = Hero(
                 id=len(self.heroes) + 1,
                 name=self.new_hero_name,
@@ -99,24 +143,24 @@ class DatabaseDemoApp(BaseApp):
             self.new_hero_power_level = 1
             self.new_hero_is_active = True
 
-            ui.notify("英雄添加成功", type="positive")
-        except Exception as e:
-            ui.notify(f"添加英雄失败: {e!s}", type="negative")
+            ui.notify(f"API调用失败, 模拟添加成功: {e!s}", type="info")
 
     async def delete_hero(self, hero_id: int) -> None:
         """删除英雄."""
         try:
-            # 模拟API调用
-            await asyncio.sleep(0.5)  # 模拟网络延迟
+            # 调用API
+            response = await fetch(f"api/heroes/{hero_id}", method="DELETE")
 
-            # 在真实应用中，这里会是:
-            # await fetch(f'/api/heroes/{hero_id}', method='DELETE')
-
-            # 模拟删除英雄
-            self.heroes = [hero for hero in self.heroes if hero.id != hero_id]
-            ui.notify("英雄删除成功", type="positive")
+            if response.is_success():
+                # 删除成功, 更新本地数据
+                self.heroes = [hero for hero in self.heroes if hero.id != hero_id]
+                ui.notify("英雄删除成功", type="positive")
+            else:
+                ui.notify(f"删除英雄失败: HTTP {response.status_code}", type="negative")
         except Exception as e:
-            ui.notify(f"删除英雄失败: {e!s}", type="negative")
+            # 如果API调用失败, 模拟删除英雄
+            self.heroes = [hero for hero in self.heroes if hero.id != hero_id]
+            ui.notify(f"API调用失败, 模拟删除成功: {e!s}", type="info")
 
     async def edit_hero(self, hero: Hero) -> None:
         """编辑英雄."""
@@ -133,20 +177,43 @@ class DatabaseDemoApp(BaseApp):
             return
 
         try:
-            # 模拟API调用
-            await asyncio.sleep(0.5)  # 模拟网络延迟
+            # 创建更新数据
+            hero_data = Hero(
+                name=self.new_hero_name,
+                description=self.new_hero_description,
+                power_level=self.new_hero_power_level,
+                is_active=self.new_hero_is_active,
+            )
 
-            # 在真实应用中，这里会是:
-            # hero_data = HeroUpdate(
-            #     name=self.new_hero_name,
-            #     description=self.new_hero_description,
-            #     power_level=self.new_hero_power_level,
-            #     is_active=self.new_hero_is_active
-            # )
-            # response = await fetch(f'/api/heroes/{self.selected_hero.id}', method='PUT', body=json.dumps(hero_data.dict()))
-            # updated_hero = Hero(**await response.json())
+            # 调用API
+            response = await fetch(
+                f"api/heroes/{self.selected_hero.id}",
+                method="PUT",
+                data=hero_data.dict(exclude_unset=True),
+            )
 
-            # 模拟更新英雄
+            if response.is_success():
+                updated_hero_data = await response.json()
+                updated_hero = Hero(**updated_hero_data)
+
+                # 更新本地数据
+                for i, hero in enumerate(self.heroes):
+                    if hero.id == updated_hero.id:
+                        self.heroes[i] = updated_hero
+                        break
+
+                ui.notify("英雄更新成功", type="positive")
+            else:
+                ui.notify(f"更新英雄失败: HTTP {response.status_code}", type="negative")
+
+            # 重置表单
+            self.selected_hero = None
+            self.new_hero_name = ""
+            self.new_hero_description = ""
+            self.new_hero_power_level = 1
+            self.new_hero_is_active = True
+        except Exception as e:
+            # 如果API调用失败, 模拟更新英雄
             for i, hero in enumerate(self.heroes):
                 if hero.id == self.selected_hero.id:
                     self.heroes[i] = Hero(
@@ -165,9 +232,7 @@ class DatabaseDemoApp(BaseApp):
             self.new_hero_power_level = 1
             self.new_hero_is_active = True
 
-            ui.notify("英雄更新成功", type="positive")
-        except Exception as e:
-            ui.notify(f"更新英雄失败: {e!s}", type="negative")
+            ui.notify(f"API调用失败, 模拟更新成功: {e!s}", type="info")
 
     def render(self) -> None:
         """渲染界面."""

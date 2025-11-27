@@ -31,7 +31,7 @@ def main() -> None:
 
     ui.run(
         title="通用工作流工具包",
-        port=8000,
+        port=8888,
         favicon="🔧",
         reload=False,
         show=False,
