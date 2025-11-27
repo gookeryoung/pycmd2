@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pycmd2.web.apps import DatabaseDemoApp
 from pycmd2.web.apps import DownloaderDemoApp
 from pycmd2.web.apps import IconsHelpApp
 from pycmd2.web.apps import LSCOptimizerApp
@@ -69,6 +70,13 @@ CARDS: list[ToolCardGroup] = [
                 icon="water_drop",
                 color="green",
                 router=WaveGraphApp.ROUTER,
+            ),
+            ToolCard(
+                title="英雄管理系统",
+                description="管理英雄数据的CRUD操作",
+                icon="people",
+                color="purple",
+                router=DatabaseDemoApp.ROUTER,
             ),
         ],
     ),
