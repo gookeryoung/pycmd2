@@ -8,10 +8,15 @@ from sqlmodel import Session
 from sqlmodel import SQLModel
 from typing_extensions import Annotated
 
+from pycmd2.client import get_client
+
 __all__ = ["SessionDep", "create_db_and_tables"]
 
-_sqlite_file_name = "database.db"
-_sqlite_url = f"sqlite:///{_sqlite_file_name}"
+client = get_client()
+
+_sqlite_file_name = "web_server.db"
+_sqlite_file_path = client.settings_dir / _sqlite_file_name
+_sqlite_url = f"sqlite:///{_sqlite_file_path}"
 _connect_args = {"check_same_thread": False}
 _engine = create_engine(_sqlite_url, connect_args=_connect_args)
 
