@@ -3,6 +3,7 @@ from nicegui import ui
 from pycmd2.web.component import register_component
 from pycmd2.web.components.app import BaseApp
 from pycmd2.web.components.dbtable import DBTable
+from pycmd2.web.components.dbtable import DBTableColumn
 
 
 @register_component("dbtable-demo")
@@ -18,11 +19,11 @@ class DbTableDemoApp(BaseApp):
             ui.element: 渲染结果
         """
         return DBTable(
-            api_url="/api/users/",
+            api_url="/api/users",
             columns=[
-                {"name": "id", "label": "ID"},
-                {"name": "name", "label": "名称"},
-                {"name": "email", "label": "邮箱"},
+                DBTableColumn(name="id", label="ID", field="id"),
+                DBTableColumn(name="name", label="名称", field="name"),
+                DBTableColumn(name="email", label="邮箱", field="email"),
             ],
         ).build()
 

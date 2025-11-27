@@ -20,7 +20,7 @@ class DatabaseDemoApp(BaseApp):
     def __init__(self) -> None:
         """初始化."""
         super().__init__()
-        self.users: List[Hero] = []
+        self.heroes: List[Hero] = []
         self.users: List[User] = []
         self.new_hero_name: str = ""
         self.new_hero_description: str = ""
@@ -28,19 +28,19 @@ class DatabaseDemoApp(BaseApp):
         self.new_hero_is_active: bool = True
         self.selected_hero: Hero | None = None
 
-    async def load_users(self) -> None:
+    async def load_heroes(self) -> None:
         """从API加载英雄."""
         try:
             # 真实API调用
-            response = await fetch("/api/users/")
+            response = await fetch("/api/heroes")
             if response.is_success():
                 heroes_data = await response.json()
-                self.users = [User(**hero_data) for hero_data in heroes_data]
+                self.heroes = [Hero(**hero_data) for hero_data in heroes_data]
                 ui.notify("英雄数据加载成功", type="positive")
             else:
                 ui.notify(f"加载英雄数据失败: HTTP {response.status_code}", type="negative")
         except Exception as e:
-            ui.notify(f"API调用失败, 使用模拟数据: {e!s}", type="info")
+            ui.notify(f"API调用失败: {e!s}", type="info")
 
     async def add_hero(self) -> None:
         """添加新英雄."""
@@ -49,17 +49,16 @@ class DatabaseDemoApp(BaseApp):
             return
 
         try:
-            # 创建英雄数据，不指定id，让数据库自动生成
+            # 创建英雄数据，匹配Hero模型
             hero_data = Hero(
                 name=self.new_hero_name,
-                description=self.new_hero_description,
-                power_level=self.new_hero_power_level,
-                is_active=self.new_hero_is_active,
+                secret_name=self.new_hero_name + "_secret",  # 为secret_name使用默认值
+                age=self.new_hero_power_level,  # 使用power_level作为age的值
             )
 
-            # 调用API，不传递id，让后端自动生成
+            # 调用API
             response = await fetch(
-                "/api/heroes/",
+                "/api/heroes",
                 method="POST",
                 data=hero_data.model_dump(exclude={"id"}),  # 排除id字段
             )
@@ -67,7 +66,7 @@ class DatabaseDemoApp(BaseApp):
             if response.is_success():
                 new_hero_data = await response.json()
                 new_hero = Hero(**new_hero_data)
-                self.users.append(new_hero)
+                self.heroes.append(new_hero)
                 ui.notify(f"英雄添加成功，ID为: {new_hero.id}", type="positive")
             else:
                 error_text = await response.text()
@@ -80,7 +79,6 @@ class DatabaseDemoApp(BaseApp):
             self.new_hero_is_active = True
         except Exception as e:
             ui.notify(f"API调用失败: {e!s}", type="negative")
-            # 如果API调用失败, 模拟添加英雄
             # 清空输入字段
             self.new_hero_name = ""
             self.new_hero_description = ""
@@ -95,7 +93,7 @@ class DatabaseDemoApp(BaseApp):
 
             if response.is_success():
                 # 删除成功, 更新本地数据
-                self.users = [hero for hero in self.users if hero.id != hero_id]
+                self.heroes = [hero for hero in self.heroes if hero.id != hero_id]
                 ui.notify("英雄删除成功", type="positive")
             else:
                 error_text = await response.text()
@@ -109,16 +107,16 @@ class DatabaseDemoApp(BaseApp):
 
     def _simulate_delete_hero(self, hero_id: int) -> None:
         """模拟删除英雄."""
-        self.users = [hero for hero in self.users if hero.id != hero_id]
+        self.heroes = [hero for hero in self.heroes if hero.id != hero_id]
         ui.notify("模拟删除成功", type="info")
 
     async def edit_hero(self, hero: Hero) -> None:
         """编辑英雄."""
         self.selected_hero = hero
         self.new_hero_name = hero.name
-        self.new_hero_description = hero.description or ""
-        self.new_hero_power_level = hero.power_level
-        self.new_hero_is_active = hero.is_active
+        self.new_hero_description = hero.name or ""  # 使用name作为描述的默认值
+        self.new_hero_power_level = hero.age or 1  # 使用age作为能力等级
+        self.new_hero_is_active = True  # 默认为激活状态
 
     async def update_hero(self) -> None:
         """更新英雄."""
@@ -127,17 +125,16 @@ class DatabaseDemoApp(BaseApp):
             return
 
         try:
-            # 创建更新数据
+            # 创建更新数据，匹配Hero模型
             hero_data = Hero(
                 name=self.new_hero_name,
-                description=self.new_hero_description,
-                power_level=self.new_hero_power_level,
-                is_active=self.new_hero_is_active,
+                secret_name=self.new_hero_name + "_secret",  # 为secret_name使用默认值
+                age=self.new_hero_power_level,  # 使用power_level作为age的值
             )
 
             # 调用API，使用PATCH方法并排除id字段
             response = await fetch(
-                f"http://localhost:8000/api/heroes/{self.selected_hero.id}",
+                f"/api/heroes/{self.selected_hero.id}",
                 method="PATCH",
                 data=hero_data.model_dump(exclude={"id"}),  # 排除id字段
             )
@@ -147,9 +144,9 @@ class DatabaseDemoApp(BaseApp):
                 updated_hero = Hero(**updated_hero_data)
 
                 # 更新本地数据
-                for i, hero in enumerate(self.users):
+                for i, hero in enumerate(self.heroes):
                     if hero.id == updated_hero.id:
-                        self.users[i] = updated_hero
+                        self.heroes[i] = updated_hero
                         break
 
                 ui.notify("英雄更新成功", type="positive")
@@ -178,14 +175,13 @@ class DatabaseDemoApp(BaseApp):
 
     def _simulate_update_hero(self) -> None:
         """模拟更新英雄."""
-        for i, hero in enumerate(self.users):
+        for i, hero in enumerate(self.heroes):
             if hero.id == self.selected_hero.id:
-                self.users[i] = Hero(
+                self.heroes[i] = Hero(
                     id=self.selected_hero.id,
                     name=self.new_hero_name,
-                    description=self.new_hero_description,
-                    power_level=self.new_hero_power_level,
-                    is_active=self.new_hero_is_active,
+                    secret_name=self.new_hero_name + "_secret",
+                    age=self.new_hero_power_level,
                 )
                 break
         ui.notify("模拟更新成功", type="info")
@@ -220,7 +216,7 @@ class DatabaseDemoApp(BaseApp):
         """测试API连接."""
         try:
             # 测试连接到API根路径
-            response = await fetch("http://localhost:8000/api/heroes/", method="GET")
+            response = await fetch("/api/heroes", method="GET")
             if response.is_success():
                 ui.notify("API服务器连接成功", type="positive")
             else:
@@ -241,7 +237,7 @@ class DatabaseDemoApp(BaseApp):
             with ui.row().classes("gap-2 mt-2"):
                 ui.button("启动API服务器", on_click=self.start_api_server).classes("bg-blue-500 text-white")
                 ui.button("测试API连接", on_click=self.test_api_connection).classes("bg-orange-500 text-white")
-                ui.button("加载英雄", on_click=self.load_users).classes("bg-green-500 text-white")
+                ui.button("加载英雄", on_click=self.load_heroes).classes("bg-green-500 text-white")
 
         # 英雄列表
         with ui.card().classes("w-full mb-4"):
@@ -257,7 +253,7 @@ class DatabaseDemoApp(BaseApp):
                 {"name": "actions", "label": "操作", "field": "actions"},
             ]
 
-            table = ui.table(columns=columns, rows=[hero.dict() for hero in self.users]).classes("w-full")
+            table = ui.table(columns=columns, rows=[hero.model_dump() for hero in self.heroes]).classes("w-full")
 
             # 添加操作按钮
             with table.add_slot("body-cell-actions"):
@@ -265,7 +261,7 @@ class DatabaseDemoApp(BaseApp):
                 def render_actions(props) -> None:
                     hero_id = props.row.id
                     with ui.row().classes("gap-1"):
-                        ui.button("编辑", on_click=lambda e, h=hero_id: self.edit_hero(next((h for h in self.users if h.id == h), None))).props(
+                        ui.button("编辑", on_click=lambda e, h=hero_id: self.edit_hero(next((h for h in self.heroes if h.id == h), None))).props(
                             "flat dense color=primary",
                         )
                         ui.button("删除", on_click=lambda e, h=hero_id: self.delete_hero(h)).props("flat dense color=negative")

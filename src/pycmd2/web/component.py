@@ -45,7 +45,7 @@ class ComponentMeta(type(ABC)):
     _instances: ClassVar[Dict[Type, BaseComponent]] = {}
     _registry: ClassVar[Dict[str, Type[BaseComponent]]] = {}
 
-    def __call__(cls, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> BaseComponent:
+    def __call__(cls, *args: Any, **kwargs: Any) -> BaseComponent:  # noqa: ANN401
         """创建或获取组件实例.
 
         Args:

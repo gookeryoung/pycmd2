@@ -3,13 +3,12 @@ from __future__ import annotations
 import asyncio
 import logging
 import operator
+from dataclasses import dataclass
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Tuple
 
-import httpx
 from nicegui import ui
 
 from pycmd2.backend.api import fetch
@@ -18,28 +17,67 @@ from pycmd2.web.component import BaseComponent
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class DBTableColumn:
+    """数据库表格列定义."""
+
+    name: str
+    label: str
+    field: str
+    # align: str = "left"
+    # sortable: bool = False
+    # width: str = "auto"
+    # format: str = ""
+    # visible: bool = True
+
+    def to_dict(self) -> Dict[str, Any]:
+        """转换为字典格式.
+
+        Returns:
+            Dict[str, Any]: 列配置字典
+        """
+        return {
+            "name": self.name,
+            "label": self.label,
+            "field": self.field,
+            # "align": self.align,
+            # "sortable": self.sortable,
+            # "width": self.width,
+            # "format": self.format,
+            # "visible": self.visible,
+        }
+
+
 class DBTable(BaseComponent):
     """数据库表格组件, 支持对特定api_url的数据进行CRUD操作."""
 
     def __init__(
         self,
         api_url: str,
-        columns: List[Dict[str, str]],
-        *args: Tuple[Any, ...],
+        columns: List[DBTableColumn] | List[Dict[str, Any]],
+        *args: tuple[Any, ...],
         **kwargs: Dict[str, Any],
     ) -> None:
         """初始化DBTable组件.
 
         Args:
             api_url: API端点URL
-            columns: 表格列定义
-            *args: 位置参数
-            **kwargs: 关键字参数
+            columns: 表格列定义, 可以是DBTableColumn对象列表或字典列表
+            *args: 剩余参数
+            **kwargs: 剩余参数
         """
         super().__init__(*args, **kwargs)
 
-        self.api_url = api_url
-        self.columns = columns
+        self.api_url = api_url if api_url.endswith("/") else f"{api_url}/"
+
+        # 确保列是字典格式
+        self.columns = []
+        for col in columns:
+            if isinstance(col, DBTableColumn):
+                self.columns.append(col.to_dict())
+            else:
+                self.columns.append(col)
+
         self.rows: List[Dict[str, Any]] = []
         self.table_ref: Optional[ui.table] = None
         self.loading_ref: Optional[ui.spinner] = None
@@ -94,36 +132,18 @@ class DBTable(BaseComponent):
             }
             self.table_ref._props["columns"].append(actions_column)
 
-            self.table_ref.add_slot(
-                "body-cell-actions",
-                """
-                <q-td :props="props" class="text-right">
-                    <q-btn
-                        flat
-                        dense
-                        round
-                        icon="edit"
-                        @click="() => editRecord(props.row)"
-                        color="primary"
-                        size="sm"
-                        class="mr-1"
-                    />
-                    <q-btn
-                        flat
-                        dense
-                        round
-                        icon="delete"
-                        @click="() => deleteRecord(props.row)"
-                        color="negative"
-                        size="sm"
-                    />
-                </q-td>
-            """,
-            )
+            with self.table_ref.add_slot("body-cell-actions"):
 
-            # 注入JavaScript方法
-            self.table_ref.on("editRecord", lambda e: self.open_edit_form(e.args))
-            self.table_ref.on("deleteRecord", lambda e: self.delete_record(e.args))
+                def render_actions(props) -> None:
+                    with ui.row().classes("gap-1"):
+                        ui.button(
+                            icon="edit",
+                            on_click=lambda e, r=props.row: self.open_edit_form(r),
+                        ).props("flat dense color=primary size=sm")
+                        ui.button(
+                            icon="delete",
+                            on_click=lambda e, r=props.row: self.delete_record(r),
+                        ).props("flat dense color=negative size=sm")
 
     def _create_form_dialog(self) -> None:
         """创建表单对话框."""
@@ -132,17 +152,18 @@ class DBTable(BaseComponent):
             ui.label("新建记录").classes("text-h6").bind_visibility_from(self, "is_edit_mode", backward=operator.not_)
 
             # 动态创建表单字段
-            form_inputs = {}
+            self.form_inputs = {}
             for col in self.columns:
                 if col["name"] != "id":  # 不编辑ID字段
                     field_name = col["name"]
                     field_label = col.get("label", field_name)
-                    form_inputs[field_name] = ui.input(field_label).classes("w-full")
+                    input_field = ui.input(field_label).classes("w-full")
+                    self.form_inputs[field_name] = input_field
 
             # 保存和取消按钮
             with ui.row().classes("w-full justify-end mt-4"):
                 ui.button("取消", on_click=self.close_form).props("flat")
-                ui.button("保存", on_click=lambda: self.save_record(form_inputs)).props("color=primary")
+                ui.button("保存", on_click=lambda: self.save_record(self.form_inputs)).props("color=primary")
 
     async def load_data(self) -> None:
         """从API加载数据."""
@@ -170,6 +191,12 @@ class DBTable(BaseComponent):
         """打开创建记录表单."""
         self.is_edit_mode = False
         self.current_record = {}
+
+        # 清空表单字段
+        if hasattr(self, "form_inputs"):
+            for input_field in self.form_inputs.values():
+                input_field.value = ""
+
         if self.form_dialog:
             self.form_dialog.open()
 
@@ -177,6 +204,13 @@ class DBTable(BaseComponent):
         """打开编辑记录表单."""
         self.is_edit_mode = True
         self.current_record = record.copy()
+
+        # 填充表单字段
+        if hasattr(self, "form_inputs"):
+            for field_name, input_field in self.form_inputs.items():
+                if field_name in self.current_record:
+                    input_field.value = str(self.current_record[field_name])
+
         if self.form_dialog:
             self.form_dialog.open()
 
@@ -193,21 +227,21 @@ class DBTable(BaseComponent):
             record_data[field_name] = input_element.value
 
         try:
-            async with httpx.AsyncClient() as client:
-                if self.is_edit_mode and self.current_record and "id" in self.current_record:
-                    # 更新记录
-                    record_id = self.current_record["id"]
-                    response = await client.put(f"{self.api_url}/{record_id}", json=record_data)
-                else:
-                    # 创建记录
-                    response = await client.post(self.api_url, json=record_data)
+            if self.is_edit_mode and self.current_record and "id" in self.current_record:
+                # 更新记录 - 使用PATCH方法以匹配API路由
+                record_id = self.current_record["id"]
+                response = await fetch(f"{self.api_url}/{record_id}", method="PATCH", data=record_data)
+            else:
+                # 创建记录 - 使用POST方法
+                response = await fetch(self.api_url, method="POST", data=record_data)
 
-                if response.status_code in {200, 201}:
-                    ui.notify("记录保存成功", type="positive")
-                    self.close_form()
-                    await self.load_data()  # 重新加载数据
-                else:
-                    ui.notify(f"保存记录失败: {response.status_code}", type="negative")
+            if response.is_success():
+                ui.notify("记录保存成功", type="positive")
+                self.close_form()
+                await self.load_data()  # 重新加载数据
+            else:
+                error_text = await response.text()
+                ui.notify(f"保存记录失败: {response.status_code} - {error_text}", type="negative")
         except Exception as e:
             ui.notify(f"保存记录时出错: {e!s}", type="negative")
 
@@ -222,17 +256,15 @@ class DBTable(BaseComponent):
             return
 
         try:
-            async with httpx.AsyncClient() as client:
-                record_id = record["id"]
-                response = await client.delete(f"{self.api_url}/{record_id}")
+            # 使用fetch函数删除记录
+            record_id = record["id"]
+            response = await fetch(f"{self.api_url}/{record_id}", method="DELETE")
 
-                if response.status_code == 200:
-                    ui.notify("记录删除成功", type="positive")
-                    await self.load_data()  # 重新加载数据
-                elif response.status_code == 204:  # No Content
-                    ui.notify("记录删除成功", type="positive")
-                    await self.load_data()
-                else:
-                    ui.notify(f"删除记录失败: {response.status_code}", type="negative")
+            if response.is_success():
+                ui.notify("记录删除成功", type="positive")
+                await self.load_data()  # 重新加载数据
+            else:
+                error_text = await response.text()
+                ui.notify(f"删除记录失败: {response.status_code} - {error_text}", type="negative")
         except Exception as e:
             ui.notify(f"删除记录时出错: {e!s}", type="negative")

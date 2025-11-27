@@ -30,7 +30,6 @@ class User(UserBase, table=True):
     """用户数据库模型."""
 
     id: int = Field(primary_key=True)
-    hashed_password: str = Field(nullable=False)
 
 
 class UserCreate(UserBase):
