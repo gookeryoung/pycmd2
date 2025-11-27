@@ -1,5 +1,4 @@
 __all__ = [
-    "DatabaseDemoApp",
     "DbTableDemoApp",
     "DownloaderDemoApp",
     "IconsHelpApp",
@@ -9,7 +8,6 @@ __all__ = [
     "WaveGraphApp",
 ]
 
-from .demos.database import DatabaseDemoApp
 from .demos.dbtable import DbTableDemoApp
 from .demos.downloader import DownloaderDemoApp
 from .demos.mandelbrot import MandelbrotApp
