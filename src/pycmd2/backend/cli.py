@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi_offline import FastAPIOffline
 
 from .database import create_db_and_tables
+from .models import user
 
 __all__ = ["app"]
 
@@ -23,3 +24,4 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:  # noqa: RUF029
 
 
 app = FastAPIOffline(lifespan=lifespan)
+app.include_router(user.router)
