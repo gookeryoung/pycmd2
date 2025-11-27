@@ -30,7 +30,7 @@ class DatabaseDemoApp(BaseApp):
         """从API加载英雄."""
         try:
             # 真实API调用
-            response = await fetch("http://localhost:8000/api/heroes/")
+            response = await fetch("/api/heroes/")
             if response.is_success():
                 heroes_data = await response.json()
                 self.heroes = [Hero(**hero_data) for hero_data in heroes_data]
@@ -57,7 +57,7 @@ class DatabaseDemoApp(BaseApp):
 
             # 调用API，不传递id，让后端自动生成
             response = await fetch(
-                "http://localhost:8000/api/heroes/",
+                "/api/heroes/",
                 method="POST",
                 data=hero_data.model_dump(exclude={"id"}),  # 排除id字段
             )
@@ -89,7 +89,7 @@ class DatabaseDemoApp(BaseApp):
         """删除英雄."""
         try:
             # 调用API
-            response = await fetch(f"http://localhost:8000/api/heroes/{hero_id}", method="DELETE")
+            response = await fetch(f"/api/heroes/{hero_id}", method="DELETE")
 
             if response.is_success():
                 # 删除成功, 更新本地数据
