@@ -24,11 +24,6 @@ class DBTableColumn:
     name: str
     label: str
     field: str
-    align: str = "left"
-    sortable: bool = False
-    width: str = "auto"
-    format: str = ""
-    visible: bool = True
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典格式.
@@ -40,11 +35,6 @@ class DBTableColumn:
             "name": self.name,
             "label": self.label,
             "field": self.field,
-            "align": self.align,
-            "sortable": self.sortable,
-            "width": self.width,
-            "format": self.format,
-            "visible": self.visible,
         }
 
 
@@ -85,6 +75,9 @@ class DBTable(BaseComponent):
         self.current_record: Optional[Dict[str, Any]] = None
         self.is_edit_mode = False
 
+        # 初始化加载数据
+        asyncio.create_task(self.load_data())
+
     def render(self) -> ui.element:
         """渲染数据库表格组件.
 
@@ -115,9 +108,6 @@ class DBTable(BaseComponent):
 
             # 表单对话框
             self._create_form_dialog()
-
-        # 初始化加载数据
-        asyncio.create_task(self.load_data())
 
         return container
 
@@ -178,11 +168,11 @@ class DBTable(BaseComponent):
                 if self.table_ref:
                     self.table_ref.update()
 
-                ui.notify(f"数据加载成功: {self.rows}", type="positive")
+                logger.info(f"数据加载成功: {self.rows}")
             else:
-                ui.notify(f"加载数据失败: {response.status_code}", type="negative")
-        except Exception as e:
-            ui.notify(f"加载数据时出错: {e!s}", type="negative")
+                logger.error(f"加载数据失败: {response.status_code}")
+        except Exception:
+            logger.exception("加载数据时出错")
         finally:
             if self.loading_ref:
                 self.loading_ref.set_visibility(False)
