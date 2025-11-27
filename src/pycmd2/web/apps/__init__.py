@@ -1,6 +1,16 @@
-__all__ = ["DatabaseDemoApp", "DownloaderDemoApp", "IconsHelpApp", "LSCOptimizerApp", "MandelbrotApp", "PDFMergeApp", "WaveGraphApp"]
+__all__ = [
+    "DatabaseDemoApp",
+    "DbTableDemoApp",
+    "DownloaderDemoApp",
+    "IconsHelpApp",
+    "LSCOptimizerApp",
+    "MandelbrotApp",
+    "PDFMergeApp",
+    "WaveGraphApp",
+]
 
 from .demos.database import DatabaseDemoApp
+from .demos.dbtable import DbTableDemoApp
 from .demos.downloader import DownloaderDemoApp
 from .demos.mandelbrot import MandelbrotApp
 from .demos.wavegraph import WaveGraphApp

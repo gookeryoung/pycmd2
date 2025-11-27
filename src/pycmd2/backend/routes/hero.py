@@ -3,17 +3,22 @@ from __future__ import annotations
 from typing import Dict
 from typing import List
 
+from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Query
 from sqlmodel import select
 from typing_extensions import Annotated
 
-from pycmd2.backend.cli import app
 from pycmd2.backend.database import SessionDep
 from pycmd2.backend.models.hero import Hero
 
+router = APIRouter(
+    prefix="/api/heroes",
+    tags=["heroes"],
+)
 
-@app.post("/api/heroes/")
+
+@router.post("/")
 def create_hero(hero: Hero, session: SessionDep) -> Hero:
     """创建新英雄.
 
@@ -36,7 +41,7 @@ def create_hero(hero: Hero, session: SessionDep) -> Hero:
     return hero_data
 
 
-@app.get("/api/heroes/")
+@router.get("/")
 def read_heroes(
     session: SessionDep,
     offset: int = 0,
@@ -45,7 +50,7 @@ def read_heroes(
     return list(session.exec(select(Hero).offset(offset).limit(limit)).all())
 
 
-@app.get("/api/heroes/{hero_id}")
+@router.get("/{hero_id}")
 def read_hero(hero_id: int, session: SessionDep) -> Hero:
     """获取单个英雄.
 
@@ -65,7 +70,7 @@ def read_hero(hero_id: int, session: SessionDep) -> Hero:
     return hero
 
 
-@app.patch("/api/heroes/{hero_id}")
+@router.patch("/{hero_id}")
 def update_hero(hero_id: int, hero_data: Hero, session: SessionDep) -> Hero:
     """更新英雄.
 
@@ -96,7 +101,7 @@ def update_hero(hero_id: int, hero_data: Hero, session: SessionDep) -> Hero:
     return hero
 
 
-@app.delete("/api/heroes/{hero_id}")
+@router.delete("/{hero_id}")
 def delete_hero(hero_id: int, session: SessionDep) -> Dict[str, bool]:
     """删除英雄.
 

@@ -7,6 +7,7 @@ from typing import List
 from nicegui import ui
 
 from pycmd2.backend.api import fetch
+from pycmd2.backend.models import User
 from pycmd2.backend.models.hero import Hero
 from pycmd2.web.components.app import BaseApp
 
@@ -19,21 +20,22 @@ class DatabaseDemoApp(BaseApp):
     def __init__(self) -> None:
         """初始化."""
         super().__init__()
-        self.heroes: List[Hero] = []
+        self.users: List[Hero] = []
+        self.users: List[User] = []
         self.new_hero_name: str = ""
         self.new_hero_description: str = ""
         self.new_hero_power_level: int = 1
         self.new_hero_is_active: bool = True
         self.selected_hero: Hero | None = None
 
-    async def load_heroes(self) -> None:
+    async def load_users(self) -> None:
         """从API加载英雄."""
         try:
             # 真实API调用
-            response = await fetch("/api/heroes/")
+            response = await fetch("/api/users/")
             if response.is_success():
                 heroes_data = await response.json()
-                self.heroes = [Hero(**hero_data) for hero_data in heroes_data]
+                self.users = [User(**hero_data) for hero_data in heroes_data]
                 ui.notify("英雄数据加载成功", type="positive")
             else:
                 ui.notify(f"加载英雄数据失败: HTTP {response.status_code}", type="negative")
@@ -65,7 +67,7 @@ class DatabaseDemoApp(BaseApp):
             if response.is_success():
                 new_hero_data = await response.json()
                 new_hero = Hero(**new_hero_data)
-                self.heroes.append(new_hero)
+                self.users.append(new_hero)
                 ui.notify(f"英雄添加成功，ID为: {new_hero.id}", type="positive")
             else:
                 error_text = await response.text()
@@ -93,7 +95,7 @@ class DatabaseDemoApp(BaseApp):
 
             if response.is_success():
                 # 删除成功, 更新本地数据
-                self.heroes = [hero for hero in self.heroes if hero.id != hero_id]
+                self.users = [hero for hero in self.users if hero.id != hero_id]
                 ui.notify("英雄删除成功", type="positive")
             else:
                 error_text = await response.text()
@@ -107,7 +109,7 @@ class DatabaseDemoApp(BaseApp):
 
     def _simulate_delete_hero(self, hero_id: int) -> None:
         """模拟删除英雄."""
-        self.heroes = [hero for hero in self.heroes if hero.id != hero_id]
+        self.users = [hero for hero in self.users if hero.id != hero_id]
         ui.notify("模拟删除成功", type="info")
 
     async def edit_hero(self, hero: Hero) -> None:
@@ -145,9 +147,9 @@ class DatabaseDemoApp(BaseApp):
                 updated_hero = Hero(**updated_hero_data)
 
                 # 更新本地数据
-                for i, hero in enumerate(self.heroes):
+                for i, hero in enumerate(self.users):
                     if hero.id == updated_hero.id:
-                        self.heroes[i] = updated_hero
+                        self.users[i] = updated_hero
                         break
 
                 ui.notify("英雄更新成功", type="positive")
@@ -176,9 +178,9 @@ class DatabaseDemoApp(BaseApp):
 
     def _simulate_update_hero(self) -> None:
         """模拟更新英雄."""
-        for i, hero in enumerate(self.heroes):
+        for i, hero in enumerate(self.users):
             if hero.id == self.selected_hero.id:
-                self.heroes[i] = Hero(
+                self.users[i] = Hero(
                     id=self.selected_hero.id,
                     name=self.new_hero_name,
                     description=self.new_hero_description,
@@ -239,7 +241,7 @@ class DatabaseDemoApp(BaseApp):
             with ui.row().classes("gap-2 mt-2"):
                 ui.button("启动API服务器", on_click=self.start_api_server).classes("bg-blue-500 text-white")
                 ui.button("测试API连接", on_click=self.test_api_connection).classes("bg-orange-500 text-white")
-                ui.button("加载英雄", on_click=self.load_heroes).classes("bg-green-500 text-white")
+                ui.button("加载英雄", on_click=self.load_users).classes("bg-green-500 text-white")
 
         # 英雄列表
         with ui.card().classes("w-full mb-4"):
@@ -255,7 +257,7 @@ class DatabaseDemoApp(BaseApp):
                 {"name": "actions", "label": "操作", "field": "actions"},
             ]
 
-            table = ui.table(columns=columns, rows=[hero.dict() for hero in self.heroes]).classes("w-full")
+            table = ui.table(columns=columns, rows=[hero.dict() for hero in self.users]).classes("w-full")
 
             # 添加操作按钮
             with table.add_slot("body-cell-actions"):
@@ -263,7 +265,7 @@ class DatabaseDemoApp(BaseApp):
                 def render_actions(props) -> None:
                     hero_id = props.row.id
                     with ui.row().classes("gap-1"):
-                        ui.button("编辑", on_click=lambda e, h=hero_id: self.edit_hero(next((h for h in self.heroes if h.id == h), None))).props(
+                        ui.button("编辑", on_click=lambda e, h=hero_id: self.edit_hero(next((h for h in self.users if h.id == h), None))).props(
                             "flat dense color=primary",
                         )
                         ui.button("删除", on_click=lambda e, h=hero_id: self.delete_hero(h)).props("flat dense color=negative")
