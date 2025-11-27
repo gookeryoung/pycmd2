@@ -212,4 +212,4 @@ async def fetch(
     Returns:
         ApiResponse: API响应包装器
     """
-    return await default_client.request(method, endpoint, data, params, headers)
+    return await default_client.request(method, endpoint, params=params, data=data, headers=headers)

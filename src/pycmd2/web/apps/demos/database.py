@@ -30,17 +30,13 @@ class DatabaseDemoApp(BaseApp):
         """从API加载英雄."""
         try:
             # 真实API调用
-            response = await fetch("api/heroes/")
+            response = await fetch("http://localhost:8000/api/heroes/")
             if response.is_success():
                 heroes_data = await response.json()
                 self.heroes = [Hero(**hero_data) for hero_data in heroes_data]
                 ui.notify("英雄数据加载成功", type="positive")
             else:
                 ui.notify(f"加载英雄数据失败: HTTP {response.status_code}", type="negative")
-
-            # 如果API失败, 使用模拟数据作为后备
-            if not self.heroes:
-                ui.notify("使用模拟数据", type="info")
         except Exception as e:
             ui.notify(f"API调用失败, 使用模拟数据: {e!s}", type="info")
 
@@ -61,7 +57,7 @@ class DatabaseDemoApp(BaseApp):
 
             # 调用API，不传递id，让后端自动生成
             response = await fetch(
-                "api/heroes/",
+                "http://localhost:8000/api/heroes/",
                 method="POST",
                 data=hero_data.model_dump(exclude={"id"}),  # 排除id字段
             )
@@ -72,50 +68,47 @@ class DatabaseDemoApp(BaseApp):
                 self.heroes.append(new_hero)
                 ui.notify(f"英雄添加成功，ID为: {new_hero.id}", type="positive")
             else:
-                ui.notify(f"添加英雄失败: HTTP {response.status_code}", type="negative")
+                error_text = await response.text()
+                ui.notify(f"添加英雄失败: HTTP {response.status_code} - {error_text}", type="negative")
 
             # 清空输入字段
             self.new_hero_name = ""
             self.new_hero_description = ""
             self.new_hero_power_level = 1
             self.new_hero_is_active = True
-        except Exception:
+        except Exception as e:
+            ui.notify(f"API调用失败: {e!s}", type="negative")
             # 如果API调用失败, 模拟添加英雄
-            # 生成一个基于当前列表长度+1的id作为模拟
-            new_id = max([h.id for h in self.heroes], default=0) + 1
-            new_hero = Hero(
-                id=new_id,
-                name=self.new_hero_name,
-                description=self.new_hero_description,
-                power_level=self.new_hero_power_level,
-                is_active=self.new_hero_is_active,
-            )
-            self.heroes.append(new_hero)
-
             # 清空输入字段
             self.new_hero_name = ""
             self.new_hero_description = ""
             self.new_hero_power_level = 1
             self.new_hero_is_active = True
-
-            ui.notify(f"API调用失败, 模拟添加成功，ID为: {new_id}", type="info")
 
     async def delete_hero(self, hero_id: int) -> None:
         """删除英雄."""
         try:
             # 调用API
-            response = await fetch(f"api/heroes/{hero_id}", method="DELETE")
+            response = await fetch(f"http://localhost:8000/api/heroes/{hero_id}", method="DELETE")
 
             if response.is_success():
                 # 删除成功, 更新本地数据
                 self.heroes = [hero for hero in self.heroes if hero.id != hero_id]
                 ui.notify("英雄删除成功", type="positive")
             else:
-                ui.notify(f"删除英雄失败: HTTP {response.status_code}", type="negative")
+                error_text = await response.text()
+                ui.notify(f"删除英雄失败: HTTP {response.status_code} - {error_text}", type="negative")
+                # 模拟删除英雄作为后备
+                self._simulate_delete_hero(hero_id)
         except Exception as e:
+            ui.notify(f"API调用失败: {e!s}", type="negative")
             # 如果API调用失败, 模拟删除英雄
-            self.heroes = [hero for hero in self.heroes if hero.id != hero_id]
-            ui.notify(f"API调用失败, 模拟删除成功: {e!s}", type="info")
+            self._simulate_delete_hero(hero_id)
+
+    def _simulate_delete_hero(self, hero_id: int) -> None:
+        """模拟删除英雄."""
+        self.heroes = [hero for hero in self.heroes if hero.id != hero_id]
+        ui.notify("模拟删除成功", type="info")
 
     async def edit_hero(self, hero: Hero) -> None:
         """编辑英雄."""
@@ -142,7 +135,7 @@ class DatabaseDemoApp(BaseApp):
 
             # 调用API，使用PATCH方法并排除id字段
             response = await fetch(
-                f"api/heroes/{self.selected_hero.id}",
+                f"http://localhost:8000/api/heroes/{self.selected_hero.id}",
                 method="PATCH",
                 data=hero_data.model_dump(exclude={"id"}),  # 排除id字段
             )
@@ -159,7 +152,10 @@ class DatabaseDemoApp(BaseApp):
 
                 ui.notify("英雄更新成功", type="positive")
             else:
-                ui.notify(f"更新英雄失败: HTTP {response.status_code}", type="negative")
+                error_text = await response.text()
+                ui.notify(f"更新英雄失败: HTTP {response.status_code} - {error_text}", type="negative")
+                # 模拟更新英雄作为后备
+                self._simulate_update_hero()
 
             # 重置表单
             self.selected_hero = None
@@ -168,18 +164,9 @@ class DatabaseDemoApp(BaseApp):
             self.new_hero_power_level = 1
             self.new_hero_is_active = True
         except Exception as e:
+            ui.notify(f"API调用失败: {e!s}", type="negative")
             # 如果API调用失败, 模拟更新英雄
-            for i, hero in enumerate(self.heroes):
-                if hero.id == self.selected_hero.id:
-                    self.heroes[i] = Hero(
-                        id=self.selected_hero.id,
-                        name=self.new_hero_name,
-                        description=self.new_hero_description,
-                        power_level=self.new_hero_power_level,
-                        is_active=self.new_hero_is_active,
-                    )
-                    break
-
+            self._simulate_update_hero()
             # 重置表单
             self.selected_hero = None
             self.new_hero_name = ""
@@ -187,16 +174,76 @@ class DatabaseDemoApp(BaseApp):
             self.new_hero_power_level = 1
             self.new_hero_is_active = True
 
-            ui.notify(f"API调用失败, 模拟更新成功: {e!s}", type="info")
+    def _simulate_update_hero(self) -> None:
+        """模拟更新英雄."""
+        for i, hero in enumerate(self.heroes):
+            if hero.id == self.selected_hero.id:
+                self.heroes[i] = Hero(
+                    id=self.selected_hero.id,
+                    name=self.new_hero_name,
+                    description=self.new_hero_description,
+                    power_level=self.new_hero_power_level,
+                    is_active=self.new_hero_is_active,
+                )
+                break
+        ui.notify("模拟更新成功", type="info")
+
+    def start_api_server(self) -> None:
+        """启动API服务器."""
+        try:
+            import subprocess
+            import sys
+            from pathlib import Path
+
+            # 获取api_server.py文件的路径
+            web_dir = Path(__file__).parent.parent
+            api_server_path = web_dir / "api_server.py"
+
+            # 在新的进程中启动API服务器
+            subprocess.Popen(
+                [sys.executable, str(api_server_path)],
+                creationflags=subprocess.CREATE_NEW_CONSOLE if sys.platform == "win32" else 0,
+            )
+
+            ui.notify(
+                "API服务器正在启动，请等待几秒钟后重试。服务器将运行在 http://localhost:8000",
+                type="positive",
+                timeout=10,
+            )
+        except Exception as e:
+            ui.notify(f"启动API服务器失败: {e!s}", type="negative")
+            ui.notify("请手动运行: python src/pycmd2/web/api_server.py", type="info")
+
+    async def test_api_connection(self) -> None:
+        """测试API连接."""
+        try:
+            # 测试连接到API根路径
+            response = await fetch("http://localhost:8000/api/heroes/", method="GET")
+            if response.is_success():
+                ui.notify("API服务器连接成功", type="positive")
+            else:
+                ui.notify(f"API服务器连接失败: HTTP {response.status_code}", type="negative")
+        except Exception as e:
+            ui.notify(f"API服务器连接失败: {e!s}", type="negative")
 
     def render(self) -> None:
         """渲染界面."""
         ui.label("英雄管理系统").classes("text-2xl font-bold mb-4")
 
+        # 添加说明
+        with ui.card().classes("w-full mb-4 p-4"):
+            ui.label("使用说明").classes("text-lg font-bold mb-2")
+            ui.label("1. 本系统包含前端界面和后端API两部分").classes("block mb-1")
+            ui.label("2. 如需使用真实数据库功能，请先启动后端API服务器").classes("block mb-1")
+            ui.label("3. 如果不启动API，系统将使用模拟数据运行").classes("block mb-1")
+            with ui.row().classes("gap-2 mt-2"):
+                ui.button("启动API服务器", on_click=self.start_api_server).classes("bg-blue-500 text-white")
+                ui.button("测试API连接", on_click=self.test_api_connection).classes("bg-orange-500 text-white")
+                ui.button("加载英雄", on_click=self.load_heroes).classes("bg-green-500 text-white")
+
         # 英雄列表
         with ui.card().classes("w-full mb-4"):
             ui.label("英雄列表").classes("text-xl font-bold mb-2")
-            ui.button("加载英雄", on_click=self.load_heroes).classes("mb-2")
 
             # 英雄表格
             columns = [
