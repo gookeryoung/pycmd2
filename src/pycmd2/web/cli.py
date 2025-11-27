@@ -7,10 +7,53 @@
 
 from __future__ import annotations
 
+import logging
+import threading
+import time
+
+import uvicorn
 from nicegui import ui
 
 from pycmd2.web.component import ComponentFactory
 from pycmd2.web.pages.settings_page import SettingsPage
+
+logger = logging.getLogger(__name__)
+
+
+def start_fastapi_server() -> None:
+    """启动FastAPI后端服务器."""
+    try:
+        from pycmd2.backend.cli import app  # noqa: PLC0415
+
+        # 配置uvicorn服务器
+        config = uvicorn.Config(
+            app,
+            host="127.0.0.1",
+            port=8000,
+            log_level="info",
+            access_log=False,
+        )
+        server = uvicorn.Server(config)
+
+        logger.info("启动FastAPI后端服务器在 http://127.0.0.1:8000")
+        server.run()
+    except Exception:
+        logger.exception("启动FastAPI服务器失败")
+
+
+def run_fastapi_in_thread() -> threading.Thread:
+    """在独立线程中启动FastAPI服务器.
+
+    Returns:
+        threading.Thread: 运行FastAPI服务器的线程
+    """
+    thread = threading.Thread(target=start_fastapi_server, daemon=True)
+    thread.start()
+
+    # 给FastAPI服务器一些启动时间
+    time.sleep(2)
+
+    return thread
 
 
 @ui.page(SettingsPage.ROUTER)
@@ -27,8 +70,11 @@ def main_page() -> None:
 
 def main() -> None:
     """主函数."""
-    # 设置额外的页面
+    # 在独立线程中启动FastAPI后端服务器
+    logger.info("正在启动FastAPI后端服务器...")
+    run_fastapi_in_thread()
 
+    # 设置额外的页面
     ui.run(
         title="通用工作流工具包",
         port=8888,
