@@ -30,7 +30,7 @@ class DatabaseDemoApp(BaseApp):
         """从API加载英雄."""
         try:
             # 真实API调用
-            response = await fetch("heroes")
+            response = await fetch("api/heroes/")
             if response.is_success():
                 heroes_data = await response.json()
                 self.heroes = [Hero(**hero_data) for hero_data in heroes_data]
@@ -40,55 +40,8 @@ class DatabaseDemoApp(BaseApp):
 
             # 如果API失败, 使用模拟数据作为后备
             if not self.heroes:
-                self.heroes = [
-                    Hero(
-                        id=1,
-                        name="钢铁侠",
-                        description="天才发明家, 拥有高科技装甲",
-                        power_level=95,
-                        is_active=True,
-                    ),
-                    Hero(
-                        id=2,
-                        name="美国队长",
-                        description="二战时期的超级士兵, 拥有超强体能",
-                        power_level=80,
-                        is_active=True,
-                    ),
-                    Hero(
-                        id=3,
-                        name="雷神",
-                        description="阿斯加德的雷神, 拥有神力",
-                        power_level=90,
-                        is_active=False,
-                    ),
-                ]
                 ui.notify("使用模拟数据", type="info")
         except Exception as e:
-            # 如果API调用失败, 使用模拟数据
-            self.heroes = [
-                Hero(
-                    id=1,
-                    name="钢铁侠",
-                    description="天才发明家, 拥有高科技装甲",
-                    power_level=95,
-                    is_active=True,
-                ),
-                Hero(
-                    id=2,
-                    name="美国队长",
-                    description="二战时期的超级士兵, 拥有超强体能",
-                    power_level=80,
-                    is_active=True,
-                ),
-                Hero(
-                    id=3,
-                    name="雷神",
-                    description="阿斯加德的雷神, 拥有神力",
-                    power_level=90,
-                    is_active=False,
-                ),
-            ]
             ui.notify(f"API调用失败, 使用模拟数据: {e!s}", type="info")
 
     async def add_hero(self) -> None:
@@ -98,7 +51,7 @@ class DatabaseDemoApp(BaseApp):
             return
 
         try:
-            # 创建英雄数据
+            # 创建英雄数据，不指定id，让数据库自动生成
             hero_data = Hero(
                 name=self.new_hero_name,
                 description=self.new_hero_description,
@@ -106,18 +59,18 @@ class DatabaseDemoApp(BaseApp):
                 is_active=self.new_hero_is_active,
             )
 
-            # 调用API
+            # 调用API，不传递id，让后端自动生成
             response = await fetch(
                 "api/heroes/",
                 method="POST",
-                data=hero_data.dict(),
+                data=hero_data.model_dump(exclude={"id"}),  # 排除id字段
             )
 
             if response.is_success():
                 new_hero_data = await response.json()
                 new_hero = Hero(**new_hero_data)
                 self.heroes.append(new_hero)
-                ui.notify("英雄添加成功", type="positive")
+                ui.notify(f"英雄添加成功，ID为: {new_hero.id}", type="positive")
             else:
                 ui.notify(f"添加英雄失败: HTTP {response.status_code}", type="negative")
 
@@ -126,10 +79,12 @@ class DatabaseDemoApp(BaseApp):
             self.new_hero_description = ""
             self.new_hero_power_level = 1
             self.new_hero_is_active = True
-        except Exception as e:
+        except Exception:
             # 如果API调用失败, 模拟添加英雄
+            # 生成一个基于当前列表长度+1的id作为模拟
+            new_id = max([h.id for h in self.heroes], default=0) + 1
             new_hero = Hero(
-                id=len(self.heroes) + 1,
+                id=new_id,
                 name=self.new_hero_name,
                 description=self.new_hero_description,
                 power_level=self.new_hero_power_level,
@@ -143,7 +98,7 @@ class DatabaseDemoApp(BaseApp):
             self.new_hero_power_level = 1
             self.new_hero_is_active = True
 
-            ui.notify(f"API调用失败, 模拟添加成功: {e!s}", type="info")
+            ui.notify(f"API调用失败, 模拟添加成功，ID为: {new_id}", type="info")
 
     async def delete_hero(self, hero_id: int) -> None:
         """删除英雄."""
@@ -185,11 +140,11 @@ class DatabaseDemoApp(BaseApp):
                 is_active=self.new_hero_is_active,
             )
 
-            # 调用API
+            # 调用API，使用PATCH方法并排除id字段
             response = await fetch(
                 f"api/heroes/{self.selected_hero.id}",
-                method="PUT",
-                data=hero_data.dict(exclude_unset=True),
+                method="PATCH",
+                data=hero_data.model_dump(exclude={"id"}),  # 排除id字段
             )
 
             if response.is_success():
