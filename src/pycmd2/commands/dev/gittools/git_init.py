@@ -31,10 +31,6 @@ class GitInitRunner(BaseRunner):
         if self.DESCRIPTION:
             logger.info(f"功能描述: [green b]{self.DESCRIPTION}")
 
-        if not self.SUBCOMMANDS:
-            logger.info("没有子命令, 退出")
-            return
-
         # 获取当前cli对象并切换到其工作目录
         cli = get_client()
         original_cwd = pathlib.Path.cwd()
@@ -49,8 +45,6 @@ class GitInitRunner(BaseRunner):
                 if isinstance(subcommand, list):
                     logger.info(f"执行命令: {' '.join(subcommand)}")
                     cli.run_cmd(list(subcommand))
-                else:
-                    logger.error(f"未知子命令: {subcommand}")
 
         finally:
             # 确保恢复原始工作目录
