@@ -9,6 +9,8 @@ from pathlib import Path
 import pytest
 import tomli
 
+import pycmd2
+
 # Scripts that require special handling or might not be testable in CI
 SKIP_SCRIPTS = {
     # GUI applications that would block
@@ -67,7 +69,7 @@ def get_project_scripts() -> dict[str, str]:
     Returns:
         dict[str, str]: A dictionary of script names and their corresponding entry points.
     """
-    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+    pyproject_path = Path(pycmd2.__file__).parent.parent.parent / "pyproject.toml"
 
     with Path(pyproject_path).open("rb") as f:
         pyproject_data = tomli.load(f)
