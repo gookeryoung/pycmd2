@@ -59,7 +59,7 @@ class TestFileDate:
         t = FileDateProc(filepath)
         t.rename()
 
-        assert "is the same as" in caplog.text
+        assert "相同, 跳过" in caplog.text
 
     @pytest.mark.parametrize(
         ("oldfile", "newfile"),
@@ -89,4 +89,4 @@ class TestFileDate:
         t = FileDateProc(tmp_path / oldfile)
         t.rename()
 
-        assert "exists, add unique suffix." in caplog.text
+        assert "已存在, 添加唯一后缀." in caplog.text

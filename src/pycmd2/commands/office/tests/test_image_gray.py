@@ -12,7 +12,7 @@ from pycmd2.commands.office.image_gray import is_valid_image
 
 
 class _WriteType(Enum):
-    """Write file type, only for testing purposes."""
+    """文件写入类型, 仅用于测试目的."""
 
     NO_CREATE = 0
     TOUCH = 1
@@ -31,7 +31,7 @@ _CREATE_FORMATS: list[str] = [
 
 
 class TestImageGray:
-    """Test for image_gray module."""
+    """图像灰度模块测试."""
 
     def _is_valid_image(self, filepath: Path) -> bool:
         return filepath.suffix.lower() in {
@@ -46,16 +46,16 @@ class TestImageGray:
 
     @pytest.fixture(scope="session")
     def fixture_img_dir(self, tmp_path_factory: pytest.TempPathFactory) -> Path:
-        """Fixture for temporary directory.
+        """临时目录fixture.
 
         Returns:
-            Path: Temporary directory path.
+            Path: 临时目录路径.
         """
         return tmp_path_factory.mktemp("test_image_gray")
 
     @pytest.fixture(autouse=True, scope="session")
     def fixture_create_images(self, fixture_img_dir: Path) -> None:
-        """Create image files."""
+        """创建图像文件."""
         for format_ in _CREATE_FORMATS:
             image = Image.new("RGB", (100, 100), color="red")
             imagepath = fixture_img_dir / f"test.{format_}"

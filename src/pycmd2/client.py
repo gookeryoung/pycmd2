@@ -28,6 +28,12 @@ def _log_stream(
     stream: IO[bytes],
     logger_func: Callable[[str], None],
 ) -> None:
+    """记录流数据.
+
+    Args:
+        stream: 字节流
+        logger_func: 日志记录函数
+    """
     # 读取字节流
     for line_bytes in iter(stream.readline, b""):
         try:
@@ -42,7 +48,11 @@ def _log_stream(
 
 
 def _setup_pyqt(*, enable_high_dpi: bool = False) -> None:
-    """初始化 PyQt5 环境."""
+    """初始化 PyQt5 环境.
+
+    Args:
+        enable_high_dpi (bool): 是否启用高DPI支持
+    """
     import os  # noqa: PLC0415
 
     try:
@@ -80,6 +90,14 @@ class Client:
         enable_qt: bool = False,
         enable_high_dpi: bool = False,
     ) -> None:
+        """初始化客户端.
+
+        Args:
+            app: Typer应用实例
+            console: 控制台实例
+            enable_qt: 是否启用Qt
+            enable_high_dpi: 是否启用高DPI支持
+        """
         self.app = app
         self.console = console
 
@@ -88,17 +106,29 @@ class Client:
 
     @property
     def cwd(self) -> Path:
-        """当前工作目录."""
+        """当前工作目录.
+
+        Returns:
+            Path: 当前工作目录路径
+        """
         return Path.cwd()
 
     @property
     def home(self) -> Path:
-        """用户目录."""
+        """用户目录.
+
+        Returns:
+            Path: 用户主目录路径
+        """
         return Path.home()
 
     @property
     def settings_dir(self) -> Path:
-        """用户配置目录."""
+        """用户配置目录.
+
+        Returns:
+            Path: 用户配置目录路径
+        """
         env_path = os.environ.get("PYCMD2_HOME", None)
         if env_path is not None:
             return Path(env_path)
@@ -107,7 +137,11 @@ class Client:
 
     @property
     def is_windows(self) -> bool:
-        """是否为 Windows 系统."""
+        """是否为 Windows 系统.
+
+        Returns:
+            bool: 如果是Windows系统返回True, 否则返回False
+        """
         return platform.system() == "Windows"
 
     @staticmethod

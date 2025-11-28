@@ -29,6 +29,11 @@ conf = PipConfig()
 
 
 def pip_download(libname: str) -> None:
+    """下载指定的Python库到本地packages目录.
+
+    Args:
+        libname: 要下载的库名称
+    """
     dest_dir = cli.cwd / "packages"
 
     cli.run_cmd(
@@ -47,4 +52,9 @@ def pip_download(libname: str) -> None:
 def main(
     libname: List[str] = typer.Argument(help="待下载库清单"),  # noqa: B008
 ) -> None:
+    """主命令函数.
+
+    Args:
+        libname: 待下载的库名称列表
+    """
     cli.run(pip_download, libname)

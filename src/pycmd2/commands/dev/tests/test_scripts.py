@@ -11,23 +11,23 @@ import tomli
 
 import pycmd2
 
-# Scripts that require special handling or might not be testable in CI
+# 需要特殊处理或可能在CI中无法测试的脚本
 SKIP_SCRIPTS = {
-    # GUI applications that would block
+    # 会阻塞的GUI应用程序
     "mindnote",
     "pdftw",
-    # Web servers that would run indefinitely
+    # 会无限运行的Web服务器
     "websvr",
     "llmsvr",
-    # Simulation tools that might require special setup
+    # 可能需要特殊设置的模拟工具
     "lscopt",
-    # System commands that might be platform-specific
-    "taskk",  # taskkill on Windows
-    "wch",  # which command
-    "ld",  # list directories
+    # 可能与平台相关的系统命令
+    "taskk",  # Windows上的taskkill
+    "wch",  # which命令
+    "ld",  # 列出目录
 }
 
-# Scripts that should run without arguments and exit successfully
+# 应该无参数运行并成功退出的脚本
 SAFE_SCRIPTS = {
     "pycmd2",
     "envt",
@@ -64,10 +64,10 @@ SAFE_SCRIPTS = {
 
 
 def get_project_scripts() -> dict[str, str]:
-    """Extract script entries from pyproject.toml.
+    """从 pyproject.toml 中提取脚本条目.
 
     Returns:
-        dict[str, str]: A dictionary of script names and their corresponding entry points.
+        dict[str, str]: 脚本名称及其对应入口点的字典.
     """
     pyproject_path = Path(pycmd2.__file__).parent.parent.parent / "pyproject.toml"
 
@@ -82,70 +82,72 @@ class TestScripts:
 
     @pytest.mark.parametrize("script_name", SAFE_SCRIPTS)
     def test_script_execution_no_args(self, script_name: str) -> None:
-        """Test that scripts can be executed without arguments and return non-zero exit codes.
+        """测试脚本可以在无参数情况下执行并返回非零退出代码,.
 
-        Note: Many CLI tools return non-zero exit codes when called without arguments
-        because they require specific arguments, but they should at least be executable.
+        注意: 许多CLI工具在没有参数调用时返回非零退出代码,
+        因为它们需要特定参数, 但它们至少应该能够执行.
         """
         scripts = get_project_scripts()
         assert script_name in scripts, (
             f"Script '{script_name}' not found in pyproject.toml"
         )
 
-        # Try to run the script
+        # 尝试运行脚本
         try:
-            # Using shell=True for simplicity, though it's not ideal for production
-            # We're just testing if the entry point works
+            # 为简单起见使用 `shell=False`, 虽然在生产环境中不理想
+            # 我们只是测试入口点是否有效
             subprocess.run(
                 [sys.executable, "-m", script_name],
                 check=False,
                 capture_output=True,
-                timeout=10,  # Timeout after 10 seconds
+                timeout=10,  # 10秒后超时
                 shell=False,
             )
-            # Just check that the process was able to start
-            # Many CLIs will return non-zero when called without args, which is OK
+            # 只检查进程是否能够启动
+            # 许多CLI在没有参数调用时会返回非零值, 这是可以的
         except subprocess.TimeoutExpired:
-            # If it times out, it means the process started and was running
+            # 如果超时, 意味着进程已启动并正在运行
             pytest.skip(
-                f"Script '{script_name}' timed out (probably waiting for input)",
+                f"脚本 '{script_name}' 超时, 可能正在等待输入",
             )
         except FileNotFoundError:
-            pytest.fail(f"Script '{script_name}' could not be found or executed")
+            pytest.fail(f"脚本 '{script_name}' 无法找到或执行")
 
     def test_all_scripts_accounted_for(self) -> None:
-        """Test that our test covers all scripts or explicitly skips them."""
+        """测试我们的测试覆盖所有脚本或明确跳过它们."""
         scripts = get_project_scripts()
         all_script_names = set(scripts.keys())
 
-        # Check that all scripts are either in SAFE_SCRIPTS or SKIP_SCRIPTS
+        # 检查所有脚本是否在SAFE_SCRIPTS或SKIP_SCRIPTS中
         unaccounted_scripts = all_script_names - SAFE_SCRIPTS - SKIP_SCRIPTS
 
         assert not unaccounted_scripts, (
-            f"The following scripts are not accounted for in tests: {unaccounted_scripts}. "
-            f"Add them to SAFE_SCRIPTS or SKIP_SCRIPTS in test_scripts.py"
+            f"以下脚本在测试中未被考虑: {unaccounted_scripts}."
+            f"将它们添加到test_scripts.py中的SAFE_SCRIPTS或SKIP_SCRIPTS中"
         )
 
     def test_skip_scripts_exist(self) -> None:
-        """Test that all scripts listed in SKIP_SCRIPTS actually exist in pyproject.toml."""
+        """测试SKIP_SCRIPTS中列出的所有脚本确实存在于pyproject.toml中."""
         scripts = get_project_scripts()
         all_script_names = set(scripts.keys())
 
-        # Check that SKIP_SCRIPTS actually exist
+        # 检查SKIP_SCRIPTS确实存在
         missing_skip_scripts = SKIP_SCRIPTS - all_script_names
 
         assert not missing_skip_scripts, (
-            f"The following scripts are listed in SKIP_SCRIPTS but don't exist in pyproject.toml: {missing_skip_scripts}"
+            f"以下脚本在SKIP_SCRIPTS中列出但不存在于"
+            f"pyproject.toml中: {missing_skip_scripts}"
         )
 
     def test_safe_scripts_exist(self) -> None:
-        """Test that all scripts listed in SAFE_SCRIPTS actually exist in pyproject.toml."""
+        """测试SAFE_SCRIPTS中列出的所有脚本确实存在于pyproject.toml中."""
         scripts = get_project_scripts()
         all_script_names = set(scripts.keys())
 
-        # Check that SAFE_SCRIPTS actually exist
+        # 检查SAFE_SCRIPTS确实存在
         missing_safe_scripts = SAFE_SCRIPTS - all_script_names
 
         assert not missing_safe_scripts, (
-            f"The following scripts are listed in SAFE_SCRIPTS but don't exist in pyproject.toml: {missing_safe_scripts}"
+            "以下脚本在SAFE_SCRIPTS中列出但不存在于"
+            f"pyproject.toml中: {missing_safe_scripts}"
         )

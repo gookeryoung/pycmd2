@@ -52,7 +52,7 @@ class TestConfig:
         with pytest.raises(AttributeError) as execinfo:
             conf.setattr("INVALID_ATTR", 1)
 
-        assert "Attribute INVALID_ATTR not found in" in str(execinfo.value)
+        assert "属性 INVALID_ATTR 在 ExampleTestConfig 中不存在" in str(execinfo.value)
 
         config_file = cli.settings_dir / "example_test.toml"
         assert config_file == conf._config_file  # noqa: SLF001
@@ -79,7 +79,7 @@ class TestConfig:
         conf = ExampleTestConfig()
         conf.load()
 
-        assert "Read config error" in caplog.text
+        assert "读取配置失败" in caplog.text
         assert "Expected '=' after a key in a key/value pair" in caplog.text
 
     @patch.object(Path, "exists", return_value=False)

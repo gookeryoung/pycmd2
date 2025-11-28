@@ -35,9 +35,9 @@ from pycmd2.config import TomlConfigMixin
 
 
 class LlmServerConfig(TomlConfigMixin):
-    """Configuration for Llama local model server."""
+    """Llama本地模型服务器配置."""
 
-    TITLE: str = "Llama local model server"
+    TITLE: str = "Llama本地模型服务器"
     WIN_SIZE: ClassVar[list[int]] = [800, 800]
     WIN_POS: ClassVar[list[int]] = [200, 200]
     MODEL_PATH: str = ""

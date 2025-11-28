@@ -23,7 +23,7 @@ def check_uv_callable() -> Optional[bool]:
     """检查uv是否可调用.
 
     Returns:
-        Optional[bool]: 是否可调用
+        Optional[bool]: 如果uv可调用返回True, 否则返回False
     """
     try:
         result = subprocess.run(
@@ -41,7 +41,7 @@ def check_uv_callable() -> Optional[bool]:
 
 @cli.app.command()
 def main() -> None:
-    """默认调用."""
+    """默认调用, 生成依赖清单."""
     logger.info(f"pipf {__version__}, 构建日期: {__build_date__}")
 
     if check_uv_callable():

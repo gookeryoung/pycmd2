@@ -56,9 +56,14 @@ class PdfFileInfo:
             root_dir (Path): 根目录
             writer (pypdf.PdfWriter): PdfWriter
         """
-        root_bookmark = writer.add_outline_item(info.prefix, 0) if info.prefix else None
+        root_bookmark = writer.add_outline_item(info.prefix, 0) if info.prefix else None  # type: ignore
 
         def _merge_pdf_file(filepath: Path) -> None:
+            """合并单个PDF文件.
+
+            Args:
+                filepath (Path): PDF文件路径
+            """
             with filepath.open("rb") as pdf_file:
                 reader = pypdf.PdfReader(pdf_file)
                 writer.append(filepath.as_posix(), import_outline=False)
@@ -151,6 +156,7 @@ def search_directory(
 
 @cli.app.command()
 def main() -> None:
+    """主函数, 执行PDF合并操作."""
     pdf_info = search_directory(cli.cwd, cli.cwd)
     if not pdf_info or pdf_info.count() <= 1:
         logger.error("未找到 PDF 文件, 退出")

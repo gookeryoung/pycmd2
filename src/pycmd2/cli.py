@@ -14,7 +14,7 @@ from pycmd2.config import TomlConfigMixin
 
 
 class Pycmd2Config(TomlConfigMixin):
-    """Pycmd2 config."""
+    """Pycmd2 配置."""
 
     COMMAND_ALIGN: int = 18
     INVALID_ENTRY_PREFIXES: ClassVar[list[str]] = [".", "~", "_"]
@@ -54,6 +54,14 @@ class CommandEntry:
 
 
 def _is_valid_entry(entry: Path) -> bool:
+    """检查条目是否有效.
+
+    Args:
+        entry (Path): 条目路径
+
+    Returns:
+        bool: 条目是否有效
+    """
     if any(entry.name.startswith(x) for x in conf.INVALID_ENTRY_PREFIXES):
         return False
 
@@ -68,6 +76,14 @@ def _is_valid_entry(entry: Path) -> bool:
 
 
 def _read_entry_doc(entry: Path) -> str:
+    """读取条目文档.
+
+    Args:
+        entry (Path): 条目路径
+
+    Returns:
+        str: 条目文档
+    """
     if entry.is_file():
         content = entry.read_text(encoding="utf-8")
     elif entry.is_dir():
@@ -75,11 +91,11 @@ def _read_entry_doc(entry: Path) -> str:
         content = init_file.read_text(encoding="utf-8") if init_file.exists() else ""
 
     if not content:
-        return "[No documentation]"
+        return "[无文档]"
 
     tree = ast.parse(content)
     doc = ast.get_docstring(tree)
-    return re.sub(r"\n|\r", "", doc) if doc else "[No documentation]"
+    return re.sub(r"\n|\r", "", doc) if doc else "[无文档]"
 
 
 def find_commands() -> list[CommandEntry]:
@@ -108,6 +124,7 @@ def find_commands() -> list[CommandEntry]:
 @cli.app.command("v", help="显示版本, 等效命令: version")
 @cli.app.command("version", help="显示版本")
 def version() -> None:
+    """显示版本信息."""
     logger.info(f"当前版本: {__version__}, 构建日期: {__build_date__}")
 
 

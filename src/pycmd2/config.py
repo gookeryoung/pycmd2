@@ -47,7 +47,7 @@ def _to_snake_case(name: str) -> str:
     Returns:
         str: 下划线命名
 
-    E.g.: "HTTPRequest" -> "http_request"
+    例如: "HTTPRequest" -> "http_request"
     """
     name = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
     name = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", name)
@@ -67,6 +67,11 @@ class TomlConfigMixin:
     _instance_lock: threading.Lock = threading.Lock()
 
     def __init__(self, *, show_logging: bool = False) -> None:
+        """初始化配置混入类.
+
+        Args:
+            show_logging (bool): 是否显示日志
+        """
         if show_logging:
             logger.setLevel(logging.DEBUG)
         else:
@@ -80,7 +85,7 @@ class TomlConfigMixin:
 
         if not cli.settings_dir.exists():
             logger.debug(
-                f"Creating settings directory: [u]{cli.settings_dir}",
+                f"创建设置目录: [u]{cli.settings_dir}",
             )
 
             cli.settings_dir.mkdir(parents=True)
@@ -88,7 +93,7 @@ class TomlConfigMixin:
         self.load()
 
         logger.debug(
-            f"Compare attributes from default: [u]{self._cls_attrs}",
+            f"比较默认属性: [u]{self._cls_attrs}",
         )
 
         diff_attrs: list[AttributeDiff] = [
@@ -102,19 +107,18 @@ class TomlConfigMixin:
             and self._file_attrs[attr] != getattr(self, attr)
         ]
         if diff_attrs:
-            logger.debug(f"Diff attributes: [u]{diff_attrs}")
+            logger.debug(f"差异属性: [u]{diff_attrs}")
 
             for diff in diff_attrs:
                 logger.debug(
-                    "Setting attributes: [u green]"
-                    f"{diff.attr} = {self._file_attrs[diff.attr]}",
+                    f"设置属性: [u green]{diff.attr} = {self._file_attrs[diff.attr]}",
                 )
 
                 setattr(self, diff.attr, diff.file_value)
                 self._cls_attrs[diff.attr] = diff.file_value
         else:
             logger.debug(
-                "No difference between config file and class attributes.",
+                "配置文件与类属性之间无差异.",
             )
 
         # 只有在实例是首次创建时才注册atexit处理器
@@ -150,20 +154,28 @@ class TomlConfigMixin:
     def setattr(self, attr: str, value: object) -> None:
         """设置属性.
 
+        Args:
+            attr (str): 属性名
+            value (object): 属性值
+
         Raises:
             AttributeError: 如果属性不存在.
         """
         if attr in self._cls_attrs:
-            logger.debug(f"Setting attributes: {attr} = {value}")
+            logger.debug(f"设置属性: {attr} = {value}")
 
             setattr(self, attr, value)
         else:
-            msg = f"Attribute {attr} not found in {self.__class__.__name__}."
+            msg = f"属性 {attr} 在 {self.__class__.__name__} 中不存在."
             raise AttributeError(msg)
 
     @property
     def _cls_attrs(self) -> dict[str, object]:
-        """获取类的所有属性."""
+        """获取类的所有属性.
+
+        Returns:
+            dict[str, object]: 类的所有属性
+        """
         # 使用缓存避免重复计算
         if not hasattr(self, "_cached_cls_attrs"):
             self._cached_cls_attrs = {
@@ -187,24 +199,23 @@ class TomlConfigMixin:
             cls._instances.clear()
             cls._exit_handler_registered.clear()
         except PermissionError as e:
-            msg = f"Clear config error: {e.__class__.__name__}: {e}"
+            msg = f"清除配置错误: {e.__class__.__name__}: {e}"
             logger.exception(msg)
 
     def load(self) -> None:
         """从文件加载配置."""
         if not self._config_file.is_file() or not self._config_file.exists():
-            logger.error(f"Config file not found: {self._config_file}")
+            logger.error(f"配置文件未找到: {self._config_file}")
             return
 
         try:
             with self._config_file.open("rb") as f:
                 self._file_attrs = tomllib.load(f)
         except Exception as e:
-            msg = f"Read config error: {e.__class__.__name__}: {e}"
-            logger.exception(msg)
+            logger.exception(f"读取配置失败: {e.__class__.__name__}")
             return
         else:
-            logger.debug(f"Load config: [u green]{self._config_file}")
+            logger.debug(f"加载配置: [u green]{self._config_file}")
 
     def save(self) -> None:
         """保存配置到文件."""
@@ -216,15 +227,15 @@ class TomlConfigMixin:
             with self._config_file.open("wb") as f:
                 tomli_w.dump(self._cls_attrs, f)
 
-            logger.debug(f"Save config to: [u]{self._config_file}")
-            logger.debug(f"Configurations: {self._cls_attrs}")
+            logger.debug(f"保存配置到: [u]{self._config_file}")
+            logger.debug(f"配置项: {self._cls_attrs}")
         except PermissionError as e:
-            msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
+            msg = f"保存配置错误: {e.__class__.__name__!s}: {e!s}"
             logger.exception(msg)
         except TypeError as e:
             logger.exception(f"self._cls_attrs: {self._cls_attrs}")
-            msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
+            msg = f"保存配置错误: {e.__class__.__name__!s}: {e!s}"
             logger.exception(msg)
         except Exception as e:
-            msg = f"Save config error: {e.__class__.__name__!s}: {e!s}"
+            msg = f"保存配置错误: {e.__class__.__name__!s}: {e!s}"
             logger.exception(msg)

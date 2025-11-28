@@ -47,7 +47,7 @@ class TestFileLevel:
         filename: str,
         expected: str,
     ) -> None:
-        """Test remove level and digital mark."""
+        """测试移除级别和数字标记."""
         t = FileProcessor(Path(filename), Path(filename).stem)
         t.rename()
 
@@ -92,7 +92,7 @@ class TestFileLevel:
         self,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """Test if rename equals to original."""
+        """测试重命名是否与原始文件名相同."""
         t = FileProcessor(Path("test1(PUB).txt"), "test1")
         t.rename(1)
 
@@ -119,7 +119,7 @@ class TestFileLevelRenameReal:
         expected: str,
         tmp_path: Path,
     ) -> None:
-        """Test real file rename."""
+        """测试真实文件重命名."""
         # Setup mock levels
         monkeypatch.setattr(
             conf,

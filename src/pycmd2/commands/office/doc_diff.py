@@ -20,7 +20,7 @@ class DocDiffConfig(TomlConfigMixin):
     DOC_DIFF_TITLE = "对比结果"
 
 
-cli = get_client(help_doc="Diff tool for ms office documents.")
+cli = get_client(help_doc="MS Office文档对比工具.")
 conf = DocDiffConfig()
 logger = logging.getLogger(__name__)
 
@@ -28,25 +28,25 @@ logger = logging.getLogger(__name__)
 def diff_doc(old: Path, new: Path) -> None:
     """使用win32 api对比文档."""
     if not old.exists():
-        logger.error(f"Old file not exist: {old}")
+        logger.error(f"旧文件不存在: {old}")
         return
 
     if not new.exists():
-        logger.error(f"New file not exist: {new}")
+        logger.error(f"新文件不存在: {new}")
         return
 
     word = win32.gencache.EnsureDispatch("Word.Application")  # type: ignore
-    word.Visible = False  # Run word in background
-    word.DisplayAlerts = False  # Disable alerts
+    word.Visible = False  # 在后台运行Word
+    word.DisplayAlerts = False  # 禁用警告
 
     try:
         doc_old = word.Documents.Open(str(old))
-        logger.info(f"Open old file: [u green]{old}")
+        logger.info(f"打开旧文件: [u green]{old}")
 
         doc_new = word.Documents.Open(str(new))
-        logger.info(f"Open new file: [u green]{new}")
+        logger.info(f"打开新文件: [u green]{new}")
 
-        # Compare documents using word.CompareDocuments method
+        # 使用word.CompareDocuments方法比较文档
         doc_compare = word.CompareDocuments(doc_old, doc_new)
 
         # Save the comparison result

@@ -18,16 +18,23 @@ R = TypeVar("R")
 def timer(func: Callable[P, R]) -> Callable[P, R]:
     """计算函数运行时间.
 
+    Args:
+        func (Callable[P, R]): 被装饰的函数
+
     Returns:
-        Func: 函数
+        Callable[P, R]: 装饰后的函数
     """
 
     @wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         """计算函数运行时间.
 
+        Args:
+            *args: 位置参数
+            **kwargs: 关键字参数
+
         Returns:
-            any: 函数返回值
+            R: 函数返回值
         """
         start = perf_counter()
         result = func(*args, **kwargs)

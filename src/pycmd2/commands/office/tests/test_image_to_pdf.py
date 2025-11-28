@@ -24,14 +24,14 @@ _FORMATS = [".png", ".jpg", ".jpeg"]
 
 
 class TestImageProcessor:
-    """Test for ImageProcessor."""
+    """图像处理器测试."""
 
     @pytest.fixture(autouse=True, scope="session")
     def fixture_create_images(
         self,
         fixture_tmpdir: Path,
     ) -> None:
-        """Get image file."""
+        """获取图像文件."""
         for format_ in _FORMATS:
             color = random.choice(["red", "green", "blue"])
             image = Image.new("RGB", (10, 10), color)
@@ -39,10 +39,10 @@ class TestImageProcessor:
 
     @pytest.fixture(scope="session")
     def fixture_tmpdir(self) -> Generator[Path, None, None]:
-        """Fixture for temporary directory.
+        """临时目录fixture.
 
         Yields:
-            Generator[Path, None, None]: The temporary directory.
+            Generator[Path, None, None]: 临时目录
         """
         temp_dir = Path(tempfile.mkdtemp())
         yield temp_dir

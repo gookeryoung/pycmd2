@@ -12,10 +12,10 @@ cli = get_client(enable_qt=True, enable_high_dpi=True)
 
 
 def main() -> int:
-    """Entry point for the Todo List Application.
+    """待办事项列表应用程序的入口点.
 
     Returns:
-        int: Exit code.
+        int: 退出代码.
     """
     app = QApplication(sys.argv)
 

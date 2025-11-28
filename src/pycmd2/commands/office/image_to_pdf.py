@@ -22,19 +22,19 @@ from pycmd2.config import TomlConfigMixin
 
 
 class ImageToPdfConfig(TomlConfigMixin):
-    """Configuration for image to pdf."""
+    """图像转PDF配置."""
 
     DPI: int = 300
 
 
-cli = get_client(help_doc="Convert images to pdf.")
+cli = get_client(help_doc="将图像转换为PDF.")
 conf = ImageToPdfConfig()
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class ImageProcessor:
-    """Processor for image files."""
+    """图像文件处理器."""
 
     __slots__ = "dpi", "images", "root_dir"
 
@@ -45,7 +45,7 @@ class ImageProcessor:
 
     @property
     def size(self) -> tuple[int, int]:
-        """Get page size."""
+        """获取页面大小."""
         return (int(8.27 * self.dpi), int(11.69 * self.dpi))
 
     def _convert(

@@ -16,6 +16,9 @@ __all__ = ["app"]
 async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:  # noqa: RUF029
     """应用生命周期管理器.
 
+    Args:
+        _: FastAPI应用实例
+
     Yields:
         None
     """

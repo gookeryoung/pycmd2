@@ -49,9 +49,12 @@ class UserPublic(UserBase):
 def create_user(user: UserCreate, session: SessionDep) -> UserPublic:
     """创建用户.
 
+    Args:
+        user: 用户创建信息
+        session: 数据库会话依赖
+
     Returns:
         UserPublic: 创建的用户信息.
-
 
     Raises:
         HTTPException: 如果用户输入有误则抛出400异常.
@@ -96,6 +99,11 @@ def read_users(
 ) -> List[UserPublic]:
     """获取所有用户.
 
+    Args:
+        session: 数据库会话依赖
+        offset: 偏移量
+        limit: 限制数量
+
     Returns:
         List[UserPublic]: 所有用户信息.
     """
@@ -112,6 +120,10 @@ def read_users(
 @router.get("/{user_id}")
 def read_user(user_id: int, session: SessionDep) -> UserPublic:
     """获取单个用户.
+
+    Args:
+        user_id: 用户ID
+        session: 数据库会话依赖
 
     Returns:
         UserPublic: 用户信息.
@@ -132,6 +144,10 @@ def read_user(user_id: int, session: SessionDep) -> UserPublic:
 @router.delete("/{user_id}")
 def delete_user(user_id: int, session: SessionDep) -> None:
     """删除用户.
+
+    Args:
+        user_id: 用户ID
+        session: 数据库会话依赖
 
     Raises:
         HTTPException: 如果用户不存在则抛出404异常.

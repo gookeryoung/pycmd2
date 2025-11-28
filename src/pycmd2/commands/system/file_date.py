@@ -40,6 +40,11 @@ class FileDateProc:
 
     @property
     def _time_mark(self) -> str:
+        """获取时间标记.
+
+        Returns:
+            str: 格式化的时间字符串
+        """
         modified, created = self.src.stat().st_mtime, self.src.stat().st_ctime
         return time.strftime(
             "%Y%m%d",
@@ -55,29 +60,37 @@ class FileDateProc:
         )
 
         if target_path == self.src:
-            logger.warning(f"{self.src} is the same as {target_path}, skip.")
+            logger.warning(f"{self.src} 与 {target_path} 相同, 跳过.")
             return
 
         if target_path.exists():
-            logger.warning(f"{target_path} exists, add unique suffix.")
+            logger.warning(f"{target_path} 已存在, 添加唯一后缀.")
             target_path = target_path.with_name(
                 f"{target_path.stem}_{uuid.uuid4().hex}{target_path.suffix}",
             )
 
         logger.info(
-            f"Rename: [u green]{self.src}[white] -> [u purple]{target_path}",
+            f"重命名: [u green]{self.src}[white] -> [u purple]{target_path}",
         )
         self.src.rename(target_path)
 
     @staticmethod
     def _remove_date_prefix(filestem: str) -> str:
+        """移除文件名中的日期前缀.
+
+        Args:
+            filestem: 文件名(不含扩展名)
+
+        Returns:
+            str: 移除日期前缀后的文件名
+        """
         pattern = re.compile(
             r"(20|19)\d{2}((0[1-9])|(1[012]))((0[1-9])|([12]\d)|(3[01]))",
         )
         match = re.search(pattern, filestem)
 
         if not match:
-            logger.info(f"No date prefix found in: [u green]{filestem}")
+            logger.info(f"未找到日期前缀: [u green]{filestem}")
             return filestem
 
         b, e = match.start(), match.end()
@@ -91,8 +104,12 @@ class FileDateProc:
 
 @cli.app.command()
 def main(
-    targets: List[Path] = Argument(help="Input file list"),  # noqa: B008
+    targets: List[Path] = Argument(help="输入文件列表"),  # noqa: B008
 ) -> None:
-    """Remove file date prefix, use lastest create/modify time as prefix."""
+    """移除文件日期前缀, 使用最新的创建/修改时间作为前缀.
+
+    Args:
+        targets: 目标文件列表
+    """
     rename_targets = [FileDateProc(t) for t in targets]
     cli.run(FileDateProc.rename, rename_targets)
