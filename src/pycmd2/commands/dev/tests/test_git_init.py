@@ -74,7 +74,7 @@ def test_main_directory_change(mock_cli: MagicMock, isolated_tmpdir: Path) -> No
             assert (
                 str(isolated_tmpdir) in changed_dir or str(mock_cli.cwd) in changed_dir
             )
-            assert original_cwd not in changed_dir  # 确保不是切换到项目目录
+            assert original_cwd.name not in changed_dir  # 确保不是切换到项目目录
     finally:
         # 确保恢复原始工作目录
         os.chdir(original_cwd)
