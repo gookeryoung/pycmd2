@@ -21,7 +21,7 @@ _sqlite_file_name = "web_server.db"
 _sqlite_file_path = client.settings_dir / _sqlite_file_name
 _sqlite_url = f"sqlite:///{_sqlite_file_path}"
 
-# 改进的连接配置，添加连接池设置
+# 改进的连接配置, 添加连接池设置
 _connect_args = {
     "check_same_thread": False,
     "timeout": 30,  # 添加超时设置
@@ -39,8 +39,8 @@ def create_db_and_tables() -> None:
     try:
         SQLModel.metadata.create_all(_engine)
         logger.info(f"数据库表已创建: {_sqlite_file_path}")
-    except Exception as e:
-        logger.exception(f"创建数据库表失败: {e}")
+    except Exception:
+        logger.exception("创建数据库表失败")
         raise
 
 
@@ -55,8 +55,8 @@ def _get_session() -> Generator[Session, None, None]:
         session = Session(_engine)
         yield session
         session.commit()  # 成功时提交事务
-    except Exception as e:
-        logger.exception(f"数据库会话错误: {e}")
+    except Exception:
+        logger.exception("数据库会话错误")
         if session:
             session.rollback()  # 出错时回滚事务
         raise
@@ -66,14 +66,14 @@ def _get_session() -> Generator[Session, None, None]:
 
 
 @contextmanager
-def get_db_session():
+def get_db_session() -> Generator[Session, None, None]:
     """获取数据库会话的上下文管理器.
 
     使用示例:
         with get_db_session() as session:
             # 数据库操作
 
-    Returns:
+    Yields:
         Session: 数据库会话
     """
     session = None
@@ -81,8 +81,8 @@ def get_db_session():
         session = Session(_engine)
         yield session
         session.commit()
-    except Exception as e:
-        logger.exception(f"数据库操作错误: {e}")
+    except Exception:
+        logger.exception("数据库操作错误")
         if session:
             session.rollback()
         raise
