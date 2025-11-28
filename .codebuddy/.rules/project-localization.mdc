@@ -18,12 +18,13 @@ pycmd2 是一个 Python 命令行工具集，支持中英文双语环境。本�
 
 - 所有面向用户的注释、文档字符串和界面文本必须使用中文
 - 技术性注释可以使用英文，但应优先考虑中文
+- 注释内的标点符号使用英文, 如: `,.()[]` 等等
 - 函数参数和返回值说明应使用中文
 
 ```python
 # 好的示例
 def merge_pdf_files(input_files, output_path):
-    """合并多个PDF文件为单个PDF。
+    """合并多个PDF文件为单个PDF.
 
     Args:
         input_files: 输入PDF文件列表
@@ -137,7 +138,7 @@ class AppConfig(TomlConfigMixin):
 ```python
 # 好的示例
 def test_pdf_merge():
-    """测试PDF合并功能。"""
+    """测试PDF合并功能."""
     # 测试代码...
 ```
 

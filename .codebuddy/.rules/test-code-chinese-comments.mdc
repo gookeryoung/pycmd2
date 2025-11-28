@@ -1,0 +1,202 @@
+---
+description:
+alwaysApply: false
+enabled: true
+updatedAt: 2025-11-28T06:27:19.097Z
+provider:
+---
+
+# 测试代码中文注释规则
+
+## 概述
+
+本规则定义了 pycmd2 项目中测试代码使用中文注释的规范，旨在提高测试代码的可读性和可维护性。
+
+## 注释类型
+
+### 1. 类注释
+
+所有测试类必须使用中文注释，格式如下：
+
+```python
+class TestTracker:
+    """测试计时器功能."""
+
+    # 测试方法...
+```
+
+### 2. 方法/函数注释
+
+所有测试方法必须使用中文注释，格式如下：
+
+```python
+def test_timer(self, t: float, tolerance: float, caplog: pytest.LogCaptureFixture) -> None:
+    """测试计时器功能."""
+
+    # 测试逻辑...
+```
+
+### 3. 行内注释
+
+复杂的逻辑行应添加中文注释，格式如下：
+
+```python
+# 从日志中提取实际时间值
+log_text = caplog.text
+
+# 验证实际时间在预期范围内, 考虑系统调度误差
+assert abs(actual_time - t) <= tolerance, (
+    f"实际时间 {actual_time}s 与预期 {t}s 差异超过容差 {tolerance}s"
+)
+```
+
+### 4. 代码块注释
+
+对于重要的代码块，应在上方添加中文注释：
+
+```python
+# 设置测试环境
+config_file = cli.settings_dir / "example_test.toml"
+config_file.write_text("FOO = '123'\nBAZ = ['123', '456']")
+
+# 初始化配置实例
+conf = ExampleTestConfig()
+```
+
+## 注释内容要求
+
+### 1. 测试目的注释
+
+每个测试方法必须明确说明测试的目的：
+
+```python
+def test_config_load(self, caplog: pytest.LogCaptureFixture) -> None:
+    """测试配置加载功能."""
+    # 而不是使用简单的 "Test config load."
+```
+
+### 2. 测试步骤注释
+
+对于复杂的测试步骤，应使用中文注释说明：
+
+```python
+# 第一步：创建临时配置文件
+config_file.write_text("INVALID TOML CONTENT")
+
+# 第二步：尝试加载配置文件
+conf = ExampleTestConfig()
+conf.load()
+
+# 第三步：验证错误日志是否记录
+assert "Read config error" in caplog.text
+```
+
+### 3. 断言注释
+
+重要的断言应添加解释性注释：
+
+```python
+# 验证配置文件在保存后才创建
+assert not config_file.exists()  # 保存前不应存在
+conf.save()
+assert config_file.exists()      # 保存后应该存在
+```
+
+## 特殊情况处理
+
+### 1. 外部依赖注释
+
+当测试涉及外部库或系统资源时，应添加中文注释说明：
+
+```python
+# 使用 Path.mock 替代实际文件系统操作
+@patch.object(Path, "exists", return_value=False)
+@patch.object(Path, "mkdir", return_value=None)
+def test_settings_dir_not_exist(self, mock_mkdir: MagicMock, mock_exists: MagicMock) -> None:
+    """测试设置目录不存在的情况。"""
+```
+
+### 2. 性能测试注释
+
+性能测试应包含性能相关的中文注释：
+
+```python
+# 设置超时时间为10秒，防止测试无限期运行
+subprocess.run(
+    [sys.executable, "-m", script_name],
+    timeout=10,
+    capture_output=True,
+)
+```
+
+### 3. 异常处理注释
+
+当测试涉及异常处理时，应添加中文注释说明：
+
+```python
+# 验证设置无效属性时会抛出 AttributeError
+with pytest.raises(AttributeError) as execinfo:
+    conf.setattr("INVALID_ATTR", 1)
+
+# 检查错误消息是否包含预期的文本
+assert "Attribute INVALID_ATTR not found in" in str(execinfo.value)
+```
+
+## 注释风格指南
+
+1. 使用简洁明了的中文，避免冗长的句子
+2. 注释应解释"为什么"而不是"是什么"
+3. 保持注释的准确性，随代码修改及时更新注释
+4. 使用正确的英文标点符号, 避免使用中文标点符号
+5. 专有名词和代码部分可保留英文原文
+
+## 实施建议
+
+1. 新增测试代码必须遵循本规则
+2. 现有测试代码在维护时应逐步更新为符合本规则
+3. 使用代码审查工具检查测试代码的注释规范
+4. 在 CI/CD 流程中添加注释规范的检查
+
+## 示例
+
+### 合规示例
+
+```python
+class TestConfig:
+    """测试配置类。"""
+
+    def test_config_load_error(self, caplog: pytest.LogCaptureFixture) -> None:
+        """测试配置加载错误处理."""
+        # 创建无效的 TOML 配置文件
+        config_file = cli.settings_dir / "example_test.toml"
+        config_file.write_text("INVALID TOML CONTENT")
+
+        # 尝试加载配置
+        conf = ExampleTestConfig()
+        conf.load()
+
+        # 验证错误日志是否记录了预期的错误信息
+        assert "Read config error" in caplog.text
+        assert "Expected '=' after a key in a key/value pair" in caplog.text
+```
+
+### 不合规示例
+
+```python
+class TestConfig:
+    """Test config class."""
+
+    def test_config_load_error(self, caplog: pytest.LogCaptureFixture) -> None:
+        """Test config load error."""
+        # Create invalid TOML file
+        config_file = cli.settings_dir / "example_test.toml"
+        config_file.write_text("INVALID TOML CONTENT")
+
+        # Try to load config
+        conf = ExampleTestConfig()
+        conf.load()
+
+        # Check error logs
+        assert "Read config error" in caplog.text
+        assert "Expected '=' after a key in a key/value pair" in caplog.text
+```
