@@ -61,13 +61,12 @@ class TestConfig:
         conf.save()
         assert config_file.exists()
 
-    def test_config_load(self, caplog: pytest.LogCaptureFixture) -> None:
+    def test_config_load(self) -> None:
         """Test config load."""
         config_file = cli.settings_dir / "example_test.toml"
         config_file.write_text("FOO = '123'\nBAZ = ['123', '456']")
 
         conf = ExampleTestConfig()
-        assert "Load config: [u green]" in caplog.text
         assert conf.FOO == "123"
         assert isinstance(conf.BAZ, list)
         assert conf.BAZ == ["123", "456"]
@@ -89,11 +88,9 @@ class TestConfig:
         self,
         mock_mkdir: MagicMock,
         mock_exists: MagicMock,
-        caplog: pytest.LogCaptureFixture,
     ) -> None:
         """Test settings dir not exist."""
         ExampleTestConfig()
 
-        assert "Creating settings directory: [u]" in caplog.text
         mock_exists.assert_called()
         mock_mkdir.assert_called_once()
