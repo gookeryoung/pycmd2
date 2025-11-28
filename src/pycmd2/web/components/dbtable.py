@@ -9,6 +9,8 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
+# 导入更具体的异常类型
+from httpx import HTTPError
 from nicegui import ui
 
 from pycmd2.backend.api import fetch
@@ -174,11 +176,11 @@ class DBTable(BaseComponent):
                     with ui.row().classes("gap-1"):
                         ui.button(
                             icon="edit",
-                            on_click=lambda e, r=props.row: self.open_edit_form(r),
+                            on_click=lambda _, r=props.row: self.open_edit_form(r),
                         ).props("flat dense color=primary size=sm")
                         ui.button(
                             icon="delete",
-                            on_click=lambda e, r=props.row: self.delete_record(r),
+                            on_click=lambda _, r=props.row: self.delete_record(r),
                         ).props("flat dense color=negative size=sm")
 
     def _create_form_dialog(self) -> None:
@@ -210,15 +212,25 @@ class DBTable(BaseComponent):
             logger.info(f"加载数据: {self.api_url}")
             response = await fetch(self.api_url)
             if response.is_success():
-                self.rows[:] = await response.json()
+                data = await response.json()
+                # 确保数据是列表形式且元素为字典
+                if isinstance(data, list):
+                    # 确保列表中的每个元素都是字典
+                    validated_data = [item for item in data if isinstance(item, dict)]
+                    self.rows[:] = validated_data
+                elif isinstance(data, dict):
+                    # 如果返回的是单个对象而不是数组则将其放入数组中
+                    self.rows[:] = [data]
                 if self.table_ref:
                     self.table_ref.update()
 
                 logger.info(f"数据加载成功: {self.rows}")
             else:
                 logger.error(f"加载数据失败: {response.status_code}")
+        except HTTPError:
+            logger.exception("加载数据时网络错误")
         except Exception:
-            logger.exception("加载数据时出错")
+            logger.exception("加载数据时未知错误")
         finally:
             if self.loading_ref:
                 self.loading_ref.set_visibility(False)
@@ -284,16 +296,25 @@ class DBTable(BaseComponent):
             else:
                 error_text = await response.text()
                 ui.notify(f"保存记录失败: {response.status_code} - {error_text}", type="negative")
-        except Exception as e:
-            ui.notify(f"保存记录时出错: {e!s}", type="negative")
+        except HTTPError as e:
+            ui.notify(f"保存记录时网络错误: {e!s}", type="negative")
+        except Exception as e:  # noqa: BLE001
+            ui.notify(f"保存记录时未知错误: {e!s}", type="negative")
 
     async def delete_record(self, record: Dict[str, Any]) -> None:
         """删除记录."""
         if "id" not in record:
-            ui.notify("无法删除记录：缺少ID", type="negative")
+            ui.notify("无法删除记录, 缺少ID", type="negative")
             return
 
-        confirm = await ui.dialog.confirm(f"确定要删除记录 #{record['id']} 吗?").result
+        # 修改确认对话框的使用方式
+        with ui.dialog() as dialog, ui.card():
+            ui.label(f"确定要删除记录 #{record['id']} 吗?")
+            with ui.row():
+                ui.button("取消", on_click=lambda: dialog.submit(True))  # noqa: FBT003
+                ui.button("确定", on_click=lambda: dialog.submit(True))  # noqa: FBT003
+
+        confirm = await dialog
         if not confirm:
             return
 
@@ -308,5 +329,7 @@ class DBTable(BaseComponent):
             else:
                 error_text = await response.text()
                 ui.notify(f"删除记录失败: {response.status_code} - {error_text}", type="negative")
-        except Exception as e:
-            ui.notify(f"删除记录时出错: {e!s}", type="negative")
+        except HTTPError as e:
+            ui.notify(f"删除记录时网络错误: {e!s}", type="negative")
+        except Exception as e:  # noqa: BLE001
+            ui.notify(f"删除记录时未知错误: {e!s}", type="negative")
