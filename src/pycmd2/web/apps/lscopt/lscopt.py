@@ -59,7 +59,8 @@ class LSCOptimizerApp(BaseApp):
         with ui.row().classes("w-full h-full flex flex-row justify-start gap-12"):
             # 控制面板
             with ui.column().classes("w-1/4 ml-12"), ui.card().classes(
-                "w-full gap-0 items-start bg-gradient-to-br from-green-200 to-blue-200 rounded-xl",
+                "w-full gap-0 items-start bg-gradient-to-br "
+                "from-green-200 to-blue-200 rounded-xl",
             ):
                 ui.label("参数控制").classes("mx-auto text-xl font-bold")
 

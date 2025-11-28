@@ -37,23 +37,52 @@ class WaveGraphApp(BaseApp):
 
     def render(self) -> None:
         """设置UI界面."""
-        ui.label("Demo - 实时波形显示").classes("w-full text-2xl text-center font-bold text-purple-600 italic")
+        ui.label("Demo - 实时波形显示").classes(
+            "w-full text-2xl text-center font-bold text-purple-600 italic",
+        )
 
         with ui.row().classes("w-full h-full flex flex-row items-center"):
             with ui.card().classes("w-1/4 h-full"):
                 ui.label("控制面板").classes("text-lg font-bold")
 
                 with ui.row().classes("w-full justify-between items-center"):
-                    self.amplitude_slider = ui.slider(min=0.1, max=2.0, value=self.amplitude, step=0.1).bind_value(self, "amplitude")
-                    ui.label().bind_text_from(self, "amplitude", backward=lambda a: f"振幅: {a:.1f}")
+                    self.amplitude_slider = ui.slider(
+                        min=0.1,
+                        max=2.0,
+                        value=self.amplitude,
+                        step=0.1,
+                    ).bind_value(self, "amplitude")
+                    ui.label().bind_text_from(
+                        self,
+                        "amplitude",
+                        backward=lambda a: f"振幅: {a:.1f}",
+                    )
 
                 with ui.row().classes("w-full justify-between items-center"):
-                    self.frequency_slider = ui.slider(min=0.1, max=5.0, value=self.frequency, step=0.1).bind_value(self, "frequency")
-                    ui.label().bind_text_from(self, "frequency", backward=lambda f: f"频率: {f:.1f}")
+                    self.frequency_slider = ui.slider(
+                        min=0.1,
+                        max=5.0,
+                        value=self.frequency,
+                        step=0.1,
+                    ).bind_value(self, "frequency")
+                    ui.label().bind_text_from(
+                        self,
+                        "frequency",
+                        backward=lambda f: f"频率: {f:.1f}",
+                    )
 
                 with ui.row().classes("w-full justify-between items-center"):
-                    self.speed_slider = ui.slider(min=0.01, max=0.5, value=self.speed, step=0.01).bind_value(self, "speed")
-                    ui.label().bind_text_from(self, "speed", backward=lambda s: f"速度: {s:.2f}")
+                    self.speed_slider = ui.slider(
+                        min=0.01,
+                        max=0.5,
+                        value=self.speed,
+                        step=0.01,
+                    ).bind_value(self, "speed")
+                    ui.label().bind_text_from(
+                        self,
+                        "speed",
+                        backward=lambda s: f"速度: {s:.2f}",
+                    )
 
                 with ui.row():
                     ui.button("开始", on_click=self.on_start_wave, color="green")

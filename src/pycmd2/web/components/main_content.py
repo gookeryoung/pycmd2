@@ -31,34 +31,51 @@ class MainContent(BaseComponent):
             # 主横幅区域
             with ui.column().classes("w-full items-center py-8"):
                 ui.label("通用工作流工具包").classes("text-h3 font-bold text-blue-600")
-                ui.label("用于开发、办公自动化和系统管理的综合工具套件").classes("text-lg text-gray-600")
+                ui.label("用于开发、办公自动化和系统管理的综合工具套件").classes(
+                    "text-lg text-gray-600",
+                )
 
             # 搜索区域
             with ui.row().classes("w-full justify-center py-4"):
                 search_input = (
-                    ui.input(placeholder="搜索工具...", on_change=lambda e: self.on_filter_tools(e.value))
+                    ui.input(
+                        placeholder="搜索工具...",
+                        on_change=lambda e: self.on_filter_tools(e.value),
+                    )
                     .classes("w-full md:w-1/2")
                     .props("outlined rounded")
                 )
-                ui.button(icon="search").props("round").on("click", lambda: self.on_filter_tools(search_input.value))
+                ui.button(icon="search").props("round").on(
+                    "click",
+                    lambda: self.on_filter_tools(search_input.value),
+                )
 
             # 统计栏
             with ui.row().classes("w-full justify-center gap-4 py-4 flex-wrap"):
-                with ui.card().classes("stat-card text-center bg-gradient-to-r from-blue-500 to-blue-600 text-white w-48"), ui.column().classes(
+                with ui.card().classes(
+                    "stat-card text-center bg-gradient-to-r "
+                    "from-blue-500 to-blue-600 text-white w-48",
+                ), ui.column().classes(
                     "items-center p-4",
                 ):
                     ui.icon("category").classes("text-3xl")
                     ui.label("5+").classes("text-h4 font-bold")
                     ui.label("工具分类").classes("text-sm")
 
-                with ui.card().classes("stat-card text-center bg-gradient-to-r from-green-500 to-green-600 text-white w-48"), ui.column().classes(
+                with ui.card().classes(
+                    "stat-card text-center bg-gradient-to-r "
+                    "from-green-500 to-green-600 text-white w-48",
+                ), ui.column().classes(
                     "items-center p-4",
                 ):
                     ui.icon("apps").classes("text-3xl")
                     ui.label("10+").classes("text-h4 font-bold")
                     ui.label("应用程序").classes("text-sm")
 
-                with ui.card().classes("stat-card text-center bg-gradient-to-r from-purple-500 to-purple-600 text-white w-48"), ui.column().classes(
+                with ui.card().classes(
+                    "stat-card text-center bg-gradient-to-r "
+                    "from-purple-500 to-purple-600 text-white w-48",
+                ), ui.column().classes(
                     "items-center p-4",
                 ):
                     ui.icon("layers").classes("text-3xl")

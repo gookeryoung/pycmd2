@@ -127,13 +127,21 @@ def search_directory(
         return None
 
     children: list[PdfFileInfo] = []
-    folders = [d for d in sorted(search_dir.iterdir()) if d.is_dir() and d.name not in IGNORED_FOLDERS]
+    folders = [
+        d
+        for d in sorted(search_dir.iterdir())
+        if d.is_dir() and d.name not in IGNORED_FOLDERS
+    ]
     for folder in folders:
         pdf_info = search_directory(folder, root_dir)
         if pdf_info is not None:
             children.append(pdf_info)
 
-    pdf_files = [x for x in sorted(search_dir.glob("*.pdf")) if not is_encrypted(x) and MERGE_MARK not in x.stem]
+    pdf_files = [
+        x
+        for x in sorted(search_dir.glob("*.pdf"))
+        if not is_encrypted(x) and MERGE_MARK not in x.stem
+    ]
     if not pdf_files and not children:
         return None
 

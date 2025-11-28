@@ -601,6 +601,75 @@ class PDFMergeApp(BaseApp):
             msg = f"转换图片失败: {image_path}, 错误信息: {e!s}"
             ui.notify(msg, type="negative")
 
+    def _extract_image_data_from_pdf(
+        self,
+        pdf_path: Path,
+        page_count: int,
+    ) -> list[bytes]:
+        """从PDF文件中提取图像数据.
+
+        Returns:
+            list[bytes]: 图片数据列表
+        """
+        image_data: list[bytes] = []
+        try:
+            doc = fitz.open(pdf_path)  # type: ignore
+            if len(doc) > 0:
+                for i, page in enumerate(doc.pages()):
+                    if i >= page_count:
+                        break
+
+                    mat = fitz.Matrix(2.0, 2.0)  # Zoom factor # type: ignore
+                    pix = page.get_pixmap(matrix=mat)  # type: ignore
+
+                    # Convert to base64 for display
+                    image_data.append(base64.b64encode(pix.tobytes()))
+            doc.close()
+        except Exception as e:  # noqa: BLE001
+            ui.notify(f"载入PDF文件失败: {e!s}", type="negative")
+            return []
+
+        return image_data
+
+    def _handle_uploaded_pdf(self, filename: str, page_count: int) -> list[bytes]:
+        """处理上传的PDF文件.
+
+        Returns:
+            list[bytes]: 图片数据列表
+        """
+        try:
+            # 创建临时文件来处理上传的PDF
+            with tempfile.NamedTemporaryFile(
+                suffix=".pdf",
+                delete=False,
+            ) as tmp_file:
+                tmp_file.write(self.uploaded_files[filename])
+                tmp_file_path = tmp_file.name
+
+            image_data = self._extract_image_data_from_pdf(
+                Path(tmp_file_path),
+                page_count,
+            )
+            # 清理临时文件
+            Path(tmp_file_path).unlink()
+        except Exception as e:  # noqa: BLE001
+            ui.notify(f"载入上传的PDF文件失败: {e!s}", type="negative")
+            return []
+        else:
+            return image_data
+
+    def _handle_local_pdf(self, filepath: Path, page_count: int) -> list[bytes]:
+        """处理本地PDF文件.
+
+        Returns:
+            list[bytes]: 图片数据列表
+        """
+        if not filepath.exists() or filepath.suffix.lower() != ".pdf":
+            ui.notify("请选择一个有效的PDF文件")
+            return []
+
+        return self._extract_image_data_from_pdf(filepath, page_count)
+
     def pdf_to_image_data(
         self,
         filepath: Path,
@@ -614,61 +683,8 @@ class PDFMergeApp(BaseApp):
         """
         # 检查是否是上传的文件
         if filename in self.uploaded_files:
-            try:
-                image_data: list[bytes] = []
-                # 创建临时文件来处理上传的PDF
-                with tempfile.NamedTemporaryFile(
-                    suffix=".pdf",
-                    delete=False,
-                ) as tmp_file:
-                    tmp_file.write(self.uploaded_files[filename])
-                    tmp_file_path = tmp_file.name
-
-                doc = fitz.open(tmp_file_path)  # type: ignore
-                if len(doc) > 0:
-                    for i, page in enumerate(doc.pages()):
-                        if i >= page_count:
-                            break
-
-                        mat = fitz.Matrix(2.0, 2.0)  # Zoom factor # type: ignore
-                        pix = page.get_pixmap(matrix=mat)  # type: ignore
-
-                        # Convert to base64 for display
-                        image_data.append(base64.b64encode(pix.tobytes()))
-                doc.close()
-
-                # 清理临时文件
-                Path(tmp_file_path).unlink()
-            except Exception as e:  # noqa: BLE001
-                ui.notify(f"载入上传的PDF文件失败: {e!s}", type="negative")
-                return []
-            else:
-                return image_data
-        else:
-            # 处理本地文件
-            if not filepath.exists() or filepath.suffix.lower() != ".pdf":
-                ui.notify("请选择一个有效的PDF文件")
-                return []
-
-            image_data: list[bytes] = []
-            try:
-                doc = fitz.open(filepath)  # type: ignore
-                if len(doc) > 0:
-                    for i, page in enumerate(doc.pages()):
-                        if i >= page_count:
-                            break
-
-                        mat = fitz.Matrix(2.0, 2.0)  # Zoom factor # type: ignore
-                        pix = page.get_pixmap(matrix=mat)  # type: ignore
-
-                        # Convert to base64 for display
-                        image_data.append(base64.b64encode(pix.tobytes()))
-                doc.close()
-            except Exception as e:  # noqa: BLE001
-                ui.notify(f"载入PDF文件失败: {e!s}", type="negative")
-                return []
-            else:
-                return image_data
+            return self._handle_uploaded_pdf(filename, page_count)
+        return self._handle_local_pdf(filepath, page_count)
 
 
 @ui.page(PDFMergeApp.ROUTER)

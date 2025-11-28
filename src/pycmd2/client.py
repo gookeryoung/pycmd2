@@ -196,7 +196,15 @@ class Client:
             # 等待进程结束
             proc.wait(timeout=300)  # 添加超时防止无限等待
         except subprocess.TimeoutExpired:
-            proc.kill()
+            # 先尝试优雅终止进程
+            proc.terminate()
+            try:
+                # 等待进程优雅退出
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                # 如果进程不响应终止信号，强制杀死
+                proc.kill()
+                proc.wait()  # 确保进程彻底结束
             logger.exception("命令执行超时, 已强制终止")
             raise
         finally:
@@ -209,6 +217,12 @@ class Client:
         # 等待所有输出处理完成
         stdout_thread.join(timeout=10)  # 添加线程超时
         stderr_thread.join(timeout=10)
+
+        # 检查线程是否已结束，如果仍在运行则强制停止
+        if stdout_thread.is_alive():
+            logger.warning("stdout线程未能正常结束")
+        if stderr_thread.is_alive():
+            logger.warning("stderr线程未能正常结束")
 
         # 检查返回码
         if proc.returncode != 0:

@@ -88,7 +88,7 @@ class MindMapWindow(QMainWindow):
         """处理场景空白处的点击."""
         if event.button() == Qt.LeftButton and self.connect_action.isChecked():
             # 在空白处点击时开始新连接
-            self.start_connection(None, event)
+            self.start_connection(None, event)  # type: ignore
         else:
             super().mousePressEvent(event)
 
@@ -124,7 +124,7 @@ class MindMapWindow(QMainWindow):
                     # 完成连接
                     self.temp_connection.end_node = item
                     self.temp_connection.update_path()
-                    self.connection_start_node.connections.append(
+                    self.connection_start_node.connections.append(  # type: ignore
                         self.temp_connection,
                     )
                     item.connections.append(self.temp_connection)
@@ -158,7 +158,9 @@ class MindMapWindow(QMainWindow):
             data["nodes"].append(node_data)
 
         # 收集连接数据
-        connections = [item for item in self.scene.items() if isinstance(item, Connection)]
+        connections = [
+            item for item in self.scene.items() if isinstance(item, Connection)
+        ]
         for conn in connections:
             if conn.end_node:
                 start_idx = nodes.index(conn.start_node)

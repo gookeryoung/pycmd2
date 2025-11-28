@@ -6,7 +6,8 @@ import re
 import threading
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import ClassVar
+from typing import Dict
 from typing import Type
 from typing import TypeVar
 
@@ -60,8 +61,9 @@ class TomlConfigMixin:
 
     NAME: str = ""
 
-    _instance: Optional[TomlConfigMixin] = None
-    _exit_handler_registered: bool = False
+    # 为每个类单独维护实例字典
+    _instances: ClassVar[Dict[Type, TomlConfigMixin]] = {}
+    _exit_handler_registered: ClassVar[Dict[Type, bool]] = {}
     _instance_lock: threading.Lock = threading.Lock()
 
     def __init__(self, *, show_logging: bool = False) -> None:
@@ -104,7 +106,8 @@ class TomlConfigMixin:
 
             for diff in diff_attrs:
                 logger.debug(
-                    f"Setting attributes: [u green]{diff.attr} = {self._file_attrs[diff.attr]}",
+                    "Setting attributes: [u green]"
+                    f"{diff.attr} = {self._file_attrs[diff.attr]}",
                 )
 
                 setattr(self, diff.attr, diff.file_value)
@@ -115,9 +118,9 @@ class TomlConfigMixin:
             )
 
         # 只有在实例是首次创建时才注册atexit处理器
-        if not self.__class__._exit_handler_registered:  # noqa: SLF001
+        if not self.__class__._exit_handler_registered.get(self.__class__, False):  # noqa: SLF001
             atexit.register(self.save)
-            self.__class__._exit_handler_registered = True  # noqa: SLF001
+            self.__class__._exit_handler_registered[self.__class__] = True  # noqa: SLF001
 
     @classmethod
     def get_instance(cls: Type[T]) -> T:
@@ -128,11 +131,13 @@ class TomlConfigMixin:
         """
         logger.debug(f"获取配置单例对象: [purple b]{cls.__name__}")
 
-        if cls._instance is None:
+        # 使用类实例字典确保每个类有独立实例
+        if cls not in cls._instances or cls._instances[cls] is None:
             with cls._instance_lock:
-                if cls._instance is None:  # 双重检查锁定模式
-                    cls._instance = cls()
-        return cls._instance  # type: ignore
+                # 双重检查锁定模式
+                if cls not in cls._instances or cls._instances[cls] is None:
+                    cls._instances[cls] = cls()
+        return cls._instances[cls]  # type: ignore
 
     def get_fileattrs(self) -> dict[str, object]:
         """获取配置文件的所有属性.
@@ -168,8 +173,8 @@ class TomlConfigMixin:
             }
         return self._cached_cls_attrs
 
-    @staticmethod
-    def clear() -> None:
+    @classmethod
+    def clear(cls) -> None:
         """删除所有配置文件."""
         if not cli.settings_dir.exists():
             return
@@ -178,6 +183,9 @@ class TomlConfigMixin:
         try:
             for config_file in config_files:
                 config_file.unlink(missing_ok=True)
+            # 清理实例缓存
+            cls._instances.clear()
+            cls._exit_handler_registered.clear()
         except PermissionError as e:
             msg = f"Clear config error: {e.__class__.__name__}: {e}"
             logger.exception(msg)

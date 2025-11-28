@@ -16,8 +16,13 @@ class MainNavigator(Navigator):
 
     COMPONENT_ID = "main-navigator"
 
-    def __init__(self, title: str = "", *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> None:
-        super().__init__(*args, title=title, **kwargs)
+    def __init__(
+        self,
+        title: str = "",
+        *args: tuple[Any, ...],
+        **kwargs: dict[str, Any],
+    ) -> None:
+        super().__init__(*args, title=title, show_search=True, **kwargs)
 
         for group in GROUPS:
             self.add_group(group)
@@ -30,11 +35,18 @@ class MainNavigator(Navigator):
             nav_component = super().render()
             # 左侧导航布局, 带菜单按钮的头部
             with ui.header().classes(
-                "items-center justify-between p-4 bg-white dark:bg-gray-900 text-black dark:text-white shadow",
+                "items-center justify-between p-4 bg-white "
+                "dark:bg-gray-900 text-black dark:text-white shadow",
             ), ui.row().classes(
                 "items-center ",
             ):
-                ui.button(icon="menu", on_click=lambda: nav_component.set_visibility(False)).props("flat dense")
+                ui.button(
+                    icon="menu",
+                    on_click=lambda: nav_component.set_visibility(False),
+                ).props("flat dense")
         else:
-            with ui.header().classes("items-center justify-between p-0 bg-white dark:bg-gray-900 text-black dark:text-white shadow"):
+            with ui.header().classes(
+                "items-center justify-between p-0 bg-white "
+                "dark:bg-gray-900 text-black dark:text-white shadow",
+            ):
                 nav_component = super().render()

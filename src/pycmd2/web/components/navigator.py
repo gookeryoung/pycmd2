@@ -38,7 +38,8 @@ class NavigationItem:
                     "flat align-left dense full-width",
                 )
                 .classes(
-                    "justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700",
+                    "justify-start text-gray-700 dark:text-gray-300 "
+                    "hover:bg-gray-200 dark:hover:bg-gray-700",
                 )
             )
 
@@ -60,7 +61,10 @@ class NavigationItem:
                     nav_button.on("click", lambda: ui.navigate.to(self.router))
 
                 # 导航时关闭抽屉
-                nav_button.on("click", lambda: parent.drawer.hide() if parent.drawer else None)
+                nav_button.on(
+                    "click",
+                    lambda: parent.drawer.hide() if parent.drawer else None,
+                )
 
 
 @dataclass
@@ -77,7 +81,9 @@ class NavigationGroup:
 
     def setup_nav(self, parent: Navigator) -> None:
         """设置导航组."""
-        with ui.expansion(self.title, icon=self.icon, value=self.expanded).classes("w-full navigation-group"), ui.column().classes("w-full gap-1"):
+        with ui.expansion(self.title, icon=self.icon, value=self.expanded).classes(
+            "w-full navigation-group",
+        ), ui.column().classes("w-full gap-1"):
             for item in self.items:
                 item.setup_nav(parent)
 
@@ -91,7 +97,13 @@ class Navigator(BaseComponent):
 
     COMPONENT_ID = "navigator"
 
-    def __init__(self, *args: tuple[Any, ...], title: str = "导航", show_search: bool = True, **kwargs: dict[str, Any]) -> None:
+    def __init__(
+        self,
+        *args: tuple[Any, ...],
+        title: str = "导航",
+        show_search: bool = True,
+        **kwargs: dict[str, Any],
+    ) -> None:
         """初始化导航器.
 
         Args:
@@ -163,15 +175,27 @@ class Navigator(BaseComponent):
         Returns:
             ui.drawer: 左侧导航抽屉
         """
-        with ui.drawer(side="left").classes("bg-gray-50 dark:bg-gray-800") as self.drawer, ui.column().classes("w-full gap-2 p-4"):
+        with ui.drawer(side="left").classes(
+            "bg-gray-50 dark:bg-gray-800",
+        ) as self.drawer, ui.column().classes("w-full gap-2 p-4"):
             # 导航标题
             with ui.row().classes("w-full items-center justify-between mb-4"):
-                ui.label(self.title).classes("text-lg font-bold text-gray-800 dark:text-gray-200")
-                ui.button(icon="close", on_click=self.drawer.hide).props("flat dense").classes("text-gray-600 dark:text-gray-400")
+                ui.label(self.title).classes(
+                    "text-lg font-bold text-gray-800 dark:text-gray-200",
+                )
+                ui.button(icon="close", on_click=self.drawer.hide).props(
+                    "flat dense",
+                ).classes("text-gray-600 dark:text-gray-400")
 
             # 深色模式切换
             dark = ui.dark_mode()
-            ui.toggle(["light", "dark"], value="light", on_change=lambda e: dark.enable() if e.value == "dark" else dark.disable()).classes(
+            ui.toggle(
+                ["light", "dark"],
+                value="light",
+                on_change=lambda e: dark.enable()
+                if e.value == "dark"
+                else dark.disable(),
+            ).classes(
                 "scale-75",
             )
 
@@ -200,9 +224,15 @@ class Navigator(BaseComponent):
         Returns:
             ui.row: 顶部导航栏
         """
-        with ui.row().classes("top-navigation w-full px-4 py-3 gap-4 items-center flex-wrap") as self.top_bar:
+        with ui.row().classes(
+            "top-navigation w-full px-4 py-3 gap-4 items-center flex-wrap",
+        ) as self.top_bar:
             # Logo/标题
-            ui.button(icon="home", text=self.title, on_click=lambda: ui.navigate.to("/")).classes(
+            ui.button(
+                icon="home",
+                text=self.title,
+                on_click=lambda: ui.navigate.to("/"),
+            ).classes(
                 "text-lg font-bold text-gray-800 dark:text-gray-200 mr-4",
             ).props("flat")
 
@@ -212,7 +242,13 @@ class Navigator(BaseComponent):
 
             # 深色模式切换
             dark = ui.dark_mode()
-            ui.toggle(["light", "dark"], value="light", on_change=lambda e: dark.enable() if e.value == "dark" else dark.disable()).classes(
+            ui.toggle(
+                ["light", "dark"],
+                value="light",
+                on_change=lambda e: dark.enable()
+                if e.value == "dark"
+                else dark.disable(),
+            ).classes(
                 "scale-75",
             )
 
@@ -238,11 +274,17 @@ class Navigator(BaseComponent):
         Args:
             group: 要创建的导航组
         """
-        with ui.dropdown_button(group.title, icon=group.icon).props("flat dense") as dropdown, ui.column().classes("w-full gap-1 p-2"):
+        with ui.dropdown_button(group.title, icon=group.icon).props(
+            "flat dense",
+        ) as dropdown, ui.column().classes("w-full gap-1 p-2"):
             for item in group.items:
                 self._create_top_nav_item(item, dropdown)
 
-    def _create_top_nav_item(self, item: NavigationItem, dropdown: ui.dropdown_button) -> None:
+    def _create_top_nav_item(
+        self,
+        item: NavigationItem,
+        dropdown: ui.dropdown_button,
+    ) -> None:
         """为顶部导航创建导航项.
 
         Args:
@@ -260,7 +302,8 @@ class Navigator(BaseComponent):
                     "flat align-left dense full-width",
                 )
                 .classes(
-                    "justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 top-nav-item",
+                    "justify-start text-gray-700 dark:text-gray-300 "
+                    "hover:bg-gray-200 dark:hover:bg-gray-700 top-nav-item",
                 )
             )
 

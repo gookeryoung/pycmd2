@@ -33,9 +33,13 @@ class MainFooter(BaseComponent):
         Returns:
             ui.footer: 主页脚元素
         """
-        with ui.footer(fixed=True).style("background-color: lightblue") as footer, ui.row().classes(
+        with ui.footer(fixed=True).style(
+            "background-color: lightblue",
+        ) as footer, ui.row().classes(
             "w-full mx-auto items-center flex flex-row justify-end",
         ):
-            ui.label(self.title).classes(f"text-center text-{self.color}-600 dark:text-white font-bold")
+            ui.label(self.title).classes(
+                f"text-center text-{self.color}-600 dark:text-white font-bold",
+            )
 
         return footer

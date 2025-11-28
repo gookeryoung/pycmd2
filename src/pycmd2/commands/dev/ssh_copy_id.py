@@ -1,5 +1,6 @@
 """功能: 实现类似 ssh-copy-id 的功能."""
 
+import logging
 import subprocess
 import sys
 from pathlib import Path
@@ -9,6 +10,7 @@ import typer
 from pycmd2.client import get_client
 
 cli = get_client()
+logger = logging.getLogger(__name__)
 
 
 class SSHAuthenticationError(Exception):
@@ -39,6 +41,7 @@ def ssh_copy_id(
         SSHAuthenticationError: 认证失败
         SSHConnectionError: 连接失败
         Exception: 其他异常
+        ValueError: 参数错误
     """
     # 读取本地公钥内容
     expanded_path = Path(public_key_path).expanduser()
@@ -66,7 +69,7 @@ def ssh_copy_id(
                 msg = "主机名、用户名和密码不能为空"
                 raise ValueError(msg)
 
-            if port < 1 or port > 65535:
+            if port < 1 or port > 65535:  # noqa: PLR2004
                 msg = f"无效的端口号: {port}, 必须在1-65535范围内"
                 raise ValueError(msg)
 
@@ -108,6 +111,14 @@ def ssh_copy_id(
 
         except FileNotFoundError:
             # 如果没有 sshpass, 提示用户使用系统自带的 ssh-copy-id 命令
+            logger.exception(
+                "未找到sshpass工具, 请先安装sshpass或使用系统自带的ssh-copy-id命令"
+                "安装方法:"
+                "Ubuntu/Debian: sudo apt-get install sshpass"
+                "CentOS/RHEL: sudo yum install sshpass"
+                "macOS: brew install hudochenkov/sshpass/sshpass"
+                "或者直接使用: ssh-copy-id -p {port} {username}@{hostname}",
+            )
             sys.exit(1)
 
     except subprocess.TimeoutExpired as e:
@@ -132,7 +143,7 @@ def main(
         msg = "主机名、用户名和密码不能为空"
         raise typer.BadParameter(msg)
 
-    if port < 1 or port > 65535:
+    if port < 1 or port > 65535:  # noqa: PLR2004
         logger.error(f"无效的端口号: {port}, 必须在1-65535范围内")
         msg = "端口号必须在1-65535范围内"
         raise typer.BadParameter(msg)

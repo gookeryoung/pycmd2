@@ -715,7 +715,8 @@ class IconsHelpApp(BaseApp):
         with ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-4"):
             ui.label("Material Icons 图标库").classes("text-h4 font-bold self-center")
             ui.markdown(
-                "本页面展示了NiceGUI中常用的Material Icons, 点击任意图标可将其名称复制到剪贴板.",
+                "本页面展示了NiceGUI中常用的Material Icons, "
+                "点击任意图标可将其名称复制到剪贴板.",
             ).classes("self-center text-center")
 
             # 搜索输入框
@@ -729,7 +730,9 @@ class IconsHelpApp(BaseApp):
                 self.icon_cards.clear()
                 for icon_name in MATERIAL_ICONS:
                     with ui.card().classes("icon-card") as card:
-                        with ui.column().classes("w-full mx-auto gap-0 flex flex-col items-center"):
+                        with ui.column().classes(
+                            "w-full mx-auto gap-0 flex flex-col items-center",
+                        ):
                             ui.icon(icon_name).classes("text-2xl")
                             ui.label(icon_name).classes("icon-label")
                         card.on("click", lambda n=icon_name: self.on_icon_click(str(n)))

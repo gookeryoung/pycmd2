@@ -98,7 +98,7 @@ class PDFPreviewDialog(QDialog):
                 page = doc[page_num]
                 # Use a higher zoom factor for better quality previews
                 mat = fitz.Matrix(1.5, 1.5)  # type: ignore
-                pix = page.get_pixmap(matrix=mat)
+                pix = page.get_pixmap(matrix=mat)  # type: ignore
 
                 img = QImage(
                     pix.samples,
@@ -269,7 +269,8 @@ class PDFToolWindow(QMainWindow):
         files: List[pathlib.Path] = [
             f
             for f in pathlib.Path(directory).iterdir()
-            if (pathlib.Path(directory) / f).is_file() and f.suffix.lower().endswith(supported_extensions)
+            if (pathlib.Path(directory) / f).is_file()
+            and f.suffix.lower().endswith(supported_extensions)
         ]
 
         if not files:
@@ -356,7 +357,7 @@ class PDFToolWindow(QMainWindow):
                 if len(doc) > 0:
                     page = doc[0]
                     mat = fitz.Matrix(2.0, 2.0)  # type: ignore # Zoom factor
-                    pix = page.get_pixmap(matrix=mat)
+                    pix = page.get_pixmap(matrix=mat)  # type: ignore
                     img = QImage(
                         pix.samples,
                         pix.width,
@@ -504,7 +505,8 @@ class PDFToolWindow(QMainWindow):
             if self.auto_rotate_pages:
                 page.set_rotation(0)  # Reset rotation first
                 # Detect and set correct orientation
-                # This is a simplified approach - in practice, you might want more sophisticated detection
+                # This is a simplified approach - in practice,
+                # you might want more sophisticated detection
 
             # Set uniform width if enabled
             if self.uniform_page_width:
@@ -518,12 +520,12 @@ class PDFToolWindow(QMainWindow):
 
                 # Create new page with uniform width
                 if original_width > original_height:  # Landscape
-                    new_page = new_doc.new_page(
+                    new_page = new_doc.new_page(  # type: ignore
                         width=self.page_width,
                         height=original_height * scale_factor,
                     )
                 else:  # Portrait
-                    new_page = new_doc.new_page(
+                    new_page = new_doc.new_page(  # type: ignore
                         width=self.page_width,
                         height=original_height * scale_factor,
                     )
@@ -576,13 +578,13 @@ class PDFToolWindow(QMainWindow):
             aspect_ratio = image.height() / image.width()
             page_width = self.page_width
             page_height = page_width * aspect_ratio
-            page = pdf.new_page(width=page_width, height=page_height)
+            page = pdf.new_page(width=page_width, height=page_height)  # type: ignore
 
             # Scale image to fit page
             rect = fitz.Rect(0, 0, page_width, page_height)  # type: ignore
         else:
             rect = fitz.Rect(0, 0, image.width(), image.height())  # type: ignore
-            page = pdf.new_page(width=image.width(), height=image.height())
+            page = pdf.new_page(width=image.width(), height=image.height())  # type: ignore
 
         # Save QImage to buffer and load into PDF
         buffer = image.bits().asstring(image.byteCount())

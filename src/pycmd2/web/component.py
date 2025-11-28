@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
+import weakref
 from abc import ABC
 from abc import abstractmethod
 from types import TracebackType
@@ -38,6 +40,8 @@ __all__ = [
     "register_component",
 ]
 
+logger = logging.getLogger(__name__)
+
 
 class ComponentMeta(type(ABC)):
     """组件元类, 用于实现单例模式和组件注册."""
@@ -59,9 +63,20 @@ class ComponentMeta(type(ABC)):
         # 创建组件的唯一键
         key = cls._create_key(*args, **kwargs)
 
-        # 如果实例已存在且键匹配, 返回现有实例
-        if cls in cls._instances and cls._instances[cls]._key == key:  # noqa: SLF001
-            return cls._instances[cls]
+        # 检查是否已存在该类的实例
+        if cls in cls._instances:
+            existing_instance = cls._instances[cls]
+            # 如果实例已存在且键匹配, 返回现有实例
+            if hasattr(existing_instance, "_key") and existing_instance._key == key:  # noqa: SLF001
+                return existing_instance
+            # 如果键不匹配，清理旧实例
+            if hasattr(existing_instance, "cleanup") and callable(
+                existing_instance.cleanup,
+            ):
+                try:
+                    existing_instance.cleanup()
+                except Exception:
+                    logger.exception("清理旧组件实例时发生错误")
 
         # 检查缓存大小, 如果超过限制则清理最旧的实例
         if len(cls._instances) >= cls._max_cache_size:
@@ -84,9 +99,10 @@ class ComponentMeta(type(ABC)):
         Returns:
             str: 唯一键
         """
-        # 对于参数进行哈希以创建唯一键
+        # 对于参数进行哈希以创建唯一键，包含类标识符确保唯一性
         key_data = {
-            "class": cls.__name__,
+            "class": cls.__name__,  # 类名作为键的一部分
+            "id": id(cls),  # 类的唯一标识符
             "args": args,
             "kwargs": dict(sorted(kwargs.items())),
         }
@@ -114,30 +130,92 @@ class ComponentMeta(type(ABC)):
         return cls._registry.get(name)
 
     @classmethod
+    def _cleanup_single_instance(cls, comp_type: Type, instance: BaseComponent) -> None:
+        """清理单个组件实例.
+
+        Args:
+            comp_type: 组件类型
+            instance: 组件实例
+        """
+        # 先调用实例的清理方法（如果存在）
+        if hasattr(instance, "cleanup") and callable(instance.cleanup):
+            try:
+                instance.cleanup()
+            except (AttributeError, RuntimeError, TypeError) as e:
+                # 记录清理错误，但不中断清理过程
+                logger.warning(f"清理组件实例时发生错误: {e}")
+
+        # 清理UI元素
+        if hasattr(instance, "element") and instance.element:
+            try:
+                instance.element.delete()
+            except (AttributeError, RuntimeError, TypeError) as e:
+                logger.warning(f"清理UI元素时发生错误: {e}")
+
+        # 清理其他资源
+        try:
+            if hasattr(instance, "props"):
+                instance.props.clear()
+
+            if hasattr(instance, "children"):
+                instance.children.clear()
+        except (AttributeError, RuntimeError, TypeError) as e:
+            logger.warning(f"清理组件资源时发生错误: {e}")
+
+        # 确保从字典中移除
+        del cls._instances[comp_type]
+
+    @classmethod
     def _cleanup_cache(cls) -> None:
         """清理缓存, 删除最旧的实例."""
-        if len(cls._instances) > cls._max_cache_size // 2:
+        if len(cls._instances) >= cls._max_cache_size:
             # 保留一半的实例, 删除另一半
             items_to_remove = list(cls._instances.items())[: (len(cls._instances) // 2)]
+            instances_to_cleanup = []
+
+            # 先收集需要清理的实例
             for comp_type, instance in items_to_remove:
-                # 清理实例资源
-                if hasattr(instance, "_element") and instance._element:
-                    try:
-                        instance._element.delete()
-                    except Exception:
-                        pass  # 忽略清理过程中的错误
-                del cls._instances[comp_type]
+                instances_to_cleanup.append((comp_type, instance))
+
+            # 批量清理实例
+            for comp_type, instance in instances_to_cleanup:
+                cls._cleanup_single_instance(comp_type, instance)
 
     @classmethod
     def clear_cache(cls) -> None:
         """清空所有缓存实例."""
-        for instance in cls._instances.values():
-            # 清理实例资源
-            if hasattr(instance, "_element") and instance._element:
+        # 先复制实例列表，避免在迭代过程中修改字典
+        instances_to_clear = list(cls._instances.items())
+
+        for _, instance in instances_to_clear:
+            # 先调用实例的清理方法（如果存在）
+            if hasattr(instance, "cleanup") and callable(instance.cleanup):
                 try:
-                    instance._element.delete()
+                    instance.cleanup()
                 except Exception:
-                    pass  # 忽略清理过程中的错误
+                    # 记录清理错误，但不中断清理过程
+                    logger.exception("清理组件实例时发生错误")
+
+            # 清理UI元素
+            if hasattr(instance, "element") and instance.element:
+                try:
+                    instance.element.delete()
+                except Exception:
+                    # 记录清理错误，但不中断清理过程
+                    logger.exception("清理UI元素时发生错误")
+
+            # 清理其他资源
+            try:
+                if hasattr(instance, "props"):
+                    instance.props.clear()
+
+                if hasattr(instance, "children"):
+                    instance.children.clear()
+            except Exception:
+                # 记录清理错误，但不中断清理过程
+                logger.exception("清理组件资源时发生错误")
+
+        # 最后清空整个字典
         cls._instances.clear()
 
 
@@ -166,9 +244,30 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
         self._parent: Optional[BaseComponent] = None
         self._props: Dict[str, Any] = kwargs
         self._args: Tuple[Any, ...] = args
+        self._is_cleaned_up: bool = False  # 添加清理状态标志
 
         # 初始化组件属性
         self._setup_attributes()
+
+        # 注册清理回调，确保在对象被垃圾回收前清理资源
+        self._finalizer = weakref.finalize(self, self._cleanup_static_resources)
+
+    @property
+    def element(self) -> ui.element:
+        """获取组件的nicegui元素."""
+        if self._element is None:
+            self._element = self.build()
+        return self._element
+
+    @property
+    def props(self) -> Dict[str, Any]:
+        """获取组件的属性."""
+        return self._props
+
+    @property
+    def children(self) -> List[BaseComponent]:
+        """获取组件的子组件."""
+        return self._children
 
     def _setup_attributes(self) -> None:
         """设置组件属性."""
@@ -243,6 +342,56 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
         exc_tb: Optional[TracebackType],
     ) -> None:
         """上下文管理器出口."""
+        # 确保资源被清理
+        self.cleanup()
+
+    def cleanup(self) -> None:
+        """清理组件资源."""
+        if self._is_cleaned_up:
+            return  # 避免重复清理
+
+        try:
+            # 清理子组件
+            for child in self._children:
+                if hasattr(child, "cleanup") and callable(child.cleanup):
+                    child.cleanup()
+
+            # 清理UI元素
+            if self._element:
+                self._element.delete()
+                self._element = None
+
+            # 清理引用
+            self._children.clear()
+            self._props.clear()
+
+            # 断开与父组件的引用，避免循环引用
+            if self._parent:
+                self._parent = None
+
+            # 标记为已清理
+            self._is_cleaned_up = True
+        except Exception:
+            logger.exception("清理组件资源时发生错误")
+
+    @staticmethod
+    def _cleanup_static_resources() -> None:
+        """清理静态资源, 由垃圾回收器调用."""
+        # 这个方法主要用于在对象被垃圾回收时清理可能的静态引用
+
+    def add_child(self, child: BaseComponent) -> None:
+        """添加子组件."""
+        if child not in self._children:
+            self._children.append(child)
+            # 设置子组件的父引用
+            child._parent = self
+
+    def remove_child(self, child: BaseComponent) -> None:
+        """移除子组件."""
+        if child in self._children:
+            self._children.remove(child)
+            # 断开子组件的父引用
+            child._parent = None
 
     def __repr__(self) -> str:
         """组件的字符串表示.

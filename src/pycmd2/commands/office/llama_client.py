@@ -1,8 +1,10 @@
 import json
+import logging
 import sys
 
 import requests
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QObject
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QTextCursor
@@ -22,6 +24,7 @@ from PyQt5.QtWidgets import QWidget
 from pycmd2.client import get_client
 
 cli = get_client(enable_qt=True, enable_high_dpi=True)
+logger = logging.getLogger(__name__)
 
 
 class LlamaWorker(QThread):
@@ -30,6 +33,7 @@ class LlamaWorker(QThread):
     response_received = pyqtSignal(str)
     error_occurred = pyqtSignal(str)
     is_finished = pyqtSignal()
+    connection_test_result = pyqtSignal(bool, str)  # 新增：连接测试结果信号
 
     def __init__(  # noqa: PLR0917
         self,
@@ -98,6 +102,28 @@ class LlamaWorker(QThread):
     def stop(self) -> None:
         """停止工作线程."""
         self._is_running = False
+
+
+class ConnectionTestWorker(QObject):
+    """连接测试工作线程."""
+
+    result_ready = pyqtSignal(bool, str)
+
+    def __init__(self, server_url: str) -> None:
+        super().__init__()
+        self.server_url = server_url
+
+    def test_connection(self) -> None:
+        """测试连接."""
+        try:
+            # 设置较短超时时间
+            response = requests.get(f"{self.server_url}/health", timeout=5)
+            if response.status_code == requests.codes.ok:
+                self.result_ready.emit(True, "连接成功!")
+            else:
+                self.result_ready.emit(False, f"连接失败: {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            self.result_ready.emit(False, f"连接错误: {e!s}")
 
 
 class LlamaChatApp(QMainWindow):
@@ -207,16 +233,28 @@ class LlamaChatApp(QMainWindow):
             self.statusBar().showMessage("请输入服务器地址")
             return
 
-        try:
-            response = requests.get(f"{server_url}/health")
-            if response.status_code == requests.codes.ok:
-                self.statusBar().showMessage("连接成功!")
-            else:
-                self.statusBar().showMessage(
-                    f"连接失败: {response.status_code}",
-                )
-        except requests.exceptions.RequestException as e:
-            self.statusBar().showMessage(f"连接错误: {e!s}")
+        # 创建测试连接线程，避免阻塞UI
+        test_thread = QThread()
+        test_worker = ConnectionTestWorker(server_url)
+        test_worker.moveToThread(test_thread)
+
+        # 连接信号
+        test_worker.result_ready.connect(self.on_connection_test_result)
+
+        test_thread.started.connect(test_worker.test_connection)  # type: ignore
+        test_thread.finished.connect(test_worker.deleteLater)  # type: ignore
+        test_thread.finished.connect(test_thread.deleteLater)  # type: ignore
+
+        # 更新状态
+        self.statusBar().showMessage("正在测试连接...")
+        self.test_connection_btn.setEnabled(False)
+
+        test_thread.start()
+
+    def on_connection_test_result(self, *, _: bool, message: str) -> None:
+        """处理连接测试结果."""
+        self.statusBar().showMessage(message)
+        self.test_connection_btn.setEnabled(True)
 
     def send_prompt(self) -> None:
         """发送提示词到llama-server."""
