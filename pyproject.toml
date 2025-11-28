@@ -124,7 +124,7 @@ path = "src/pycmd2/__init__.py"
 [tool.ruff]
 exclude = ["**/*_rc.py", "**/ui_*.py", "docs/*.py"]
 fix = true
-line-length = 150
+line-length = 88
 output-format = "full"
 preview = true
 show-fixes = true

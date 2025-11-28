@@ -39,7 +39,7 @@ def main(
     ),
     *,
     show_all: bool = typer.Option(
-        False,  # noqa: FBT003
+        False,
         "--show-all",
         "-a",
         help="列出所有文件",

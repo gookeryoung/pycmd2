@@ -31,7 +31,7 @@ class LlamaWorker(QThread):
     error_occurred = pyqtSignal(str)
     is_finished = pyqtSignal()
 
-    def __init__(  # noqa: PLR0913, PLR0917
+    def __init__(  # noqa: PLR0917
         self,
         prompt: str,
         server_url: str,

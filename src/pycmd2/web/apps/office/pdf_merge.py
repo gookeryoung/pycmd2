@@ -26,15 +26,25 @@ class PDFMergerConfig(TomlConfigMixin):
 
     SHOW_LOGGING = False
 
-    VALID_EXTENSIONS: tuple[str, ...] = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf")
+    VALID_EXTENSIONS: tuple[str, ...] = (
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".bmp",
+        ".gif",
+        ".pdf",
+    )
     PREVIEW_PAGES: int = 3
     MAX_PAGES: int = 256
-    MAX_FILE_SIZE: int = 1024**2 * 5
+    MAX_FILE_SIZE_MB: int = 1024**2 * 5
 
-    @property
-    def _max_size(self) -> float:
-        """获取文件最大大小限制."""
-        return self.MAX_FILE_SIZE / (1024**2)
+    def get_max_file_size_bytes(self) -> int:
+        """获取文件最大大小限制.
+
+        Returns:
+            float: 文件最大大小限制
+        """
+        return self.MAX_FILE_SIZE_MB * 1024**2
 
 
 __version__ = "0.1.0"
@@ -88,47 +98,74 @@ class PDFMergeApp(BaseApp):
 
     def render(self) -> None:
         """初始化用户界面."""
-        ui.label(f"PDF 合并工具 v{__version__}").classes("mx-auto text-red-600 text-4xl font-bold")
+        ui.label(f"PDF 合并工具 v{__version__}").classes(
+            "mx-auto text-red-600 text-4xl font-bold",
+        )
 
         with ui.column().classes("w-full mx-auto items-center gap-4"):
             # Upload
-            with ui.row().classes("w-1/2 mx-auto p-6 bg-slate-200 rounded-xl items-center gap-2"):
+            with ui.row().classes(
+                "w-1/2 mx-auto p-6 bg-slate-200 rounded-xl items-center gap-2",
+            ):
                 ui.label("上传文件").classes("text-blue-600 text-bold")
                 ui.upload(
                     on_upload=self.handle_upload,
-                    on_rejected=lambda: ui.notify(f"文件大小超出 {conf._max_size}MB 限制!"),  # noqa: SLF001
+                    on_rejected=lambda: ui.notify(
+                        f"文件大小超出 {conf.MAX_FILE_SIZE_MB}MB 限制!",
+                    ),
                     multiple=True,
-                    max_file_size=conf.MAX_FILE_SIZE,
+                    max_file_size=conf.get_max_file_size_bytes(),
                     auto_upload=True,
                 ).classes("w-full")
 
-            with ui.card().classes("w-1/2 mx-auto p-12 bg-gradient-to-br from-green-200 to-blue-200 rounded-xl shadow-lg"):
+            with ui.card().classes(
+                "w-1/2 mx-auto p-12 bg-gradient-to-br "
+                "from-green-200 to-blue-200 rounded-xl shadow-lg",
+            ):
                 # Options
                 with ui.row().classes("items-center gap-4 mb-4"):
-                    self.auto_rotate_checkbox = ui.checkbox("自动旋转").bind_value(self, "auto_rotate")
-                    self.uniform_width_checkbox = ui.checkbox("归一化尺寸(A4)").bind_value(self, "uniform_width")
+                    self.auto_rotate_checkbox = ui.checkbox("自动旋转").bind_value(
+                        self,
+                        "auto_rotate",
+                    )
+                    self.uniform_width_checkbox = ui.checkbox(
+                        "归一化尺寸(A4)",
+                    ).bind_value(self, "uniform_width")
 
                 # File list
                 self.files_container = ui.column().classes("w-full gap-2")
 
                 # Action buttons
                 with ui.row().classes("gap-2 mt-4"):
-                    self.select_all_button = ui.button("全选", on_click=self.handle_select_all)
-                    self.deselect_all_button = ui.button("取消全选", on_click=self.handle_deselect_all)
-                    self.merge_button = ui.button("合并为PDF", on_click=self.handle_merge).bind_visibility_from(
+                    self.select_all_button = ui.button(
+                        "全选",
+                        on_click=self.handle_select_all,
+                    )
+                    self.deselect_all_button = ui.button(
+                        "取消全选",
+                        on_click=self.handle_deselect_all,
+                    )
+                    self.merge_button = ui.button(
+                        "合并为PDF",
+                        on_click=self.handle_merge,
+                    ).bind_visibility_from(
                         self,
                         "files",
                         backward=lambda f: len(f) > 0,
                     )
-                    self.download_button = ui.button("下载", on_click=self.handle_download_pdf).bind_visibility_from(
+                    self.download_button = ui.button(
+                        "下载",
+                        on_click=self.handle_download_pdf,
+                    ).bind_visibility_from(
                         self,
                         "merged_file",
                         backward=lambda f: f is not None and f.exists(),
                     )
 
+        ext_hints = ", ".join([ext[1:] for ext in conf.VALID_EXTENSIONS])
         with ui.column().classes("w-1/2 mx-auto gap-0"):
             ui.label("提示:").classes("text-blue-600 text-bold")
-            ui.label(f"支持的文件格式: {','.join([ext[1:] for ext in conf.VALID_EXTENSIONS])}").classes("text-gray-500")
+            ui.label(f"支持的文件格式: {ext_hints}").classes("text-gray-500")
 
     def handle_upload(self, e: events.UploadEventArguments) -> None:
         """处理文件上传事件."""
@@ -198,18 +235,43 @@ class PDFMergeApp(BaseApp):
         """创建文件操作行."""
         row = ui.row().classes("items-center w-full")
         with row:
-            filename = next((name for name, info in self.files.items() if info.path == file_info.path), file_info.path.name)
+            filename = next(
+                (
+                    name
+                    for name, info in self.files.items()
+                    if info.path == file_info.path
+                ),
+                file_info.path.name,
+            )
             checkbox = ui.checkbox(filename, value=True).classes("flex-grow")
 
             # Preview button for PDFs
-            if file_info.path.suffix.lower() == ".pdf" or (filename in self.uploaded_files and Path(filename).suffix.lower() == ".pdf"):
-                ui.button("预览", on_click=lambda _, f=file_info, fn=filename: self.preview_pdf(f, fn)).classes("ml-2")
+            if file_info.path.suffix.lower() == ".pdf" or (
+                filename in self.uploaded_files
+                and Path(filename).suffix.lower() == ".pdf"
+            ):
+                ui.button(
+                    "预览",
+                    on_click=lambda _, f=file_info, fn=filename: self.preview_pdf(
+                        f,
+                        fn,
+                    ),
+                ).classes("ml-2")
             # Delete button
-            ui.button(icon="delete", on_click=lambda _, f=file_info, fn=filename: self.remove_file(f, fn)).props("flat round color=red")
+            ui.button(
+                icon="delete",
+                on_click=lambda _, f=file_info, fn=filename: self.remove_file(f, fn),
+            ).props("flat round color=red")
             # Sort button
             with ui.button_group().props("outline"):
-                ui.button(icon="keyboard_arrow_up", on_click=lambda _, f=file_info: self.move_item(f, -1)).props("outline")
-                ui.button(icon="keyboard_arrow_down", on_click=lambda _, f=file_info: self.move_item(f, 1)).props("outline")
+                ui.button(
+                    icon="keyboard_arrow_up",
+                    on_click=lambda _, f=file_info: self.move_item(f, -1),
+                ).props("outline")
+                ui.button(
+                    icon="keyboard_arrow_down",
+                    on_click=lambda _, f=file_info: self.move_item(f, 1),
+                ).props("outline")
 
             preview_container = ui.row().classes("w-full justify-center mt-2")
             with preview_container:
@@ -231,27 +293,42 @@ class PDFMergeApp(BaseApp):
         file_info.previewer.clear()
 
         # 查找文件名
-        filename = next((name for name, info in self.files.items() if info.path == file_info.path), file_info.path.name)
+        filename = next(
+            (name for name, info in self.files.items() if info.path == file_info.path),
+            file_info.path.name,
+        )
 
         try:
-            file_suffix = Path(filename).suffix.lower() if filename in self.uploaded_files else file_info.path.suffix.lower()
+            file_suffix = (
+                Path(filename).suffix.lower()
+                if filename in self.uploaded_files
+                else file_info.path.suffix.lower()
+            )
 
             if file_suffix in {".png", ".jpg", ".jpeg", ".bmp", ".gif"}:
                 # For images, show thumbnail
                 with file_info.previewer:
                     if filename in self.uploaded_files:
                         # 显示上传的图片
-                        ui.image(f"data:image/{file_suffix[1:]};base64,{base64.b64encode(self.uploaded_files[filename]).decode()}").classes(
+                        ui.image(
+                            f"data:image/{file_suffix[1:]};base64,{base64.b64encode(self.uploaded_files[filename]).decode()}",
+                        ).classes(
                             "w-32 h-32 object-contain",
                         )
                     else:
                         # 显示本地图片
                         ui.image(file_info.path).classes("w-32 h-32 object-contain")
             elif file_suffix == ".pdf":
-                image_data = self.pdf_to_image_data(file_info.path, filename, page_count=conf.PREVIEW_PAGES)
+                image_data = self.pdf_to_image_data(
+                    file_info.path,
+                    filename,
+                    page_count=conf.PREVIEW_PAGES,
+                )
                 with file_info.previewer:
                     for img in image_data:
-                        ui.image(f"data:image/png;base64,{img.decode()}").classes("w-32 h-32 object-contain")
+                        ui.image(f"data:image/png;base64,{img.decode()}").classes(
+                            "w-32 h-32 object-contain",
+                        )
         except Exception as e:  # noqa: BLE001
             msg = f"生成文件预览失败: {filename}, 错误信息: {e}"
             with file_info.previewer:
@@ -265,7 +342,14 @@ class PDFMergeApp(BaseApp):
 
         # 确定文件名
         if not filename:
-            filename = next((name for name, info in self.files.items() if info.path == file_info.path), file_info.path.name)
+            filename = next(
+                (
+                    name
+                    for name, info in self.files.items()
+                    if info.path == file_info.path
+                ),
+                file_info.path.name,
+            )
 
         file_info.row.clear()
         file_info.row.set_visibility(False)
@@ -328,7 +412,14 @@ class PDFMergeApp(BaseApp):
     def preview_pdf(self, file_info: PDFFileInfo, filename: str = "") -> None:
         """预览PDF文件."""
         if not filename:
-            filename = next((name for name, info in self.files.items() if info.path == file_info.path), file_info.path.name)
+            filename = next(
+                (
+                    name
+                    for name, info in self.files.items()
+                    if info.path == file_info.path
+                ),
+                file_info.path.name,
+            )
 
         ui.notification(f"正在预览文件: {filename}")
 
@@ -336,16 +427,28 @@ class PDFMergeApp(BaseApp):
         self.preview_dialog.open()
         with self.preview_dialog, ui.card().classes("w-full h-full items-center"):
             ui.label(f"预览文件: {filename}").classes("text-xl text-bold")
-            self.images = self.pdf_to_image_data(file_info.path, filename, page_count=conf.MAX_PAGES)
+            self.images = self.pdf_to_image_data(
+                file_info.path,
+                filename,
+                page_count=conf.MAX_PAGES,
+            )
             for page_num, img in enumerate(self.images):
-                with ui.column().classes("flex flex-col items-center gap-2"), ui.column().classes("w-full h-full"):
-                    ui.image(f"data:image/png;base64,{img.decode()}").classes("w-full h-full object-contain")
+                with ui.column().classes(
+                    "flex flex-col items-center gap-2",
+                ), ui.column().classes("w-full h-full"):
+                    ui.image(f"data:image/png;base64,{img.decode()}").classes(
+                        "w-full h-full object-contain",
+                    )
                     ui.label(f"Page {page_num + 1}").classes("text-sm text-gray-500")
-            ui.button("关闭", on_click=self.preview_dialog.close).classes("self-center mt-4")
+            ui.button("关闭", on_click=self.preview_dialog.close).classes(
+                "self-center mt-4",
+            )
 
     def handle_merge(self) -> None:
         """合并PDF文件."""
-        selected_files: set[PDFFileInfo] = {f for f in self.files.values() if f.checkbox and f.checkbox.value}
+        selected_files: set[PDFFileInfo] = {
+            f for f in self.files.values() if f.checkbox and f.checkbox.value
+        }
         # Sort by order
         sorted_files: list[PDFFileInfo] = sorted(selected_files, key=lambda f: f.order)
 
@@ -357,11 +460,18 @@ class PDFMergeApp(BaseApp):
         dialog = ui.dialog()
         with dialog, ui.card():
             ui.label("输入合并文件名:")
-            input_field = ui.input(label="文件名", placeholder="例如: merged_document.pdf").classes("w-full")
+            input_field = ui.input(
+                label="文件名",
+                placeholder="例如: merged_document.pdf",
+            ).classes("w-full")
 
             with ui.row():
                 ui.button("取消", on_click=dialog.close)
-                ui.button("合并", on_click=lambda: self.perform_merge(sorted_files, input_field.value) or dialog.close())
+                ui.button(
+                    "合并",
+                    on_click=lambda: self.perform_merge(sorted_files, input_field.value)
+                    or dialog.close(),
+                )
 
         dialog.open()
 
@@ -379,7 +489,14 @@ class PDFMergeApp(BaseApp):
 
             for file_info in files:
                 # 查找文件名
-                filename = next((name for name, info in self.files.items() if info.path == file_info.path), file_info.path.name)
+                filename = next(
+                    (
+                        name
+                        for name, info in self.files.items()
+                        if info.path == file_info.path
+                    ),
+                    file_info.path.name,
+                )
 
                 if filename in self.uploaded_files:
                     # 处理上传的文件
@@ -388,7 +505,10 @@ class PDFMergeApp(BaseApp):
 
                     if file_suffix == ".pdf":
                         # 对于PDF文件, 直接处理
-                        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_file:
+                        with tempfile.NamedTemporaryFile(
+                            suffix=".pdf",
+                            delete=False,
+                        ) as tmp_file:
                             tmp_file.write(file_content)
                             tmp_file_path = tmp_file.name
 
@@ -400,7 +520,10 @@ class PDFMergeApp(BaseApp):
                         Path(tmp_file_path).unlink()
                     else:
                         # 对于图像文件, 先创建临时文件再转换
-                        with tempfile.NamedTemporaryFile(suffix=file_suffix, delete=False) as tmp_file:
+                        with tempfile.NamedTemporaryFile(
+                            suffix=file_suffix,
+                            delete=False,
+                        ) as tmp_file:
                             tmp_file.write(file_content)
                             tmp_file_path = tmp_file.name
 
@@ -419,7 +542,11 @@ class PDFMergeApp(BaseApp):
                     self.image_to_pdf(file_info.path, writer)
 
             # Save the merged PDF
-            with tempfile.NamedTemporaryFile(prefix="merged_", suffix=".pdf", delete=False) as tmp_file:
+            with tempfile.NamedTemporaryFile(
+                prefix="merged_",
+                suffix=".pdf",
+                delete=False,
+            ) as tmp_file:
                 writer.write(tmp_file)
                 output_path = tmp_file.name
 
@@ -474,7 +601,12 @@ class PDFMergeApp(BaseApp):
             msg = f"转换图片失败: {image_path}, 错误信息: {e!s}"
             ui.notify(msg, type="negative")
 
-    def pdf_to_image_data(self, filepath: Path, filename: str = "", page_count: int = 1) -> list[bytes]:  # noqa: C901, PLR0912
+    def pdf_to_image_data(
+        self,
+        filepath: Path,
+        filename: str = "",
+        page_count: int = 1,
+    ) -> list[bytes]:
         """转换PDF文件为图片数据.
 
         Returns:
@@ -485,7 +617,10 @@ class PDFMergeApp(BaseApp):
             try:
                 image_data: list[bytes] = []
                 # 创建临时文件来处理上传的PDF
-                with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_file:
+                with tempfile.NamedTemporaryFile(
+                    suffix=".pdf",
+                    delete=False,
+                ) as tmp_file:
                     tmp_file.write(self.uploaded_files[filename])
                     tmp_file_path = tmp_file.name
 

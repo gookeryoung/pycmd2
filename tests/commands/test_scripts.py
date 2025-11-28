@@ -86,7 +86,9 @@ class TestScripts:
         because they require specific arguments, but they should at least be executable.
         """
         scripts = get_project_scripts()
-        assert script_name in scripts, f"Script '{script_name}' not found in pyproject.toml"
+        assert script_name in scripts, (
+            f"Script '{script_name}' not found in pyproject.toml"
+        )
 
         # Try to run the script
         try:
@@ -103,7 +105,9 @@ class TestScripts:
             # Many CLIs will return non-zero when called without args, which is OK
         except subprocess.TimeoutExpired:
             # If it times out, it means the process started and was running
-            pytest.skip(f"Script '{script_name}' timed out (probably waiting for input)")
+            pytest.skip(
+                f"Script '{script_name}' timed out (probably waiting for input)",
+            )
         except FileNotFoundError:
             pytest.fail(f"Script '{script_name}' could not be found or executed")
 
@@ -128,7 +132,9 @@ class TestScripts:
         # Check that SKIP_SCRIPTS actually exist
         missing_skip_scripts = SKIP_SCRIPTS - all_script_names
 
-        assert not missing_skip_scripts, f"The following scripts are listed in SKIP_SCRIPTS but don't exist in pyproject.toml: {missing_skip_scripts}"
+        assert not missing_skip_scripts, (
+            f"The following scripts are listed in SKIP_SCRIPTS but don't exist in pyproject.toml: {missing_skip_scripts}"
+        )
 
     def test_safe_scripts_exist(self) -> None:
         """Test that all scripts listed in SAFE_SCRIPTS actually exist in pyproject.toml."""
@@ -138,4 +144,6 @@ class TestScripts:
         # Check that SAFE_SCRIPTS actually exist
         missing_safe_scripts = SAFE_SCRIPTS - all_script_names
 
-        assert not missing_safe_scripts, f"The following scripts are listed in SAFE_SCRIPTS but don't exist in pyproject.toml: {missing_safe_scripts}"
+        assert not missing_safe_scripts, (
+            f"The following scripts are listed in SAFE_SCRIPTS but don't exist in pyproject.toml: {missing_safe_scripts}"
+        )

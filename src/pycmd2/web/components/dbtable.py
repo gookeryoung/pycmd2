@@ -186,8 +186,15 @@ class DBTable(BaseComponent):
     def _create_form_dialog(self) -> None:
         """创建表单对话框."""
         with ui.dialog() as self.form_dialog, ui.card().classes("w-96"):
-            ui.label("编辑记录").classes("text-h6").bind_visibility_from(self, "is_edit_mode")
-            ui.label("新建记录").classes("text-h6").bind_visibility_from(self, "is_edit_mode", backward=operator.not_)
+            ui.label("编辑记录").classes("text-h6").bind_visibility_from(
+                self,
+                "is_edit_mode",
+            )
+            ui.label("新建记录").classes("text-h6").bind_visibility_from(
+                self,
+                "is_edit_mode",
+                backward=operator.not_,
+            )
 
             # 动态创建表单字段
             self.form_inputs = {}
@@ -201,7 +208,10 @@ class DBTable(BaseComponent):
             # 保存和取消按钮
             with ui.row().classes("w-full justify-end mt-4"):
                 ui.button("取消", on_click=self.close_form).props("flat")
-                ui.button("保存", on_click=lambda: self.save_record(self.form_inputs)).props("color=primary")
+                ui.button(
+                    "保存",
+                    on_click=lambda: self.save_record(self.form_inputs),
+                ).props("color=primary")
 
     async def load_data(self) -> None:
         """从API加载数据."""
@@ -281,10 +291,18 @@ class DBTable(BaseComponent):
             record_data[field_name] = input_element.value
 
         try:
-            if self.is_edit_mode and self.current_record and "id" in self.current_record:
+            if (
+                self.is_edit_mode
+                and self.current_record
+                and "id" in self.current_record
+            ):
                 # 更新记录 - 使用PATCH方法以匹配API路由
                 record_id = self.current_record["id"]
-                response = await fetch(f"{self.api_url}/{record_id}", method="PATCH", data=record_data)
+                response = await fetch(
+                    f"{self.api_url}/{record_id}",
+                    method="PATCH",
+                    data=record_data,
+                )
             else:
                 # 创建记录 - 使用POST方法
                 response = await fetch(self.api_url, method="POST", data=record_data)
@@ -295,7 +313,10 @@ class DBTable(BaseComponent):
                 await self.load_data()  # 重新加载数据
             else:
                 error_text = await response.text()
-                ui.notify(f"保存记录失败: {response.status_code} - {error_text}", type="negative")
+                ui.notify(
+                    f"保存记录失败: {response.status_code} - {error_text}",
+                    type="negative",
+                )
         except HTTPError as e:
             ui.notify(f"保存记录时网络错误: {e!s}", type="negative")
         except Exception as e:  # noqa: BLE001
@@ -311,8 +332,8 @@ class DBTable(BaseComponent):
         with ui.dialog() as dialog, ui.card():
             ui.label(f"确定要删除记录 #{record['id']} 吗?")
             with ui.row():
-                ui.button("取消", on_click=lambda: dialog.submit(True))  # noqa: FBT003
-                ui.button("确定", on_click=lambda: dialog.submit(True))  # noqa: FBT003
+                ui.button("取消", on_click=lambda: dialog.submit(True))
+                ui.button("确定", on_click=lambda: dialog.submit(True))
 
         confirm = await dialog
         if not confirm:
@@ -328,7 +349,10 @@ class DBTable(BaseComponent):
                 await self.load_data()  # 重新加载数据
             else:
                 error_text = await response.text()
-                ui.notify(f"删除记录失败: {response.status_code} - {error_text}", type="negative")
+                ui.notify(
+                    f"删除记录失败: {response.status_code} - {error_text}",
+                    type="negative",
+                )
         except HTTPError as e:
             ui.notify(f"删除记录时网络错误: {e!s}", type="negative")
         except Exception as e:  # noqa: BLE001

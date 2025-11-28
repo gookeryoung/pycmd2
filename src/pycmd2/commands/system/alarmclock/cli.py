@@ -134,7 +134,7 @@ class BlinkDialog(QDialog):
         self.setLayout(layout)
 
         # 阻止用户通过其他方式关闭对话框, 确保只能点击按钮
-        self.setWindowFlag(Qt.WindowCloseButtonHint, False)  # type: ignore  # noqa: FBT003
+        self.setWindowFlag(Qt.WindowCloseButtonHint, False)  # type: ignore
 
         # 闪烁控制变量和定时器
         self.blink_timer = QTimer(self)

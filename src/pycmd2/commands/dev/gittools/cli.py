@@ -64,7 +64,10 @@ def add() -> None:
 
 @cli.app.command("clean", help="清理 git 目录, 别名: c")
 @cli.app.command("c", help="清理 git 目录, 别名: clean")
-def clean(*, force: bool = typer.Option(False, "--force", "-f", help="强制清理")) -> None:  # noqa: FBT003
+def clean(
+    *,
+    force: bool = typer.Option(False, "--force", "-f", help="强制清理"),
+) -> None:
     if force:
         get_runner(_Config.clean_force).run()
     else:

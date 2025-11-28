@@ -69,10 +69,14 @@ class ParamInput:
 
         # signals
         self.spinbox.valueChanged.connect(
-            lambda val: self.slider.setValue(int((val - self.param.min_val) / self.param.step)),  # type: ignore
+            lambda val: self.slider.setValue(
+                int((val - self.param.min_val) / self.param.step),
+            ),  # type: ignore
         )
         self.slider.valueChanged.connect(
-            lambda val: self.spinbox.setValue(self.param.min_val + val * self.param.step),  # type: ignore
+            lambda val: self.spinbox.setValue(
+                self.param.min_val + val * self.param.step,
+            ),  # type: ignore
         )
 
         self.widget = QWidget()
@@ -105,8 +109,12 @@ class ParamInputGroup(QGroupBox):
             "s1": ParamInput(ParamValue(self.lscc.s1, 0.0, 20.0, 0.1, "外部坡度(s1)")),
             "H": ParamInput(ParamValue(self.lscc.H, 0.0, 5.0, 0.1, "切割高度(H)")),
             "m2": ParamInput(ParamValue(self.lscc.m2, -2.0, 2.0, 0.1, "特定点(m2)")),
-            "H1": ParamInput(ParamValue(self.lscc.H1, 0.0, 2.0, 0.1, "内部保留高度(H1)")),
-            "H2": ParamInput(ParamValue(self.lscc.H2, 0.0, 2.0, 0.1, "外部保留高度(H2)")),
+            "H1": ParamInput(
+                ParamValue(self.lscc.H1, 0.0, 2.0, 0.1, "内部保留高度(H1)"),
+            ),
+            "H2": ParamInput(
+                ParamValue(self.lscc.H2, 0.0, 2.0, 0.1, "外部保留高度(H2)"),
+            ),
             "J": ParamInput(ParamValue(self.lscc.J, 0.0, 180.0, 1.0, "总体夹角(J)")),
             "J1": ParamInput(ParamValue(self.lscc.J1, 0.0, 180.0, 1.0, "断点夹角(J1)")),
         }
@@ -134,7 +142,7 @@ class ParamInputGroup(QGroupBox):
             self.calc_error.emit("参数输入错误, 请输入有效的数字")
             return
 
-        self.calculate_finished.emit(True)  # noqa: FBT003
+        self.calculate_finished.emit(True)
 
 
 class LSCOptimizer(QMainWindow):

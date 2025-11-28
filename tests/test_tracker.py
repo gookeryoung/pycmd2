@@ -35,4 +35,6 @@ class TestTracker:
 
         actual_time = float(match.group(1))
         # 验证实际时间在预期范围内, 考虑系统调度误差
-        assert abs(actual_time - t) <= tolerance, f"实际时间 {actual_time}s 与预期 {t}s 差异超过容差 {tolerance}s"
+        assert abs(actual_time - t) <= tolerance, (
+            f"实际时间 {actual_time}s 与预期 {t}s 差异超过容差 {tolerance}s"
+        )

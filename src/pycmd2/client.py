@@ -64,9 +64,9 @@ def _setup_pyqt(*, enable_high_dpi: bool = False) -> None:
         os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "PassThrough"
 
         if hasattr(Qt, "AA_EnableHighDpiScaling"):
-            QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)  # noqa: FBT003
+            QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
         if hasattr(Qt, "AA_UseHighDpiPixmaps"):
-            QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)  # noqa: FBT003
+            QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 
 class Client:
@@ -137,7 +137,11 @@ class Client:
         with concurrent.futures.ThreadPoolExecutor() as t:
             returns.extend(t.submit(func, arg) for arg in args)
 
-        info = args if len(args) < MAX_TARGET_COUNT else f"[{args[:MAX_TARGET_COUNT]}]...({len(args)}个)"
+        info = (
+            args
+            if len(args) < MAX_TARGET_COUNT
+            else f"[{args[:MAX_TARGET_COUNT]}]...({len(args)}个)"
+        )
         logger.info(f"处理目标: [green bold]{info}")
         logger.info(
             f"关闭线程池, 共计用时: [green bold]{perf_counter() - t0:.4f}s.",
