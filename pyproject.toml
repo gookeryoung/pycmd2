@@ -211,6 +211,7 @@ ignore = [
   "PLR0913",
   "PLR0915",
   "PLR6301",
+  "RUF003",
   "UP006",   # pyupgrade
   "UP045",
 ]
