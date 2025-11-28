@@ -19,7 +19,18 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class DBTableColumn:
-    """数据库表格列定义."""
+    """数据库表格列定义.
+
+    Attributes:
+        name: 列名
+        label: 列标题
+        field: 字段名
+
+    Examples:
+        >>> col = DBTableColumn(name="id", label="ID", field="id")
+        >>> print(col.to_dict())
+        {'name': 'id', 'label': 'ID', 'field': 'id'}
+    """
 
     name: str
     label: str
@@ -39,7 +50,19 @@ class DBTableColumn:
 
 
 class DBTable(BaseComponent):
-    """数据库表格组件, 支持对特定api_url的数据进行CRUD操作."""
+    """数据库表格组件, 支持对特定api_url的数据进行CRUD操作.
+
+    Attributes:
+        api_url: API端点URL
+        columns: 表格列定义, 可以是DBTableColumn对象列表或字典列表
+
+    Examples:
+        >>> columns = [
+        ...     DBTableColumn(name="id", label="ID", field="id"),
+        ...     DBTableColumn(name="name", label="名称", field="name"),
+        ... ]
+        >>> table = DBTable(api_url="http://localhost:8000/api/heroes", columns=columns)
+    """
 
     def __init__(
         self,
@@ -75,9 +98,6 @@ class DBTable(BaseComponent):
         self.current_record: Optional[Dict[str, Any]] = None
         self.is_edit_mode = False
 
-        # 初始化加载数据
-        asyncio.create_task(self.load_data())
-
     def render(self) -> ui.element:
         """渲染数据库表格组件.
 
@@ -108,6 +128,9 @@ class DBTable(BaseComponent):
 
             # 表单对话框
             self._create_form_dialog()
+
+        # 初始化加载数据
+        asyncio.create_task(self.load_data())
 
         return container
 
