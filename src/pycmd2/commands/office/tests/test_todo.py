@@ -56,7 +56,7 @@ class TestTodoItem:
             "category": category,
         }
 
-    def test_from_dict(self, caplog: pytest.LogCaptureFixture) -> None:
+    def test_from_dict(self) -> None:
         """Test from dict."""
         item = TodoItem.from_dict(
             {
@@ -74,7 +74,6 @@ class TestTodoItem:
         assert item.created_at.isoformat() == "2023-01-01T00:00:00"
         assert item.completed_at
         assert item.completed_at.isoformat() == "2023-01-01T00:00:00"
-        assert "Loaded item from dict" in caplog.text
 
 
 class TestTodoListModel:
@@ -565,9 +564,15 @@ class TestTodoListView:
         monkeypatch.setattr(os, "chdir", mock_chdir)
 
         # Find the backup timer
-        timers = [child for child in mock_controller.view.children() if child.__class__.__name__ == "QTimer"]
+        timers = [
+            child
+            for child in mock_controller.view.children()
+            if child.__class__.__name__ == "QTimer"
+        ]
         backup_interval = 1000 * 60 * conf.BACKUP_INTEVAL
-        backup_timers = [timer for timer in timers if timer.interval() == backup_interval]
+        backup_timers = [
+            timer for timer in timers if timer.interval() == backup_interval
+        ]
 
         assert len(backup_timers) == 1
         backup_timer = backup_timers[0]

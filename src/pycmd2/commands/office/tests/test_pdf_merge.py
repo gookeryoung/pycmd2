@@ -10,9 +10,9 @@ from unittest.mock import patch
 import pytest
 from fpdf import FPDF
 
-from src.pycmd2.commands.office.pdf_merge import main
-from src.pycmd2.commands.office.pdf_merge import PdfFileInfo
-from src.pycmd2.commands.office.pdf_merge import search_directory
+from pycmd2.commands.office.pdf_merge import main
+from pycmd2.commands.office.pdf_merge import PdfFileInfo
+from pycmd2.commands.office.pdf_merge import search_directory
 
 
 @pytest.fixture
@@ -103,7 +103,7 @@ class TestPDFMerge:
 
         main()
 
-        assert "PDF files not found, exit" in caplog.text
+        assert "未找到 PDF 文件, 退出" in caplog.text
 
     def test_merge_file_info(self, mock_cli: MagicMock, tmp_path: Path) -> None:
         """测试 PdfFileInfo.merge_file_info 方法."""

@@ -28,7 +28,10 @@ def _natural_keys(text: str) -> list[str | int]:
     Returns:
         list[str | int]: 自然排序的键.
     """
-    return [int(part) if part.isdigit() else part.lower() for part in re.split(r"(\d+)", text)]
+    return [
+        int(part) if part.isdigit() else part.lower()
+        for part in re.split(r"(\d+)", text)
+    ]
 
 
 class FilterMode(Enum):
@@ -200,7 +203,9 @@ class TodoListModel(QAbstractListModel):
                 item.text = kwargs["text"]  # type: ignore
             if "completed" in kwargs:
                 item.completed = kwargs["completed"]  # type: ignore
-                item.completed_at = datetime.now(tz=timezone.utc) if kwargs["completed"] else None
+                item.completed_at = (
+                    datetime.now(tz=timezone.utc) if kwargs["completed"] else None
+                )
             if "priority" in kwargs:
                 item.priority = kwargs["priority"]  # type: ignore
             if "category" in kwargs:
@@ -248,7 +253,9 @@ class TodoListModel(QAbstractListModel):
     def update_filtered_items(self) -> None:
         """更新过滤后的项目列表."""
         if self.filter_mode == FilterMode.Pending.value:
-            self.filtered_items = [item for item in self.get_items() if not item.completed]
+            self.filtered_items = [
+                item for item in self.get_items() if not item.completed
+            ]
         elif self.filter_mode == FilterMode.Completed.value:
             self.filtered_items = [item for item in self.get_items() if item.completed]
         else:  # 全部
