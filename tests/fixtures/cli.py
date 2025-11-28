@@ -16,12 +16,12 @@ def typer_runner() -> CliRunner:
 
 @pytest.fixture
 def mock_subprocess_run(mocker: MagicMock) -> MagicMock:
-    """Mock subprocess.run().
+    """模拟 subprocess.run().
 
     Args:
-        mocker (MagicMock): Mocker.
+        mocker (MagicMock): 模拟器.
 
     Returns:
-        MagicMock: Mock subprocess.run().
+        MagicMock: 模拟 subprocess.run().
     """
     return mocker.patch("subprocess.run")

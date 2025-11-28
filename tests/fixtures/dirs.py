@@ -8,6 +8,11 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def dir_tests() -> Path:
+    """测试目录.
+
+    Returns:
+        Path: 测试目录
+    """
     dir_tests = Path(__file__).parent.parent
     logger.info(f"测试目录: {dir_tests}")
     return dir_tests

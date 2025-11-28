@@ -1,1 +1,1 @@
-"""Unit test package for pycmd2."""
+"""pycmd2的单元测试包."""

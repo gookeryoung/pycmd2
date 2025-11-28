@@ -20,11 +20,12 @@ slow_tests = []
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
+    """添加命令行选项."""
     parser.addoption(
         "--runslow",
         action="store_true",
         default=False,
-        help="Run slow tests",
+        help="运行慢速测试",
     )
 
 
@@ -32,6 +33,7 @@ def pytest_collection_modifyitems(
     config: pytest.Config,
     items: list[pytest.Item],
 ) -> None:
+    """修改测试项收集."""
     if not config.getoption("--runslow"):
         skip_slow = pytest.mark.skip(reason="需要 --runslow 选项")
         for item in items:
@@ -43,7 +45,7 @@ def pytest_runtest_makereport(
     item: pytest.Item,
     call: pytest.CallInfo[None],
 ) -> None:
-    """自动添加slow标记."""
+    """自动生成测试报告."""
     if call.when == "call":
         runtime = call.duration
         if runtime > 1.0:  # 阈值设为1秒
@@ -52,6 +54,7 @@ def pytest_runtest_makereport(
 
 
 def pytest_sessionstart(session: pytest.Session) -> None:  # noqa: ARG001
+    """测试会话开始."""
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
 
@@ -62,14 +65,15 @@ def pytest_sessionstart(session: pytest.Session) -> None:  # noqa: ARG001
         filemode="w",
     )
 
-    # Make a temp directory for pycmd2, set PYCMD2_HOME to it
+    # 为pycmd2创建临时目录, 并将其设置为PYCMD2_HOME环境变量
     os.environ["PYCMD2_HOME"] = str(tempfile.mkdtemp("pycmd2_home"))
 
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:  # noqa: ARG001
+    """测试会话结束."""
     if slow_tests:
-        logger.info("\n慢测试报告:")
+        logger.info("\n慢速测试报告:")
         for name, time in slow_tests:
             logger.info(f"{name}: {time:.2f}s")
     else:
-        logger.info("没有慢测试!")
+        logger.info("没有慢速测试!")

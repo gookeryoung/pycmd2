@@ -8,6 +8,8 @@ __all__ = [
 
 
 class ExampleConfig(TomlConfigMixin):
+    """示例配置类."""
+
     NAME = "test"
     FOO = "bar"
     BAZ = "qux"
@@ -15,4 +17,9 @@ class ExampleConfig(TomlConfigMixin):
 
 @pytest.fixture
 def example_config() -> ExampleConfig:
+    """示例配置.
+
+    Returns:
+        ExampleConfig: 示例配置实例.
+    """
     return ExampleConfig()

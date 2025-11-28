@@ -10,7 +10,7 @@ from pycmd2.config import TomlConfigMixin
 
 
 class ExampleTestConfig(TomlConfigMixin):
-    """Example config class."""
+    """示例配置类."""
 
     NAME = "test"
     FOO = "bar"
@@ -21,26 +21,26 @@ cli = get_client()
 
 
 class TestAttributeDiff:
-    """Test attribute diff."""
+    """测试属性差异功能."""
 
     def test_attribute_diff(self) -> None:
-        """Test attribute diff."""
+        """测试属性差异."""
         diff = AttributeDiff("foo", "bar", "baz")
 
         assert diff.attr == "foo"
-        assert hash(diff)  # hashable
+        assert hash(diff)  # 可哈希
 
 
 class TestConfig:
-    """Test config class."""
+    """测试配置类."""
 
     @pytest.fixture(autouse=True, scope="class")
     def fixture_clear_config(self) -> None:
-        """Clear config files before each test."""
+        """在每个测试前清除配置文件."""
         ExampleTestConfig.clear()
 
     def test_config(self) -> None:
-        """Test config class."""
+        """测试配置类."""
         conf = ExampleTestConfig()
         assert conf.FOO == "bar"
         assert conf.BAZ == "qux"
@@ -57,12 +57,12 @@ class TestConfig:
         config_file = cli.settings_dir / "example_test.toml"
         assert config_file == conf._config_file  # noqa: SLF001
 
-        assert not config_file.exists()  # Not exists until saved.
+        assert not config_file.exists()  # 保存前不存在
         conf.save()
         assert config_file.exists()
 
     def test_config_load(self) -> None:
-        """Test config load."""
+        """测试配置加载."""
         config_file = cli.settings_dir / "example_test.toml"
         config_file.write_text("FOO = '123'\nBAZ = ['123', '456']")
 
@@ -72,7 +72,7 @@ class TestConfig:
         assert conf.BAZ == ["123", "456"]
 
     def test_config_load_error(self, caplog: pytest.LogCaptureFixture) -> None:
-        """Test config load error, use invalid file content."""
+        """测试配置加载错误, 使用无效文件内容."""
         config_file = cli.settings_dir / "example_test.toml"
         config_file.write_text("INVALID TOML CONTENT")
 
@@ -89,7 +89,7 @@ class TestConfig:
         mock_mkdir: MagicMock,
         mock_exists: MagicMock,
     ) -> None:
-        """Test settings dir not exist."""
+        """测试设置目录不存在."""
         ExampleTestConfig()
 
         mock_exists.assert_called()

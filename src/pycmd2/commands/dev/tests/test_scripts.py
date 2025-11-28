@@ -1,4 +1,4 @@
-"""Test script entries defined in pyproject.toml."""
+"""测试 pyproject.toml 中定义的脚本条目."""
 
 from __future__ import annotations
 
@@ -78,7 +78,7 @@ def get_project_scripts() -> dict[str, str]:
 
 
 class TestScripts:
-    """Test script entries defined in pyproject.toml."""
+    """测试 pyproject.toml 中定义的脚本条目."""
 
     @pytest.mark.parametrize("script_name", SAFE_SCRIPTS)
     def test_script_execution_no_args(self, script_name: str) -> None:
