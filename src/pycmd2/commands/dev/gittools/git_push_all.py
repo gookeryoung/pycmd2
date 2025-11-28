@@ -8,7 +8,6 @@ from typing import ClassVar
 from pycmd2.client import get_client
 from pycmd2.commands.runner import BaseRunner
 
-cli = get_client()
 logger = logging.getLogger(__name__)
 
 
@@ -82,6 +81,8 @@ def git_push(
     if not _check_sensitive_data():
         return
 
+    # 动态获取cli对象，避免模块级导入问题
+    cli = get_client()
     cli.run_cmd(["git", "fetch", remote])
     cli.run_cmd(["git", "pull", "--rebase", remote])
     cli.run_cmd(["git", "push", "--all", remote])
