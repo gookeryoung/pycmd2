@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.commands.dev.gittools.git_clean import _git_clean  # noqa: PLC2701
+from pycmd2.commands.dev.gittools.git_clean import _git_clean
 
 
 @pytest.fixture

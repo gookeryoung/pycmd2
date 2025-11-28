@@ -6,10 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.commands.dev.gittools.git_add import (
-    _get_changed_files_info,  # noqa: PLC2701
-)
-from pycmd2.commands.dev.gittools.git_add import _git_add  # noqa: PLC2701
+from pycmd2.commands.dev.gittools.git_add import _get_changed_files_info
+from pycmd2.commands.dev.gittools.git_add import _git_add
 from pycmd2.commands.dev.gittools.git_add import GitAddFileStatus
 
 

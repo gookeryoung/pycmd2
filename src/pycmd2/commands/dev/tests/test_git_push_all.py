@@ -3,13 +3,9 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.commands.dev.gittools.git_push_all import _check_git_status  # noqa: PLC2701
-from pycmd2.commands.dev.gittools.git_push_all import (
-    _check_sensitive_data,  # noqa: PLC2701
-)
-from pycmd2.commands.dev.gittools.git_push_all import (
-    _get_cmd_full_path,  # noqa: PLC2701
-)
+from pycmd2.commands.dev.gittools.git_push_all import _check_git_status
+from pycmd2.commands.dev.gittools.git_push_all import _check_sensitive_data
+from pycmd2.commands.dev.gittools.git_push_all import _get_cmd_full_path
 from pycmd2.commands.dev.gittools.git_push_all import git_push
 
 
