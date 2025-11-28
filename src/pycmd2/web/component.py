@@ -144,6 +144,9 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
         if not self.COMPONENT_ID:
             self.COMPONENT_ID = self.__class__.__name__.lower()
 
+    def before_render(self) -> None:
+        """在渲染组件之前执行."""
+
     @abstractmethod
     def render(self) -> ui.element:
         """渲染组件.
@@ -154,6 +157,9 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
             ui.element: nicegui元素
         """
 
+    def after_render(self) -> None:
+        """在渲染组件之后执行."""
+
     def build(self) -> ui.element:
         """构建组件.
 
@@ -162,9 +168,11 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
         Returns:
             ui.element: nicegui元素
         """
+        self.before_render()
         self._element = self.render()
         self._apply_classes()
         self._apply_props()
+        self.after_render()
 
         return self._element
 

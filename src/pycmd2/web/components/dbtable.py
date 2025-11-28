@@ -28,13 +28,21 @@ class DBTableColumn:
 
     Examples:
         >>> col = DBTableColumn(name="id", label="ID", field="id")
-        >>> print(col.to_dict())
-        {'name': 'id', 'label': 'ID', 'field': 'id'}
+        >>> col
+        DBTableColumn(name="id", label="ID", field="id")
     """
 
     name: str
     label: str
     field: str
+
+    def __repr__(self) -> str:
+        """转换为字符串.
+
+        Returns:
+            str: 表格列定义字符串
+        """
+        return f'DBTableColumn(name="{self.name}", label="{self.label}", field="{self.field}")'
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典格式.
@@ -61,13 +69,19 @@ class DBTable(BaseComponent):
         ...     DBTableColumn(name="id", label="ID", field="id"),
         ...     DBTableColumn(name="name", label="名称", field="name"),
         ... ]
-        >>> table = DBTable(api_url="http://localhost:8000/api/heroes", columns=columns)
-    """
+        >>> table = DBTable(api_url="/api/users/", columns=columns)
+        >>> table
+        DBTable(api_url="/api/users/", columns=[DBTableColumn(name="id", label="ID", field="id"), DBTableColumn(name="name", label="名称", field="name")])
+        >>> table.converted_columns
+        [{'name': 'id', 'label': 'ID', 'field': 'id'}, {'name': 'name', 'label': '名称', 'field': 'name'}]
+        >>> isinstance(table.render(), ui.element)
+        True
+    """  # noqa: E501
 
     def __init__(
         self,
         api_url: str,
-        columns: List[DBTableColumn] | List[Dict[str, Any]],
+        columns: List[DBTableColumn],
         *args: tuple[Any, ...],
         **kwargs: Dict[str, Any],
     ) -> None:
@@ -84,19 +98,31 @@ class DBTable(BaseComponent):
         self.api_url = api_url if api_url.endswith("/") else f"{api_url}/"
 
         # 确保列是字典格式
-        self.columns = []
-        for col in columns:
-            if isinstance(col, DBTableColumn):
-                self.columns.append(col.to_dict())
-            else:
-                self.columns.append(col)
-
+        self.columns = columns
         self.rows: List[Dict[str, Any]] = []
         self.table_ref: Optional[ui.table] = None
         self.loading_ref: Optional[ui.spinner] = None
         self.form_dialog: Optional[ui.dialog] = None
         self.current_record: Optional[Dict[str, Any]] = None
         self.is_edit_mode = False
+        self._tasks = set()  # 用于保存任务引用, 避免被垃圾回收
+
+    def __repr__(self) -> str:
+        """转换为字符串.
+
+        Returns:
+            str: 表格组件字符串
+        """
+        return f'DBTable(api_url="{self.api_url}", columns={self.columns})'
+
+    @property
+    def converted_columns(self) -> List[Dict[str, Any]]:
+        """转换列定义为字典格式.
+
+        Returns:
+            List[Dict[str, Any]]: 列定义字典列表
+        """
+        return [col.to_dict() for col in self.columns]
 
     def render(self) -> ui.element:
         """渲染数据库表格组件.
@@ -118,7 +144,7 @@ class DBTable(BaseComponent):
 
             # 数据表格
             self.table_ref = ui.table(
-                columns=self.columns,
+                columns=self.converted_columns,
                 rows=self.rows,
                 pagination=10,
             ).classes("w-full")
@@ -128,9 +154,6 @@ class DBTable(BaseComponent):
 
             # 表单对话框
             self._create_form_dialog()
-
-        # 初始化加载数据
-        asyncio.create_task(self.load_data())
 
         return container
 
@@ -167,9 +190,9 @@ class DBTable(BaseComponent):
             # 动态创建表单字段
             self.form_inputs = {}
             for col in self.columns:
-                if col["name"] != "id":  # 不编辑ID字段
-                    field_name = col["name"]
-                    field_label = col.get("label", field_name)
+                if col.name != "id":  # 不编辑ID字段
+                    field_name = col.name
+                    field_label = col.label or col.field
                     input_field = ui.input(field_label).classes("w-full")
                     self.form_inputs[field_name] = input_field
 
@@ -199,6 +222,12 @@ class DBTable(BaseComponent):
         finally:
             if self.loading_ref:
                 self.loading_ref.set_visibility(False)
+
+    def after_render(self) -> None:
+        """组件渲染后执行."""
+        task = asyncio.create_task(self.load_data())
+        self._tasks.add(task)
+        task.add_done_callback(self._tasks.discard)
 
     def open_create_form(self) -> None:
         """打开创建记录表单."""
