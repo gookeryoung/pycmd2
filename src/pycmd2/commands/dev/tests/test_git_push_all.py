@@ -229,7 +229,7 @@ def test_git_push_all_runner_with_sensitive_data(
     mock_subprocess_run: Mock,
     mock_shutil_which: Mock,
 ) -> None:
-    """测试GitPushAllRunner在检测到敏感数据时是否阻止推送操作。.
+    """测试GitPushAllRunner在检测到敏感数据时是否阻止推送操作.
 
     Args:
         mock_cli (MagicMock): 模拟的cli对象
@@ -237,13 +237,17 @@ def test_git_push_all_runner_with_sensitive_data(
         mock_shutil_which (Mock): 模拟的shutil.which方法
 
     验证当检测到敏感文件(.env)时, GitPushAllRunner不会执行任何推送命令。
+    GitPushAllRunner会依次尝试推送origin、gitee.com、github.com
+    但在第一次检测到敏感数据时就会停止。
     """
-    """测试GitPushAllRunner在存在敏感数据时不执行推送."""
     mock_shutil_which.return_value = "/usr/bin/git"
-    # 第一个检查返回干净状态，第二个检查发现敏感文件
+
+    # GitPushAllRunner会调用git_push三次，每次都会执行检查
+    # 第一次git_push: check_git_status返回干净，check_sensitive_data发现敏感文件
+    # 由于第一次就发现敏感数据，后续的git_push不会被执行
     mock_subprocess_run.side_effect = [
-        MagicMock(stdout=""),  # check_git_status
-        MagicMock(stdout=".env"),  # check_sensitive_data
+        MagicMock(stdout=""),  # 第一次git_push的check_git_status
+        MagicMock(stdout=".env"),  # 第一次git_push的check_sensitive_data
     ]
 
     runner = GitPushAllRunner()
@@ -251,6 +255,17 @@ def test_git_push_all_runner_with_sensitive_data(
 
     # 验证没有执行任何推送命令
     assert mock_cli.run_cmd.call_count == 0
+
+    # 验证subprocess.run被调用了正确的次数（只有检查函数，没有推送命令）
+    assert mock_subprocess_run.call_count == 2  # noqa: PLR2004
+
+    # 验证调用的是正确的git命令
+    calls = mock_subprocess_run.call_args_list
+    assert len(calls) == 2  # noqa: PLR2004
+    # 第一次调用应该是git status检查
+    assert calls[0][0][0] == ["/usr/bin/git", "status", "--porcelain"]
+    # 第二次调用应该是git diff --cached检查
+    assert calls[1][0][0] == ["/usr/bin/git", "diff", "--cached", "--name-only"]
 
 
 def test_git_push_all_runner_isolation(tmp_path: Path) -> None:
