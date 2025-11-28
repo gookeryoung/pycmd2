@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import uuid
 from dataclasses import dataclass
 from functools import partial
@@ -121,5 +122,35 @@ def main(
     ),
 ) -> None:
     """Rename file level."""
-    rename_targets = [FileProcessor(t, t.stem) for t in targets]
+    # 参数验证
+    if level < 0 or level > 4:
+        logger.error(f"无效的级别 {level}, 必须在 0-4 范围内")
+        msg = "Level must be between 0 and 4"
+        raise typer.BadParameter(msg)
+
+    if not targets:
+        logger.error("未指定目标文件")
+        msg = "At least one target file is required"
+        raise typer.BadParameter(msg)
+
+    # 验证所有目标文件都存在且可写
+    valid_targets = []
+    for target in targets:
+        if not target.exists():
+            logger.warning(f"文件不存在: {target}")
+            continue
+        if not target.is_file():
+            logger.warning(f"不是文件: {target}")
+            continue
+        if not os.access(target, os.W_OK):
+            logger.warning(f"文件不可写: {target}")
+            continue
+        valid_targets.append(target)
+
+    if not valid_targets:
+        logger.error("没有有效的目标文件")
+        msg = "No valid target files found"
+        raise typer.BadParameter(msg)
+
+    rename_targets = [FileProcessor(t, t.stem) for t in valid_targets]
     cli.run(partial(FileProcessor.rename, level=level), rename_targets)

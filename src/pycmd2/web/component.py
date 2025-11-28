@@ -44,6 +44,7 @@ class ComponentMeta(type(ABC)):
 
     _instances: ClassVar[Dict[Type, BaseComponent]] = {}
     _registry: ClassVar[Dict[str, Type[BaseComponent]]] = {}
+    _max_cache_size: ClassVar[int] = 100  # 最大缓存实例数
 
     def __call__(cls, *args: Any, **kwargs: Any) -> BaseComponent:  # noqa: ANN401
         """创建或获取组件实例.
@@ -61,6 +62,10 @@ class ComponentMeta(type(ABC)):
         # 如果实例已存在且键匹配, 返回现有实例
         if cls in cls._instances and cls._instances[cls]._key == key:  # noqa: SLF001
             return cls._instances[cls]
+
+        # 检查缓存大小, 如果超过限制则清理最旧的实例
+        if len(cls._instances) >= cls._max_cache_size:
+            cls._cleanup_cache()
 
         # 创建新实例
         instance = super().__call__(*args, **kwargs)
@@ -107,6 +112,33 @@ class ComponentMeta(type(ABC)):
             Optional[Type[BaseComponent]]: 组件类, 如果未找到则返回None
         """
         return cls._registry.get(name)
+
+    @classmethod
+    def _cleanup_cache(cls) -> None:
+        """清理缓存, 删除最旧的实例."""
+        if len(cls._instances) > cls._max_cache_size // 2:
+            # 保留一半的实例, 删除另一半
+            items_to_remove = list(cls._instances.items())[: (len(cls._instances) // 2)]
+            for comp_type, instance in items_to_remove:
+                # 清理实例资源
+                if hasattr(instance, "_element") and instance._element:
+                    try:
+                        instance._element.delete()
+                    except Exception:
+                        pass  # 忽略清理过程中的错误
+                del cls._instances[comp_type]
+
+    @classmethod
+    def clear_cache(cls) -> None:
+        """清空所有缓存实例."""
+        for instance in cls._instances.values():
+            # 清理实例资源
+            if hasattr(instance, "_element") and instance._element:
+                try:
+                    instance._element.delete()
+                except Exception:
+                    pass  # 忽略清理过程中的错误
+        cls._instances.clear()
 
 
 class BaseComponent(ABC, metaclass=ComponentMeta):
@@ -204,7 +236,12 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
         self.build()
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
         """上下文管理器出口."""
 
     def __repr__(self) -> str:
@@ -230,7 +267,12 @@ class ContainerComponent(BaseComponent):
     用于包含其他组件的容器组件.
     """
 
-    def __init__(self, *args: tuple[Any, ...], direction: str = "column", **kwargs: dict[str, Any]) -> None:
+    def __init__(
+        self,
+        *args: tuple[Any, ...],
+        direction: str = "column",
+        **kwargs: dict[str, Any],
+    ) -> None:
         """初始化容器组件.
 
         Args:
@@ -261,7 +303,12 @@ class ContentComponent(BaseComponent):
     用于显示文本、图标等内容的组件.
     """
 
-    def __init__(self, content: str = "", *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> None:
+    def __init__(
+        self,
+        content: str = "",
+        *args: tuple[Any, ...],
+        **kwargs: dict[str, Any],
+    ) -> None:
         """初始化内容组件.
 
         Args:
@@ -315,14 +362,20 @@ class ComponentFactory:
     用于创建组件实例.
 
     Examples:
-        >>> from pycmd2.web.component import BaseComponent, ComponentFactory, register_component
+        >>> from pycmd2.web.component import (
+        ...     BaseComponent,
+        ...     ComponentFactory,
+        ...     register_component,
+        ... )
         >>> from nicegui import ui
         >>> @register_component("demo-button")
         ... class ButtonComponent(BaseComponent):
         ...     COMPONENT_ID = "demo-button"
         ...     CSS_CLASSES = ["demo-button"]
         ...
-        ...     def __init__(self, *args: Any, label: str = "Button", **kwargs: Any) -> None:
+        ...     def __init__(
+        ...         self, *args: Any, label: str = "Button", **kwargs: Any
+        ...     ) -> None:
         ...         super().__init__(*args, **kwargs)
         ...         self.label = label
         ...

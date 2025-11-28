@@ -38,13 +38,29 @@ def zip_folder(
 
     backup_path = dst / f"{timestamp}_{src.name}"
     logger.info(f"创建备份: [purple]{backup_path.name}")
-    shutil.make_archive(str(backup_path), "zip")
+
+    try:
+        # 添加错误处理和资源管理
+        archive_path = shutil.make_archive(str(backup_path), "zip")
+        logger.info(f"备份成功创建: {archive_path}")
+    except (shutil.Error, OSError, PermissionError) as e:
+        logger.exception(f"创建备份失败: {e.__class__.__name__}")
+        # 清理可能创建的不完整文件
+        incomplete_file = dst / f"{backup_path.name}.zip"
+        if incomplete_file.exists():
+            try:
+                incomplete_file.unlink()
+            except OSError:
+                logger.warning(f"无法删除不完整的备份文件: {incomplete_file}")
+        raise
 
 
 @cli.app.command()
 def main(
     directory: Annotated[Path, Argument(help="备份目录, 默认当前")] = cli.cwd,
-    dest: Annotated[Path, Option(help="目标文件夹")] = (cli.cwd.parent / f"_backup_{cli.cwd.name}"),
+    dest: Annotated[Path, Option(help="目标文件夹")] = (
+        cli.cwd.parent / f"_backup_{cli.cwd.name}"
+    ),
     max_count: Annotated[int, Option(help="最大备份数量")] = 5,
     *,
     clean: Annotated[bool, Option("--clean", help="清理已有备份")] = False,

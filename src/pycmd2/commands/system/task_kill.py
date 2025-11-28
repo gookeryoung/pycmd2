@@ -41,7 +41,11 @@ class TaskKillProcessor:
         Returns:
             List[ProcessInfo]: 匹配的进程列表
         """
-        return [p for p in self.process_list if fnmatch.fnmatch(p.name.lower(), process_name.lower())]
+        return [
+            p
+            for p in self.process_list
+            if fnmatch.fnmatch(p.name.lower(), process_name.lower())
+        ]
 
     def get_process_list(self) -> None:
         """获取进程列表."""
@@ -58,6 +62,7 @@ class TaskKillProcessor:
                 text=True,
                 encoding=encoding,
                 check=True,
+                timeout=10,  # 添加超时防止无限等待
             )
             logger.debug(f"已使用{encoding}解码")
             for line in result.stdout.strip().split("\n"):
@@ -67,18 +72,29 @@ class TaskKillProcessor:
                         name = parts[0].strip('"')
                         pid = parts[1].strip('"')
                         self.process_list.append(ProcessInfo(name, pid))
-        except (UnicodeDecodeError, subprocess.CalledProcessError):  # 更具体的异常类型
+        except UnicodeDecodeError:
+            logger.warning(f"使用{encoding}编码解码失败, 尝试其他编码")
             if encoding == "utf8":
-                logger.exception("获取进程列表失败")
+                logger.exception("所有编码尝试均失败, 无法获取进程列表")
                 return
-
             # 如果GBK编码失败, 尝试UTF-8
             try:
                 self._get_process_list_windows(encoding="utf8")
                 logger.debug("已使用utf8解码")
-            except (subprocess.SubprocessError, OSError, ValueError):
+            except (
+                subprocess.SubprocessError,
+                OSError,
+                ValueError,
+                UnicodeDecodeError,
+            ):
                 logger.exception("获取进程列表失败")
                 return
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+            logger.exception(f"执行tasklist命令失败: {e.__class__.__name__}: {e}")
+            return
+        except Exception as e:
+            logger.exception(f"获取进程列表时发生未知错误: {e.__class__.__name__}: {e}")
+            return
 
     def _get_process_list_unix(self) -> None:
         try:
@@ -112,7 +128,9 @@ class TaskKillProcessor:
             logger.warning(f"未找到进程 {process_name}")
             return
 
-        logger.info(f"找到 {len(matched_processes)} 个匹配 '{process_name}' 的进程: {[m.name for m in matched_processes]}")
+        logger.info(
+            f"找到 {len(matched_processes)} 个匹配 '{process_name}' 的进程: {[m.name for m in matched_processes]}",
+        )
         try:
             success_count = 0
             for process in matched_processes:

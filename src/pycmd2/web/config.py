@@ -135,4 +135,4 @@ class WebServerConfig(TomlConfigMixin):
 """
 
 
-conf = WebServerConfig().get_instance()
+conf = WebServerConfig.get_instance()

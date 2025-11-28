@@ -3,6 +3,7 @@ from __future__ import annotations
 import atexit
 import logging
 import re
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -61,6 +62,7 @@ class TomlConfigMixin:
 
     _instance: Optional[TomlConfigMixin] = None
     _exit_handler_registered: bool = False
+    _instance_lock: threading.Lock = threading.Lock()
 
     def __init__(self, *, show_logging: bool = False) -> None:
         if show_logging:
@@ -94,7 +96,8 @@ class TomlConfigMixin:
                 cls_value=getattr(self, attr),
             )
             for attr in self._cls_attrs
-            if attr in self._file_attrs and self._file_attrs[attr] != getattr(self, attr)
+            if attr in self._file_attrs
+            and self._file_attrs[attr] != getattr(self, attr)
         ]
         if diff_attrs:
             logger.debug(f"Diff attributes: [u]{diff_attrs}")
@@ -126,7 +129,9 @@ class TomlConfigMixin:
         logger.debug(f"获取配置单例对象: [purple b]{cls.__name__}")
 
         if cls._instance is None:
-            cls._instance = cls()
+            with cls._instance_lock:
+                if cls._instance is None:  # 双重检查锁定模式
+                    cls._instance = cls()
         return cls._instance  # type: ignore
 
     def get_fileattrs(self) -> dict[str, object]:
@@ -157,7 +162,9 @@ class TomlConfigMixin:
         # 使用缓存避免重复计算
         if not hasattr(self, "_cached_cls_attrs"):
             self._cached_cls_attrs = {
-                attr: getattr(self, attr) for attr in dir(self.__class__) if not attr.startswith("_") and not callable(getattr(self, attr))
+                attr: getattr(self, attr)
+                for attr in dir(self.__class__)
+                if not attr.startswith("_") and not callable(getattr(self, attr))
             }
         return self._cached_cls_attrs
 

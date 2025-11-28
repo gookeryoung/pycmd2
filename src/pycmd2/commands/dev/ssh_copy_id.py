@@ -55,6 +55,21 @@ def ssh_copy_id(
     try:
         # 使用 sshpass 执行远程命令
         try:
+            # 安全警告: StrictHostKeyChecking=no 会禁用主机密钥验证
+            # 仅在可信网络环境中使用此选项
+            logger.warning(
+                "安全警告: 正在禁用SSH主机密钥验证, 请确保在可信网络环境中使用",
+            )
+
+            # 验证输入参数
+            if not hostname or not username or not password:
+                msg = "主机名、用户名和密码不能为空"
+                raise ValueError(msg)
+
+            if port < 1 or port > 65535:
+                msg = f"无效的端口号: {port}, 必须在1-65535范围内"
+                raise ValueError(msg)
+
             # 尝试使用 sshpass 执行远程命令
             process = subprocess.run(
                 [
@@ -66,6 +81,10 @@ def ssh_copy_id(
                     str(port),
                     "-o",
                     "StrictHostKeyChecking=no",
+                    "-o",
+                    "UserKnownHostsFile=/dev/null",  # 避免污染known_hosts文件
+                    "-o",
+                    "ConnectTimeout=10",  # 添加连接超时
                     f"{username}@{hostname}",
                     f"mkdir -p ~/.ssh && chmod 700 ~/.ssh && "
                     f"cd ~/.ssh && touch authorized_keys && "
@@ -107,6 +126,29 @@ def main(
     port: int = typer.Option(22, help="端口"),
     keypath: str = typer.Option(str(Path.home() / ".ssh/id_rsa.pub")),
 ) -> None:
+    # 参数验证
+    if not hostname or not username or not password:
+        logger.error("主机名、用户名和密码不能为空")
+        msg = "主机名、用户名和密码不能为空"
+        raise typer.BadParameter(msg)
+
+    if port < 1 or port > 65535:
+        logger.error(f"无效的端口号: {port}, 必须在1-65535范围内")
+        msg = "端口号必须在1-65535范围内"
+        raise typer.BadParameter(msg)
+
+    # 验证公钥文件
+    expanded_path = Path(keypath).expanduser()
+    if not expanded_path.exists():
+        logger.error(f"公钥文件不存在: {expanded_path}")
+        msg = f"公钥文件不存在: {keypath}"
+        raise typer.BadParameter(msg)
+
+    if not expanded_path.is_file():
+        logger.error(f"指定的路径不是文件: {expanded_path}")
+        msg = f"指定的路径不是文件: {keypath}"
+        raise typer.BadParameter(msg)
+
     ssh_copy_id(
         hostname=hostname,
         port=port,

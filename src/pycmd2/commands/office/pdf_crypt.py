@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from contextlib import suppress
 from functools import partial
 from pathlib import Path
 from typing import List
@@ -13,6 +14,9 @@ import pypdf
 from typer import Argument
 
 from pycmd2.client import get_client
+
+# 常量定义
+MIN_PASSWORD_LENGTH = 6
 
 cli = get_client(help_doc="pdf 加密/解密工具.")
 logger = logging.getLogger(__name__)
@@ -43,30 +47,52 @@ def encrypt_pdf(
     Returns:
         Tuple[Path, Optional[Path]]: 加密文件信息
     """
-    reader = pypdf.PdfReader(filepath)
-    writer = pypdf.PdfWriter()
+    # 验证密码强度
+    if len(password) < MIN_PASSWORD_LENGTH:
+        logger.warning(f"密码长度少于{MIN_PASSWORD_LENGTH}位, 建议使用更复杂的密码")
 
-    for page in reader.pages:
-        writer.add_page(page)
-
-    writer.encrypt(
-        user_password=password,
-        owner_password=password,
-        use_128bit=True,
-    )
-
+    reader = None
+    writer = None
     enc_pdf_file = filepath.with_suffix(".enc.pdf")
+
     try:
-        with enc_pdf_file.open("wb") as f:
-            writer.write(f)
+        # 使用上下文管理器确保资源清理
+        with filepath.open("rb") as input_file:
+            reader = pypdf.PdfReader(input_file)
+            writer = pypdf.PdfWriter()
 
+            for page in reader.pages:
+                writer.add_page(page)
+
+            writer.encrypt(
+                user_password=password,
+                owner_password=password,
+                use_128bit=True,
+            )
+
+            # 检查目标文件是否已存在
+            if enc_pdf_file.exists():
+                logger.warning(f"目标文件已存在, 将覆盖: {enc_pdf_file}")
+
+            with enc_pdf_file.open("wb") as output_file:
+                writer.write(output_file)
     except OSError:
-        logger.exception(
-            f"写入加密文件[{enc_pdf_file.name}]失败",
-        )
+        logger.exception(f"写入加密文件[{enc_pdf_file.name}]失败")
         return filepath, None
-
-    return filepath, enc_pdf_file
+    except Exception:
+        logger.exception(f"加密文件[{filepath.name}]时发生错误")
+        return filepath, None
+    else:
+        logger.info(f"成功加密文件: {enc_pdf_file}")
+        return filepath, enc_pdf_file
+    finally:
+        # 显式清理资源
+        if reader:
+            with suppress(Exception):
+                reader.stream.close()
+        if writer:
+            # pypdf.PdfWriter没有显式的close方法
+            pass
 
 
 def decrypt_pdf(
@@ -82,31 +108,55 @@ def decrypt_pdf(
     Returns:
         typing.Tuple[Path, typing.Optional[Path]]: 解密文件信息
     """
-    # 打开输入的 PDF 文件
-    with filepath.open("rb") as f:
-        reader = pypdf.PdfReader(f)
+    reader = None
+    writer = None
 
-        # 尝试解密文件
-        if reader.decrypt(password):
-            logger.info(f"尝试解密[{filepath.name}文件]成功!")
-        else:
-            logger.error(f"尝试解密[{filepath.name}文件]失败, 密码不正确.")
-            return filepath, None
+    try:
+        # 打开输入的 PDF 文件
+        with filepath.open("rb") as f:
+            reader = pypdf.PdfReader(f)
 
-        # 创建一个新的 PdfWriter 对象
-        writer = pypdf.PdfWriter()
+            # 尝试解密文件
+            if reader.decrypt(password):
+                logger.info(f"尝试解密[{filepath.name}文件]成功!")
+            else:
+                logger.error(f"尝试解密[{filepath.name}文件]失败, 密码不正确.")
+                return filepath, None
 
-        # 将所有页面添加到新的 PdfWriter 对象中
-        for page_num in range(len(reader.pages)):
-            page = reader.pages[page_num]
-            writer.add_page(page)
+            # 创建一个新的 PdfWriter 对象
+            writer = pypdf.PdfWriter()
 
-        # 将解密后的 PDF 写入输出文件
-        outfile = filepath.with_suffix(".dec.pdf")
-        with outfile.open("wb") as _:
-            writer.write(_)
-            logger.info(f"写入解密文件到[{outfile}]")
-            return filepath, outfile
+            # 将所有页面添加到新的 PdfWriter 对象中
+            for page_num in range(len(reader.pages)):
+                page = reader.pages[page_num]
+                writer.add_page(page)
+
+            # 将解密后的 PDF 写入输出文件
+            outfile = filepath.with_suffix(".dec.pdf")
+
+            # 检查目标文件是否已存在
+            if outfile.exists():
+                logger.warning(f"目标文件已存在, 将覆盖: {outfile}")
+
+            with outfile.open("wb") as output_file:
+                writer.write(output_file)
+                logger.info(f"写入解密文件到[{outfile}]")
+                return filepath, outfile
+
+    except OSError:
+        logger.exception("写入解密文件失败")
+        return filepath, None
+    except Exception:
+        logger.exception(f"解密文件[{filepath.name}]时发生错误")
+        return filepath, None
+    finally:
+        # 显式清理资源
+        if reader:
+            with suppress(Exception):
+                reader.stream.close()
+        if writer:
+            with suppress(Exception):
+                writer.close()
 
 
 @cli.app.command("l", help="显示 pdf 文件列表, 别名: list")

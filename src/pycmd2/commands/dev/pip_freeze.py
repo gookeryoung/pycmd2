@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import logging
+import pathlib
 import subprocess
 from typing import Optional
 
@@ -43,13 +44,53 @@ def main() -> None:
     """默认调用."""
     logger.info(f"pipf {__version__}, 构建日期: {__build_date__}")
 
-    options = r' | grep -v "^\-e" '
-
     if check_uv_callable():
         # 使用 uv 调用 pip freeze
         # 这样可以避免在某些环境中 pip freeze 的输出被截断
-
-        cli.run_cmdstr(f"uv pip freeze {options} > requirements.txt")
+        logger.info("使用 uv 生成依赖清单...")
+        try:
+            result = subprocess.run(
+                ["uv", "pip", "freeze"],
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=30,
+            )
+            # 过滤掉 -e 开头的行
+            filtered_output = "\n".join(
+                line for line in result.stdout.splitlines() if not line.startswith("-e")
+            )
+            with pathlib.Path("requirements.txt").open("w", encoding="utf-8") as f:
+                f.write(filtered_output + "\n")
+            logger.info("依赖清单已生成: requirements.txt")
+        except subprocess.TimeoutExpired:
+            logger.exception("生成依赖清单超时")
+        except subprocess.CalledProcessError:
+            logger.exception("生成依赖清单失败")
+        except OSError:
+            logger.exception("写入文件失败")
     else:
         # 直接调用 pip freeze
-        cli.run_cmdstr(f"pip freeze {options} > requirements.txt")
+        logger.info("使用 pip 生成依赖清单...")
+        try:
+            result = subprocess.run(
+                ["pip", "freeze"],
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=30,
+            )
+            # 过滤掉 -e 开头的行
+            filtered_output = "\n".join(
+                line for line in result.stdout.splitlines() if not line.startswith("-e")
+            )
+            with pathlib.Path("requirements.txt").open("w", encoding="utf-8") as f:
+                f.write(filtered_output + "\n")
+        except subprocess.TimeoutExpired:
+            logger.exception("生成依赖清单超时")
+        except subprocess.CalledProcessError:
+            logger.exception("生成依赖清单失败")
+        except OSError:
+            logger.exception("写入文件失败")
+        else:
+            logger.info("依赖清单已生成: requirements.txt")
