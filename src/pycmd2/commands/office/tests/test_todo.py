@@ -20,7 +20,7 @@ from pycmd2.commands.office.todo.model import TodoListModel
 
 
 class TestTodoItem:
-    """Test TodoItem."""
+    """测试TodoItem类."""
 
     @pytest.mark.parametrize(
         ("text", "completed", "priority", "category"),
@@ -57,7 +57,7 @@ class TestTodoItem:
         }
 
     def test_from_dict(self) -> None:
-        """Test from dict."""
+        """测试从字典创建TodoItem."""
         item = TodoItem.from_dict(
             {
                 "text": "test",
@@ -77,7 +77,7 @@ class TestTodoItem:
 
 
 class TestTodoListModel:
-    """Test TodoListModel."""
+    """测试TodoListModel类."""
 
     @pytest.mark.parametrize(
         ("text", "priority", "category"),
@@ -95,14 +95,14 @@ class TestTodoListModel:
         priority: int,
         category: str,
     ) -> None:
-        """Test add item."""
+        """测试添加项目功能."""
         model = TodoListModel()
 
-        # Test init state
+        # 测试初始状态
         assert len(model.items) == 0
         assert model.count == 0
 
-        # Test add item
+        # 测试添加项目
         model.add_item(text, priority, category)
         assert len(model.items) == 1
         assert model.count == 1
@@ -115,18 +115,18 @@ class TestTodoListModel:
             ),
         )
 
-        # Test update item
+        # 测试更新项目
         assert model.completed_count == 0
         model.update_item(0, completed=True)
         assert model.completed_count == 1
 
-        # Test remove item
+        # 测试移除项目
         model.remove_item(0)
         assert model.count == 0
 
 
 class TestTodoListView:
-    """Test TodoListView."""
+    """测试TodoListView类."""
 
     @pytest.fixture(autouse=True)
     def fixture_reset_data(
@@ -134,7 +134,7 @@ class TestTodoListView:
         tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Reset data file."""
+        """重置数据文件."""
         monkeypatch.setattr(
             "pycmd2.commands.office.todo.controller.TodoController.get_data_file_path",
             lambda _: str(tmp_path / "todo_data.json"),
@@ -145,10 +145,10 @@ class TestTodoListView:
         self,
         qtbot: QtBot,
     ) -> Generator[TodoController, None, None]:
-        """Setup controller.
+        """设置控制器.
 
         Yields:
-            TodoController: TodoController instance
+            TodoController: TodoController实例
         """
         controller = TodoController()
         controller.show()
@@ -164,7 +164,7 @@ class TestTodoListView:
         *,
         condition: bool = True,
     ) -> None:
-        """Click item."""
+        """点击项目."""
         if condition:
             filtered_index = mock_controller.model.filtered_items.index(item)
             index = mock_controller.model.index(filtered_index, 0)
@@ -175,10 +175,10 @@ class TestTodoListView:
             )
 
     def _complete_count(self, mock_controller: TodoController) -> int:
-        """Get complete count.
+        """获取完成数量.
 
         Returns:
-            int: complete count
+            int: 完成数量
         """
         return sum(1 for item in mock_controller.model.items if item.completed)
 
@@ -187,10 +187,10 @@ class TestTodoListView:
         mock_controller: TodoController,
         qtbot: QtBot,
     ) -> None:
-        """Test app run."""
+        """测试应用程序运行."""
         assert mock_controller.view.isVisible()
 
-        # actions
+        # 操作
         mock_controller.view.todo_input.setText("测试待办事项")
         qtbot.mouseClick(mock_controller.view.add_button, Qt.LeftButton)
 
@@ -205,7 +205,7 @@ class TestTodoListView:
         qtbot: QtBot,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test item click to toggle completion status."""
+        """测试点击项目切换完成状态."""
         # Add two items to the model
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         mock_controller.model.add_item("Test todo item 02", 2, "work")
@@ -263,7 +263,7 @@ class TestTodoListView:
         mock_controller: TodoController,
         qtbot: QtBot,
     ) -> None:
-        """Test app close."""
+        """测试应用程序关闭."""
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
 
@@ -280,7 +280,7 @@ class TestTodoListView:
         qtbot: QtBot,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test context menu edit action."""
+        """测试上下文菜单编辑操作."""
         # Add an item to test with
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
@@ -302,10 +302,10 @@ class TestTodoListView:
             pos=rect.center(),
         )
 
-        # Note: We cannot interact with the context menu via key events
-        # because it's a separate popup menu, not part of the list widget.
-        # The proper way to test context menu functionality is through
-        # direct method calls, as implemented in the direct_call tests.
+        # 注意：我们无法通过键盘事件与上下文菜单交互
+        # 因为它是一个独立的弹出菜单，不是列表部件的一部分。
+        # 测试上下文菜单功能的正确方法是通过
+        # 直接方法调用，如在direct_call测试中实现的那样。
 
     def test_context_menu_event_delete(
         self,
@@ -313,7 +313,7 @@ class TestTodoListView:
         qtbot: QtBot,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test context menu delete action."""
+        """测试上下文菜单删除操作."""
         # Add an item to test with
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
@@ -335,17 +335,17 @@ class TestTodoListView:
             pos=rect.center(),
         )
 
-        # Note: We cannot interact with the context menu via key events
-        # because it's a separate popup menu, not part of the list widget.
-        # The proper way to test context menu functionality is through
-        # direct method calls, as implemented in the direct_call tests.
+        # 注意：我们无法通过键盘事件与上下文菜单交互
+        # 因为它是一个独立的弹出菜单，不是列表部件的一部分。
+        # 测试上下文菜单功能的正确方法是通过
+        # 直接方法调用，如在direct_call测试中实现的那样。
 
     def test_context_menu_event_set_priority(
         self,
         mock_controller: TodoController,
         qtbot: QtBot,
     ) -> None:
-        """Test context menu set priority action."""
+        """测试上下文菜单设置优先级操作."""
         # Add an item to test with
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
@@ -361,17 +361,17 @@ class TestTodoListView:
             pos=rect.center(),
         )
 
-        # Note: We cannot interact with the context menu via key events
-        # because it's a separate popup menu, not part of the list widget.
-        # The proper way to test context menu functionality is through
-        # direct method calls, as implemented in the direct_call tests.
+        # 注意：我们无法通过键盘事件与上下文菜单交互
+        # 因为它是一个独立的弹出菜单，不是列表部件的一部分。
+        # 测试上下文菜单功能的正确方法是通过
+        # 直接方法调用，如在direct_call测试中实现的那样。
 
     def test_context_menu_event_direct_call_edit(
         self,
         mock_controller: TodoController,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test context menu event by directly calling the method for edit action."""
+        """通过直接调用方法测试上下文菜单事件的编辑操作."""
         # Add an item to test with
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
@@ -390,7 +390,7 @@ class TestTodoListView:
         # Mock QMenu.exec_ to return the edit action
 
         def mock_exec(self: QObject, pos: QPoint) -> None:  # noqa: ARG001
-            """Mock QMenu.exec_."""
+            """模拟QMenu.exec_."""
             actions = self.actions()
             for action in actions:
                 if action.text() == "编辑":
@@ -417,7 +417,7 @@ class TestTodoListView:
         mock_controller: TodoController,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test context menu event by directly calling the method for delete action."""
+        """通过直接调用方法测试上下文菜单事件的删除操作."""
         # Add an item to test with
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
@@ -429,7 +429,7 @@ class TestTodoListView:
 
         # Mock QMenu.exec_ to return the delete action
         def mock_exec(self: QObject, pos: QPoint) -> None:  # noqa: ARG001
-            """Mock QMenu.exec."""
+            """模拟QMenu.exec."""
             actions = self.actions()
             for action in actions:
                 if action.text() == "删除":
@@ -464,7 +464,7 @@ class TestTodoListView:
         mock_controller: TodoController,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test context menu event by directly calling the method for set priority action."""
+        """通过直接调用方法测试上下文菜单事件的设置优先级操作."""
         # Add an item to test with
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
@@ -476,7 +476,7 @@ class TestTodoListView:
 
         # Mock QMenu.exec_ to return the "高" priority action
         def mock_exec(self: QObject, pos: QPoint) -> None:  # noqa: ARG001
-            """Mock QMenu.exec."""
+            """模拟QMenu.exec."""
             # Find the "设置优先级" menu
             for action in self.actions():
                 if action.menu():
@@ -506,7 +506,7 @@ class TestTodoListView:
         mock_controller: TodoController,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test context menu event when clicking on an invalid index (empty area)."""
+        """测试在无效索引点击时的上下文菜单事件."""
         # Add an item to test with
         mock_controller.model.add_item("Test todo item 01", 1, "work")
         assert mock_controller.model.count == 1
@@ -544,7 +544,7 @@ class TestTodoListView:
         mock_controller: TodoController,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Test backup execution through timer timeout."""
+        """测试通过定时器超时执行备份功能."""
         # Collect calls to subprocess.call and os.chdir
         calls = []
         chdir_calls = []

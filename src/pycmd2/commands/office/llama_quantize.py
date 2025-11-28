@@ -47,7 +47,7 @@ class QuantizationWorker(QThread):
 
     progress_msg_updated = pyqtSignal(str)
     progress_count_updated = pyqtSignal(int)
-    finished = pyqtSignal(bool)
+    is_finished = pyqtSignal(bool)
 
     def __init__(
         self,
@@ -67,7 +67,9 @@ class QuantizationWorker(QThread):
         """执行量化转换任务."""
         try:
             for quant_type in self.quant_types:
-                output_file: pathlib.Path = self.input_dir / f"{self.base_name}-{quant_type}.gguf"
+                output_file: pathlib.Path = (
+                    self.input_dir / f"{self.base_name}-{quant_type}.gguf"
+                )
 
                 self.progress_msg_updated.emit(
                     f"正在转换到 {quant_type} 格式...",
@@ -91,6 +93,10 @@ class QuantizationWorker(QThread):
                 )
 
                 # 实时输出进度
+                if not process.stdout:
+                    logger.error("无法获取进度信息")
+                    continue
+
                 for line in process.stdout:
                     self.progress_msg_updated.emit(line.strip())
 
@@ -106,10 +112,10 @@ class QuantizationWorker(QThread):
                 else:
                     self.progress_msg_updated.emit(f"转换 {quant_type} 失败")
 
-            self.finished.emit(success=True)
+            self.is_finished.emit(success=True)  # type: ignore
         except subprocess.CalledProcessError as e:
             self.progress_msg_updated.emit(f"发生错误: {e!s}")
-            self.finished.emit(success=False)
+            self.is_finished.emit(success=False)  # type: ignore
 
 
 class GGUFQuantizerGUI(QMainWindow):
@@ -265,7 +271,9 @@ class GGUFQuantizerGUI(QMainWindow):
 
     def start_conversion(self) -> None:
         """开始转换."""
-        selected_quants: list[str] = [q for q, check in self.quant_checks.items() if check.isChecked()]
+        selected_quants: list[str] = [
+            q for q, check in self.quant_checks.items() if check.isChecked()
+        ]
 
         if not selected_quants:
             self.output_text.append("请至少选择一种量化类型")
@@ -285,7 +293,7 @@ class GGUFQuantizerGUI(QMainWindow):
 
         self.worker = QuantizationWorker(self.input_file, selected_quants)
         self.worker.progress_msg_updated.connect(self.update_progress_msg)
-        self.worker.finished.connect(self.conversion_finished)
+        self.worker.is_finished.connect(self.conversion_finished)  # type: ignore
         self.worker.progress_count_updated.connect(self.update_progress_value)
         self.worker.start()
 

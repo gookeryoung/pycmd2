@@ -28,7 +28,9 @@ registry = "https://mirrors.ustc.edu.cn/crates.io-index"
     RUSTUP_DIST_SERVER = "https://mirrors.ustc.edu.cn/rust-static"
 
     DOWNLOAD_CMD_WINDOWS = "wget https://win.rustup.rs -O rustup-init.exe"
-    DOWNLOAD_CMD_LINUX = "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+    DOWNLOAD_CMD_LINUX = (
+        "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+    )
 
     def get_default_host(self) -> str:
         """获取 rustup 默认host.
@@ -36,7 +38,9 @@ registry = "https://mirrors.ustc.edu.cn/crates.io-index"
         Returns:
             str: 默认host
         """
-        return "x86_64-pc-windows-msvc" if cli.is_windows else "x86_64-unknown-linux-gnu"
+        return (
+            "x86_64-pc-windows-msvc" if cli.is_windows else "x86_64-unknown-linux-gnu"
+        )
 
 
 cli = get_client()
@@ -51,7 +55,9 @@ class RustEnvTool(BaseEnvTool):
         """设置 rust 环境变量."""
         logger.info("配置 uv 环境变量")
 
-        rustup_envs: dict[str, object] = {k: v for k, v in conf.get_fileattrs().items() if k.startswith("RUSTUP_")}
+        rustup_envs: dict[str, object] = {
+            k: v for k, v in conf.get_fileattrs().items() if k.startswith("RUSTUP_")
+        }
 
         if cli.is_windows:
             for k, v in rustup_envs.items():

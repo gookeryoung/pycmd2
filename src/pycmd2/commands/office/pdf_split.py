@@ -60,7 +60,10 @@ def split_pdf_file(
             range_list = [(_ + 1, _ + 1) for _ in range(len(reader.pages))]
 
         logger.info(f"分割文件: {filepath}, 范围列表: {range_list}")
-        out_pdfs: list[Path] = [output_dir / f"{filepath.stem}#{b:03}-{e:03}{filepath.suffix}" for (b, e) in range_list]
+        out_pdfs: list[Path] = [
+            output_dir / f"{filepath.stem}#{b:03}-{e:03}{filepath.suffix}"
+            for (b, e) in range_list
+        ]
         for out, (begin, end) in zip(out_pdfs, range_list):
             writer = pypdf.PdfWriter()
             for page_num in range(begin - 1, end):

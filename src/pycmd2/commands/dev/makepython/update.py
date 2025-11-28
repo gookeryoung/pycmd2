@@ -64,7 +64,9 @@ def _managed_backup(file_path: Path) -> Generator[Path, None, None]:
     backup_file = None
     try:
         # 使用时间戳避免备份文件名冲突
-        timestamp = datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
+        timestamp = datetime.datetime.now(tz=datetime.timezone.utc).strftime(
+            "%Y%m%d_%H%M%S_%f",
+        )
         backup_suffix = f"{_Config.BACKUP_SUFFIX}.{timestamp}"
         backup_file = file_path.with_suffix(file_path.suffix + backup_suffix)
 
@@ -86,7 +88,11 @@ def _managed_backup(file_path: Path) -> Generator[Path, None, None]:
             logger.info(f"备份文件不存在: {backup_file}, 跳过清理")
 
 
-def _update_file_build_date(file_path: Path, build_date: str, pattern: re.Pattern) -> bool:
+def _update_file_build_date(
+    file_path: Path,
+    build_date: str,
+    pattern: re.Pattern,
+) -> bool:
     """更新单个文件的构建日期.
 
     Args:
@@ -103,7 +109,12 @@ def _update_file_build_date(file_path: Path, build_date: str, pattern: re.Patter
         return False
 
     # 解析和验证内容
-    parse_result = _parse_and_validate_content(file_path, original_content, build_date, pattern)
+    parse_result = _parse_and_validate_content(
+        file_path,
+        original_content,
+        build_date,
+        pattern,
+    )
     if not parse_result.needs_update:
         return False
 
@@ -128,7 +139,9 @@ def _read_file_content(file_path: Path) -> str | None:
         try:
             with file_path.open("r", encoding=_Config.FALLBACK_ENCODING) as f:
                 content = f.read()
-            logger.warning(f"文件 {file_path} 使用 {_Config.FALLBACK_ENCODING} 编码读取")
+            logger.warning(
+                f"文件 {file_path} 使用 {_Config.FALLBACK_ENCODING} 编码读取",
+            )
         except OSError:
             logger.exception(f"读取文件失败: {file_path}")
             return None
@@ -139,7 +152,12 @@ def _read_file_content(file_path: Path) -> str | None:
         return None
 
 
-def _parse_and_validate_content(file_path: Path, content: str, build_date: str, pattern: re.Pattern) -> _ParseResult:
+def _parse_and_validate_content(
+    file_path: Path,
+    content: str,
+    build_date: str,
+    pattern: re.Pattern,
+) -> _ParseResult:
     """解析和验证文件内容.
 
     Args:
@@ -155,7 +173,9 @@ def _parse_and_validate_content(file_path: Path, content: str, build_date: str, 
         # 查找匹配项
         match = pattern.search(content)
         if not match:
-            logger.debug(f"文件 {file_path} 中未找到 {_Config.BUILD_DATE_VAR} 定义, 跳过")
+            logger.debug(
+                f"文件 {file_path} 中未找到 {_Config.BUILD_DATE_VAR} 定义, 跳过",
+            )
             return _ParseResult(needs_update=False)
 
         # 验证现有日期格式
@@ -171,7 +191,10 @@ def _parse_and_validate_content(file_path: Path, content: str, build_date: str, 
 
         # 构造新内容
         quote = match.group(3) or ""  # 获取原引号(可能为空)
-        new_line = f"{match.group(1)}{match.group(2)} = {quote}{build_date}{quote}{match.group(5)}"
+        new_line = (
+            f"{match.group(1)}{match.group(2)} = "
+            f"{quote}{build_date}{quote}{match.group(5)}"
+        )
         new_content = pattern.sub(new_line, content, count=1)
 
         # 检查是否需要更新
@@ -221,7 +244,9 @@ def _perform_file_update(file_path: Path, new_content: str, build_date: str) -> 
                         temp_file.unlink()
                 raise
             else:
-                logger.info(f"更新文件: {file_path}, {_Config.BUILD_DATE_VAR} -> {build_date}")
+                logger.info(
+                    f"更新文件: {file_path}, {_Config.BUILD_DATE_VAR} -> {build_date}",
+                )
                 return True
 
     except OSError as e:
@@ -254,7 +279,9 @@ def _validate_config() -> bool:
         bool: 配置是否有效
     """
     # 验证日期格式
-    test_date = datetime.datetime.now(tz=datetime.timezone.utc).strftime(_Config.DATE_FORMAT)
+    test_date = datetime.datetime.now(tz=datetime.timezone.utc).strftime(
+        _Config.DATE_FORMAT,
+    )
     if not _validate_date_format(test_date):
         logger.error(f"日期格式配置无效: {_Config.DATE_FORMAT}")
         return False
@@ -308,7 +335,11 @@ def _cleanup_temp_files(directory: Path) -> None:
         logger.warning(f"扫描临时文件失败: {directory}, {e}")
 
 
-def _log_update_summary(updated_count: int, skipped_count: int, failed_count: int = 0) -> None:
+def _log_update_summary(
+    updated_count: int,
+    skipped_count: int,
+    failed_count: int = 0,
+) -> None:
     """记录更新结果汇总.
 
     Args:
@@ -321,14 +352,19 @@ def _log_update_summary(updated_count: int, skipped_count: int, failed_count: in
     if updated_count > 0:
         logger.info(f"构建日期更新完成, 共更新 {updated_count} 个文件")
     if skipped_count > 0:
-        logger.info(f"跳过 {skipped_count} 个文件(未找到 __build_date__ 定义或无需更新)")
+        logger.info(
+            f"跳过 {skipped_count} 个文件(未找到 __build_date__ 定义或无需更新)",
+        )
     if failed_count > 0:
         logger.error(f"处理失败 {failed_count} 个文件")
 
     if total_files == 0:
         logger.warning(f"未找到任何 {_Config.INIT_FILENAME} 文件进行处理")
     else:
-        logger.info(f"处理完成: 总计 {total_files} 个文件, 成功 {updated_count}, 跳过 {skipped_count}, 失败 {failed_count}")
+        logger.info(
+            f"处理完成: 总计 {total_files} 个文件, 成功 "
+            f"{updated_count}, 跳过 {skipped_count}, 失败 {failed_count}",
+        )
 
 
 def update_build_date() -> None:
@@ -371,7 +407,9 @@ def update_build_date() -> None:
     failed_files = 0
 
     pattern = _get_build_date_pattern()
-    build_date = datetime.datetime.now(datetime.timezone.utc).strftime(_Config.DATE_FORMAT)
+    build_date = datetime.datetime.now(datetime.timezone.utc).strftime(
+        _Config.DATE_FORMAT,
+    )
 
     # 验证生成的日期格式
     if not _validate_date_format(build_date):

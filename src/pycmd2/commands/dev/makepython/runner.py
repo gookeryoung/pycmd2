@@ -25,7 +25,7 @@ class EmptyRunner(BaseRunner):
     """EmptyRunner 类."""
 
     def run(self) -> None:
-        """Run command."""
+        """运行命令."""
         logger.info("没有子命令, 退出")
 
 
@@ -55,7 +55,7 @@ def _activate_py_env() -> None:
 
 
 class ActivateRunner(BaseRunner):
-    """ActivateRunner 类."""
+    """激活运行器类."""
 
     DESCRIPTION = "激活项目环境, 别名: act / activate"
     SUBCOMMANDS: ClassVar = [_activate_py_env]
@@ -74,21 +74,25 @@ def _build_func() -> None:
 
 
 class BuildRunner(BaseRunner):
-    """BuildRunner 类."""
+    """构建运行器类."""
 
     DESCRIPTION = "构建项目, 别名: b"
     SUBCOMMANDS: ClassVar = [_build_func]
 
 
 class UpdateRunner(BaseRunner):
-    """UpdateRunner 类."""
+    """更新运行器类."""
 
     DESCRIPTION = "更新构建日期, 别名: u / update"
-    SUBCOMMANDS: ClassVar = [update_build_date, ["git", "add", "*/**/__init__.py"], ["git", "commit", "-m", "更新构建日期"]]
+    SUBCOMMANDS: ClassVar = [
+        update_build_date,
+        ["git", "add", "*/**/__init__.py"],
+        ["git", "commit", "-m", "更新构建日期"],
+    ]
 
 
 class BumpPatchRunner(BaseRunner):
-    """BumpPatchRunner 类."""
+    """补丁版本更新运行器类."""
 
     DESCRIPTION = "更新 patch 版本"
     CHILD_RUNNERS: ClassVar = {
@@ -101,7 +105,7 @@ class BumpPatchRunner(BaseRunner):
 
 
 class BumpMinorRunner(BumpPatchRunner):
-    """BumpMinorRunner 类."""
+    """次要版本更新运行器类."""
 
     DESCRIPTION = "更新 minor 版本"
     SUBCOMMANDS: ClassVar = [
@@ -111,7 +115,7 @@ class BumpMinorRunner(BumpPatchRunner):
 
 
 class BumpMajorRunner(BumpPatchRunner):
-    """BumpMajorRunner 类."""
+    """主要版本更新运行器类."""
 
     DESCRIPTION = "更新 major 版本"
     SUBCOMMANDS: ClassVar = [
@@ -136,7 +140,7 @@ def _publish_func() -> None:
 
 
 class PublishRunner(BaseRunner):
-    """PublishRunner 类."""
+    """发布运行器类."""
 
     DESCRIPTION = "执行发布以及推送等系列操作, 别名: p / publish"
     SUBCOMMANDS: ClassVar = [
@@ -147,7 +151,7 @@ class PublishRunner(BaseRunner):
 
 
 class BumpPublishRunner(BaseRunner):
-    """BumpPublishRunner 类."""
+    """版本更新发布运行器类."""
 
     DESCRIPTION = "执行版本更新、构建以及推送等系列操作"
     CHILD_RUNNERS: ClassVar = {
@@ -188,7 +192,7 @@ def _clean() -> None:
 
 
 class CleanRunner(BaseRunner):
-    """CleanRunner 类."""
+    """清理运行器类."""
 
     DESCRIPTION = "清理所有构建、测试生成的临时内容, 别名: c / clean"
     SUBCOMMANDS: ClassVar = [_clean]
@@ -217,7 +221,11 @@ def _get_project_name() -> str:
             if "project" in config and "name" in config["project"]:
                 project_name = config["project"]["name"]
             # 尝试从 tool.poetry.name 获取
-            elif "tool" in config and "poetry" in config["tool"] and "name" in config["tool"]["poetry"]:
+            elif (
+                "tool" in config
+                and "poetry" in config["tool"]
+                and "name" in config["tool"]["poetry"]
+            ):
                 project_name = config["tool"]["poetry"]["name"]
 
             return project_name or ""
@@ -257,7 +265,7 @@ def _browse_coverage() -> None:
 
 
 class CoverageRunner(BaseRunner):
-    """CoverageRunner 类."""
+    """覆盖率运行器类."""
 
     DESCRIPTION = "生成测试覆盖率报告, 别名: cov / coverage"
     SUBCOMMANDS: ClassVar = [
@@ -269,7 +277,7 @@ class CoverageRunner(BaseRunner):
 
 
 class CoverageSlowRunner(BaseRunner):
-    """CoverageSlowRunner 类."""
+    """慢速覆盖率运行器类."""
 
     DESCRIPTION = "生成测试覆盖率报告, 别名: covsl / coverage --slow"
     SUBCOMMANDS: ClassVar = [
@@ -281,7 +289,7 @@ class CoverageSlowRunner(BaseRunner):
 
 
 class SyncronizeRunner(BaseRunner):
-    """SyncRunner 类."""
+    """同步运行器类."""
 
     DESCRIPTION = "同步项目, 别名: s / sync"
     SUBCOMMANDS: ClassVar = [
@@ -291,7 +299,7 @@ class SyncronizeRunner(BaseRunner):
 
 
 class DistributionRunner(BaseRunner):
-    """DistRunner 类."""
+    """分发运行器类."""
 
     DESCRIPTION = "发布项目, 别名: dist"
     CHILD_RUNNERS: ClassVar = {
@@ -308,7 +316,7 @@ class DistributionRunner(BaseRunner):
 
 
 class DocumentationRunner(BaseRunner):
-    """DocRunner 类."""
+    """文档运行器类."""
 
     DESCRIPTION = "生成 Sphinx HTML 文档, 包括 API 文档, 别名: d / doc"
     SUBCOMMANDS: ClassVar = [
@@ -329,7 +337,7 @@ class DocumentationRunner(BaseRunner):
 
 
 class InitializeRunner(BaseRunner):
-    """InitRunner 类."""
+    """初始化运行器类."""
 
     DESCRIPTION = "初始化项目, 别名: i / init"
     CHILD_RUNNERS: ClassVar = {
@@ -345,7 +353,7 @@ class InitializeRunner(BaseRunner):
 
 
 class LintRunner(BaseRunner):
-    """LintRunner 类."""
+    """代码检查运行器类."""
 
     DESCRIPTION = "运行代码检查, 别名: l / lint"
     SUBCOMMANDS: ClassVar = [
@@ -354,7 +362,7 @@ class LintRunner(BaseRunner):
 
 
 class TestRunner(BaseRunner):
-    """TestRunner 类."""
+    """测试运行器类."""
 
     DESCRIPTION = "运行测试, 别名: t / test"
     SUBCOMMANDS: ClassVar = [

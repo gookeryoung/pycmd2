@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class BaseBuild(BaseCommand):
-    """BaseBuild 类."""
+    """基础构建类."""
 
     def run(self) -> None:
-        """Make project."""
+        """构建项目."""
         super().run()
 
         assert self.EXECUTABLE
@@ -24,33 +24,44 @@ class BaseBuild(BaseCommand):
 
 
 class HatchlingBuild(BaseBuild):
-    """HatchlingBuild 类."""
+    """Hatchling构建类."""
 
     EXECUTABLE = "hatchling"
 
 
 class MakeBuild(BaseBuild):
-    """MakeBuild 类."""
+    """Make构建类."""
 
     EXECUTABLE = "make"
 
 
 class MaturinBuild(BaseBuild):
-    """MaturinBuild 类."""
+    """Maturin构建类."""
 
     EXECUTABLE = "maturin"
 
     def run(self) -> None:
-        """Make project."""
+        """构建项目."""
         super().run()
 
         arch = platform.machine()
-        target = f"{arch}-win7-windows-msvc" if platform.system() == "Windows" else f"{arch}-unknown-linux-musl"
-        cli.run_cmd(["maturin", "build", *self.OPTIONS, "--release", "--target", target])
+        target = (
+            f"{arch}-win7-windows-msvc"
+            if platform.system() == "Windows"
+            else f"{arch}-unknown-linux-musl"
+        )
+        cli.run_cmd([
+            "maturin",
+            "build",
+            *self.OPTIONS,
+            "--release",
+            "--target",
+            target,
+        ])
 
 
 class PoetryBuild(BaseBuild):
-    """PoetryBuild 类."""
+    """Poetry构建类."""
 
     EXECUTABLE = "poetry"
 

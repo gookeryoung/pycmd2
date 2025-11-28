@@ -67,7 +67,7 @@ class FileProcessor:
         self.src.rename(target_path)
 
     def _add_level_mark(self, level: int) -> None:
-        """Add level mark to filename, must be 1-4."""
+        """向文件名添加级别标记, 必须是1-4."""
         levelstr = conf.LEVELS.setdefault(str(level), "").split(",")[0]
         if not levelstr:
             logger.warning(f"Invalid level: {level}, skip.")
@@ -88,16 +88,16 @@ class FileProcessor:
             self._add_level_mark(level)
 
     def _remove_marks(self, marks: list[str]) -> None:
-        """Remove marks from filename."""
+        """从文件名中移除标记."""
         for mark in marks:
             self.filestem = self._remove_mark(self.filestem, mark)
 
     @staticmethod
     def _remove_mark(stem: str, mark: str) -> str:
-        """Remove mark from filename.
+        """从文件名中移除标记.
 
         Returns:
-            str: filestem without mark.
+            str: 不带标记的文件名.
         """
         pos = stem.find(mark)
         if pos == -1:
@@ -115,15 +115,19 @@ class FileProcessor:
 
 @cli.app.command()
 def main(
-    targets: List[Path] = typer.Argument(help="Input file list"),  # noqa: B008
+    targets: List[Path] = typer.Argument(help="输入文件列表"),  # noqa: B008
     level: int = typer.Option(
         0,
-        help="File level, set 1-4 for different levels, 0 for clear level",
+        help="文件级别, 设置1-4表示不同级别, 0表示清除级别",
     ),
 ) -> None:
-    """Rename file level."""
+    """重命名文件级别.
+
+    Raises:
+        typer.BadParameter: 如果级别不在0-4范围内.
+    """
     # 参数验证
-    if level < 0 or level > 4:
+    if level < 0 or level > 4:  # noqa: PLR2004
         logger.error(f"无效的级别 {level}, 必须在 0-4 范围内")
         msg = "Level must be between 0 and 4"
         raise typer.BadParameter(msg)

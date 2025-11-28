@@ -146,7 +146,11 @@ def main(
     *,
     black: bool = Option(help="黑白模式", default=False),
 ) -> None:
-    image_files = [f for f in pathlib.Path(cli.cwd).glob("*.*") if is_valid_image(f) and not f.stem.endswith("_conv")]
+    image_files = [
+        f
+        for f in pathlib.Path(cli.cwd).glob("*.*")
+        if is_valid_image(f) and not f.stem.endswith("_conv")
+    ]
     if not image_files:
         logger.error(f"No image file found in current directory: {cli.cwd}.")
         return

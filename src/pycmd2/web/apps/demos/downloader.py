@@ -56,14 +56,22 @@ class DownloaderDemoApp(BaseApp):
             ui.button(
                 "下载 CSV 文件",
                 icon="file_download",
-                on_click=lambda: ui.download(self.create_sample_csv(), "sample.csv", "text/csv"),
+                on_click=lambda: ui.download(
+                    self.create_sample_csv(),
+                    "sample.csv",
+                    "text/csv",
+                ),
             )
 
             # 下载动态生成的 TXT 文件
             ui.button(
                 "下载 TXT 文件",
                 icon="file_download",
-                on_click=lambda: ui.download(self.create_sample_txt(), "sample.txt", "text/plain"),
+                on_click=lambda: ui.download(
+                    self.create_sample_txt(),
+                    "sample.txt",
+                    "text/plain",
+                ),
             )
 
             # 下载本地文件示例

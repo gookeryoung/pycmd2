@@ -90,10 +90,10 @@ class TaskKillProcessor:
                 logger.exception("获取进程列表失败")
                 return
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
-            logger.exception(f"执行tasklist命令失败: {e.__class__.__name__}: {e}")
+            logger.exception(f"执行tasklist命令失败: {e.__class__.__name__}")
             return
         except Exception as e:
-            logger.exception(f"获取进程列表时发生未知错误: {e.__class__.__name__}: {e}")
+            logger.exception(f"获取进程列表时发生未知错误: {e.__class__.__name__}")
             return
 
     def _get_process_list_unix(self) -> None:
@@ -129,7 +129,8 @@ class TaskKillProcessor:
             return
 
         logger.info(
-            f"找到 {len(matched_processes)} 个匹配 '{process_name}' 的进程: {[m.name for m in matched_processes]}",
+            f"找到 {len(matched_processes)} 个匹配 "
+            f"'{process_name}' 的进程: {[m.name for m in matched_processes]}",
         )
         try:
             success_count = 0

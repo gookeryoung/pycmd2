@@ -192,17 +192,19 @@ class TodoItemDelegate(QStyledItemDelegate):
         """Draw category tag."""
         painter.save()
 
-        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setPen(Qt.PenStyle.NoPen)  # type: ignore
         painter.setBrush(
             QBrush(
                 QColor(
-                    conf.CATEGORY_TAG_COLORS[hash(category) % len(conf.CATEGORY_TAG_COLORS)],
+                    conf.CATEGORY_TAG_COLORS[
+                        hash(category) % len(conf.CATEGORY_TAG_COLORS)
+                    ],
                 ),
             ),
         )
         painter.drawRoundedRect(rect, 5, 5)
         painter.setPen(QColor(conf.CATEGORY_FONT_COLOR))
-        painter.setBrush(QBrush(Qt.BrushStyle.NoBrush))
+        painter.setBrush(QBrush(Qt.BrushStyle.NoBrush))  # type: ignore
         painter.setFont(QFont(conf.FONT_FAMILY, 6))
         painter.drawText(
             rect,  # pyright: ignore[reportArgumentType]
@@ -222,7 +224,7 @@ class TodoItemDelegate(QStyledItemDelegate):
         """Draw time tag, for created time and completed time."""
         painter.save()
 
-        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setPen(Qt.PenStyle.NoPen)  # type: ignore
         painter.setBrush(QBrush(QColor(bg_color)))
         painter.drawRoundedRect(rect, 5, 5)
         painter.setPen(QColor(font_color))
@@ -245,7 +247,11 @@ class TodoItemDelegate(QStyledItemDelegate):
         """绘制复选框."""
         painter.save()
 
-        img = QImage(":/assets/images/done.svg") if checked else QImage(":/assets/images/todo.svg")
+        img = (
+            QImage(":/assets/images/done.svg")
+            if checked
+            else QImage(":/assets/images/todo.svg")
+        )
 
         painter.drawImage(rect, img, img.rect())
         painter.restore()
@@ -294,8 +300,8 @@ class TodoItemDelegate(QStyledItemDelegate):
         elif action == PriorityAction.UPGRADE:
             img = QImage(":/assets/images/upgrade.svg")
 
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(QBrush(QColor("#efffef"), Qt.BrushStyle.SolidPattern))
+        painter.setPen(Qt.PenStyle.NoPen)  # type: ignore
+        painter.setBrush(QBrush(QColor("#efffef"), Qt.BrushStyle.SolidPattern))  # type: ignore
         painter.drawEllipse(rect)
         painter.drawImage(QRect(rect.adjusted(4, 4, -4, -4)), img, img.rect())
         painter.restore()

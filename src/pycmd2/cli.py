@@ -61,7 +61,9 @@ def _is_valid_entry(entry: Path) -> bool:
         return True
 
     return bool(
-        entry.is_dir() and entry.name not in conf.IGNORE_DIRS and (entry / "__init__.py").exists(),
+        entry.is_dir()
+        and entry.name not in conf.IGNORE_DIRS
+        and (entry / "__init__.py").exists(),
     )
 
 

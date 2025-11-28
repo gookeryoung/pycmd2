@@ -56,7 +56,9 @@ def add_env_to_bashrc(
 
     try:
         # 读取现有内容
-        content = _bashrc_path.read_text(encoding="utf-8") if _bashrc_path.exists() else ""
+        content = (
+            _bashrc_path.read_text(encoding="utf-8") if _bashrc_path.exists() else ""
+        )
 
         # 匹配现有配置的正则模式
         pattern = re.compile(

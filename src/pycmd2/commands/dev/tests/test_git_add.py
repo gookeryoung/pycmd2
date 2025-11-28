@@ -15,7 +15,11 @@ from pycmd2.commands.dev.gittools.git_add import GitAddFileStatus
 def mock_subprocess() -> Generator[MagicMock, None, None]:
     with patch("subprocess.run") as mock:
         mock.return_value = MagicMock(
-            stdout="A  new.txt\nM  modified.txt\n?? untracked.txt\nD  deleted.txt\nMM conflicted.txt\nR  renamed.txt\nC  copied.txt\nU  unmerged.txt",
+            stdout=(
+                "A  new.txt\nM  modified.txt\n?? untracked.txt\n"
+                "D  deleted.txt\nMM conflicted.txt\nR  renamed.txt\n"
+                "C  copied.txt\nU  unmerged.txt"
+            ),
             returncode=0,
         )
         yield mock

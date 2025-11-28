@@ -144,7 +144,13 @@ class HttpClient:
         Returns:
             ApiResponse: API响应包装器
         """
-        return await self.request("POST", endpoint, params=params, data=data, headers=headers)
+        return await self.request(
+            "POST",
+            endpoint,
+            params=params,
+            data=data,
+            headers=headers,
+        )
 
     async def put(
         self,
@@ -164,7 +170,13 @@ class HttpClient:
         Returns:
             ApiResponse: API响应包装器
         """
-        return await self.request("PUT", endpoint, params=params, data=data, headers=headers)
+        return await self.request(
+            "PUT",
+            endpoint,
+            params=params,
+            data=data,
+            headers=headers,
+        )
 
     async def delete(
         self,
@@ -212,4 +224,10 @@ async def fetch(
     Returns:
         ApiResponse: API响应包装器
     """
-    return await default_client.request(method, endpoint, params=params, data=data, headers=headers)
+    return await default_client.request(
+        method,
+        endpoint,
+        params=params,
+        data=data,
+        headers=headers,
+    )
