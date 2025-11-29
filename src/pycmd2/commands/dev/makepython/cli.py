@@ -12,7 +12,7 @@ import typer
 from pycmd2.client import get_client
 from pycmd2.commands import DescSubcommandRunner
 from pycmd2.commands import ParallelRunner
-from pycmd2.commands import StringCommandRunner
+from pycmd2.commands import StrListCommandRunner
 from pycmd2.commands.dev.gittools.git_push_all import _check_git_status
 from pycmd2.compat import tomllib
 from pycmd2.config import TomlConfigMixin
@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 def _activate_py_env() -> None:
     """激活Python虚拟环境."""
     venv_path = cli.cwd / ".venv"
-    string_runner = StringCommandRunner()
+    string_runner = StrListCommandRunner()
 
     if cli.is_windows:
         activate_script = venv_path / "Scripts" / "activate.bat"
@@ -166,7 +166,7 @@ def _publish_func() -> None:
         logger.error("未找到构建工具, 退出")
         return
 
-    StringCommandRunner().run([executable, "publish"])
+    StrListCommandRunner().run([executable, "publish"])
 
 
 class PublishRunner(DescSubcommandRunner):
@@ -213,7 +213,7 @@ def _clean(*, force: bool = False) -> None:
     for exclude_dir in conf.EXCLUDE_DIRS:
         clean_cmd.extend(["-e", exclude_dir])
 
-    string_runner = StringCommandRunner()
+    string_runner = StrListCommandRunner()
     string_runner.run(clean_cmd)
     string_runner.run(["git", "checkout", "."])
 
@@ -415,7 +415,7 @@ def init() -> None:
 @cli.app.command("l", help="检查代码风格, 别名: lint")
 def lint() -> None:
     """检查代码风格."""
-    StringCommandRunner().run(["uvx", "ruff", "check", "src", "tests", "--fix"])
+    StrListCommandRunner().run(["uvx", "ruff", "check", "src", "tests", "--fix"])
 
 
 @cli.app.command("publish", help="发布项目, 别名: pub / publish")
@@ -436,7 +436,7 @@ def sync() -> None:
 @cli.app.command("t", help="运行测试, 别名: test")
 def test() -> None:
     """运行测试."""
-    StringCommandRunner().run(["pytest", "-vv"])
+    StrListCommandRunner().run(["pytest", "-vv"])
 
 
 @cli.app.command("update", help="更新构建日期, 别名: u")

@@ -1,29 +1,43 @@
 from __future__ import annotations
 
+import logging
+from typing import ClassVar
+from typing import Dict
+
 import typer
 
 from pycmd2.client import get_client
+from pycmd2.commands import StringCommandRunner
+from pycmd2.config import TomlConfigMixin
 
 from .base import BaseEnvTool
-from .javascript import JavaScriptEnvTool
 from .python import PythonEnvtool
 from .rust import RustEnvTool
 
 
+class EnvToolConfig(TomlConfigMixin):
+    """环境配置工具配置."""
+
+    NODE_VERSIONS: ClassVar[Dict[str, str]] = {
+        "V20": "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -",
+        "V18": "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -",
+    }
+
+
 class _Config:
-    javascript = "javascript"
     python = "python"
     rust = "rust"
 
 
 _tools: dict[str, BaseEnvTool] = {
-    _Config.javascript: JavaScriptEnvTool(),
     _Config.python: PythonEnvtool(),
     _Config.rust: RustEnvTool(),
 }
 
 
 cli = get_client()
+conf = EnvToolConfig()
+logger = logging.getLogger(__name__)
 
 
 def get_env_tool(tool_name: str) -> BaseEnvTool:
@@ -63,8 +77,11 @@ def javascript_env_tool(
     version: str = typer.Argument(help="nodejs 版本", default="V18"),
 ) -> None:
     """JavaScript 环境配置工具."""
-    tool = get_env_tool(_Config.javascript)
-    tool.run(version)
+    if cli.is_windows:
+        logger.error("当前系统为windows, 请下载压缩包直接安装")
+        return
+
+    StringCommandRunner().run(conf.NODE_VERSIONS.get(version, ""))
 
 
 @cli.app.command("rust", help="rust 环境配置工具, 别名: rs")

@@ -162,6 +162,36 @@ def _log_stream(
 class StringCommandRunnerMixin(EmptyRunner):
     """字符串命令执行器."""
 
+    def run(
+        self,
+        command: str,
+        executable: str | None = None,
+        env: dict[str, str] | None = None,
+    ) -> None:
+        """执行操作."""
+        super().run()
+
+        t0 = perf_counter()
+        logger.info(f"调用命令: [green bold]{command}")
+        try:
+            subprocess.run(
+                command,  # 直接使用 Shell 语法
+                shell=True,
+                check=True,  # 检查命令是否成功
+                executable=executable,
+                env=env,
+            )
+        except subprocess.CalledProcessError as e:
+            msg = f"命令执行失败, 返回码: {e.returncode}"
+            logger.exception(msg)
+        else:
+            total = perf_counter() - t0
+            logger.info(f"调用命令成功, 用时: [green bold]{total:.4f}s.")
+
+
+class StrListCommandRunnerMixin(EmptyRunner):
+    """字符串命令执行器."""
+
     def run(self, commands: List[str]) -> None:
         """执行操作.
 
@@ -297,6 +327,10 @@ class SequenceRunner(SequenceRunnerMixin, EmptyRunner):
 
 
 class StringCommandRunner(StringCommandRunnerMixin, EmptyRunner):
+    """默认字符串命令执行器."""
+
+
+class StrListCommandRunner(StrListCommandRunnerMixin, EmptyRunner):
     """默认字符串命令执行器."""
 
 
