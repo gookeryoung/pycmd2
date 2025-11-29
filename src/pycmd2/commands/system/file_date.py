@@ -114,3 +114,4 @@ def main(
     """
     rename_targets = [FileDateProc(t) for t in targets]
     ParallelRunner().run(FileDateProc.rename, rename_targets, max_workers=10)
+    ParallelRunner().run(FileDateProc.rename, rename_targets, max_workers=10)

@@ -22,6 +22,9 @@ from pycmd2.commands import ParallelRunner
 cli = get_client()
 logger = logging.getLogger(__name__)
 
+_commands_arg = typer.Argument(help="待查询命令")
+_fuzzy_option = typer.Option(False, "--fuzzy", "-f", help="是否模糊匹配")
+
 
 def find_executable(name: str, *, fuzzy: bool) -> Tuple[str, Optional[str]]:
     """跨平台查找可执行文件路径.
