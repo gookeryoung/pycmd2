@@ -6,12 +6,12 @@ from typing import List
 import typer
 
 from pycmd2.client import get_client
+from pycmd2.commands.core.runner import BaseRunner
 from pycmd2.commands.dev.piptools.pip_download import PipDownloadRunner
 from pycmd2.commands.dev.piptools.pip_freeze import PipFreezeRunner
 from pycmd2.commands.dev.piptools.pip_install import PipInstallRunner
 from pycmd2.commands.dev.piptools.pip_reinstall import PipReinstallRunner
 from pycmd2.commands.dev.piptools.pip_uninstall import PipUninstallRunner
-from pycmd2.commands.runner import BaseRunner
 
 __version__ = "0.0.1"
 __build_date__ = "2025-11-20"

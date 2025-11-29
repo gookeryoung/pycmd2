@@ -6,7 +6,7 @@ import subprocess
 from typing import ClassVar
 
 from pycmd2.client import get_client
-from pycmd2.commands.runner import BaseRunner
+from pycmd2.commands.core.runner import BaseRunner
 
 logger = logging.getLogger(__name__)
 

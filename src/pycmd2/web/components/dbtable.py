@@ -44,7 +44,10 @@ class DBTableColumn:
         Returns:
             str: 表格列定义字符串
         """
-        return f'DBTableColumn(name="{self.name}", label="{self.label}", field="{self.field}")'
+        return (
+            f'DBTableColumn(name="{self.name}", '
+            f'label="{self.label}", field="{self.field}")'
+        )
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典格式.
@@ -168,11 +171,11 @@ class DBTable(BaseComponent):
                 "field": "",
                 "align": "right",
             }
-            self.table_ref._props["columns"].append(actions_column)
+            self.table_ref._props["columns"].append(actions_column)  # noqa: SLF001
 
             with self.table_ref.add_slot("body-cell-actions"):
 
-                def render_actions(props) -> None:
+                def render_actions(props) -> None:  # noqa: ANN001
                     with ui.row().classes("gap-1"):
                         ui.button(
                             icon="edit",

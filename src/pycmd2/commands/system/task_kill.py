@@ -16,6 +16,7 @@ from typer import Argument
 from typing_extensions import Annotated
 
 from pycmd2.client import get_client
+from pycmd2.commands import ParallelRunner
 
 cli = get_client()
 logger = logging.getLogger(__name__)
@@ -125,7 +126,7 @@ class TaskKillProcessor:
         matched_processes = self.get_matched_process(process_name)
 
         if not matched_processes:
-            logger.warning(f"未找到进程 {process_name}")
+            logger.warning(f"未找到进程 `{process_name}`")
             return
 
         logger.info(
@@ -195,5 +196,5 @@ class TaskKillProcessor:
 def main(
     proc: Annotated[str, Argument(help="待结束进程(支持通配符)")],
 ) -> None:
-    processor = TaskKillProcessor()
-    processor.kill_process(proc)
+    """结束进程."""
+    ParallelRunner().run(TaskKillProcessor().kill_process, [proc])

@@ -12,7 +12,7 @@ from typing import ClassVar
 from typing import Optional
 
 from pycmd2.client import get_client
-from pycmd2.commands.runner import BaseRunner
+from pycmd2.commands.core.runner import BaseRunner
 
 __version__ = "0.1.3"
 __build_date__ = "2025-11-09"

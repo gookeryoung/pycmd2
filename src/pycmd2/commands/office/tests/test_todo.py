@@ -389,7 +389,7 @@ class TestTodoListView:
 
         # Mock QMenu.exec_ to return the edit action
 
-        def mock_exec(self: QObject, pos: QPoint) -> None:  # noqa: ARG001
+        def mock_exec(self: QObject, pos: QPoint) -> None:
             """模拟QMenu.exec_."""
             actions = self.actions()
             for action in actions:
@@ -428,7 +428,7 @@ class TestTodoListView:
         global_pos = mock_controller.view.todo_list.mapToGlobal(rect.center())
 
         # Mock QMenu.exec_ to return the delete action
-        def mock_exec(self: QObject, pos: QPoint) -> None:  # noqa: ARG001
+        def mock_exec(self: QObject, pos: QPoint) -> None:
             """模拟QMenu.exec."""
             actions = self.actions()
             for action in actions:
@@ -475,7 +475,7 @@ class TestTodoListView:
         global_pos = mock_controller.view.todo_list.mapToGlobal(rect.center())
 
         # Mock QMenu.exec_ to return the "高" priority action
-        def mock_exec(self: QObject, pos: QPoint) -> None:  # noqa: ARG001
+        def mock_exec(self: QObject, pos: QPoint) -> None:
             """模拟QMenu.exec."""
             # Find the "设置优先级" menu
             for action in self.actions():
@@ -528,7 +528,7 @@ class TestTodoListView:
         # Mock QMenu.exec_ to ensure it doesn't cause issues
         menu_executed = []
 
-        def mock_exec(self: QObject, pos: QPoint) -> None:  # noqa: ARG001
+        def mock_exec(self: QObject, pos: QPoint) -> None:
             menu_executed.append(True)
 
         monkeypatch.setattr("PyQt5.QtWidgets.QMenu.exec_", mock_exec)

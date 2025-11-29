@@ -117,7 +117,7 @@ class TestImageGray:
     ) -> None:
         """Test is_valid_image with OSError."""
 
-        def mock_open(*args: object, **kwargs: object) -> NoReturn:  # noqa: ARG001
+        def mock_open(*args: object, **kwargs: object) -> NoReturn:
             raise OSError
 
         monkeypatch.setattr("pathlib.Path.open", mock_open)
@@ -131,7 +131,7 @@ class TestImageGray:
     ) -> None:
         """Test is_valid_image with SyntaxError."""
 
-        def mock_open(*args: object, **kwargs: object) -> NoReturn:  # noqa: ARG001
+        def mock_open(*args: object, **kwargs: object) -> NoReturn:
             raise OSError
 
         monkeypatch.setattr("PIL.Image.open", mock_open)

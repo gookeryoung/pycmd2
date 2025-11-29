@@ -13,6 +13,7 @@ from typer import Option
 from typing_extensions import Annotated
 
 from pycmd2.client import get_client
+from pycmd2.commands import ParallelRunner
 
 cli = get_client(help_doc="目录压缩工具.")
 logger = logging.getLogger(__name__)
@@ -60,7 +61,8 @@ def main(
         if is_valid_entry(d) and all(not d.name.startswith(ig) for ig in ignores)
     ]
 
-    if dirs:
-        cli.run(zip_folder, dirs)
-    else:
+    if not dirs:
         logger.info("没有待处理的目录.")
+        return
+
+    ParallelRunner().run(zip_folder, dirs)

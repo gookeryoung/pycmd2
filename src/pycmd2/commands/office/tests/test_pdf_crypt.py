@@ -80,7 +80,7 @@ class TestPdfCryptFunctions:
         """测试PDF加密失败的情况."""
 
         # 模拟写入失败
-        def mock_open(*args, **kwargs) -> NoReturn:  # noqa: ANN002, ANN003, ARG001
+        def mock_open(*args, **kwargs) -> NoReturn:  # noqa: ANN002, ANN003
             msg = "Permission denied"
             raise OSError(msg)
 

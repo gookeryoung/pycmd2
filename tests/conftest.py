@@ -53,7 +53,7 @@ def pytest_runtest_makereport(
             slow_tests.append((item.name, runtime))
 
 
-def pytest_sessionstart(session: pytest.Session) -> None:  # noqa: ARG001
+def pytest_sessionstart(session: pytest.Session) -> None:
     """测试会话开始."""
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
@@ -69,7 +69,7 @@ def pytest_sessionstart(session: pytest.Session) -> None:  # noqa: ARG001
     os.environ["PYCMD2_HOME"] = str(tempfile.mkdtemp("pycmd2_home"))
 
 
-def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:  # noqa: ARG001
+def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     """测试会话结束."""
     if slow_tests:
         logger.info("\n慢速测试报告:")

@@ -71,13 +71,21 @@ class ToolCardGroup:
         Returns:
             ui.expansion: 可展开的卡片组组件
         """
-        with ui.expansion(self.title, icon=self.icon).classes("w-full").props(f"expand-icon-class=text-{self.color}-500") as expansion:
+        with (
+            ui.expansion(self.title, icon=self.icon)
+            .classes("w-full")
+            .props(f"expand-icon-class=text-{self.color}-500")
+        ) as expansion:
             with ui.row().classes("w-full items-center p-4"):
-                ui.icon(self.icon).classes(f"category-icon bg-{self.color}-100 text-{self.color}-600")
+                ui.icon(self.icon).classes(
+                    f"category-icon bg-{self.color}-100 text-{self.color}-600",
+                )
                 ui.label(self.description).classes("text-h6 font-bold")
             ui.separator()
 
-            with ui.grid(columns=len(self.tools)).classes("w-full gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"):
+            with ui.grid(columns=len(self.tools)).classes(
+                "w-full gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3",
+            ):
                 for tool in self.tools:
                     tool.setup()
 

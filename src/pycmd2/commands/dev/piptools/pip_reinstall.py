@@ -7,9 +7,9 @@ from typing import Any
 from typing import List
 
 from pycmd2.client import get_client
+from pycmd2.commands.core.runner import BaseRunner
 from pycmd2.commands.dev.piptools.pip_install import pip_install
 from pycmd2.commands.dev.piptools.pip_uninstall import pip_uninstall
-from pycmd2.commands.runner import BaseRunner
 
 
 class PipReinstallRunner(BaseRunner):

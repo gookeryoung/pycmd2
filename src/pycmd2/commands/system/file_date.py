@@ -16,6 +16,7 @@ from typing import List
 from typer import Argument
 
 from pycmd2.client import get_client
+from pycmd2.commands.core.runner import ParallelRunner
 from pycmd2.config import TomlConfigMixin
 
 
@@ -112,4 +113,4 @@ def main(
         targets: 目标文件列表
     """
     rename_targets = [FileDateProc(t) for t in targets]
-    cli.run(FileDateProc.rename, rename_targets)
+    ParallelRunner().run(FileDateProc.rename, rename_targets, max_workers=10)

@@ -3,11 +3,9 @@ from __future__ import annotations
 import typer
 
 from pycmd2.client import get_client
-from pycmd2.commands.runner import BaseRunner
+from pycmd2.commands.core.runner import BaseRunner
 
 from .git_add import GitAddRunner
-from .git_clean import GitCleanForceRunner
-from .git_clean import GitCleanRunner
 from .git_init import GitInitRunner
 from .git_push_all import GitPushAllRunner
 from .git_restart_tgitcache import GitRestartTGitCacheRunner
@@ -26,8 +24,6 @@ class _Config:
 
 _tools: dict[str, BaseRunner] = {
     _Config.add: GitAddRunner(),
-    _Config.clean: GitCleanRunner(),
-    _Config.clean_force: GitCleanForceRunner(),
     _Config.init: GitInitRunner(),
     _Config.push: GitPushAllRunner(),
     _Config.restart_tgitcache: GitRestartTGitCacheRunner(),

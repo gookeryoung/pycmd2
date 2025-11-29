@@ -17,6 +17,7 @@ from typing import List
 import typer
 
 from pycmd2.client import get_client
+from pycmd2.commands import ParallelRunner
 from pycmd2.config import TomlConfigMixin
 
 
@@ -157,4 +158,7 @@ def main(
         raise typer.BadParameter(msg)
 
     rename_targets = [FileProcessor(t, t.stem) for t in valid_targets]
-    cli.run(partial(FileProcessor.rename, level=level), rename_targets)
+    ParallelRunner().run(
+        partial(FileProcessor.rename, level=level),
+        rename_targets,
+    )

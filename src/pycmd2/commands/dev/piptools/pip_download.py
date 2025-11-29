@@ -10,8 +10,8 @@ from typing import Dict
 from typing import Tuple
 
 from pycmd2.client import get_client
+from pycmd2.commands.core.runner import BaseRunner
 from pycmd2.commands.dev.piptools.pip_conf import conf
-from pycmd2.commands.runner import BaseRunner
 
 
 def pip_download(libname: str) -> None:

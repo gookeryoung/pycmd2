@@ -15,6 +15,7 @@ from typer import Option
 from typing_extensions import Annotated
 
 from pycmd2.client import get_client
+from pycmd2.commands import ParallelRunner
 
 cli = get_client()
 logger = logging.getLogger(__name__)
@@ -76,11 +77,11 @@ def main(
 
     if clean:
         logger.info(f"清理已有备份: [purple]{backup_files}")
-        cli.run(os.remove, backup_files)
+        ParallelRunner().run(os.remove, backup_files)
         return
 
     if not dest.exists():
         logger.info(f"创建备份目标文件夹: {dest}")
         dest.mkdir(parents=True, exist_ok=True)
 
-    zip_folder(directory, dest, max_count)
+    ParallelRunner().run(zip_folder, [[directory, dest, max_count]])

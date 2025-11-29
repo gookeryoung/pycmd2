@@ -8,8 +8,8 @@ from typing import List
 from typing import Optional
 
 from pycmd2.client import get_client
+from pycmd2.commands.core.runner import BaseRunner
 from pycmd2.commands.dev.piptools.pip_download import conf
-from pycmd2.commands.runner import BaseRunner
 
 cli = get_client()
 

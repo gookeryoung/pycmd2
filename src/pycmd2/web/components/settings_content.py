@@ -61,8 +61,12 @@ class SettingsContent(BaseComponent):
 
             # Save button
             with ui.row().classes("w-full justify-end"):
-                ui.button("保存设置", on_click=self._save_settings).props("color=primary")
-                ui.button("重置为默认", on_click=self._reset_settings).props("color=secondary flat")
+                ui.button("保存设置", on_click=self._save_settings).props(
+                    "color=primary",
+                )
+                ui.button("重置为默认", on_click=self._reset_settings).props(
+                    "color=secondary flat",
+                )
 
     def _update_navigation_position(self, value: str) -> None:
         """更新导航位置.
