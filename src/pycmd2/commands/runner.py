@@ -18,10 +18,13 @@ class BaseRunner:
     CHILD_RUNNERS: ClassVar[dict[str, BaseRunner]] = {}
     SUBCOMMANDS: ClassVar[list[list[str] | str | Callable[..., Any]]] = []
 
-    def run(self) -> None:
+    def run(self, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401, ARG002
         """执行系列命令."""
         if self.DESCRIPTION:
             logger.info(f"功能描述: [green b]{self.DESCRIPTION}")
+        else:
+            logger.error("功能描述为空, 退出")
+            return
 
         if not self.SUBCOMMANDS:
             logger.info("没有子命令, 退出")

@@ -1,37 +1,25 @@
 import os
-import shutil
 from pathlib import Path
 
 import pytest
 from typer.testing import CliRunner
 
-from pycmd2.commands.dev.pip_download import cli as pip_download_cli
-from pycmd2.commands.dev.pip_download_req import cli as pip_download_req_cli
-from pycmd2.commands.dev.pip_freeze import cli as pip_freeze_cli
-from pycmd2.commands.dev.pip_install import cli as pip_install_cli
-from pycmd2.commands.dev.pip_install_offline import cli as pip_install_offline_cli
-from pycmd2.commands.dev.pip_install_req import cli as pip_install_req_cli
-from pycmd2.commands.dev.pip_uninstall_req import cli as pip_uninstall_req_cli
-
-
-@pytest.fixture(autouse=True)
-def clear_test_dir(dir_tests: Path) -> None:
-    os.chdir(dir_tests)
-
-    dir_packages = dir_tests / "packages"
-    if dir_packages.exists():
-        shutil.rmtree(dir_packages, ignore_errors=True)
-
-    requirements_file = dir_tests / "requirements.txt"
-    if requirements_file.exists():
-        requirements_file.unlink()
+from pycmd2.commands.dev.piptools.pip_download import cli as pip_download_cli
+from pycmd2.commands.dev.piptools.pip_download import cli as pip_download_req_cli
+from pycmd2.commands.dev.piptools.pip_freeze import cli as pip_freeze_cli
+from pycmd2.commands.dev.piptools.pip_install import cli as pip_install_cli
+from pycmd2.commands.dev.piptools.pip_install_offline import (
+    cli as pip_install_offline_cli,
+)
+from pycmd2.commands.dev.piptools.pip_install_req import cli as pip_install_req_cli
+from pycmd2.commands.dev.piptools.pip_uninstall_req import cli as pip_uninstall_req_cli
 
 
 @pytest.fixture
-def requirments_file(dir_tests: Path) -> None:
-    os.chdir(dir_tests)
+def requirments_file(tmp_path: Path) -> None:
+    os.chdir(tmp_path)
 
-    with (dir_tests / "requirements.txt").open("w", encoding="utf-8") as f:
+    with (tmp_path / "requirements.txt").open("w", encoding="utf-8") as f:
         f.write("lxml==4.9.1\n")
         f.write("numba==0.58.1\n")
 
@@ -42,7 +30,6 @@ class TestPip:
 
     def test_pip_download(
         self,
-        typer_runner: CliRunner,
         dir_tests: Path,
     ) -> None:
         """测试 pip download 命令."""

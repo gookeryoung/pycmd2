@@ -8,9 +8,11 @@ from __future__ import annotations
 import logging
 import pathlib
 import subprocess
+from typing import ClassVar
 from typing import Optional
 
 from pycmd2.client import get_client
+from pycmd2.commands.runner import BaseRunner
 
 __version__ = "0.1.3"
 __build_date__ = "2025-11-09"
@@ -39,8 +41,7 @@ def check_uv_callable() -> Optional[bool]:
         return result.returncode == 0
 
 
-@cli.app.command()
-def main() -> None:
+def pip_freeze() -> None:
     """默认调用, 生成依赖清单."""
     logger.info(f"pipf {__version__}, 构建日期: {__build_date__}")
 
@@ -94,3 +95,10 @@ def main() -> None:
             logger.exception("写入文件失败")
         else:
             logger.info("依赖清单已生成: requirements.txt")
+
+
+class PipFreezeRunner(BaseRunner):
+    """PipFreezeRunner."""
+
+    DESCRIPTION = "生成依赖清单"
+    SUBCOMMANDS: ClassVar = [pip_freeze]
