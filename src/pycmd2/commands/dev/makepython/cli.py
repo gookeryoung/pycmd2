@@ -98,7 +98,7 @@ def _get_build_command() -> str | None:
                 if "poetry" in build_backend:
                     return "poetry"
                 if "hatchling" in build_backend:
-                    return "hatchling"
+                    return "hatch"
     logger.error("未找到构建工具, 请手动构建")
     return None
 
