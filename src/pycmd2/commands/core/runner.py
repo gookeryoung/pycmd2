@@ -40,49 +40,6 @@ class DescriptionRunnerMixin(EmptyRunner):
             logger.info(f"功能描述: [green b]{self.DESCRIPTION}")
 
 
-class BaseRunner:
-    """BaseRunner 基类."""
-
-    DESCRIPTION: str = ""
-    CHILD_RUNNERS: ClassVar[dict[str, BaseRunner]] = {}
-    SUBCOMMANDS: ClassVar[List[List[str] | str | Callable[..., Any]]] = []
-
-    def run(self, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401, ARG002
-        """执行系列命令."""
-        cli = get_client()
-
-        if self.DESCRIPTION:
-            logger.info(f"功能描述: [green b]{self.DESCRIPTION}")
-        else:
-            logger.error("功能描述为空, 退出")
-            return
-
-        if not self.SUBCOMMANDS:
-            logger.info("没有子命令, 退出")
-            return
-
-        for subcommand in self.SUBCOMMANDS:
-            if isinstance(subcommand, str):
-                if subcommand.lower() not in self.CHILD_RUNNERS:
-                    logger.error(f"未找到执行器: {subcommand}")
-                    continue
-
-                logger.info(f"执行子命令: {subcommand}")
-                self.CHILD_RUNNERS[subcommand.lower()].run()
-            elif isinstance(subcommand, list):
-                cli.run_cmd(list(subcommand))
-            elif isinstance(subcommand, Callable):
-                logger.info(f"执行可调用对象: [purple b]{subcommand.__name__}")
-                subcommand()
-            else:
-                logger.error(f"未知子命令: {subcommand}")
-
-    @property
-    def name(self) -> str:
-        """获取执行器名称."""
-        return self.__class__.__name__.replace("Runner", "").lower()
-
-
 class SubcommandRunnerMixin(EmptyRunner):
     """子命令执行器."""
 
