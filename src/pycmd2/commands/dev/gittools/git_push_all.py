@@ -5,8 +5,8 @@ import shutil
 import subprocess
 from typing import ClassVar
 
-from pycmd2.client import get_client
-from pycmd2.commands.core.runner import BaseRunner
+from pycmd2.commands.core.runner import DescSubcommandRunner
+from pycmd2.commands.core.runner import StrListCommandRunner
 
 logger = logging.getLogger(__name__)
 
@@ -82,13 +82,13 @@ def git_push_all(
         return
 
     # 动态获取cli对象，避免模块级导入问题
-    cli = get_client()
-    cli.run_cmd(["git", "fetch", remote])
-    cli.run_cmd(["git", "pull", "--rebase", remote])
-    cli.run_cmd(["git", "push", "--all", remote])
+    runner = StrListCommandRunner()
+    runner.run(["git", "fetch", remote])
+    runner.run(["git", "pull", "--rebase", remote])
+    runner.run(["git", "push", "--all", remote])
 
 
-class GitPushAllRunner(BaseRunner):
+class GitPushAllRunner(DescSubcommandRunner):
     """GitPushAllRunner 类."""
 
     DESCRIPTION = "推送到所有远端, 别名: push_all"
