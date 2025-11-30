@@ -10,10 +10,8 @@ import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import ClassVar
 
 from pycmd2.client import get_client
-from pycmd2.commands.core.runner import BaseRunner
 
 cli = get_client()
 logger = logging.getLogger(__name__)
@@ -62,7 +60,7 @@ def _get_changed_files_info() -> set[GitAddFileStatus]:
     return files
 
 
-def _git_add() -> None:
+def git_add() -> None:
     os.chdir(str(cli.cwd))
 
     # 计算新增的文件
@@ -86,10 +84,3 @@ def _git_add() -> None:
             cli.run_cmd(["git", "commit", "-m", f"{status}文件: {filenames}"])
         else:
             logger.warning(f"没有{status}的文件")
-
-
-class GitAddRunner(BaseRunner):
-    """GitAddRunner 类."""
-
-    DESCRIPTION = "增加文件到 git 目录, 显示新增的文件清单"
-    SUBCOMMANDS: ClassVar = [_git_add]

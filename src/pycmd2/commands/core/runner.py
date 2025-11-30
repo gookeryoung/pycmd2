@@ -326,6 +326,10 @@ class SequenceRunner(SequenceRunnerMixin, EmptyRunner):
     """默认序列执行器."""
 
 
+class SequenceSubcommandRunner(SequenceRunnerMixin, SubcommandRunner, EmptyRunner):
+    """默认序列执行器."""
+
+
 class StringCommandRunner(StringCommandRunnerMixin, EmptyRunner):
     """默认字符串命令执行器."""
 

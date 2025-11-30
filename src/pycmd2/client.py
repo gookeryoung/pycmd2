@@ -35,16 +35,20 @@ def _log_stream(
         logger_func: 日志记录函数
     """
     # 读取字节流
-    for line_bytes in iter(stream.readline, b""):
-        try:
-            # 尝试UTF-8解码
-            line = line_bytes.decode("utf-8").strip()
-        except UnicodeDecodeError:
-            # 尝试GBK解码并替换错误字符
-            line = line_bytes.decode("gbk", errors="replace").strip()
-        if line:
-            logger_func(line)
-    stream.close()
+    try:
+        for line_bytes in iter(stream.readline, b""):
+            try:
+                # 尝试UTF-8解码
+                line = line_bytes.decode("utf-8").strip()
+            except UnicodeDecodeError:
+                # 尝试GBK解码并替换错误字符
+                line = line_bytes.decode("gbk", errors="replace").strip()
+            if line:
+                logger_func(line)
+        stream.close()
+    except ValueError:
+        logger.exception("无法读取流数据")
+        return
 
 
 def _setup_pyqt(*, enable_high_dpi: bool = False) -> None:

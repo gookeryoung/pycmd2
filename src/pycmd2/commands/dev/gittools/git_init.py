@@ -8,16 +8,16 @@ from __future__ import annotations
 import logging
 import os
 import pathlib
-from typing import Any
+from pathlib import Path
 from typing import ClassVar
 
 from pycmd2.client import get_client
-from pycmd2.commands.core.runner import BaseRunner
+from pycmd2.commands import SequenceSubcommandRunner
 
 logger = logging.getLogger(__name__)
 
 
-class GitInitRunner(BaseRunner):
+class GitInitRunner(SequenceSubcommandRunner):
     """GitInitRunner 类."""
 
     DESCRIPTION: str = "初始化 git 目录"
@@ -27,16 +27,28 @@ class GitInitRunner(BaseRunner):
         ["git", "commit", "-m", "initial commit"],
     ]
 
-    def run(self, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
-        """执行git初始化命令, 确保在正确的目录中运行."""
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.original_cwd: Path | None = None
+
+    def run_before(self) -> None:
+        """执行前操作."""
+        super().run_before()
+
         cli = get_client()
-        original_cwd = pathlib.Path.cwd()
+        self.original_cwd = pathlib.Path.cwd()
 
         logger.info("GitInitRunner 运行")
         os.chdir(str(cli.cwd))
 
-        try:
-            super().run(*args, **kwargs)
-        finally:
-            logger.info(f"恢复到目录: {original_cwd}")
-            os.chdir(original_cwd)
+    def run_after(self) -> None:
+        """执行后操作."""
+        super().run_after()
+
+        if not self.original_cwd:
+            logger.error("原始目录为空, 退出")
+            return
+
+        logger.info(f"恢复到目录: {self.original_cwd}")
+        os.chdir(self.original_cwd)

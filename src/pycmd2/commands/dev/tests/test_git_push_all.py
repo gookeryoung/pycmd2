@@ -7,11 +7,11 @@ from unittest.mock import patch
 
 import pytest
 
-from pycmd2.commands.dev.gittools.git_push_all import _check_git_status
 from pycmd2.commands.dev.gittools.git_push_all import _check_sensitive_data
 from pycmd2.commands.dev.gittools.git_push_all import _get_cmd_full_path
+from pycmd2.commands.dev.gittools.git_push_all import check_git_status
 from pycmd2.commands.dev.gittools.git_push_all import CommandNotFoundError
-from pycmd2.commands.dev.gittools.git_push_all import git_push
+from pycmd2.commands.dev.gittools.git_push_all import git_push_all
 from pycmd2.commands.dev.gittools.git_push_all import GitPushAllRunner
 
 
@@ -72,7 +72,7 @@ def test_check_git_status_clean(
     """测试git状态检查 - 干净状态."""
     mock_shutil_which.return_value = "/usr/bin/git"
     mock_subprocess_run.return_value.stdout = ""
-    assert _check_git_status() is True
+    assert check_git_status() is True
 
 
 def test_check_git_status_dirty(
@@ -82,7 +82,7 @@ def test_check_git_status_dirty(
     """测试git状态检查 - 有未提交修改."""
     mock_shutil_which.return_value = "/usr/bin/git"
     mock_subprocess_run.return_value.stdout = " M file.txt"
-    assert _check_git_status() is False
+    assert check_git_status() is False
 
 
 def test_check_sensitive_data_clean(
@@ -114,7 +114,7 @@ def test_push_success(
     mock_shutil_which.return_value = "/usr/bin/git"
     mock_subprocess_run.return_value.stdout = ""
 
-    git_push("origin")
+    git_push_all("origin")
 
     # 验证执行了所有推送命令
     assert mock_cli.run_cmd.call_count == 3  # noqa: PLR2004
@@ -132,7 +132,7 @@ def test_push_with_dirty_status(
     mock_shutil_which.return_value = "/usr/bin/git"
     mock_subprocess_run.return_value.stdout = " M file.txt"
 
-    git_push("origin")
+    git_push_all("origin")
 
     # 验证没有执行任何推送命令
     assert mock_cli.run_cmd.call_count == 0
@@ -150,7 +150,7 @@ def test_push_with_sensitive_data(
         MagicMock(stdout=".env"),  # check_sensitive_data
     ]
 
-    git_push("origin")
+    git_push_all("origin")
 
     # 验证没有执行任何推送命令
     assert mock_cli.run_cmd.call_count == 0
@@ -165,7 +165,7 @@ def test_push_with_both_issues(
     mock_shutil_which.return_value = "/usr/bin/git"
     mock_subprocess_run.return_value.stdout = " M file.txt"  # 模拟有未提交修改
 
-    git_push("origin")
+    git_push_all("origin")
 
     # 验证没有执行任何推送命令
     assert mock_cli.run_cmd.call_count == 0

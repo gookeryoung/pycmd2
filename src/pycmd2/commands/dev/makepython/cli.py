@@ -13,7 +13,7 @@ from pycmd2.client import get_client
 from pycmd2.commands import DescSubcommandRunner
 from pycmd2.commands import ParallelRunner
 from pycmd2.commands import StrListCommandRunner
-from pycmd2.commands.dev.gittools.git_push_all import _check_git_status
+from pycmd2.commands.dev.gittools.git_push_all import check_git_status
 from pycmd2.compat import tomllib
 from pycmd2.config import TomlConfigMixin
 
@@ -206,7 +206,7 @@ def _clean(*, force: bool = False) -> None:
     if force:
         logger.warning("强制清理模式, 会删除未提交的修改和新文件")
 
-    if not force and not _check_git_status():
+    if not force and not check_git_status():
         return
 
     clean_cmd = ["git", "clean", "-xfd"]

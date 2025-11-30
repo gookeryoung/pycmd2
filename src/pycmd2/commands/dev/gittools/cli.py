@@ -3,9 +3,11 @@ from __future__ import annotations
 import typer
 
 from pycmd2.client import get_client
-from pycmd2.commands.core.runner import BaseRunner
+from pycmd2.commands import BaseRunner
+from pycmd2.commands import ParallelRunner
 
-from .git_add import GitAddRunner
+from .git_add import git_add
+from .git_clean import git_clean
 from .git_init import GitInitRunner
 from .git_push_all import GitPushAllRunner
 from .git_restart_tgitcache import GitRestartTGitCacheRunner
@@ -23,7 +25,6 @@ class _Config:
 
 
 _tools: dict[str, BaseRunner] = {
-    _Config.add: GitAddRunner(),
     _Config.init: GitInitRunner(),
     _Config.push: GitPushAllRunner(),
     _Config.restart_tgitcache: GitRestartTGitCacheRunner(),
@@ -55,7 +56,7 @@ def get_runner(name: str) -> BaseRunner:
 @cli.app.command("add", help="添加所有文件, 别名: a")
 @cli.app.command("a", help="添加所有文件, 别名: add")
 def add() -> None:
-    get_runner(_Config.add).run()
+    ParallelRunner().run(git_add)
 
 
 @cli.app.command("clean", help="清理 git 目录, 别名: c")
@@ -64,10 +65,7 @@ def clean(
     *,
     force: bool = typer.Option(False, "--force", "-f", help="强制清理"),
 ) -> None:
-    if force:
-        get_runner(_Config.clean_force).run()
-    else:
-        get_runner(_Config.clean).run()
+    ParallelRunner().run(lambda: git_clean(force=force))
 
 
 @cli.app.command("init", help="初始化 git 目录, 别名: i")

@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 
 from pycmd2.commands.dev.gittools.git_add import _get_changed_files_info
-from pycmd2.commands.dev.gittools.git_add import _git_add
+from pycmd2.commands.dev.gittools.git_add import git_add
 from pycmd2.commands.dev.gittools.git_add import GitAddFileStatus
 
 
@@ -76,7 +76,7 @@ def test_main_with_added_files(
     ]
 
     with caplog.at_level(logging.INFO):
-        _git_add()
+        git_add()
 
     # 验证命令执行
 
@@ -100,7 +100,7 @@ def test_main_with_modified_files(
     ]
 
     with caplog.at_level(logging.INFO):
-        _git_add()
+        git_add()
 
     # 验证命令执行
     mock_os_chdir.assert_called_once_with(mock_cli.cwd)
@@ -123,7 +123,7 @@ def test_main_with_no_changes(
     ]
 
     with caplog.at_level(logging.WARNING):
-        _git_add()
+        git_add()
 
     # 验证日志输出
     assert "没有新增的文件" in caplog.text
