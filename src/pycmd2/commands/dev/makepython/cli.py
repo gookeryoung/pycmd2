@@ -366,7 +366,7 @@ class DistributionRunner(DescSubcommandRunner):
     SUBCOMMANDS: ClassVar = [
         _clean,
         "sync",
-        "build",
+        _build_func,
         _list_dist_dir,
     ]
 
