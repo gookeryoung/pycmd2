@@ -14,12 +14,10 @@ from typing import List
 from typing import Optional
 from typing import Sequence
 
-from pycmd2.client import get_client
-
 logger = logging.getLogger(__name__)
 
 
-class EmptyRunner:
+class Runner:
     """空执行器."""
 
     def run(self) -> None:
@@ -27,7 +25,7 @@ class EmptyRunner:
         logger.info(f"调用Runner: [green b]{type(self).__name__}")
 
 
-class DescriptionRunnerMixin(EmptyRunner):
+class DescriptionRunnerMixin(Runner):
     """描述执行器."""
 
     DESCRIPTION: str = ""
@@ -40,41 +38,7 @@ class DescriptionRunnerMixin(EmptyRunner):
             logger.info(f"功能描述: [green b]{self.DESCRIPTION}")
 
 
-class SubcommandRunnerMixin(EmptyRunner):
-    """子命令执行器."""
-
-    CHILD_RUNNERS: ClassVar[dict[str, EmptyRunner]] = {}
-    SUBCOMMANDS: ClassVar[list[list[str] | str | Callable[..., Any]]] = []
-
-    def run(self) -> None:
-        """执行子命令."""
-        super().run()
-
-        cli = get_client()
-        if not self.SUBCOMMANDS:
-            logger.error("子命令为空, 退出")
-            return None
-
-        for subcommand in self.SUBCOMMANDS:
-            if isinstance(subcommand, str):
-                if subcommand.lower() not in self.CHILD_RUNNERS:
-                    logger.error(f"未找到执行器: {subcommand}")
-                    continue
-
-                logger.info(f"执行子命令: {subcommand}")
-                self.CHILD_RUNNERS[subcommand.lower()].run()
-            elif isinstance(subcommand, list):
-                cli.run_cmd(list(subcommand))
-            elif isinstance(subcommand, Callable):
-                logger.info(f"执行可调用对象: [purple b]{subcommand.__name__}")
-                subcommand()
-            else:
-                logger.error(f"未知子命令: {subcommand}")
-
-        return super().run()
-
-
-class SequenceRunnerMixin(EmptyRunner):
+class SequenceRunnerMixin(Runner):
     """序列执行器."""
 
     def run_before(self) -> None:
@@ -116,7 +80,7 @@ def _log_stream(
         logger.exception("无法读取流数据")
 
 
-class StringCommandRunnerMixin(EmptyRunner):
+class CommandRunnerMixin(Runner):
     """字符串命令执行器."""
 
     def run(
@@ -127,6 +91,10 @@ class StringCommandRunnerMixin(EmptyRunner):
     ) -> None:
         """执行操作."""
         super().run()
+
+        if not shutil.which(command):
+            logger.warning(f"找不到命令: {command}")
+            return
 
         t0 = perf_counter()
         logger.info(f"调用命令: [green bold]{command}")
@@ -146,7 +114,7 @@ class StringCommandRunnerMixin(EmptyRunner):
             logger.info(f"调用命令成功, 用时: [green bold]{total:.4f}s.")
 
 
-class StrListCommandRunnerMixin(EmptyRunner):
+class MultiCommandRunnerMixin(Runner):
     """字符串命令执行器."""
 
     def run(self, commands: List[str]) -> None:
@@ -225,7 +193,36 @@ class StrListCommandRunnerMixin(EmptyRunner):
         logger.info(f"用时: [green bold]{perf_counter() - t0:.4f}s.")
 
 
-class ParallelRunnerMixin(EmptyRunner):
+class SubcommandRunnerMixin(MultiCommandRunnerMixin, Runner):
+    """子命令执行器."""
+
+    CHILD_RUNNERS: ClassVar[dict[str, Runner]] = {}
+    SUBCOMMANDS: ClassVar[list[list[str] | str | Callable[..., Any]]] = []
+
+    def run(self) -> None:
+        """执行子命令."""
+        if not self.SUBCOMMANDS:
+            logger.error("子命令为空, 退出")
+            return
+
+        for subcommand in self.SUBCOMMANDS:
+            if isinstance(subcommand, str):
+                if subcommand.lower() not in self.CHILD_RUNNERS:
+                    logger.error(f"未找到执行器: {subcommand}")
+                    continue
+
+                logger.info(f"执行子命令: {subcommand}")
+                self.CHILD_RUNNERS[subcommand.lower()].run()
+            elif isinstance(subcommand, list):
+                super().run(subcommand)
+            elif isinstance(subcommand, Callable):
+                logger.info(f"执行可调用对象: [purple b]{subcommand.__name__}")
+                subcommand()
+            else:
+                logger.error(f"未知子命令: {subcommand}")
+
+
+class ParallelRunnerMixin(Runner):
     """并行执行器."""
 
     def run(
@@ -271,29 +268,29 @@ class ParallelRunnerMixin(EmptyRunner):
         return results
 
 
-class SubcommandRunner(SubcommandRunnerMixin, EmptyRunner):
-    """默认执行器."""
-
-
-class DescSubcommandRunner(DescriptionRunnerMixin, SubcommandRunner, EmptyRunner):
-    """默认执行器."""
-
-
-class SequenceRunner(SequenceRunnerMixin, EmptyRunner):
-    """默认序列执行器."""
-
-
-class SequenceSubcommandRunner(SequenceRunnerMixin, SubcommandRunner, EmptyRunner):
-    """默认序列执行器."""
-
-
-class StringCommandRunner(StringCommandRunnerMixin, EmptyRunner):
+class CommandRunner(CommandRunnerMixin, Runner):
     """默认字符串命令执行器."""
 
 
-class StrListCommandRunner(StrListCommandRunnerMixin, EmptyRunner):
+class MultiCommandRunner(MultiCommandRunnerMixin, Runner):
     """默认字符串命令执行器."""
 
 
-class ParallelRunner(ParallelRunnerMixin, EmptyRunner):
+class SubcommandRunner(SubcommandRunnerMixin, Runner):
+    """默认执行器."""
+
+
+class DescSubcommandRunner(DescriptionRunnerMixin, SubcommandRunner, Runner):
+    """默认执行器."""
+
+
+class SequenceRunner(SequenceRunnerMixin, Runner):
+    """默认序列执行器."""
+
+
+class SequenceSubcommandRunner(SequenceRunnerMixin, SubcommandRunner, Runner):
+    """默认序列执行器."""
+
+
+class ParallelRunner(ParallelRunnerMixin, Runner):
     """默认并行执行器."""

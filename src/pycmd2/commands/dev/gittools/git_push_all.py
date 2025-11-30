@@ -6,7 +6,7 @@ import subprocess
 from typing import ClassVar
 
 from pycmd2.commands.core.runner import DescSubcommandRunner
-from pycmd2.commands.core.runner import StrListCommandRunner
+from pycmd2.commands.core.runner import MultiCommandRunner
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +82,7 @@ def git_push_all(
         return
 
     # 动态获取cli对象，避免模块级导入问题
-    runner = StrListCommandRunner()
+    runner = MultiCommandRunner()
     runner.run(["git", "fetch", remote])
     runner.run(["git", "pull", "--rebase", remote])
     runner.run(["git", "push", "--all", remote])

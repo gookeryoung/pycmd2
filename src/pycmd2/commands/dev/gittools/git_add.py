@@ -11,7 +11,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from pycmd2.commands.core.runner import StrListCommandRunner
+from pycmd2.commands.core.runner import MultiCommandRunner
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ def _get_changed_files_info() -> set[GitAddFileStatus]:
 def git_add() -> None:
     os.chdir(str(Path.cwd()))
 
-    runner = StrListCommandRunner()
+    runner = MultiCommandRunner()
 
     # 计算新增的文件
     before = _get_changed_files_info()

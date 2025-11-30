@@ -10,8 +10,8 @@ from typing import Optional
 import typer
 
 from pycmd2.client import get_client
+from pycmd2.commands.core.runner import MultiCommandRunner
 from pycmd2.commands.core.runner import ParallelRunner
-from pycmd2.commands.core.runner import StrListCommandRunner
 from pycmd2.config import TomlConfigMixin
 
 __version__ = "0.0.1"
@@ -51,7 +51,7 @@ def pip_download(libnames: List[str] = _libnames_default) -> None:
         "-d",
         str(cli.cwd / "packages"),
     ]
-    StrListCommandRunner().run(cmds)
+    MultiCommandRunner().run(cmds)
 
 
 @cli.app.command("downloadreq", help="下载依赖[requirements], 别名: dr")
@@ -67,7 +67,7 @@ def pip_download_requirements() -> None:
         str(cli.cwd / "packages"),
         *conf.TRUSTED_PIP_URL,
     ]
-    StrListCommandRunner().run(cmds)
+    MultiCommandRunner().run(cmds)
 
 
 def check_uv_callable() -> Optional[bool]:
@@ -160,7 +160,7 @@ def pip_install(
 ) -> None:
     """安装依赖."""
     cmds = ["pip", "install", *libnames, *conf.TRUSTED_PIP_URL]
-    StrListCommandRunner().run(cmds)
+    MultiCommandRunner().run(cmds)
 
 
 @cli.app.command("installoffline", help="安装依赖[离线], 别名: io")
@@ -178,7 +178,7 @@ def pip_install_offline(
         "--find-links",
         ".",
     ]
-    StrListCommandRunner().run(cmds)
+    MultiCommandRunner().run(cmds)
 
 
 @cli.app.command("installreq", help="安装依赖[requirements], 别名: ir")
@@ -186,14 +186,14 @@ def pip_install_offline(
 def pip_install_req() -> None:
     """安装依赖, 使用 requirements."""
     cmds = ["pip", "install", *conf.TRUSTED_PIP_URL, "-r", "requirements.txt"]
-    StrListCommandRunner().run(cmds)
+    MultiCommandRunner().run(cmds)
 
 
 @cli.app.command("reinstall", help="重新安装依赖, 别名: r")
 @cli.app.command("r", help="重新安装依赖, 别名: reinstall")
 def pip_reinstall(libnames: List[str] = _libnames_default) -> None:
     """重新安装依赖."""
-    runner = StrListCommandRunner()
+    runner = MultiCommandRunner()
     cmds = ["pip", "uninstall", "-y", *libnames]
     runner.run(cmds)
     cmds = ["pip", "install", *libnames, *conf.TRUSTED_PIP_URL]
@@ -205,7 +205,7 @@ def pip_reinstall(libnames: List[str] = _libnames_default) -> None:
 def pip_uninstall(libnames: List[str] = _libnames_default) -> None:
     """卸载依赖."""
     cmds = ["pip", "uninstall", "-y", *libnames]
-    StrListCommandRunner().run(cmds)
+    MultiCommandRunner().run(cmds)
 
 
 @cli.app.command("uninstallreq", help="卸载依赖, 使用 requirements, 别名: ur")
@@ -213,4 +213,4 @@ def pip_uninstall(libnames: List[str] = _libnames_default) -> None:
 def pip_uninstall_req() -> None:
     """卸载依赖."""
     cmds = ["pip", "uninstall", "-y", "-r", "requirements.txt"]
-    StrListCommandRunner().run(cmds)
+    MultiCommandRunner().run(cmds)

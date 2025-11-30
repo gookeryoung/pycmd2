@@ -6,7 +6,7 @@
 import logging
 
 from pycmd2.client import get_client
-from pycmd2.commands.core.runner import StrListCommandRunner
+from pycmd2.commands.core.runner import MultiCommandRunner
 from pycmd2.commands.dev.gittools.git_push_all import check_git_status
 
 __version__ = "0.1.1"
@@ -38,6 +38,6 @@ def git_clean(*, force: bool = False) -> None:
     for exclude_dir in exclude_dirs:
         clean_cmd.extend(["-e", exclude_dir])
 
-    runner = StrListCommandRunner()
+    runner = MultiCommandRunner()
     runner.run(clean_cmd)
     runner.run(["git", "checkout", "."])

@@ -6,6 +6,7 @@ import logging
 import re
 
 from pycmd2.client import get_client
+from pycmd2.commands.core.runner import MultiCommandRunner
 from pycmd2.config import TomlConfigMixin
 
 from .base import BaseEnvTool
@@ -137,7 +138,7 @@ class PythonEnvtool(BaseEnvTool):
 
         if cli.is_windows:
             for k, v in uv_envs.items():
-                cli.run_cmd(["setx", str(k), str(v)])
+                MultiCommandRunner().run(["setx", str(k), str(v)])
         else:
             for k, v in uv_envs.items():
                 add_env_to_bashrc(str(k), str(v), override=override)

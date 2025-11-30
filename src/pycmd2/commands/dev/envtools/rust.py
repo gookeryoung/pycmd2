@@ -7,7 +7,7 @@ import subprocess
 from pathlib import Path
 
 from pycmd2.client import get_client
-from pycmd2.commands.core.runner import StringCommandRunner
+from pycmd2.commands.core.runner import CommandRunner
 from pycmd2.config import TomlConfigMixin
 
 from .base import BaseEnvTool
@@ -130,9 +130,9 @@ class RustEnvTool(BaseEnvTool):
             return
 
         if cli.is_windows:
-            StringCommandRunner().run(conf.DOWNLOAD_CMD_WINDOWS)
+            CommandRunner().run(conf.DOWNLOAD_CMD_WINDOWS)
         else:
-            StringCommandRunner().run(conf.DOWNLOAD_CMD_LINUX)
+            CommandRunner().run(conf.DOWNLOAD_CMD_LINUX)
 
         rustup_path = Path.cwd() / "rustup-init.exe"
         if rustup_path.exists():

@@ -7,7 +7,7 @@ from typing import Dict
 import typer
 
 from pycmd2.client import get_client
-from pycmd2.commands.core.runner import StringCommandRunner
+from pycmd2.commands.core.runner import CommandRunner
 from pycmd2.config import TomlConfigMixin
 
 from .base import BaseEnvTool
@@ -81,7 +81,7 @@ def javascript_env_tool(
         logger.error("当前系统为windows, 请下载压缩包直接安装")
         return
 
-    StringCommandRunner().run(conf.NODE_VERSIONS.get(version, ""))
+    CommandRunner().run(conf.NODE_VERSIONS.get(version, ""))
 
 
 @cli.app.command("rust", help="rust 环境配置工具, 别名: rs")
