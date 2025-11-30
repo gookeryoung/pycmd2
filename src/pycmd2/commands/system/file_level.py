@@ -17,7 +17,7 @@ from typing import List
 import typer
 
 from pycmd2.client import get_client
-from pycmd2.commands import ParallelRunner
+from pycmd2.commands.core.runner import ParallelRunner
 from pycmd2.config import TomlConfigMixin
 
 

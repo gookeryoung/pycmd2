@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from pycmd2.client import get_client
-from pycmd2.commands import SequenceSubcommandRunner
+from pycmd2.commands.core.runner import SequenceSubcommandRunner
 
 logger = logging.getLogger(__name__)
 

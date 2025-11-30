@@ -11,9 +11,8 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from pycmd2.client import get_client
+from pycmd2.commands.core.runner import StrListCommandRunner
 
-cli = get_client()
 logger = logging.getLogger(__name__)
 
 
@@ -61,11 +60,13 @@ def _get_changed_files_info() -> set[GitAddFileStatus]:
 
 
 def git_add() -> None:
-    os.chdir(str(cli.cwd))
+    os.chdir(str(Path.cwd()))
+
+    runner = StrListCommandRunner()
 
     # 计算新增的文件
     before = _get_changed_files_info()
-    cli.run_cmd(["git", "add", "."])
+    runner.run(["git", "add", "."])
     after = _get_changed_files_info()
 
     # 计算新增的文件信息
@@ -81,6 +82,7 @@ def git_add() -> None:
     for status, filenames in check_status.items():
         if filenames:
             logger.info(f"{status}的文件: {', '.join(filenames)}")
-            cli.run_cmd(["git", "commit", "-m", f"{status}文件: {filenames}"])
+            cmds = ["git", "commit", "-m", f"{status}文件: {filenames}"]
+            runner.run(cmds)
         else:
             logger.warning(f"没有{status}的文件")

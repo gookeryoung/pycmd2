@@ -3,8 +3,8 @@ from __future__ import annotations
 import typer
 
 from pycmd2.client import get_client
-from pycmd2.commands import ParallelRunner
-from pycmd2.commands import StrListCommandRunner
+from pycmd2.commands.core.runner import ParallelRunner
+from pycmd2.commands.core.runner import StrListCommandRunner
 
 from .git_add import git_add
 from .git_clean import git_clean

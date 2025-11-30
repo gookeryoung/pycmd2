@@ -7,7 +7,7 @@ from typing import Dict
 import typer
 
 from pycmd2.client import get_client
-from pycmd2.commands import StringCommandRunner
+from pycmd2.commands.core.runner import StringCommandRunner
 from pycmd2.config import TomlConfigMixin
 
 from .base import BaseEnvTool
