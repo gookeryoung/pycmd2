@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   pycmd2.backend
    pycmd2.commands
    pycmd2.web
 

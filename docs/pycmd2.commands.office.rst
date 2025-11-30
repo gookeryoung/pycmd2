@@ -9,6 +9,7 @@ Subpackages
 
    pycmd2.commands.office.mindnote
    pycmd2.commands.office.pdftools
+   pycmd2.commands.office.tests
    pycmd2.commands.office.todo
 
 Submodules

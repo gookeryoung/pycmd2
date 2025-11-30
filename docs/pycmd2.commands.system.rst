@@ -9,6 +9,7 @@ Subpackages
 
    pycmd2.commands.system.alarmclock
    pycmd2.commands.system.checksum
+   pycmd2.commands.system.tests
 
 Submodules
 ----------

@@ -7,20 +7,41 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   pycmd2.web.base
-   pycmd2.web.demos
-   pycmd2.web.help
-   pycmd2.web.office
-   pycmd2.web.simulation
-   pycmd2.web.system
+   pycmd2.web.apps
+   pycmd2.web.components
+   pycmd2.web.pages
 
 Submodules
 ----------
 
-pycmd2.web.server module
+pycmd2.web.cli module
+---------------------
+
+.. automodule:: pycmd2.web.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pycmd2.web.component module
+---------------------------
+
+.. automodule:: pycmd2.web.component
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pycmd2.web.config module
 ------------------------
 
-.. automodule:: pycmd2.web.server
+.. automodule:: pycmd2.web.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pycmd2.web.routes module
+------------------------
+
+.. automodule:: pycmd2.web.routes
    :members:
    :undoc-members:
    :show-inheritance:

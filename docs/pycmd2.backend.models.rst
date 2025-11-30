@@ -1,13 +1,13 @@
-pycmd2.web.office.pdf package
+pycmd2.backend.models package
 =============================
 
 Submodules
 ----------
 
-pycmd2.web.office.pdf.pdf\_merge module
----------------------------------------
+pycmd2.backend.models.user module
+---------------------------------
 
-.. automodule:: pycmd2.web.office.pdf.pdf_merge
+.. automodule:: pycmd2.backend.models.user
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ pycmd2.web.office.pdf.pdf\_merge module
 Module contents
 ---------------
 
-.. automodule:: pycmd2.web.office.pdf
+.. automodule:: pycmd2.backend.models
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,13 +1,13 @@
-pycmd2.web.system package
-=========================
+pycmd2.backend.api package
+==========================
 
 Submodules
 ----------
 
-pycmd2.web.system.machine module
+pycmd2.backend.api.client module
 --------------------------------
 
-.. automodule:: pycmd2.web.system.machine
+.. automodule:: pycmd2.backend.api.client
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ pycmd2.web.system.machine module
 Module contents
 ---------------
 
-.. automodule:: pycmd2.web.system
+.. automodule:: pycmd2.backend.api
    :members:
    :undoc-members:
    :show-inheritance:
