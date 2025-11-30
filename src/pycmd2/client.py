@@ -268,36 +268,6 @@ class Client:
 
         logger.info(f"用时: [green bold]{perf_counter() - t0:.4f}s.")
 
-    @staticmethod
-    def run_cmdstr(
-        cmdstr: str,
-        executable: str | None = None,
-        env: dict[str, str] | None = None,
-    ) -> None:
-        """直接执行命令, 用于避免输出重定向.
-
-        Args:
-            cmdstr (str): 命令参数, 如: `ls -la`
-            executable (str | None, optional): 可执行文件路径, 默认值 `None`.
-            env (dict[str, str] | None, optional): 环境变量, 默认值 `None`.
-        """
-        t0 = perf_counter()
-        logger.info(f"调用命令: [green bold]{cmdstr}")
-        try:
-            subprocess.run(
-                cmdstr,  # 直接使用 Shell 语法
-                shell=True,
-                check=True,  # 检查命令是否成功
-                executable=executable,
-                env=env,
-            )
-        except subprocess.CalledProcessError as e:
-            msg = f"命令执行失败, 返回码: {e.returncode}"
-            logger.exception(msg)
-        else:
-            total = perf_counter() - t0
-            logger.info(f"调用命令成功, 用时: [green bold]{total:.4f}s.")
-
 
 def get_client(
     help_doc: str = "",

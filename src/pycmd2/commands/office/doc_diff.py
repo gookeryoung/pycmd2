@@ -11,6 +11,7 @@ import typer
 import win32com.client as win32
 
 from pycmd2.client import get_client
+from pycmd2.commands.core.runner import StrListCommandRunner
 from pycmd2.config import TomlConfigMixin
 
 
@@ -73,7 +74,7 @@ def diff_doc(old: Path, new: Path) -> None:
             word.Quit()
 
         # Close Word process after quitting
-        cli.run_cmd(["taskkill", "/f", "/t", "/im", "WINWORD.EXE"])
+        StrListCommandRunner().run(["taskkill", "/f", "/t", "/im", "WINWORD.EXE"])
 
 
 @cli.app.command()
