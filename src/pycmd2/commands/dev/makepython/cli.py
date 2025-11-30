@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import platform
 import webbrowser
 from functools import partial
 from typing import ClassVar
@@ -17,7 +18,6 @@ from pycmd2.commands.dev.gittools.git_push_all import check_git_status
 from pycmd2.compat import tomllib
 from pycmd2.config import TomlConfigMixin
 
-from .build import get_build_command
 from .update import update_build_date
 
 __version__ = "0.1.3"
@@ -73,18 +73,76 @@ def activate() -> None:
     ParallelRunner().run(_activate_py_env)
 
 
+def _get_build_command() -> str | None:
+    """获取构建工具.
+
+    Returns:
+        BaseBuild: 构建工具
+
+    Raises:
+        FileNotFoundError: 如果 pyproject.toml 不存在
+    """
+    pyproject_file = cli.cwd / "pyproject.toml"
+    if not pyproject_file.exists():
+        msg = f"pyproject.toml 文件不存在, 无法获取构建工具: {pyproject_file}"
+        raise FileNotFoundError(msg)
+
+    with pyproject_file.open("rb") as f:
+        config = tomllib.load(f)
+        if "build-system" in config:
+            build_system = config["build-system"]
+            if "build-backend" in build_system:
+                build_backend = build_system["build-backend"]
+                if "maturin" in build_backend:
+                    return "maturin"
+                if "poetry" in build_backend:
+                    return "poetry"
+                if "hatchling" in build_backend:
+                    return "hatchling"
+    logger.error("未找到构建工具, 请手动构建")
+    return None
+
+
+class MaturinBuildRunner(DescSubcommandRunner):
+    """Maturin 构建运行器类."""
+
+    DESCRIPTION = "使用 maturin 构建项目, 别名: m"
+    SUBCOMMANDS: ClassVar = [
+        ["maturin", "build", "--release", "--target", "x86_64-pc-windows-msvc"],
+    ]
+
+    def run(self) -> None:
+        """运行命令."""
+        super().run()
+
+        arch = platform.machine()
+        target = (
+            f"{arch}-win7-windows-msvc"
+            if platform.system() == "Windows"
+            else f"{arch}-unknown-linux-musl"
+        )
+        cli.run_cmd([
+            "maturin",
+            "build",
+            "--release",
+            "--target",
+            target,
+        ])
+
+
 def _build_func() -> None:
     """执行构建."""
-    from .build import get_build_command  # noqa: PLC0415
+    build_cmd = _get_build_command()
 
-    build_tool = get_build_command()
-
-    if build_tool is None:
+    if build_cmd is None:
         logger.error("未找到构建工具, 退出")
         return
 
     logger.info("开始构建...")
-    build_tool.run()
+    if build_cmd == "maturin":
+        MaturinBuildRunner().run()
+    else:
+        MultiCommandRunner().run([build_cmd, "build"])
 
 
 @cli.app.command("build", help="构建项目, 别名: b")
@@ -156,17 +214,16 @@ def bump(version_type: str = typer.Argument(default="p", help="版本类型")) -
 
 def _publish_func() -> None:
     """发布项目."""
-    command = get_build_command()
-    if command is None:
+    build_cmd = _get_build_command()
+    if build_cmd is None:
         logger.error("未找到构建工具, 退出")
         return
 
-    executable = command.EXECUTABLE
-    if executable is None:
+    if build_cmd is None:
         logger.error("未找到构建工具, 退出")
         return
 
-    MultiCommandRunner().run([executable, "publish"])
+    MultiCommandRunner().run([build_cmd, "publish"])
 
 
 class PublishRunner(DescSubcommandRunner):
