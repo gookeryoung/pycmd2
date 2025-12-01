@@ -26,9 +26,13 @@ __build_date__ = "2025-11-20"
 
 
 class MakePythonToolsConfig(TomlConfigMixin):
-    """GitTools 配置."""
+    """MakePythonTools 配置.
 
-    EXCLUDE_DIRS: ClassVar[List[str]] = [
+    Attributes:
+        exclude_dirs (List[str]): 排除的目录
+    """
+
+    exclude_dirs: ClassVar[List[str]] = [
         ".venv",
         "node_modules",
         ".git",
@@ -269,7 +273,7 @@ def _clean(*, force: bool = False) -> None:
         return
 
     clean_cmd = ["git", "clean", "-xfd"]
-    for exclude_dir in conf.EXCLUDE_DIRS:
+    for exclude_dir in conf.exclude_dirs:
         clean_cmd.extend(["-e", exclude_dir])
 
     string_runner = MultiCommandRunner()

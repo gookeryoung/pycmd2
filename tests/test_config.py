@@ -12,9 +12,9 @@ from pycmd2.config import TomlConfigMixin
 class ExampleTestConfig(TomlConfigMixin):
     """示例配置类."""
 
-    NAME = "test"
-    FOO = "bar"
-    BAZ = "qux"
+    name = "test"
+    foo = "bar"
+    baz = "qux"
 
 
 cli = get_client()
@@ -42,12 +42,12 @@ class TestConfig:
     def test_config(self) -> None:
         """测试配置类."""
         conf = ExampleTestConfig()
-        assert conf.FOO == "bar"
-        assert conf.BAZ == "qux"
-        assert conf.NAME == "test"
+        assert conf.foo == "bar"
+        assert conf.baz == "qux"
+        assert conf.name == "test"
 
-        conf.setattr("FOO", "TEST")
-        assert conf.FOO == "TEST"
+        conf.setattr("foo", "TEST")
+        assert conf.foo == "TEST"
 
         with pytest.raises(AttributeError) as execinfo:
             conf.setattr("INVALID_ATTR", 1)
@@ -64,12 +64,12 @@ class TestConfig:
     def test_config_load(self) -> None:
         """测试配置加载."""
         config_file = cli.settings_dir / "example_test.toml"
-        config_file.write_text("FOO = '123'\nBAZ = ['123', '456']")
+        config_file.write_text("foo = '123'\nbaz = ['123', '456']")
 
         conf = ExampleTestConfig()
-        assert conf.FOO == "123"
-        assert isinstance(conf.BAZ, list)
-        assert conf.BAZ == ["123", "456"]
+        assert conf.foo == "123"
+        assert isinstance(conf.baz, list)
+        assert conf.baz == ["123", "456"]
 
     def test_config_load_error(self, caplog: pytest.LogCaptureFixture) -> None:
         """测试配置加载错误, 使用无效文件内容."""
@@ -94,3 +94,11 @@ class TestConfig:
 
         mock_exists.assert_called()
         mock_mkdir.assert_called_once()
+
+    @patch.object(Path, "exists", return_value=True)
+    def test_get_instance(self, mock_exists: MagicMock) -> None:  # noqa: ARG002
+        """测试获取实例."""
+        conf1 = ExampleTestConfig.get_instance()
+        conf2 = ExampleTestConfig.get_instance()
+
+        assert conf1 == conf2

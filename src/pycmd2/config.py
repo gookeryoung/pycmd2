@@ -59,7 +59,7 @@ def _to_snake_case(name: str) -> str:
 class TomlConfigMixin:
     """TOML 配置混入基类."""
 
-    NAME: str = ""
+    name: str = ""
 
     # 为每个类单独维护实例字典
     _instances: ClassVar[Dict[Type, TomlConfigMixin]] = {}
@@ -78,7 +78,7 @@ class TomlConfigMixin:
             logger.setLevel(logging.INFO)
 
         cls_name = _to_snake_case(type(self).__name__).replace("_config", "")
-        self.NAME = cls_name if not self.NAME else self.NAME
+        self.name = cls_name if not self.name else self.name
 
         self._config_file: Path = cli.settings_dir / f"{cls_name}.toml"
         self._file_attrs: dict[str, object] = {}
