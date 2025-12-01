@@ -248,6 +248,7 @@ class BumpPublishRunner(DescSubcommandRunner):
     }
     SUBCOMMANDS: ClassVar = [
         "bumpp",
+        _build_func,
         "publish",
     ]
 
