@@ -12,7 +12,7 @@ import typer
 
 from pycmd2.client import get_client
 from pycmd2.commands.dev.gittools.git_push_all import check_git_status
-from pycmd2.commands.dev.gittools.git_push_all import git_push_all
+from pycmd2.commands.dev.gittools.git_push_all import perform_push_all
 from pycmd2.compat import tomllib
 from pycmd2.config import TomlConfigMixin
 from pycmd2.runner import DescSubcommandRunner
@@ -234,7 +234,7 @@ class PublishRunner(DescSubcommandRunner):
     SUBCOMMANDS: ClassVar = [
         _publish_func,
         lambda: _clean(force=True),
-        git_push_all,
+        perform_push_all,
     ]
 
 

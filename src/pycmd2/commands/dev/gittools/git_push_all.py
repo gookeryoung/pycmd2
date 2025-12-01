@@ -11,7 +11,7 @@ from pycmd2.runner import MultiCommandRunner
 logger = logging.getLogger(__name__)
 
 
-__all__ = ["GitPushAllRunner", "check_git_status", "git_push_all"]
+__all__ = ["GitPushAllRunner", "check_git_status", "perform_push_all"]
 
 
 class CommandNotFoundError(Exception):
@@ -75,7 +75,7 @@ def _check_sensitive_data() -> bool:
     return True
 
 
-def git_push_all(
+def _git_push_all(
     remote: str,
 ) -> None:
     if not check_git_status():
@@ -96,7 +96,12 @@ class GitPushAllRunner(DescSubcommandRunner):
 
     DESCRIPTION = "推送到所有远端, 别名: push_all"
     SUBCOMMANDS: ClassVar = [
-        lambda: git_push_all("origin"),
-        lambda: git_push_all("gitee.com"),
-        lambda: git_push_all("github.com"),
+        lambda: _git_push_all("origin"),
+        lambda: _git_push_all("gitee.com"),
+        lambda: _git_push_all("github.com"),
     ]
+
+
+def perform_push_all() -> None:
+    """执行推送到所有远端."""
+    GitPushAllRunner().run()
