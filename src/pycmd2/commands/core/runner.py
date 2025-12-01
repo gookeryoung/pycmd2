@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import threading
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import suppress
 from time import perf_counter
 from typing import Any
 from typing import Callable
@@ -54,32 +55,6 @@ class SequenceRunnerMixin(Runner):
         self.run_after()
 
 
-def _log_stream(
-    stream: IO[bytes],
-    logger_func: Callable[[str], None],
-) -> None:
-    """记录流数据.
-
-    Args:
-        stream: 字节流
-        logger_func: 日志记录函数
-    """
-    # 读取字节流
-    try:
-        for line_bytes in iter(stream.readline, b""):
-            try:
-                # 尝试UTF-8解码
-                line = line_bytes.decode("utf-8").strip()
-            except UnicodeDecodeError:
-                # 尝试GBK解码并替换错误字符
-                line = line_bytes.decode("gbk", errors="replace").strip()
-            if line:
-                logger_func(line)
-        stream.close()
-    except ValueError:
-        logger.exception("无法读取流数据")
-
-
 class CommandRunnerMixin(Runner):
     """字符串命令执行器."""
 
@@ -117,6 +92,41 @@ class CommandRunnerMixin(Runner):
 class MultiCommandRunnerMixin(Runner):
     """字符串命令执行器."""
 
+    @staticmethod
+    def _safe_log_stream(stream: IO[bytes], logger_func: Callable[[str], None]) -> None:
+        """安全地记录流数据, 处理各种异常情况.
+
+        Args:
+            stream: 字节流
+            logger_func: 日志记录函数
+        """
+        if not stream:
+            return
+
+        try:
+            # 读取字节流直到结束
+            while True:
+                try:
+                    line_bytes = stream.readline()
+                    if not line_bytes:  # 空字节表示流结束
+                        break
+
+                    try:
+                        # 尝试UTF-8解码
+                        line = line_bytes.decode("utf-8").strip()
+                    except UnicodeDecodeError:
+                        # 尝试GBK解码并替换错误字符
+                        line = line_bytes.decode("gbk", errors="replace").strip()
+
+                    if line:
+                        logger_func(line)
+                except (ValueError, AttributeError, OSError):
+                    # 流可能已关闭或出现其他错误
+                    logger.exception("读取流时出错")
+                    break
+        except Exception:
+            logger.exception("日志流处理异常")
+
     def run(self, commands: List[str]) -> None:
         """执行操作.
 
@@ -126,7 +136,6 @@ class MultiCommandRunnerMixin(Runner):
         super().run()
 
         t0 = perf_counter()
-        # 启动子进程, 设置文本模式并启用行缓冲
         logger.info(f"调用命令: [green bold]{commands}")
 
         proc_path = shutil.which(commands[0])
@@ -134,6 +143,7 @@ class MultiCommandRunnerMixin(Runner):
             msg = f"找不到命令: {commands[0]}"
             raise FileNotFoundError(msg)
 
+        # 启动子进程
         proc = subprocess.Popen(
             [proc_path, *commands[1:]],
             stdin=None,  # 继承父进程的stdin, 允许用户输入
@@ -143,16 +153,18 @@ class MultiCommandRunnerMixin(Runner):
         )
 
         # 创建并启动记录线程
-        stdout_thread = threading.Thread(
-            target=_log_stream,
-            args=(proc.stdout, logging.info),
-        )
-        stderr_thread = threading.Thread(
-            target=_log_stream,
-            args=(proc.stderr, logging.warning),
-        )
-        stdout_thread.start()
-        stderr_thread.start()
+        threads = []
+        for stream, log_func in [
+            (proc.stdout, logging.info),
+            (proc.stderr, logging.warning),
+        ]:
+            thread = threading.Thread(
+                target=self._safe_log_stream,
+                args=(stream, log_func),
+                daemon=True,  # 设置为守护线程，主程序退出时自动终止
+            )
+            thread.start()
+            threads.append(thread)
 
         try:
             # 等待进程结束
@@ -170,21 +182,15 @@ class MultiCommandRunnerMixin(Runner):
             logger.exception("命令执行超时, 已强制终止")
             raise
         finally:
-            # 确保子进程资源被清理
-            if proc.stdout:
-                proc.stdout.close()
-            if proc.stderr:
-                proc.stderr.close()
+            # 等待所有输出处理完成
+            for thread in threads:
+                thread.join(timeout=2)  # 减少等待时间，因为线程已经是守护线程
 
-        # 等待所有输出处理完成
-        stdout_thread.join(timeout=10)  # 添加线程超时
-        stderr_thread.join(timeout=10)
-
-        # 检查线程是否已结束，如果仍在运行则强制停止
-        if stdout_thread.is_alive():
-            logger.warning("stdout线程未能正常结束")
-        if stderr_thread.is_alive():
-            logger.warning("stderr线程未能正常结束")
+            # 安全地关闭流
+            for stream in [proc.stdout, proc.stderr]:
+                if stream:
+                    with suppress(Exception):  # 忽略异常
+                        stream.close()
 
         # 检查返回码
         if proc.returncode != 0:
