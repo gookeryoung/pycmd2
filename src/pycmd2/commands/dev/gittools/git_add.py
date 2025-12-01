@@ -11,7 +11,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from pycmd2.commands.core.runner import MultiCommandRunner
+from pycmd2.runner import MultiCommandRunner
 
 logger = logging.getLogger(__name__)
 

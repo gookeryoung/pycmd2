@@ -11,9 +11,9 @@ import typer
 import win32com.client as win32
 
 from pycmd2.client import get_client
-from pycmd2.commands.core.runner import MultiCommandRunner
-from pycmd2.commands.core.runner import ParallelRunner
 from pycmd2.config import TomlConfigMixin
+from pycmd2.runner import MultiCommandRunner
+from pycmd2.runner import ParallelRunner
 
 
 class DocDiffConfig(TomlConfigMixin):

@@ -17,7 +17,7 @@ from typing import Tuple
 import typer
 
 from pycmd2.client import get_client
-from pycmd2.commands.core.runner import ParallelRunner
+from pycmd2.runner import ParallelRunner
 
 cli = get_client()
 logger = logging.getLogger(__name__)

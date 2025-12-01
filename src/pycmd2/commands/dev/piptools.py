@@ -10,9 +10,9 @@ from typing import Optional
 import typer
 
 from pycmd2.client import get_client
-from pycmd2.commands.core.runner import MultiCommandRunner
-from pycmd2.commands.core.runner import ParallelRunner
 from pycmd2.config import TomlConfigMixin
+from pycmd2.runner import MultiCommandRunner
+from pycmd2.runner import ParallelRunner
 
 __version__ = "0.0.1"
 __build_date__ = "2025-11-20"

@@ -5,8 +5,8 @@ import shutil
 import subprocess
 from typing import ClassVar
 
-from pycmd2.commands.core.runner import DescSubcommandRunner
-from pycmd2.commands.core.runner import MultiCommandRunner
+from pycmd2.runner import DescSubcommandRunner
+from pycmd2.runner import MultiCommandRunner
 
 logger = logging.getLogger(__name__)
 

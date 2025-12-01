@@ -1,10 +1,10 @@
-from .core.runner import CommandRunner
-from .core.runner import DescSubcommandRunner
-from .core.runner import MultiCommandRunner
-from .core.runner import ParallelRunner
-from .core.runner import SequenceRunner
-from .core.runner import SequenceSubcommandRunner
-from .core.runner import SubcommandRunner
+from pycmd2.runner import CommandRunner
+from pycmd2.runner import DescSubcommandRunner
+from pycmd2.runner import MultiCommandRunner
+from pycmd2.runner import ParallelRunner
+from pycmd2.runner import SequenceRunner
+from pycmd2.runner import SequenceSubcommandRunner
+from pycmd2.runner import SubcommandRunner
 
 __all__ = [
     "CommandRunner",

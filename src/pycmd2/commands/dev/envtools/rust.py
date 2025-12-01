@@ -7,8 +7,8 @@ import subprocess
 from pathlib import Path
 
 from pycmd2.client import get_client
-from pycmd2.commands.core.runner import CommandRunner
 from pycmd2.config import TomlConfigMixin
+from pycmd2.runner import CommandRunner
 
 from .base import BaseEnvTool
 from .python import add_env_to_bashrc
