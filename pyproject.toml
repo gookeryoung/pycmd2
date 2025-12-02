@@ -50,8 +50,8 @@ videoconv = "pycmd2.commands.office.video_converter:main"
 
 # system commands
 alarmclk = "pycmd2.commands.system.alarmclock.cli:main"
-encz = "pycmd2.commands.system.encrypt_zip:cli.app"
 checksum = "pycmd2.commands.system.checksum.checksum:main"
+encz = "pycmd2.commands.system.encrypt_zip:cli.app"
 filedate = "pycmd2.commands.system.file_date:cli.app"
 filelvl = "pycmd2.commands.system.file_level:cli.app"
 folderb = "pycmd2.commands.system.folder_backup:cli.app"
@@ -117,7 +117,7 @@ line-length = 88
 output-format = "full"
 preview = true
 show-fixes = true
-target-version = "py38"
+target-version = "py37"
 unsafe-fixes = true
 
 [tool.ruff.lint]
