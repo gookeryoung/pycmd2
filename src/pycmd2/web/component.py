@@ -35,8 +35,6 @@ __all__ = [
     "BaseComponent",
     "ComponentFactory",
     "ComponentMeta",
-    "ContainerComponent",
-    "ContentComponent",
     "register_component",
 ]
 
@@ -408,65 +406,6 @@ class BaseComponent(ABC, metaclass=ComponentMeta):
             str: 组件的字符串表示
         """
         return f"{self.__class__.__name__}(id={self.COMPONENT_ID})"
-
-
-class ContainerComponent(BaseComponent):
-    """容器组件基类.
-
-    用于包含其他组件的容器组件.
-    """
-
-    def __init__(
-        self,
-        *args: tuple[Any, ...],
-        direction: str = "column",
-        **kwargs: dict[str, Any],
-    ) -> None:
-        """初始化容器组件.
-
-        Args:
-            direction: 布局方向, 可以是"column"或"row"
-            *args: 位置参数
-            **kwargs: 关键字参数
-        """
-        super().__init__(*args, **kwargs)
-        self.direction = direction
-
-    def render(self) -> ui.element:
-        """渲染容器组件.
-
-        Returns:
-            ui.element: 容器元素
-        """
-        if self.direction == "column":
-            return ui.column()
-        if self.direction == "row":
-            return ui.row()
-        # 默认使用column
-        return ui.column()
-
-
-class ContentComponent(BaseComponent):
-    """内容组件基类.
-
-    用于显示文本、图标等内容的组件.
-    """
-
-    def __init__(
-        self,
-        content: str = "",
-        *args: tuple[Any, ...],
-        **kwargs: dict[str, Any],
-    ) -> None:
-        """初始化内容组件.
-
-        Args:
-            content: 内容文本
-            *args: 位置参数
-            **kwargs: 关键字参数
-        """
-        super().__init__(*args, **kwargs)
-        self.content = content
 
 
 # 组件注册器
