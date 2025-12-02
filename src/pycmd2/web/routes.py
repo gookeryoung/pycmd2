@@ -6,6 +6,7 @@ from pycmd2.web.apps import IconsHelpApp
 from pycmd2.web.apps import LSCOptimizerApp
 from pycmd2.web.apps import MandelbrotApp
 from pycmd2.web.apps import PDFMergeApp
+from pycmd2.web.apps import SinApp
 from pycmd2.web.apps import WaveGraphApp
 from pycmd2.web.components.navigator import NavigationGroup
 from pycmd2.web.components.navigator import NavigationItem
@@ -77,6 +78,13 @@ CARDS: list[ToolCardGroup] = [
                 icon="people",
                 color="purple",
                 router=DbTableDemoApp.ROUTER,
+            ),
+            ToolCard(
+                title="正弦曲线",
+                description="可视化正弦曲线",
+                icon="functions",
+                color="blue",
+                router=SinApp.ROUTER,
             ),
         ],
     ),
