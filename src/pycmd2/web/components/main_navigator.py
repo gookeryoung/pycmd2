@@ -7,7 +7,6 @@ from nicegui import ui
 from pycmd2.web.component import register_component
 from pycmd2.web.components.navigator import Navigator
 from pycmd2.web.config import conf
-from pycmd2.web.routes import GROUPS
 
 
 @register_component("main-navigator")
@@ -23,6 +22,8 @@ class MainNavigator(Navigator):
         **kwargs: dict[str, Any],
     ) -> None:
         super().__init__(*args, title=title, show_search=True, **kwargs)
+
+        from pycmd2.web.routes import GROUPS  # noqa: PLC0415
 
         for group in GROUPS:
             self.add_group(group)

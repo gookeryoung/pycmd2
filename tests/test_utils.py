@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from pycmd2.tracker import timer
+from pycmd2.utils import timer
 
 
 class TestTracker:

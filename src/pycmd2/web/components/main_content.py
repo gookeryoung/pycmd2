@@ -7,7 +7,6 @@ from nicegui import ui
 from pycmd2.web.component import BaseComponent
 from pycmd2.web.component import register_component
 from pycmd2.web.components.machine import SystemMonitor
-from pycmd2.web.routes import CARDS
 
 
 @register_component("main-content")
@@ -27,6 +26,8 @@ class MainContent(BaseComponent):
         Returns:
             ui.element: 主内容区域元素.
         """
+        from pycmd2.web.routes import CARDS  # noqa: PLC0415
+
         with ui.element().classes("w-full") as self.container:
             # 主横幅区域
             with ui.column().classes("w-full items-center py-8"):
