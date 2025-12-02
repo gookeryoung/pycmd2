@@ -60,9 +60,6 @@ ld = "pycmd2.commands.system.list_dirs:cli.app"
 taskk = "pycmd2.commands.system.task_kill:cli.app"
 wch = "pycmd2.commands.system.which:cli.app"
 
-# simulation tools
-lscopt = "pycmd2.web.simulation.lscopt.lscopt_gui:main"
-
 # web
 websvr = "pycmd2.web.cli:main"
 
