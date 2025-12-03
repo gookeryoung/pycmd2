@@ -20,7 +20,6 @@ except ImportError:
 @pytest.mark.slow
 @pytest.mark.benchmark(
     group="multi_command_runner",
-    min_rounds=10,
 )
 @pytest.mark.parametrize(
     "commands",
@@ -52,7 +51,6 @@ class TestOptimizedMultiCommandRunner:
 @pytest.mark.skipif(not np, reason="numpy 未安装, 跳过测试")
 @pytest.mark.benchmark(
     group="parallel_runner",
-    min_rounds=1,
 )
 @pytest.mark.parametrize(
     ("func", "args"),

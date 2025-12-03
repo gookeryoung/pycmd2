@@ -7,8 +7,10 @@ import threading
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 from typing import ClassVar
 from typing import Dict
+from typing import List
 from typing import Type
 from typing import TypeVar
 
@@ -21,10 +23,12 @@ __all__ = [
     "TomlConfigMixin",
 ]
 
+
 cli = get_client()
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound="TomlConfigMixin")
+TO = TypeVar("TO", bound="OptimizedTomlConfigMixin")
 
 
 @dataclass(frozen=True)
@@ -32,8 +36,8 @@ class AttributeDiff:
     """属性差异."""
 
     attr: str
-    file_value: object
-    cls_value: object
+    file_value: Any
+    cls_value: Any
 
     def __hash__(self) -> int:
         return hash((self.attr, str(self.file_value), str(self.cls_value)))
@@ -147,6 +151,24 @@ class TomlConfigMixin:
         """
         return self._file_attrs
 
+    def getattr(self, attr: str) -> object:
+        """获取属性.
+
+        Args:
+            attr (str): 属性名
+
+        Returns:
+            object: 属性值
+
+        Raises:
+            AttributeError: 如果属性不存在.
+        """
+        if attr in self._cls_attrs:
+            return getattr(self, attr)
+
+        msg = f"属性 {attr} 在 {self.__class__.__name__} 中不存在."
+        raise AttributeError(msg)
+
     def setattr(self, attr: str, value: object) -> None:
         """设置属性.
 
@@ -235,3 +257,220 @@ class TomlConfigMixin:
         except Exception as e:
             msg = f"保存配置错误: {e.__class__.__name__!s}: {e!s}"
             logger.exception(msg)
+
+
+class OptimizedTomlConfigMixin:
+    """优化版本的TOML配置混入基类."""
+
+    name: str = ""
+
+    # 使用线程安全的单例实现
+    _instances: ClassVar[Dict[Type, OptimizedTomlConfigMixin]] = {}
+    _instance_lock: ClassVar[threading.Lock] = threading.Lock()
+    _exit_handler_registered: ClassVar[bool] = False
+
+    def __init__(self, *, show_logging: bool = False) -> None:
+        """初始化优化配置混入类."""
+        # 优化日志设置
+        if show_logging:
+            logger.setLevel(logging.DEBUG)
+        else:
+            logger.setLevel(logging.INFO)
+
+        # 使用缓存的命名转换
+        cls_name = _to_snake_case(type(self).__name__).replace("_config", "")
+        self.name = cls_name if not self.name else self.name
+
+        # 预设配置文件路径
+        self._config_file: Path = cli.settings_dir / f"{cls_name}.toml"
+        self._file_attrs: Dict[str, Any] = {}
+
+        # 优化目录创建 - 只在需要时检查
+        if not cli.settings_dir.exists():
+            logger.debug(f"创建设置目录: [u]{cli.settings_dir}")
+            cli.settings_dir.mkdir(parents=True, exist_ok=True)
+
+        # 加载配置
+        self.load()
+
+        # 优化属性比较 - 减少重复计算
+        self._sync_attributes()
+
+        # 优化退出处理器注册 - 全局只注册一次
+        self._register_exit_handler()
+
+    def _sync_attributes(self) -> None:
+        """同步配置文件和类属性."""
+        cls_attrs = self._cls_attrs
+
+        # 使用列表推导式优化差异查找
+        diff_attrs = [
+            AttributeDiff(
+                attr,
+                file_value=self._file_attrs[attr],
+                cls_value=cls_attrs[attr],
+            )
+            for attr in cls_attrs
+            if attr in self._file_attrs and self._file_attrs[attr] != cls_attrs[attr]
+        ]
+
+        if diff_attrs:
+            logger.debug(f"差异属性: [u]{diff_attrs}")
+
+            # 批量更新属性
+            for diff in diff_attrs:
+                logger.debug(f"设置属性: [u green]{diff.attr} = {diff.file_value}")
+                setattr(self, diff.attr, diff.file_value)
+
+            # 更新类属性缓存
+            self._update_cls_attrs_cache(diff_attrs)
+
+    def _update_cls_attrs_cache(self, diffs: List[AttributeDiff]) -> None:
+        """更新类属性缓存."""
+        if hasattr(self, "_cached_cls_attrs"):
+            for diff in diffs:
+                self._cached_cls_attrs[diff.attr] = diff.file_value
+
+    def _register_exit_handler(self) -> None:
+        """注册退出处理器（全局只注册一次）。."""
+        if not self.__class__._exit_handler_registered:  # noqa: SLF001
+            atexit.register(self._save_all_instances)
+            OptimizedTomlConfigMixin._exit_handler_registered = True
+
+    @classmethod
+    def _save_all_instances(cls) -> None:
+        """保存所有实例的配置."""
+        for instance in cls._instances.values():
+            if instance:
+                instance.save()
+
+    @classmethod
+    def get_instance(cls: Type[TO]) -> TO:
+        """获取优化的单例对象（双重检查锁定模式）.
+
+        Returns:
+            OptimizedTomlConfigMixin: 单例对象
+        """
+        if cls not in cls._instances:
+            with cls._instance_lock:
+                # 双重检查锁定
+                if cls not in cls._instances:
+                    cls._instances[cls] = cls()
+        return cls._instances[cls]  # type: ignore
+
+    def get_fileattrs(self) -> Dict[str, Any]:
+        """获取配置文件的所有属性.
+
+        Returns:
+            Dict[str, Any]: 所有属性
+        """
+        return self._file_attrs
+
+    def getattr(self, attr: str) -> object:
+        """获取属性（带缓存）.
+
+        Args:
+            attr (str): 属性名称
+
+        Returns:
+            Any: 属性值
+
+        Raises:
+            AttributeError: 如果属性不存在
+        """
+        if attr in self._cls_attrs:
+            return getattr(self, attr)
+        msg = f"属性 {attr} 在 {self.__class__.__name__} 中不存在."
+        raise AttributeError(msg)
+
+    def setattr(self, attr: str, value: object) -> None:
+        """设置属性（带缓存更新）.
+
+        Raises:
+            AttributeError: 如果属性不存在
+        """
+        if attr in self._cls_attrs:
+            logger.debug(f"设置属性: {attr} = {value}")
+            setattr(self, attr, value)
+
+            # 更新缓存
+            if hasattr(self, "_cached_cls_attrs"):
+                self._cached_cls_attrs[attr] = value
+        else:
+            msg = f"属性 {attr} 在 {self.__class__.__name__} 中不存在."
+            raise AttributeError(msg)
+
+    @property
+    def _cls_attrs(self) -> Dict[str, Any]:
+        """获取类的所有属性（带缓存）。."""
+        if not hasattr(self, "_cached_cls_attrs"):
+            self._cached_cls_attrs = {
+                attr: getattr(self, attr)
+                for attr in dir(self.__class__)
+                if not attr.startswith("_")
+                and not callable(getattr(self.__class__, attr))
+            }
+        return self._cached_cls_attrs
+
+    def load(self) -> None:
+        """优化的配置加载方法."""
+        if not self._config_file.exists():
+            logger.debug(f"配置文件不存在: {self._config_file}")
+            return
+
+        try:
+            with Path(self._config_file).open("rb") as f:
+                self._file_attrs = tomllib.load(f)
+        except Exception:
+            logger.exception(f"读取配置文件失败: {self._config_file}")
+            self._file_attrs = {}
+
+    def save(self) -> None:
+        """优化的配置保存方法."""
+        try:
+            # 确保目录存在
+            self._config_file.parent.mkdir(parents=True, exist_ok=True)
+
+            # 只保存当前实例的属性
+            config_data = {
+                attr: getattr(self, attr)
+                for attr in self._cls_attrs
+                if not attr.startswith("_")
+            }
+
+            with Path(self._config_file).open("wb") as f:
+                tomli_w.dump(config_data, f)
+
+            logger.debug(f"配置已保存到: {self._config_file}")
+        except Exception:
+            logger.exception(f"保存配置文件失败: {self._config_file}")
+
+    @classmethod
+    def clear(cls) -> None:
+        """优化的清理方法."""
+        # 清理配置文件
+        if cli.settings_dir.exists():
+            config_files = cli.settings_dir.glob("*.toml")
+            for config_file in config_files:
+                try:
+                    config_file.unlink(missing_ok=True)
+                except Exception:  # noqa: PERF203
+                    logger.exception(f"删除配置文件失败: {config_file}")
+
+        # 清理实例缓存
+        with cls._instance_lock:
+            cls._instances.clear()
+            cls._exit_handler_registered = False
+
+        # 清理命名转换缓存
+        _to_snake_case.cache_clear()
+
+
+class AdvancedOptimizedConfigMixin(OptimizedTomlConfigMixin):
+    """高级优化版本，使用__slots__和弱引用进一步优化内存使用."""
+
+    __slots__ = ("_cached_cls_attrs", "_config_file", "_file_attrs", "name")
+
+    def __init__(self, *, show_logging: bool = False) -> None:
+        """初始化高级优化配置混入类."""
+        super().__init__(show_logging=show_logging)

@@ -4,6 +4,9 @@ import pytest
 from pytest_benchmark.fixture import BenchmarkFixture
 
 from pycmd2.config import _to_snake_case  # noqa: PLC2701
+from pycmd2.config import AdvancedOptimizedConfigMixin
+from pycmd2.config import OptimizedTomlConfigMixin
+from pycmd2.config import TomlConfigMixin
 
 
 def _deprecated_to_snake_case(name: str) -> str:
@@ -26,8 +29,6 @@ def _deprecated_to_snake_case(name: str) -> str:
 
 @pytest.mark.benchmark(
     group="to_snake_case",
-    min_rounds=10,
-    max_time=0.1,
 )
 @pytest.mark.parametrize(
     "string",
@@ -57,3 +58,57 @@ class TestToSnakeCase:
     ) -> None:
         """测试 optimized_to_snake_case 函数性能."""
         benchmark(_to_snake_case, string)
+
+
+class OriginalConfig(TomlConfigMixin):
+    """测试配置类."""
+
+    name = "test"
+    attr1 = "value1"
+    attr2 = "value2"
+    attr3 = 100
+
+
+# 创建测试配置类
+class OptimizedConfig(OptimizedTomlConfigMixin):
+    """测试配置类."""
+
+    name = "test"
+    attr1 = "value1"
+    attr2 = "value2"
+    attr3 = 100
+
+
+class AdvancedOptimizedConfig(AdvancedOptimizedConfigMixin):
+    """测试配置类."""
+
+    name = "test"
+    attr1 = "value1"
+    attr2 = "value2"
+    attr3 = 100
+
+
+@pytest.mark.benchmark(
+    group="config_attribute_access",
+    min_rounds=1000,
+)
+class TestConfigAttributeAccess:
+    """测试配置属性访问性能."""
+
+    def test_attribute_access(self, benchmark: BenchmarkFixture) -> None:
+        """测试属性访问性能."""
+        config = OriginalConfig()
+        benchmark(config.getattr, "name")
+
+    def test_optimized_attribute_access(self, benchmark: BenchmarkFixture) -> None:
+        """测试优化后的属性访问性能."""
+        config = OptimizedConfig()
+        benchmark(config.getattr, "name")
+
+    def test_advanced_optimized_attribute_access(
+        self,
+        benchmark: BenchmarkFixture,
+    ) -> None:
+        """测试优化后的属性访问性能."""
+        config = AdvancedOptimizedConfig()
+        benchmark(config.getattr, "name")
