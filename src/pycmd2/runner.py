@@ -130,17 +130,15 @@ class MultiCommandRunnerMixin(Runner):
         except Exception:
             logger.exception("日志流处理异常")
 
-    def run(self, commands: List[str]) -> None:
-        """执行操作.
+    def _execute_process(self, commands: List[str]) -> None:
+        """执行命令过程.
+
+        Args:
+            commands: 命令列表
 
         Raises:
             FileNotFoundError: 找不到命令
         """
-        super().run()
-
-        t0 = perf_counter()
-        logger.info(f"调用命令: [green bold]{commands}")
-
         proc_path = shutil.which(commands[0])
         if not proc_path:
             msg = f"找不到命令: {commands[0]}"
@@ -169,6 +167,19 @@ class MultiCommandRunnerMixin(Runner):
             thread.start()
             threads.append(thread)
 
+        self._wait_for_process(proc, threads)
+
+    def _wait_for_process(
+        self,
+        proc: subprocess.Popen,
+        threads: List[threading.Thread],
+    ) -> None:
+        """等待进程执行完毕并处理结果.
+
+        Args:
+            proc: 子进程对象
+            threads: 输出处理线程列表
+        """
         try:
             # 等待进程结束
             proc.wait(timeout=300)  # 添加超时防止无限等待
@@ -198,6 +209,26 @@ class MultiCommandRunnerMixin(Runner):
         # 检查返回码
         if proc.returncode != 0:
             logger.error(f"命令执行失败, 返回码: {proc.returncode}")
+
+    def run(self, commands: List[str]) -> None:
+        """执行操作.
+
+        Raises:
+            FileNotFoundError: 找不到命令
+        """
+        super().run()
+
+        if not commands:
+            return
+
+        t0 = perf_counter()
+        logger.info(f"调用命令: [green bold]{commands}")
+
+        try:
+            self._execute_process(commands)
+        except FileNotFoundError:
+            logger.exception("命令执行失败")
+            raise
 
         logger.info(f"用时: [green bold]{perf_counter() - t0:.4f}s.")
 
@@ -254,11 +285,11 @@ class ParallelRunnerMixin(Runner):
         func_name = func.__name__ if hasattr(func, "__name__") else "Unknown"
         logger.info(f"调用: {func_name}({args=})")
 
-        if not args:
+        if args is None:
             logger.info("没有参数, 取消多线程...")
             return [func()]
 
-        if not isinstance(args, List):
+        if not isinstance(args, Sequence):
             logger.error(f"args 必须是一个列表: {args=}")
             return []
 
@@ -400,6 +431,83 @@ class OptimizedMultiCommandRunnerMixin(Runner):
             self._command_cache[command] = shutil.which(command) or ""
         return self._command_cache[command]
 
+    def _setup_process(self, cmd_path: str, commands: List[str]) -> subprocess.Popen:
+        """设置并启动子进程.
+
+        Returns:
+            subprocess.Popen: 子进程对象
+        """
+        return subprocess.Popen(
+            [cmd_path, *commands[1:]],
+            stdin=None,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=False,
+            # 优化参数
+            bufsize=8192,  # 设置缓冲区大小
+            close_fds=True,  # 关闭不必要的文件描述符
+        )
+
+    def _start_stream_threads(self, proc: subprocess.Popen) -> List[threading.Thread]:
+        """启动流处理线程.
+
+        Returns:
+            List[threading.Thread]: 线程列表
+        """
+        # 创建优化的流读取器
+        stream_reader = _OptimizedStreamReader(self._log_processor)
+
+        # 创建线程处理输出
+        threads = []
+        for stream, log_func in [
+            (proc.stdout, logger.info),
+            (proc.stderr, logger.warning),
+        ]:
+            thread = threading.Thread(
+                target=stream_reader.read_stream,
+                args=(stream, log_func),
+                daemon=True,
+            )
+            thread.start()
+            threads.append(thread)
+
+        return threads
+
+    def _handle_process_result(
+        self,
+        proc: subprocess.Popen,
+        threads: List[threading.Thread],
+    ) -> None:
+        """处理进程执行结果."""
+        try:
+            # 等待进程完成
+            proc.wait(timeout=300)
+
+            # 等待所有输出线程完成
+            for thread in threads:
+                thread.join(timeout=2)
+
+        except subprocess.TimeoutExpired:
+            # 优雅终止进程
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait()
+            logger.exception("命令执行超时, 已强制终止")
+            raise
+
+        finally:
+            # 清理资源
+            for stream in [proc.stdout, proc.stderr]:
+                if stream:
+                    with suppress(Exception):
+                        stream.close()
+
+        if proc.returncode != 0:
+            logger.error(f"命令执行失败, 返回码: {proc.returncode}")
+
     def run(self, commands: List[str]) -> None:
         """优化的命令执行方法."""
         if not commands:
@@ -415,62 +523,13 @@ class OptimizedMultiCommandRunnerMixin(Runner):
 
         try:
             # 优化的子进程创建
-            proc = subprocess.Popen(
-                [cmd_path, *commands[1:]],
-                stdin=None,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=False,
-                # 优化参数
-                bufsize=8192,  # 设置缓冲区大小
-                close_fds=True,  # 关闭不必要的文件描述符
-            )
-
-            # 创建优化的流读取器
-            stream_reader = _OptimizedStreamReader(self._log_processor)
+            proc = self._setup_process(cmd_path, commands)
 
             # 创建线程处理输出
-            threads = []
-            for stream, log_func in [
-                (proc.stdout, logger.info),
-                (proc.stderr, logger.warning),
-            ]:
-                thread = threading.Thread(
-                    target=stream_reader.read_stream,
-                    args=(stream, log_func),
-                    daemon=True,
-                )
-                thread.start()
-                threads.append(thread)
+            threads = self._start_stream_threads(proc)
 
-            try:
-                # 等待进程完成
-                proc.wait(timeout=300)
-
-                # 等待所有输出线程完成
-                for thread in threads:
-                    thread.join(timeout=2)
-
-            except subprocess.TimeoutExpired:
-                # 优雅终止进程
-                proc.terminate()
-                try:
-                    proc.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    proc.kill()
-                    proc.wait()
-                logger.exception("命令执行超时, 已强制终止")
-                raise
-
-            finally:
-                # 清理资源
-                for stream in [proc.stdout, proc.stderr]:
-                    if stream:
-                        with suppress(Exception):
-                            stream.close()
-
-            if proc.returncode != 0:
-                logger.error(f"命令执行失败, 返回码: {proc.returncode}")
+            # 处理进程结果
+            self._handle_process_result(proc, threads)
 
             logger.info(f"用时: [green bold]{perf_counter() - t0:.4f}s.")
 
@@ -533,11 +592,11 @@ class OptimizedParallelRunnerMixin(Runner):
             logger.error(f"func 必须是一个可调用对象: {func=}")
             return []
 
-        if not args:
+        if args is None:
             logger.info("没有参数, 取消多线程...")
             return [func()]
 
-        if not isinstance(args, List):
+        if not isinstance(args, Sequence):
             logger.error(f"args 必须是一个列表: {args=}")
             return []
 
