@@ -95,6 +95,21 @@ class CommandRunnerMixin(Runner):
 class MultiCommandRunnerMixin(Runner):
     """字符串命令执行器."""
 
+    def __init__(self) -> None:
+        super().__init__()
+        # 命令路径缓存
+        self._command_cache: dict[str, str] = {}
+
+    def _get_command_path(self, command: str) -> str:
+        """获取命令路径（带缓存）.
+
+        Returns:
+            str: 命令路径，如果找不到则返回空字符串
+        """
+        if command not in self._command_cache:
+            self._command_cache[command] = shutil.which(command) or ""
+        return self._command_cache[command]
+
     @staticmethod
     def _safe_log_stream(stream: IO[bytes], logger_func: Callable[[str], None]) -> None:
         """安全地记录流数据, 处理各种异常情况.
@@ -139,7 +154,7 @@ class MultiCommandRunnerMixin(Runner):
         Raises:
             FileNotFoundError: 找不到命令
         """
-        proc_path = shutil.which(commands[0])
+        proc_path = self._get_command_path(commands[0])
         if not proc_path:
             msg = f"找不到命令: {commands[0]}"
             raise FileNotFoundError(msg)
@@ -265,12 +280,50 @@ class SubcommandRunnerMixin(MultiCommandRunnerMixin, Runner):
 class ParallelRunnerMixin(Runner):
     """并行执行器."""
 
+    def __init__(self) -> None:
+        super().__init__()
+        # 根据系统资源确定合理的线程数
+        self.default_workers = min(32, (os.cpu_count() or 1) + 4)
+        self._executor: Optional[ThreadPoolExecutor] = None
+        self._executor_lock = threading.Lock()
+        # 注册清理函数
+        weakref.finalize(self, self._shutdown_executor)
+
+    def _shutdown_executor(self) -> None:
+        """关闭线程池."""
+        with self._executor_lock:
+            if self._executor:
+                self._executor.shutdown(wait=False)
+                self._executor = None
+
+    def _get_executor(self, max_workers: int) -> ThreadPoolExecutor:
+        """获取或创建线程池.
+
+        Returns:
+            ThreadPoolExecutor: 线程池实例
+        """
+        with self._executor_lock:
+            if (
+                self._executor is None
+                or self._executor._max_workers != max_workers  # noqa: SLF001
+                or self._executor._shutdown  # noqa: SLF001
+            ):
+                if self._executor:
+                    self._executor.shutdown(wait=False)
+
+                self._executor = ThreadPoolExecutor(
+                    max_workers=max_workers,
+                    thread_name_prefix="ParallelRunner",
+                )
+
+        return self._executor
+
     def run(
         self,
         func: Callable[..., Any],
         args: Optional[List[Any]] = None,
-        max_workers: int = 10,
-    ) -> Sequence[Any]:
+        max_workers: Optional[int] = None,
+    ) -> List[Any]:
         """执行操作.
 
         Returns:
@@ -297,15 +350,21 @@ class ParallelRunnerMixin(Runner):
             logger.info("只有一个参数, 取消多线程...")
             return [func(args[0])]
 
-        t0 = perf_counter()
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            results = list(executor.map(func, args))
+        workers = max_workers or self.default_workers
+        executor = self._get_executor(workers)
 
-        logger.info(
-            f"调用: {func_name}(args: {args!s})({max_workers}个线程), "
-            f"耗时: {perf_counter() - t0:.4f}s",
-        )
-        return results
+        t0 = perf_counter()
+        try:
+            results = list(executor.map(func, args))
+        except Exception:
+            logger.exception("并行执行异常")
+            return []
+        else:
+            logger.info(
+                f"调用: {func_name}(args: {len(args)}个任务, {workers}个线程), "
+                f"耗时: {perf_counter() - t0:.4f}s",
+            )
+            return results
 
 
 class _OptimizedLogProcessor:
