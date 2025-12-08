@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import List
 
 import typer
-import win32com.client as win32
 
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
@@ -35,6 +34,12 @@ def diff_doc(old: Path, new: Path) -> None:
 
     if not new.exists():
         logger.error(f"新文件不存在: {new}")
+        return
+
+    try:
+        import win32com.client as win32  # type: ignore # noqa: PLC0415
+    except ImportError:
+        logger.exception("win32com.client 未安装, 退出.")
         return
 
     word = win32.gencache.EnsureDispatch("Word.Application")  # type: ignore
