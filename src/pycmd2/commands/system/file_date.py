@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import re
 import time
 import uuid
@@ -17,7 +18,7 @@ from typer import Argument
 
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
-from pycmd2.runner import ParallelRunner
+from pycmd2.runner import OptimizedParallelRunner
 
 
 class FileDateConfig(TomlConfigMixin):
@@ -38,6 +39,17 @@ class FileDateProc:
 
     src: Path
     filestem: str = ""
+    _stat_cache: os.stat_result | None = None
+
+    def _get_stat(self) -> os.stat_result:
+        """获取文件状态信息，使用缓存避免重复调用.
+
+        Returns:
+            os.stat_result: 文件状态信息
+        """
+        if self._stat_cache is None:
+            self._stat_cache = self.src.stat()
+        return self._stat_cache
 
     @property
     def _time_mark(self) -> str:
@@ -46,7 +58,8 @@ class FileDateProc:
         Returns:
             str: 格式化的时间字符串
         """
-        modified, created = self.src.stat().st_mtime, self.src.stat().st_ctime
+        stat = self._get_stat()
+        modified, created = stat.st_mtime, stat.st_ctime
         return time.strftime(
             "%Y%m%d",
             time.localtime(max((modified, created))),
@@ -113,5 +126,4 @@ def main(
         targets: 目标文件列表
     """
     rename_targets = [FileDateProc(t) for t in targets]
-    ParallelRunner().run(FileDateProc.rename, rename_targets, max_workers=10)
-    ParallelRunner().run(FileDateProc.rename, rename_targets, max_workers=10)
+    OptimizedParallelRunner().run(FileDateProc.rename, rename_targets, max_workers=10)

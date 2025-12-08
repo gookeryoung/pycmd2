@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+import platform
 import queue
 import shutil
 import subprocess
@@ -496,6 +497,13 @@ class OptimizedMultiCommandRunnerMixin(Runner):
         Returns:
             subprocess.Popen: 子进程对象
         """
+        # 设置启动信息，在Windows上避免显示控制台窗口
+        startupinfo = None
+        if platform.system() == "Windows":
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
+
         return subprocess.Popen(
             [cmd_path, *commands[1:]],
             stdin=None,
@@ -505,6 +513,7 @@ class OptimizedMultiCommandRunnerMixin(Runner):
             # 优化参数
             bufsize=8192,  # 设置缓冲区大小
             close_fds=True,  # 关闭不必要的文件描述符
+            startupinfo=startupinfo,  # 设置启动信息，隐藏控制台窗口
         )
 
     def _start_stream_threads(self, proc: subprocess.Popen) -> List[threading.Thread]:
@@ -600,10 +609,12 @@ class OptimizedParallelRunnerMixin(Runner):
     """优化的并行执行器，重用线程池."""
 
     def __init__(self) -> None:
-        # 根据系统资源确定合理的线程数
+        # 根据系统资源确定合理的线程数，根据IO/CPU密集型任务调整
         self.default_workers = min(32, (os.cpu_count() or 1) + 4)
         self._executor: Optional[ThreadPoolExecutor] = None
         self._executor_lock = threading.Lock()
+        # 性能计数器
+        self._task_count = 0
         # 注册清理函数
         weakref.finalize(self, self._shutdown_executor)
 
@@ -663,22 +674,29 @@ class OptimizedParallelRunnerMixin(Runner):
             logger.info("只有一个参数, 取消多线程...")
             return [func(args[0])]
 
+        # 更新任务计数器
+        self._task_count += len(args)
+
         workers = max_workers or self.default_workers
         executor = self._get_executor(workers)
 
         func_name = getattr(func, "__name__", "Unknown")
-        logger.info(f"调用: {func_name}({args=})")
+        logger.info(f"调用: {func_name}(任务数: {len(args)}, 线程数: {workers})")
 
         t0 = perf_counter()
         try:
-            results = list(executor.map(func, args))
+            # 使用chunksize优化IO密集型任务的性能
+            chunk_size = max(1, len(args) // (workers * 2))
+            results = list(executor.map(func, args, chunksize=chunk_size))
         except Exception:
             logger.exception("并行执行异常")
             return []
         else:
+            total_time = perf_counter() - t0
             logger.info(
-                f"调用: {func_name}(args: {len(args)}个任务, {workers}个线程), "
-                f"耗时: {perf_counter() - t0:.4f}s",
+                f"{func_name} 完成 (总任务数: {self._task_count}, "
+                f"本次: {len(args)}个任务, {workers}个线程), "
+                f"总耗时: {total_time:.4f}s, 平均: {total_time / len(args):.6f}s/任务",
             )
             return results
 
