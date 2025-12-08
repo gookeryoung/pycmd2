@@ -10,7 +10,6 @@ from typing import ClassVar
 from typing import List
 
 import typer
-from tqdm import tqdm
 
 from pycmd2.client import get_client
 from pycmd2.config import TomlConfigMixin
@@ -35,26 +34,6 @@ class EncryptZipConfig(TomlConfigMixin):
 cli = get_client()
 conf = EncryptZipConfig()
 logger = logging.getLogger(__name__)
-
-
-def _get_size_str(filepath: Path) -> str:
-    """获取文件/目录大小的字符串表示.
-
-    Returns:
-        str: 文件/目录大小字符串表示
-    """
-    if filepath.is_file():
-        size = filepath.stat().st_size
-        for unit in ["B", "KB", "MB", "GB"]:
-            if size < 1024.0:  # noqa: PLR2004
-                return f"{size:.1f}{unit}"
-            size /= 1024.0
-        return f"{size:.1f}TB"
-    if filepath.is_dir():
-        # 使用生成器表达式计算目录中的文件数量，避免内存问题
-        file_count = sum(1 for f in filepath.rglob("*") if f.is_file())
-        return f"{file_count}个文件"
-    return "未知"
 
 
 def _create_encrypted_zip(filepath: Path, target_path: Path, password: str) -> None:
@@ -121,25 +100,6 @@ def _get_valid_entries(dirpath: Path) -> List[Path]:
     ]
 
 
-def _make_archive_with_progress(
-    filepath: Path,
-    password: str,
-    *,
-    replace: bool,
-    overall_pbar: tqdm,
-) -> None:
-    """带总体进度条更新的加密函数."""
-    try:
-        # 显示简化的处理信息，避免过多日志干扰进度条
-        size_str = _get_size_str(filepath)
-        overall_pbar.set_description(f"加密中 - {size_str}")
-        _make_archive(filepath, password=password, replace=replace)
-    finally:
-        # 确保进度条更新，即使发生异常
-        overall_pbar.update(1)
-        overall_pbar.set_postfix({"完成": filepath.name[: conf.MAX_NAME_LEN]})
-
-
 def _make_archive(filepath: Path, password: str, *, replace: bool = True) -> None:
     target_path = filepath.parent / f"{filepath.stem}.zip"
     if target_path.exists():  # 避免重复加密
@@ -188,24 +148,17 @@ def encrypt_zip(
         return
 
     logger.info(f"开始加密 {len(files)} 个文件/目录...")
-    with tqdm(
-        total=len(files),
-        desc="总体进度",
-        unit="项目",
-        position=0,
-    ) as overall_pbar:
-        runner = ParallelRunner()
-        try:
-            runner.run(
-                partial(
-                    _make_archive_with_progress,
-                    password=password,
-                    replace=replace,
-                    overall_pbar=overall_pbar,
-                ),
-                files,
-                max_workers=conf.MAX_WORKERS,
-            )
-        except Exception:
-            logger.exception("执行过程中发生错误")
-            raise
+    runner = ParallelRunner()
+    try:
+        runner.run(
+            func=partial(
+                _make_archive,
+                password=password,
+                replace=replace,
+            ),
+            args=files,
+            max_workers=conf.MAX_WORKERS,
+        )
+    except Exception:
+        logger.exception("执行过程中发生错误")
+        raise
