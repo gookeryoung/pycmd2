@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 class LlamaWorker(QThread):
-    """工作线程, 用于与llama-server通信."""
+    """工作线程, 用于与 llama-server 通信."""
 
     response_received = pyqtSignal(str)
     error_occurred = pyqtSignal(str)
@@ -54,7 +54,7 @@ class LlamaWorker(QThread):
         self._is_running = True
 
     def run(self) -> None:
-        """运行线程."""
+        """运行工作线程."""
         try:  # noqa: PLR1702
             headers = {"Content-Type": "application/json"}
             data = {
@@ -100,12 +100,12 @@ class LlamaWorker(QThread):
             self.is_finished.emit()
 
     def stop(self) -> None:
-        """停止工作线程."""
+        """停止工作线程执行."""
         self._is_running = False
 
 
 class ConnectionTestWorker(QObject):
-    """连接测试工作线程."""
+    """服务器连接测试工作线程."""
 
     result_ready = pyqtSignal(bool, str)
 
@@ -114,7 +114,7 @@ class ConnectionTestWorker(QObject):
         self.server_url = server_url
 
     def test_connection(self) -> None:
-        """测试连接."""
+        """测试服务器连接."""
         try:
             # 设置较短超时时间
             response = requests.get(f"{self.server_url}/health", timeout=5)

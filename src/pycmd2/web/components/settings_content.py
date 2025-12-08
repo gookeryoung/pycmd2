@@ -26,7 +26,7 @@ class SettingsContent(BaseComponent):
         with ui.card().classes("w-full"), ui.column().classes("w-full gap-4 p-6"):
             ui.label("导航设置").classes("text-h5 font-bold mb-4")
 
-            # Navigation position setting
+            # 导航位置设置
             with ui.row().classes("w-full items-center justify-between"):
                 ui.label("导航位置").classes("text-body1")
                 ui.radio(
@@ -37,7 +37,7 @@ class SettingsContent(BaseComponent):
 
             ui.separator()
 
-            # Show search setting
+            # 显示搜索设置
             with ui.row().classes("w-full items-center justify-between"):
                 ui.label("导航中显示搜索").classes("text-body1")
                 ui.switch(
@@ -47,7 +47,7 @@ class SettingsContent(BaseComponent):
 
             ui.separator()
 
-            # Navigation width setting (only for left navigation)
+            # 导航宽度设置（仅适用于左侧导航）
             if self.config.navigation_position == "left":
                 with ui.row().classes("w-full items-center justify-between"):
                     ui.label("导航宽度").classes("text-body1")
@@ -59,7 +59,7 @@ class SettingsContent(BaseComponent):
 
             ui.separator()
 
-            # Save button
+            # 保存按钮
             with ui.row().classes("w-full justify-end"):
                 ui.button("保存设置", on_click=self._save_settings).props(
                     "color=primary",

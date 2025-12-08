@@ -1,4 +1,4 @@
-"""功能: 初始化 rust 环境变量."""
+"""功能: 初始化 Rust 环境变量."""
 
 from __future__ import annotations
 
@@ -34,10 +34,10 @@ registry = "https://mirrors.ustc.edu.cn/crates.io-index"
     )
 
     def get_default_host(self) -> str:
-        """获取 rustup 默认host.
+        """获取 rustup 默认主机地址.
 
         Returns:
-            str: 默认host
+            str: 默认主机地址
         """
         return (
             "x86_64-pc-windows-msvc" if cli.is_windows else "x86_64-unknown-linux-gnu"
@@ -53,8 +53,8 @@ class RustEnvTool(BaseEnvTool):
     """Rust 环境工具."""
 
     def setup_env(self, *, override: bool = True) -> None:
-        """设置 rust 环境变量."""
-        logger.info("配置 uv 环境变量")
+        """设置 Rust 环境变量."""
+        logger.info("配置 Rust 环境变量")
 
         rustup_envs: dict[str, object] = {
             k: v for k, v in conf.get_fileattrs().items() if k.startswith("RUSTUP_")
@@ -68,15 +68,15 @@ class RustEnvTool(BaseEnvTool):
                 add_env_to_bashrc(str(k), str(v), override=override)
 
     def setup_cargo_config(self) -> None:
-        """配置 cargo 配置文件."""
+        """配置 Cargo 配置文件."""
         cargo_dir = cli.home / ".cargo"
         cargo_conf = cargo_dir / "config.toml"
 
         if not cargo_dir.exists():
-            logger.info(f"创建 pip 文件夹: [green bold]{cargo_dir}")
+            logger.info(f"创建 Cargo 文件夹: [green bold]{cargo_dir}")
             cargo_dir.mkdir(parents=True)
         else:
-            logger.info(f"已存在 pip 文件夹: [green bold]{cargo_dir}")
+            logger.info(f"已存在 Cargo 文件夹: [green bold]{cargo_dir}")
 
         logger.info(f"写入文件: [green bold]{cargo_conf}")
         cargo_conf.write_text(conf.CONFIG_CONTENT)
@@ -85,7 +85,7 @@ class RustEnvTool(BaseEnvTool):
         """检查 rustup 是否可执行.
 
         Returns:
-            Optional[bool]: 是否可执行
+            bool: 是否可执行
         """
         try:
             result = subprocess.run(
@@ -141,7 +141,7 @@ class RustEnvTool(BaseEnvTool):
             logger.error(f"下载失败, 请手动下载到当前目录: [red bold]{rustup_path}")
 
     def run(self, install_version: str = "nightly", *, override: bool = True) -> None:
-        """安装 rust."""
+        """安装 Rust."""
         self.setup_env(override=override)
         self.setup_cargo_config()
 

@@ -120,7 +120,7 @@ class TestFileLevelRenameReal:
         tmp_path: Path,
     ) -> None:
         """测试真实文件重命名."""
-        # Setup mock levels
+        # 设置模拟级别
         monkeypatch.setattr(
             conf,
             "LEVELS",
@@ -133,7 +133,7 @@ class TestFileLevelRenameReal:
             },
         )
 
-        # Create real test file
+        # 创建真实测试文件
         filepath = tmp_path / filename
         filepath.touch()
 

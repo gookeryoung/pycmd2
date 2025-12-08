@@ -56,7 +56,7 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
         self.m_pbGenerateFile.clicked.connect(self.generate_file_checksum)
 
     def toggle_check(self) -> None:
-        """激活比较功能."""
+        """启用比较功能."""
         self.m_enable_check = not self.m_enable_check
 
     def update_checksum_method(self) -> None:
@@ -89,11 +89,11 @@ class ChecksumDialog(QDialog, Ui_ChecksumDialog):
         self.m_teChecksum.setText(hash_code)
 
     def open_file(self) -> None:
-        """打开文件."""
+        """选择文件."""
         dialog = QFileDialog()
         filename, _ = dialog.getOpenFileName(
             self,
-            "打开文件",
+            "选择文件",
             QDir.currentPath(),
             "文件(*.*)",
         )

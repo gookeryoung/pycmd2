@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class Runner:
-    """空执行器."""
+    """基础执行器."""
 
     def run(self) -> None:
         """执行操作."""
@@ -31,7 +31,7 @@ class Runner:
 
 
 class DescriptionRunnerMixin(Runner):
-    """描述执行器."""
+    """功能描述执行器."""
 
     DESCRIPTION: str = ""
 
@@ -60,7 +60,7 @@ class SequenceRunnerMixin(Runner):
 
 
 class CommandRunnerMixin(Runner):
-    """字符串命令执行器."""
+    """Shell命令执行器."""
 
     def run(
         self,
@@ -94,7 +94,7 @@ class CommandRunnerMixin(Runner):
 
 
 class MultiCommandRunnerMixin(Runner):
-    """字符串命令执行器."""
+    """多命令执行器."""
 
     def __init__(self) -> None:
         super().__init__()

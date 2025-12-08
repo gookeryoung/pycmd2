@@ -44,15 +44,15 @@ class TodoConfig(TomlConfigMixin):
         "#fca0a0",
     ]
 
-    # title label
+    # 标题标签
     TITLE_LABEL = "我的待办清单"
 
-    # input label
+    # 输入标签
     INPUT_PLACEHOLDER = "添加新的待办事项..."
 
     ADD_BUTTON_TEXT = "添加"
 
-    # priority
+    # 优先级
     PRIORITIES: ClassVar[list[str]] = ["无", "低", "中", "高"]
     PRIORITY_COLORS: ClassVar[list[str]] = [
         "",

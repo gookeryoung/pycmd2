@@ -58,38 +58,38 @@ class MandelbrotCalculator:
         Returns:
             表示曼德勃罗集的二维 numpy 数组
         """
-        # Create coordinate arrays using PyTorch
+        # 使用PyTorch创建坐标数组
         x = torch.linspace(self.xmin, self.xmax, self.width, device=DEVICE)
         y = torch.linspace(self.ymin, self.ymax, self.height, device=DEVICE)
 
-        # Create complex plane using meshgrid
+        # 使用meshgrid创建复平面
         c_real, c_imag = torch.meshgrid(x, y, indexing="xy")
         c = c_real + 1j * c_imag
 
-        # Initialize arrays
+        # 初始化数组
         z = torch.zeros_like(c)
         escape_count = torch.zeros((self.height, self.width), dtype=torch.int32)
         escaped = torch.zeros((self.height, self.width), dtype=torch.bool)
 
-        # Iteratively compute Mandelbrot set
+        # 迭代计算曼德勃罗集
         for i in range(self.max_iter):
-            # Update only points that haven't escaped yet
+            # 仅更新尚未逃逸的点
             mask = ~escaped
             z[mask] = z[mask] ** 2 + c[mask]
 
-            # Check for escaping points
+            # 检查逃逸点
             escape_mask = (torch.abs(z) > 2) & mask  # noqa: PLR2004
             escape_count[escape_mask] = i
             escaped[escape_mask] = True
 
-            # Early exit if all points have escaped
+            # 如果所有点都已逃逸，则提前退出
             if torch.all(escaped):
                 break
 
         # Points that never escaped are part of the Mandelbrot set
         escape_count[~escaped] = self.max_iter
 
-        # Convert to numpy array for compatibility
+        # 为兼容性转换为numpy数组
         return escape_count.numpy()
 
     def _calculate_with_numpy(self) -> np.ndarray:
@@ -98,31 +98,31 @@ class MandelbrotCalculator:
         Returns:
             表示曼德勃罗集的二维 numpy 数组
         """
-        # Create coordinate arrays
+        # 创建坐标数组
         x = np.linspace(self.xmin, self.xmax, self.width)
         y = np.linspace(self.ymin, self.ymax, self.height)
 
-        # Create complex plane using meshgrid
+        # 使用meshgrid创建复平面
         c_real, c_imag = np.meshgrid(x, y)
         c = c_real + 1j * c_imag
 
-        # Initialize arrays
+        # 初始化数组
         z = np.zeros_like(c)
         escape_count = np.zeros((self.height, self.width), dtype=int)
         escaped = np.zeros((self.height, self.width), dtype=bool)
 
-        # Iteratively compute Mandelbrot set
+        # 迭代计算曼德勃罗集
         for i in range(self.max_iter):
-            # Update only points that haven't escaped yet
+            # 仅更新尚未逃逸的点
             mask = ~escaped
             z[mask] = z[mask] ** 2 + c[mask]
 
-            # Check for escaping points
+            # 检查逃逸点
             escape_mask = (np.abs(z) > 2) & mask  # noqa: PLR2004
             escape_count[escape_mask] = i
             escaped[escape_mask] = True
 
-            # Early exit if all points have escaped
+            # 如果所有点都已逃逸，则提前退出
             if np.all(escaped):
                 break
 

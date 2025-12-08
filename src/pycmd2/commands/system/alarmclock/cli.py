@@ -173,7 +173,7 @@ class BlinkDialog(QDialog):
 
 
 class AlarmClock(QMainWindow):
-    """Alarm clock GUI."""
+    """数字闹钟GUI."""
 
     def __init__(self) -> None:
         super().__init__()

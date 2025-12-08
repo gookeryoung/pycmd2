@@ -103,7 +103,7 @@ class PDFMergeApp(BaseApp):
         )
 
         with ui.column().classes("w-full mx-auto items-center gap-4"):
-            # Upload
+            # 上传
             with ui.row().classes(
                 "w-1/2 mx-auto p-6 bg-slate-200 rounded-xl items-center gap-2",
             ):
@@ -122,7 +122,7 @@ class PDFMergeApp(BaseApp):
                 "w-1/2 mx-auto p-12 bg-gradient-to-br "
                 "from-green-200 to-blue-200 rounded-xl shadow-lg",
             ):
-                # Options
+                # 选项
                 with ui.row().classes("items-center gap-4 mb-4"):
                     self.auto_rotate_checkbox = ui.checkbox("自动旋转").bind_value(
                         self,
@@ -132,10 +132,10 @@ class PDFMergeApp(BaseApp):
                         "归一化尺寸(A4)",
                     ).bind_value(self, "uniform_width")
 
-                # File list
+                # 文件列表
                 self.files_container = ui.column().classes("w-full gap-2")
 
-                # Action buttons
+                # 操作按钮
                 with ui.row().classes("gap-2 mt-4"):
                     self.select_all_button = ui.button(
                         "全选",
@@ -245,7 +245,7 @@ class PDFMergeApp(BaseApp):
             )
             checkbox = ui.checkbox(filename, value=True).classes("flex-grow")
 
-            # Preview button for PDFs
+            # PDF预览按钮
             if file_info.path.suffix.lower() == ".pdf" or (
                 filename in self.uploaded_files
                 and Path(filename).suffix.lower() == ".pdf"
@@ -257,12 +257,12 @@ class PDFMergeApp(BaseApp):
                         fn,
                     ),
                 ).classes("ml-2")
-            # Delete button
+            # 删除按钮
             ui.button(
                 icon="delete",
                 on_click=lambda _, f=file_info, fn=filename: self.remove_file(f, fn),
             ).props("flat round color=red")
-            # Sort button
+            # 排序按钮
             with ui.button_group().props("outline"):
                 ui.button(
                     icon="keyboard_arrow_up",
@@ -282,7 +282,7 @@ class PDFMergeApp(BaseApp):
         file_info.checkbox = checkbox
         file_info.previewer = preview_container
 
-        # Generate preview asynchronously
+        # 异步生成预览
         ui.timer(0.1, lambda f=file_info: self.generate_preview(f), once=True)
 
     def generate_preview(self, file_info: PDFFileInfo) -> None:
@@ -306,7 +306,7 @@ class PDFMergeApp(BaseApp):
             )
 
             if file_suffix in {".png", ".jpg", ".jpeg", ".bmp", ".gif"}:
-                # For images, show thumbnail
+                # 对于图片，显示缩略图
                 with file_info.previewer:
                     if filename in self.uploaded_files:
                         # 显示上传的图片
@@ -449,14 +449,14 @@ class PDFMergeApp(BaseApp):
         selected_files: set[PDFFileInfo] = {
             f for f in self.files.values() if f.checkbox and f.checkbox.value
         }
-        # Sort by order
+        # 按顺序排序
         sorted_files: list[PDFFileInfo] = sorted(selected_files, key=lambda f: f.order)
 
         if not selected_files:
             ui.notify("请选择至少一个待合并文件.")
             return
 
-        # Ask for output file name
+        # 询问输出文件名
         dialog = ui.dialog()
         with dialog, ui.card():
             ui.label("输入合并文件名:")
@@ -533,15 +533,15 @@ class PDFMergeApp(BaseApp):
                         Path(tmp_file_path).unlink()
                 # 处理本地文件
                 elif file_info.path.suffix.lower() == ".pdf":
-                    # For PDF files, append all pages
+                    # 对于PDF文件，追加所有页面
                     reader = PdfReader(file_info.path)
                     for page in reader.pages:
                         writer.add_page(page)
                 else:
-                    # For image files, convert to PDF page
+                    # 对于图片文件，转换为PDF页面
                     self.image_to_pdf(file_info.path, writer)
 
-            # Save the merged PDF
+            # 保存合并的PDF
             with tempfile.NamedTemporaryFile(
                 prefix="merged_",
                 suffix=".pdf",
@@ -567,34 +567,34 @@ class PDFMergeApp(BaseApp):
     def image_to_pdf(self, image_path: Path, writer: PdfWriter) -> None:
         """转换图片为PDF文件."""
         try:
-            # Create a temporary PDF with the image
+            # 创建包含图片的临时PDF
             with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_pdf:
                 tmp_pdf_path = tmp_pdf.name
 
-            # Create PDF document
+            # 创建PDF文档
             pdf = fitz.open()  # type: ignore
 
-            # Load image
+            # 加载图片
             img = fitz.Pixmap(image_path)  # type: ignore
 
-            # Create page with image dimensions
+            # 创建具有图片尺寸的页面
             page = pdf.new_page(width=img.width, height=img.height)  # type: ignore
 
-            # Insert image into page
+            # 将图片插入页面
             rect = fitz.Rect(0, 0, img.width, img.height)  # type: ignore
             page.insert_image(rect, pixmap=img)
 
-            # Save PDF
+            # 保存PDF
             pdf.save(tmp_pdf_path)
             pdf.close()
             img = None  # Release pixmap
 
-            # Add to writer
+            # 添加到writer
             reader = PdfReader(tmp_pdf_path)
             for page in reader.pages:
                 writer.add_page(page)
 
-            # Clean up
+            # 清理资源
             Path(tmp_pdf_path).unlink()
 
         except Exception as e:  # noqa: BLE001
@@ -622,7 +622,7 @@ class PDFMergeApp(BaseApp):
                     mat = fitz.Matrix(2.0, 2.0)  # Zoom factor # type: ignore
                     pix = page.get_pixmap(matrix=mat)  # type: ignore
 
-                    # Convert to base64 for display
+                    # 转换为base64用于显示
                     image_data.append(base64.b64encode(pix.tobytes()))
             doc.close()
         except Exception as e:  # noqa: BLE001

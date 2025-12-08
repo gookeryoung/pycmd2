@@ -23,7 +23,7 @@ from pycmd2.config import TomlConfigMixin
 
 
 class VideoConverterConfig(TomlConfigMixin):
-    """配置项."""
+    """视频转换器配置项."""
 
     _SRC_DIR = Path.home() / "Desktop"
     _OUTPUT_DIR = Path.home() / "Desktop"
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 class VideoConverter(QMainWindow):
-    """视频转换工具."""
+    """FFmpeg 视频转换工具."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -124,7 +124,7 @@ class VideoConverter(QMainWindow):
         self.output_path.setText(docs_path)
 
     def select_input_file(self) -> None:
-        """选择输入文件."""
+        """选择输入视频文件."""
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             "选择视频文件",
@@ -144,7 +144,7 @@ class VideoConverter(QMainWindow):
             self.output_path.setText(dir_path)
 
     def start_conversion(self) -> None:
-        """开始转换."""
+        """开始视频转换."""
         input_file = self.input_path.text()
         output_dir = self.output_path.text()
         output_name = self.output_name.text()
@@ -227,7 +227,7 @@ class VideoConverter(QMainWindow):
                 logger.exception(msg)
 
     def conversion_finished(self, exit_code: int, exit_status: int) -> None:
-        """转换完成回调函数."""
+        """视频转换完成回调函数."""
         self.convert_button.setEnabled(True)
 
         if exit_code == 0:

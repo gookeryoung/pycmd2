@@ -34,11 +34,11 @@ class ImageGrayConfig(TomlConfigMixin):
     ]
 
 
-cli = get_client(help_doc="Convert image to grayscale.")
+cli = get_client(help_doc="将图像转换为灰度图。")
 conf = ImageGrayConfig()
 logger = logging.getLogger(__name__)
 
-# Magic numbers for image file header.
+# 图像文件头的魔数。
 _MAGIC_NUMBERS: dict[str, bytes] = {
     "jpg": b"\xff\xd8\xff",
     "jpeg": b"\xff\xd8\xff",

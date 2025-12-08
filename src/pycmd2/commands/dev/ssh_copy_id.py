@@ -131,7 +131,7 @@ def ssh_copy_id(
 
 @cli.app.command()
 def main(
-    hostname: str = typer.Argument(help="目标 ip 地址"),
+    hostname: str = typer.Argument(help="目标IP地址"),
     username: str = typer.Argument(help="用户名"),
     password: str = typer.Argument(help="密码"),
     port: int = typer.Option(22, help="端口"),

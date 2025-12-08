@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 def diff_doc(old: Path, new: Path) -> None:
-    """使用win32 api对比文档."""
+    """使用 Win32 API 对比文档."""
     if not old.exists():
         logger.error(f"旧文件不存在: {old}")
         return
@@ -88,7 +88,7 @@ def diff_doc(old: Path, new: Path) -> None:
 def main(
     files: List[Path] = typer.Argument(help="待输入文件清单"),  # noqa: B008
 ) -> None:
-    """Compare two doc/docx files."""
+    """对比两个 doc/docx 文件."""
     if platform.system() != "Windows":
         logger.error("This tool is only available on Windows.")
         return
