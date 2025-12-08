@@ -3,6 +3,7 @@ from __future__ import annotations
 import builtins
 import contextlib
 import logging
+import platform
 import time
 from pathlib import Path
 from typing import List
@@ -88,6 +89,10 @@ def main(
     files: List[Path] = typer.Argument(help="待输入文件清单"),  # noqa: B008
 ) -> None:
     """Compare two doc/docx files."""
+    if platform.system() != "Windows":
+        logger.error("This tool is only available on Windows.")
+        return
+
     if len(files) < 2:  # noqa: PLR2004
         logger.error("Input file list must have at least 2 files.")
         return
