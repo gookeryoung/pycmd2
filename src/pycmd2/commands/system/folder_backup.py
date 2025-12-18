@@ -69,6 +69,10 @@ def main(
     clean: Annotated[bool, Option("--clean", help="清理已有备份")] = False,
     ls: Annotated[bool, Option("--list", help="列出备份文件")] = False,
 ) -> None:
+    if not directory.exists():
+        logger.error(f"目录不存在: {directory}")
+        return
+
     backup_files = list(dest.glob("*.zip"))
     if ls:
         if not backup_files:
