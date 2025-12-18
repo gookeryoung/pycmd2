@@ -4,10 +4,7 @@ from time import perf_counter
 from typing import Callable
 from typing import TypeVar
 
-from rich.logging import RichHandler
 from typing_extensions import ParamSpec
-
-logging.basicConfig(level=logging.DEBUG, handlers=[RichHandler()])
 
 logger = logging.getLogger(__name__)
 

@@ -3,6 +3,7 @@
 命令: folderback [DIR] --dest [DEST] --max [N]
 """
 
+import concurrent.futures
 import logging
 import os
 import pathlib
@@ -15,12 +16,13 @@ from typer import Option
 from typing_extensions import Annotated
 
 from pycmd2.client import get_client
-from pycmd2.runner import ParallelRunner
+from pycmd2.utils import timer
 
 cli = get_client()
 logger = logging.getLogger(__name__)
 
 
+@timer
 def zip_folder(
     src: pathlib.Path,
     dst: pathlib.Path,
@@ -77,11 +79,12 @@ def main(
 
     if clean:
         logger.info(f"清理已有备份: [purple]{backup_files}")
-        ParallelRunner().run(os.remove, backup_files)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            executor.map(os.remove, backup_files)
         return
 
     if not dest.exists():
         logger.info(f"创建备份目标文件夹: {dest}")
         dest.mkdir(parents=True, exist_ok=True)
 
-    ParallelRunner().run(zip_folder, [[directory, dest, max_count]])
+    zip_folder(directory, dest, max_count)
