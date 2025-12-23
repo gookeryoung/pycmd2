@@ -7,6 +7,7 @@ requires = ["hatchling"]
 authors = [{ name = "gooker_young", email = "gooker_young@qq.com" }]
 classifiers = []
 dependencies = [
+  "pywebview>=6.1",
   "rich>=13.9.4",
   "tomli-w>=1.0.0 ; python_full_version < '3.11'",
   "tomli>=2.2.1 ; python_full_version < '3.11'",
@@ -61,6 +62,7 @@ wch = "pycmd2.commands.system.which:cli.app"
 
 # web
 websvr = "pycmd2.web.cli:main"
+webview = "pycmd2.websvr.cli:app"
 
 [project.urls]
 Documentation = "https://pycmd2.readthedocs.io/zh-cn/stable/"
@@ -190,6 +192,7 @@ ignore = [
   "D104",
   "D107",
   "D203",    # D 规则中与 Black 冲突的部分
+  "DOC201",
   "FBT003",
   "N802",
   "PGH003",

@@ -154,3 +154,4 @@ node_modules/
 yarn.lock
 tsconfig.tsbuildinfo
 __init__.py.bak
+src/pycmd2/websvr/.vite
