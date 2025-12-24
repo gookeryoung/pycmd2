@@ -106,7 +106,8 @@ def run(
         start_vite_dev_server()
     else:
         logger.info("启动生产模式...")
-        start_webview()
+
+    start_webview()
 
 
 def start_webview() -> None:
