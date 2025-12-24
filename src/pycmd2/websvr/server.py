@@ -57,8 +57,8 @@ class BaseServer:
                 y=None,
             )
             webview.start(debug=debug)
-        except Exception:  # noqa: BLE001
-            typer.echo("启动 WebView 窗口时出错", err=True)
+        except (RuntimeError, OSError, ImportError) as e:
+            typer.echo(f"启动 WebView 窗口时出错: {e!s}", err=True)
         finally:
             self.stop()
 
@@ -91,8 +91,22 @@ class BaseServer:
                 typer.echo("Vite 开发服务器已强制关闭")
         except ProcessLookupError:
             typer.echo("无法停止服务器, 因为服务器已不存在")
-        except Exception:  # noqa: BLE001
-            typer.echo("停止服务器时出错", err=True)
+        except (OSError, subprocess.SubprocessError) as e:
+            typer.echo(f"停止服务器时出错: {e!s}", err=True)
+
+    def find_package_manager(self) -> Optional[str]:
+        """查找可用的包管理器."""
+        for cmd in ["yarn", "npm"]:
+            if check_command_available(f"{cmd}{self.cmd_suffix}"):
+                return f"{cmd}{self.cmd_suffix}"
+        return None
+
+    def find_build_command(self) -> Optional[str]:
+        """查找可用的构建命令."""
+        for cmd in ["vite", "yarn", "npm"]:
+            if check_command_available(f"{cmd}{self.cmd_suffix}"):
+                return f"{cmd}{self.cmd_suffix}"
+        return None
 
 
 class LocalDevServer(BaseServer):
@@ -127,25 +141,30 @@ class LocalDevServer(BaseServer):
                     stderr=subprocess.PIPE,
                     text=True,
                 )
-            except (subprocess.CalledProcessError, OSError):
-                typer.echo("启动 Vite 开发服务器失败")
+            except (subprocess.CalledProcessError, OSError) as e:
+                typer.echo(f"启动 Vite 开发服务器失败: {e!s}")
+                return
         else:
             typer.echo("未找到 Vite 命令, 请检查是否已安装")
+            return
 
         self.start_webview_window(url=f"http://{self.host}:{self.port}")
 
     def _install_dependencies(self) -> None:
         """安装依赖."""
-        if check_command_available(f"yarn{self.cmd_suffix}"):
-            cmd = f"yarn{self.cmd_suffix}"
-        elif check_command_available(f"npm{self.cmd_suffix}"):
-            cmd = f"npm{self.cmd_suffix}"
-        else:
+        cmd = self.find_package_manager()
+        if cmd is None:
             msg = "未找到 yarn 或 npm 命令"
             raise RuntimeError(msg)
 
-        os.chdir(str(self.FRONT_DIR))
-        subprocess.run([cmd, "install"], cwd=str(self.FRONT_DIR), check=True)
+        # 保存当前工作目录
+        original_dir = Path.cwd()
+        try:
+            os.chdir(str(self.FRONT_DIR))
+            subprocess.run([cmd, "install"], check=True)
+        finally:
+            # 恢复原始工作目录
+            os.chdir(original_dir)
 
 
 class LocalProdServer(BaseServer):
@@ -156,11 +175,8 @@ class LocalProdServer(BaseServer):
 
     def start(self) -> None:
         """启动服务器."""
-        if not self.DIST_DIR.exists():
-            typer.echo("未找到生产环境文件, 正在构建...")
-            self._build_frontend()
-
-        if not self.index_html.exists():
+        # 检查是否需要构建
+        if not self.DIST_DIR.exists() or not self.index_html.exists():
             typer.echo("未找到生产环境文件, 正在构建...")
             self._build_frontend()
         else:
@@ -169,15 +185,34 @@ class LocalProdServer(BaseServer):
         typer.echo("正在启动生产服务器...")
         self.start_webview_window(url=str(self.index_html))
 
+    def _install_dependencies(self) -> None:
+        """安装依赖."""
+        cmd = self.find_package_manager()
+        if cmd is None:
+            msg = "未找到 yarn 或 npm 命令"
+            raise RuntimeError(msg)
+
+        # 保存当前工作目录
+        original_dir = Path.cwd()
+        try:
+            os.chdir(str(self.FRONT_DIR))
+            subprocess.run([cmd, "install"], check=True)
+        finally:
+            # 恢复原始工作目录
+            os.chdir(original_dir)
+
     def _build_frontend(self) -> None:
         """构建前端."""
-        cmds = ["vite", "yarn", "npm"]
-        for cmd in cmds:
-            if check_command_available(f"{cmd}{self.cmd_suffix}"):
-                command = f"{cmd}{self.cmd_suffix}"
-                os.chdir(str(self.FRONT_DIR))
-                subprocess.run([command, "build"], cwd=str(self.FRONT_DIR), check=True)
-                return
+        command = self.find_build_command()
+        if command is None:
+            msg = "未找到 yarn 或 npm 或 vite 命令"
+            raise RuntimeError(msg)
 
-        msg = "未找到 yarn 或 npm 或 vite 命令"
-        raise RuntimeError(msg)
+        # 保存当前工作目录
+        original_dir = Path.cwd()
+        try:
+            os.chdir(str(self.FRONT_DIR))
+            subprocess.run([command, "build"], check=True)
+        finally:
+            # 恢复原始工作目录
+            os.chdir(original_dir)
