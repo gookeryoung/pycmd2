@@ -3,6 +3,10 @@
 build-backend = "hatchling.build"
 requires = ["hatchling"]
 
+# 自定义构建钩子
+[tool.hatch.build.hooks.custom]
+path = "hatch_build_hook.py"
+
 [project]
 authors = [{ name = "gooker_young", email = "gooker_young@qq.com" }]
 classifiers = []
@@ -106,6 +110,23 @@ source = ["src/pycmd2"]
 [tool.hatch]
 [tool.hatch.version]
 path = "src/pycmd2/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+exclude = [
+  "src/pycmd2/websvr/frontend/.gitignore",
+  "src/pycmd2/websvr/frontend/.vscode/**/*",
+  "src/pycmd2/websvr/frontend/node_modules/**/*",
+]
+include = [
+  "src/pycmd2/**/*.py",
+  "src/pycmd2/websvr/frontend/**/*",
+  "src/pycmd2/websvr/frontend/output/**/*",
+]
+packages = ["src/pycmd2"]
+
+# 使用 MANIFEST.in
+[tool.hatch.build]
+include = ["src/pycmd2/**/*.py", "src/pycmd2/websvr/frontend/output/**/*"]
 
 # ------------------------ ruff ------------------------- #
 [tool.ruff]

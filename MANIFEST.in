@@ -9,3 +9,19 @@ recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
 recursive-include docs *.rst conf.py *.jpg *.png *.gif
+
+# 包含前端输出文件
+recursive-include src/pycmd2/websvr/frontend/output *
+recursive-exclude src/pycmd2/websvr/frontend/output *.pyc
+recursive-exclude src/pycmd2/websvr/frontend/output *.pyo
+recursive-exclude src/pycmd2/websvr/frontend/output __pycache__
+recursive-exclude src/pycmd2/websvr/frontend/output *.pyd
+
+# 排除前端源文件和开发文件
+prune src/pycmd2/websvr/frontend/src
+prune src/pycmd2/websvr/frontend/node_modules
+exclude src/pycmd2/websvr/frontend/package*.json
+exclude src/pycmd2/websvr/frontend/tsconfig*.json
+exclude src/pycmd2/websvr/frontend/vite.config.*
+exclude src/pycmd2/websvr/frontend/.gitignore
+exclude src/pycmd2/websvr/frontend/README.md

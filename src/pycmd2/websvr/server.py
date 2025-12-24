@@ -22,7 +22,7 @@ class BaseServer:
 
     CWD = Path(__file__).parent
     FRONT_DIR = CWD / "frontend"
-    DIST_DIR = CWD / "frontend" / "dist"
+    DIST_DIR = CWD / "frontend" / "output"
 
     def __init__(self) -> None:
         self.server_proc: Optional[subprocess.Popen] = None
@@ -164,8 +164,10 @@ class LocalProdServer(BaseServer):
             typer.echo("未找到生产环境文件, 正在构建...")
             self._build_frontend()
         else:
-            typer.echo("已找到生产环境文件, 直接启动...")
-            self.start_webview_window(url=str(self.index_html))
+            typer.echo("已找到生产环境文件, 直接启动.")
+
+        typer.echo("正在启动生产服务器...")
+        self.start_webview_window(url=str(self.index_html))
 
     def _build_frontend(self) -> None:
         """构建前端."""
