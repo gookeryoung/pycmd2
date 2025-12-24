@@ -12,7 +12,7 @@ import typer
 import webview
 
 
-def check_command_available(cmd: str) -> bool:
+def _check_command_available(cmd: str) -> bool:
     """检查可执行文件是否存在."""
     return shutil.which(cmd) is not None
 
@@ -23,6 +23,7 @@ class BaseServer:
     CWD = Path(__file__).parent
     FRONT_DIR = CWD / "frontend"
     DIST_DIR = CWD / "frontend" / "output"
+    DEV_MODE = False
 
     def __init__(self) -> None:
         self.server_proc: Optional[subprocess.Popen] = None
@@ -42,11 +43,16 @@ class BaseServer:
     def start(self) -> None:
         """启动服务器."""
 
-    def start_webview_window(self, url: str, *, debug: bool = False) -> None:
+    def start_webview_window(
+        self,
+        url: str,
+        *,
+        title: str = "PyCmd2 WebView",
+    ) -> None:
         """启动 WebView 窗口."""
         try:
             webview.create_window(
-                title="我的全栈应用 (开发模式)",
+                title=f"{title}{' # [DEV]' if self.DEV_MODE else ''}",
                 url=url,
                 width=1200,
                 height=800,
@@ -56,7 +62,7 @@ class BaseServer:
                 x=None,
                 y=None,
             )
-            webview.start(debug=debug)
+            webview.start(debug=self.DEV_MODE)
         except (RuntimeError, OSError, ImportError) as e:
             typer.echo(f"启动 WebView 窗口时出错: {e!s}", err=True)
         finally:
@@ -97,20 +103,22 @@ class BaseServer:
     def find_package_manager(self) -> Optional[str]:
         """查找可用的包管理器."""
         for cmd in ["yarn", "npm"]:
-            if check_command_available(f"{cmd}{self.cmd_suffix}"):
+            if _check_command_available(f"{cmd}{self.cmd_suffix}"):
                 return f"{cmd}{self.cmd_suffix}"
         return None
 
     def find_build_command(self) -> Optional[str]:
         """查找可用的构建命令."""
         for cmd in ["vite", "yarn", "npm"]:
-            if check_command_available(f"{cmd}{self.cmd_suffix}"):
+            if _check_command_available(f"{cmd}{self.cmd_suffix}"):
                 return f"{cmd}{self.cmd_suffix}"
         return None
 
 
 class LocalDevServer(BaseServer):
     """本地开发服务器."""
+
+    DEV_MODE = True
 
     def __init__(
         self,
@@ -132,7 +140,7 @@ class LocalDevServer(BaseServer):
 
         typer.echo("正在启动开发服务器...")
         vite_cmd = f"vite{self.cmd_suffix}"
-        if check_command_available(vite_cmd):
+        if _check_command_available(vite_cmd):
             try:
                 self.server_proc = subprocess.Popen(
                     [vite_cmd, "--port", str(self.port), "--host", self.host],
@@ -169,6 +177,8 @@ class LocalDevServer(BaseServer):
 
 class LocalProdServer(BaseServer):
     """本地生产服务器."""
+
+    DEV_MODE = False
 
     def __init__(self) -> None:
         super().__init__()
