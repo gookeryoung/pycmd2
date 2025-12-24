@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RouterLink } from 'vue-router';
 import HelloWorld from './components/HelloWorld.vue'
 </script>
 
@@ -12,6 +13,18 @@ import HelloWorld from './components/HelloWorld.vue'
     </a>
   </div>
   <HelloWorld msg="Vite + Vue" />
+
+  <h1>Hello routers</h1>
+  <p><strong>Current route path: {{ $route.path }}</strong></p>
+  <nav>
+    <RouterLink to="/">Home</RouterLink>
+    <RouterLink to="/about">About</RouterLink>
+  </nav>
+
+  <main>
+    <RouterView />
+  </main>
+
 </template>
 
 <style scoped>
