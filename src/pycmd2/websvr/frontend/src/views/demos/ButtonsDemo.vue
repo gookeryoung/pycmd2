@@ -103,6 +103,7 @@ import { Search, Edit, Message, Star, Delete, ArrowLeft, ArrowRight } from '@ele
 .demo-container {
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .demo-section {
@@ -124,5 +125,39 @@ import { Search, Edit, Message, Star, Delete, ArrowLeft, ArrowRight } from '@ele
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .demo-container {
+    padding: 0 10px;
+  }
+
+  .demo-section {
+    padding: 15px;
+  }
+
+  .demo-section h3 {
+    font-size: 16px;
+  }
+
+  .button-group {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 576px) {
+  .demo-section {
+    padding: 10px;
+  }
+
+  .button-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .button-group .el-button {
+    width: 100%;
+  }
 }
 </style>

@@ -157,12 +157,7 @@ interface User {
   address: string
 }
 
-interface StatusItem {
-  name: string
-  sell: number
-  price: number
-  status: string
-}
+
 
 const search = ref('')
 

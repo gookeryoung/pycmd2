@@ -198,7 +198,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox, ElMessage } from 'element-plus'
 import { CircleCloseFilled } from '@element-plus/icons-vue'
 
 // 基础对话框
@@ -253,13 +253,13 @@ const openConfirm1 = () => {
     }
   )
     .then(() => {
-      ElMessageBox.message({
+      ElMessage({
         type: 'success',
         message: '删除成功!',
       })
     })
     .catch(() => {
-      ElMessageBox.message({
+      ElMessage({
         type: 'info',
         message: '已取消删除',
       })
@@ -277,13 +277,13 @@ const openConfirm2 = () => {
     }
   )
     .then(() => {
-      ElMessageBox.message({
+      ElMessage({
         type: 'success',
         message: '删除成功!',
       })
     })
     .catch(() => {
-      ElMessageBox.message({
+      ElMessage({
         type: 'info',
         message: '已取消删除',
       })
@@ -301,13 +301,13 @@ const openConfirm3 = () => {
     }
   )
     .then(() => {
-      ElMessageBox.message({
+      ElMessage({
         type: 'success',
         message: '删除成功!',
       })
     })
     .catch(() => {
-      ElMessageBox.message({
+      ElMessage({
         type: 'info',
         message: '已取消删除',
       })
@@ -325,13 +325,13 @@ const openConfirm4 = () => {
     }
   )
     .then(() => {
-      ElMessageBox.message({
+      ElMessage({
         type: 'success',
         message: '删除成功!',
       })
     })
     .catch(() => {
-      ElMessageBox.message({
+      ElMessage({
         type: 'info',
         message: '已取消删除',
       })
@@ -343,7 +343,7 @@ const openPrompt = () => {
   ElMessageBox.alert('这是一段内容', '标题名称', {
     confirmButtonText: '确定',
     callback: (action: string) => {
-      ElMessageBox.message({
+      ElMessage({
         type: 'info',
         message: `action: ${action}`,
       })
@@ -359,13 +359,13 @@ const openPrompt2 = () => {
     inputErrorMessage: '邮箱格式不正确',
   })
     .then(({ value }) => {
-      ElMessageBox.message({
+      ElMessage({
         type: 'success',
         message: `你的邮箱是: ${value}`,
       })
     })
     .catch(() => {
-      ElMessageBox.message({
+      ElMessage({
         type: 'info',
         message: '取消输入',
       })

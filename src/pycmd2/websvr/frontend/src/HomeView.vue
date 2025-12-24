@@ -79,11 +79,21 @@
                     </template>
                     <p>点击下面的链接，查看各种 Element Plus 组件的使用示例：</p>
                     <div class="demo-links">
-                        <el-link type="primary" href="/demos/buttons">按钮示例</el-link>
-                        <el-link type="success" href="/demos/forms">表单示例</el-link>
-                        <el-link type="warning" href="/demos/tables">表格示例</el-link>
-                        <el-link type="danger" href="/demos/notifications">通知提示</el-link>
-                        <el-link type="info" href="/demos/dialogs">对话框</el-link>
+                        <router-link to="/demos/buttons">
+                            <el-link type="primary" :underline="false">按钮示例</el-link>
+                        </router-link>
+                        <router-link to="/demos/forms">
+                            <el-link type="success" :underline="false">表单示例</el-link>
+                        </router-link>
+                        <router-link to="/demos/tables">
+                            <el-link type="warning" :underline="false">表格示例</el-link>
+                        </router-link>
+                        <router-link to="/demos/notifications">
+                            <el-link type="danger" :underline="false">通知提示</el-link>
+                        </router-link>
+                        <router-link to="/demos/dialogs">
+                            <el-link type="info" :underline="false">对话框</el-link>
+                        </router-link>
                     </div>
                 </el-card>
             </el-col>
@@ -107,6 +117,7 @@ const showWelcome = () => {
 .home-container {
     max-width: 1200px;
     margin: 0 auto;
+    width: 100%;
 }
 
 .welcome-card {
@@ -170,5 +181,53 @@ const showWelcome = () => {
 
 .demo-links .el-link {
     margin-right: 15px;
+    font-size: 16px;
+}
+
+.demo-links a {
+    margin-right: 15px;
+    margin-bottom: 10px;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+    .home-container {
+        padding: 0 10px;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .card-header .el-button {
+        margin-top: 10px;
+        align-self: flex-end;
+    }
+
+    .welcome-content {
+        font-size: 15px;
+    }
+
+    .demo-links {
+        justify-content: center;
+    }
+
+    .demo-links a {
+        margin-right: 10px;
+        margin-left: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .demo-links {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .demo-links a {
+        margin: 5px 0;
+        text-align: center;
+    }
 }
 </style>

@@ -50,6 +50,11 @@ class BaseServer:
                 url=url,
                 width=1200,
                 height=800,
+                resizable=True,  # 允许调整窗口大小
+                min_size=(800, 600),  # 设置最小窗口大小
+                # 设置窗口居中显示
+                x=None,
+                y=None,
             )
             webview.start(debug=debug)
         except Exception:  # noqa: BLE001
