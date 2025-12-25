@@ -11,6 +11,7 @@ app = typer.Typer()
 def run(
     *,
     dev: bool = typer.Option(False, "--dev", "-d", help="开发模式"),
+    build: bool = typer.Option(False, "--build", "-b", help="加载前构建"),
 ) -> None:
     """开发模式, 启动 Vite 构建工具并启动 WebView 应用, 默认别名: d."""
     if dev:
@@ -18,4 +19,6 @@ def run(
         svr.start()
     else:
         svr = server.LocalProdServer()
+        if build:
+            svr.build()
         svr.start()

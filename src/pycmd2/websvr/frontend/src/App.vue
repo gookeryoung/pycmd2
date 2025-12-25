@@ -22,13 +22,26 @@ const activeIndex = ref('1')
             <el-icon>
               <Collection />
             </el-icon>
-            <span>演示示例</span>
+            <span>UI组件示例</span>
           </template>
           <el-menu-item index="/demos/buttons">按钮示例</el-menu-item>
           <el-menu-item index="/demos/forms">表单示例</el-menu-item>
           <el-menu-item index="/demos/tables">表格示例</el-menu-item>
           <el-menu-item index="/demos/notifications">通知提示</el-menu-item>
           <el-menu-item index="/demos/dialogs">对话框</el-menu-item>
+        </el-sub-menu>
+        <el-sub-menu index="/pinia-demos">
+          <template #title>
+            <el-icon>
+              <DataBoard />
+            </el-icon>
+            <span>Pinia状态管理</span>
+          </template>
+          <el-menu-item index="/pinia-demos/basic">基础状态管理</el-menu-item>
+          <el-menu-item index="/pinia-demos/todos">待办事项管理</el-menu-item>
+          <el-menu-item index="/pinia-demos/user">用户认证管理</el-menu-item>
+          <el-menu-item index="/pinia-demos/composition">Store组合使用</el-menu-item>
+          <el-menu-item index="/pinia-demos/persistent">持久化存储</el-menu-item>
         </el-sub-menu>
         <el-menu-item index="/about">
           <el-icon>

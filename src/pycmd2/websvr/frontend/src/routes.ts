@@ -10,6 +10,13 @@ const TablesDemo = () => import('./views/demos/TablesDemo.vue')
 const NotificationsDemo = () => import('./views/demos/NotificationsDemo.vue')
 const DialogsDemo = () => import('./views/demos/DialogsDemo.vue')
 
+// Pinia Demo views
+const PiniaBasicDemo = () => import('./views/demos/PiniaBasicDemo.vue')
+const PiniaTodoDemo = () => import('./views/demos/PiniaTodoDemo.vue')
+const PiniaUserDemo = () => import('./views/demos/PiniaUserDemo.vue')
+const PiniaCompositionDemo = () => import('./views/demos/PiniaCompositionDemo.vue')
+const PiniaPersistentDemo = () => import('./views/demos/PiniaPersistentDemo.vue')
+
 const routes = [
     { path: '/', component: HomeView },
     { path: '/about', component: AboutView },
@@ -21,6 +28,16 @@ const routes = [
             { path: 'tables', component: TablesDemo },
             { path: 'notifications', component: NotificationsDemo },
             { path: 'dialogs', component: DialogsDemo },
+        ]
+    },
+    {
+        path: '/pinia-demos',
+        children: [
+            { path: 'basic', component: PiniaBasicDemo },
+            { path: 'todos', component: PiniaTodoDemo },
+            { path: 'user', component: PiniaUserDemo },
+            { path: 'composition', component: PiniaCompositionDemo },
+            { path: 'persistent', component: PiniaPersistentDemo },
         ]
     },
 ]

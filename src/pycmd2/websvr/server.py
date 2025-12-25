@@ -188,7 +188,7 @@ class LocalProdServer(BaseServer):
         # 检查是否需要构建
         if not self.DIST_DIR.exists() or not self.index_html.exists():
             typer.echo("未找到生产环境文件, 正在构建...")
-            self._build_frontend()
+            self.build()
         else:
             typer.echo("已找到生产环境文件, 直接启动.")
 
@@ -211,7 +211,7 @@ class LocalProdServer(BaseServer):
             # 恢复原始工作目录
             os.chdir(original_dir)
 
-    def _build_frontend(self) -> None:
+    def build(self) -> None:
         """构建前端."""
         command = self.find_build_command()
         if command is None:
