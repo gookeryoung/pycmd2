@@ -5,9 +5,13 @@ import router from './routes'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import { createPinia } from 'pinia'
 
 const app = createApp(App)
+const pinia = createPinia()
+
 app.use(router)
+app.use(pinia)
 app.use(ElementPlus)
 
 // 注册所有图标
