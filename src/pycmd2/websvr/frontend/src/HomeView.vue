@@ -58,20 +58,22 @@
                     <template #header>
                         <div class="card-header">
                             <h3><el-icon>
-                                    <Histogram />
-                                </el-icon> 数据分析</h3>
+                                    <TrendCharts />
+                                </el-icon> 数据可视化</h3>
                         </div>
                     </template>
-                    <p>可视化数据，支持多种图表和统计分析功能。</p>
+                    <p>基于ECharts的丰富图表组件，支持折线图、柱状图、饼图等多种图表类型。</p>
                     <div class="card-actions">
-                        <el-button type="primary" plain>查看详情</el-button>
+                        <router-link to="/demos/echarts">
+                            <el-button type="primary" plain>查看示例</el-button>
+                        </router-link>
                     </div>
                 </el-card>
             </el-col>
         </el-row>
 
         <el-row :gutter="20" class="feature-row">
-            <el-col :span="24">
+            <el-col :span="16">
                 <el-card shadow="hover">
                     <template #header>
                         <div class="card-header">
@@ -97,6 +99,9 @@
                         <router-link to="/demos/dialogs">
                             <el-link type="info" :underline="false">对话框</el-link>
                         </router-link>
+                        <router-link to="/demos/echarts">
+                            <el-link type="primary" :underline="false">ECharts图表</el-link>
+                        </router-link>
                     </div>
                 </el-card>
             </el-col>
@@ -106,7 +111,7 @@
 
 <script setup lang="ts">
 import { ElButtonGroup, ElMessage } from 'element-plus'
-import { Setting, Document, Histogram, Collection } from '@element-plus/icons-vue'
+import { Setting, Document, Histogram, Collection, TrendCharts } from '@element-plus/icons-vue'
 
 const showWelcome = () => {
     ElMessage({

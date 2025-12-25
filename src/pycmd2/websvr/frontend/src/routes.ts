@@ -9,6 +9,7 @@ const FormsDemo = () => import('./views/demos/FormsDemo.vue')
 const TablesDemo = () => import('./views/demos/TablesDemo.vue')
 const NotificationsDemo = () => import('./views/demos/NotificationsDemo.vue')
 const DialogsDemo = () => import('./views/demos/DialogsDemo.vue')
+const EChartsDemo = () => import('./views/demos/EChartsDemo.vue')
 
 // Pinia Demo views
 const PiniaBasicDemo = () => import('./views/demos/PiniaBasicDemo.vue')
@@ -28,6 +29,7 @@ const routes = [
             { path: 'tables', component: TablesDemo },
             { path: 'notifications', component: NotificationsDemo },
             { path: 'dialogs', component: DialogsDemo },
+            { path: 'echarts', component: EChartsDemo },
         ]
     },
     {
