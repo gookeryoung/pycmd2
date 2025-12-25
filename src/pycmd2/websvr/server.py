@@ -42,31 +42,6 @@ class BaseServer(abc.ABC):
     def start(self, port: int = 5173, host: str = "127.0.0.1") -> None:
         """启动服务器."""
 
-    def start_native(
-        self,
-        url: str,
-        *,
-        title: str = "PyCmd2 WebView",
-    ) -> None:
-        """启动本地 WebView 窗口."""
-        try:
-            webview.create_window(
-                title=title,
-                url=url,
-                width=1200,
-                height=800,
-                resizable=True,  # 允许调整窗口大小
-                min_size=(800, 600),  # 设置最小窗口大小
-                # 设置窗口居中显示
-                x=None,
-                y=None,
-            )
-            webview.start(debug=False)
-        except (RuntimeError, OSError, ImportError) as e:
-            typer.echo(f"启动 WebView 窗口时出错: {e!s}", err=True)
-        finally:
-            self.stop()
-
     def stop(self) -> None:
         """停止服务器."""
         if self.server_proc is None or self.server_proc.poll() is not None:
@@ -152,33 +127,31 @@ class BaseServer(abc.ABC):
 class NativeServer(BaseServer):
     """本地模式, 静态服务器."""
 
-    def start(self) -> None:
+    def start(self, title: str = "PyCmd2 WebView") -> None:
         """启动服务器."""
         # 检查是否需要构建
         if not self.DIST_DIR.exists() or not self.index_html.exists():
             typer.echo("未找到生产环境文件, 正在构建...")
             self.build()
-        else:
-            typer.echo("已找到生产环境文件, 直接启动.")
 
         typer.echo("正在启动生产服务器...")
-        self.start_native(url=str(self.index_html))
-
-    def install_dependencies(self) -> None:
-        """安装依赖."""
-        cmd = self.find_package_manager()
-        if cmd is None:
-            msg = "未找到 yarn 或 npm 命令"
-            raise RuntimeError(msg)
-
-        # 保存当前工作目录
-        original_dir = Path.cwd()
         try:
-            os.chdir(str(self.FRONT_DIR))
-            subprocess.run([cmd, "install"], check=True)
+            webview.create_window(
+                title=title,
+                url=str(self.index_html),
+                width=1200,
+                height=800,
+                resizable=True,  # 允许调整窗口大小
+                min_size=(800, 600),  # 设置最小窗口大小
+                # 设置窗口居中显示
+                x=None,
+                y=None,
+            )
+            webview.start(debug=False)
+        except (RuntimeError, OSError, ImportError) as e:
+            typer.echo(f"启动 WebView 窗口时出错: {e!s}", err=True)
         finally:
-            # 恢复原始工作目录
-            os.chdir(original_dir)
+            self.stop()
 
 
 class ServeServer(NativeServer):
