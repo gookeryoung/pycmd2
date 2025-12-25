@@ -15,6 +15,14 @@ def build() -> None:
     svr.build()
 
 
+@app.command("clean")
+@app.command("c")
+def clean() -> None:
+    """清理静态文件, 默认别名: c."""
+    svr = server.NativeServer()
+    svr.clean()
+
+
 @app.command("dev")
 @app.command("d")
 def dev(
@@ -52,13 +60,7 @@ def serve_nginx(
     *,
     port: int = typer.Option(5173, "--port", "-p", help="指定端口 (仅开发模式)"),
     host: str = typer.Option("127.0.0.1", "--host", "-H", help="指定主机 (仅开发模式)"),
-    stop: bool = typer.Option(False, "--stop", "-s", help="停止服务"),
 ) -> None:
     """使用 Nginx 启动 Web 服务模式, 不创建 WebView 窗口, 默认别名: ns."""
-    if stop:
-        svr = server.NginxServeServer()
-        svr.stop()
-        return
-
     svr = server.NginxServeServer()
     svr.start(port=port, host=host)

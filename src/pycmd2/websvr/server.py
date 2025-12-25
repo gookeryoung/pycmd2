@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 import os
 import platform
+import shutil
 import subprocess
 from functools import cached_property
 from pathlib import Path
@@ -122,6 +123,16 @@ class BaseServer(abc.ABC):
         finally:
             # 恢复原始工作目录
             os.chdir(original_dir)
+
+    def clean(self) -> None:
+        """清理构建文件."""
+        if self.DIST_DIR.exists():
+            try:
+                shutil.rmtree(self.DIST_DIR)
+            except OSError as e:
+                typer.echo(f"清理构建文件时出错: {e!s}", err=True)
+            else:
+                typer.echo("清理构建文件成功")
 
 
 class NativeServer(BaseServer):
