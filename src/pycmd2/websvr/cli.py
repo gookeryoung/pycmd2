@@ -17,10 +17,13 @@ def build() -> None:
 
 @app.command("dev")
 @app.command("d")
-def dev() -> None:
+def dev(
+    port: int = typer.Option(5173, "--port", "-p", help="指定端口 (仅开发模式)"),
+    host: str = typer.Option("127.0.0.1", "--host", "-H", help="指定主机 (仅开发模式)"),
+) -> None:
     """开发模式, 启动 Vite 构建工具并启动 WebView 应用, 默认别名: dev."""
-    svr = server.NativeDevServer()
-    svr.start()
+    svr = server.ServeServer()
+    svr.start(port=port, host=host, dev=True)
 
 
 @app.command("run")

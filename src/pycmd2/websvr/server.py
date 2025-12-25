@@ -189,9 +189,6 @@ class NativeProdServer(BaseServer):
 
     DEV_MODE = False
 
-    def __init__(self) -> None:
-        super().__init__()
-
     def start(self) -> None:
         """启动服务器."""
         # 检查是否需要构建
@@ -236,8 +233,8 @@ class ServeServer(NativeProdServer):
 
         # 检查端口是否可用
         if not check_port_available(host, port):
-            typer.echo(f"端口 {port} 已被占用, 请使用其他端口", err=True)
-            return
+            typer.echo(f"端口 {port} 已被占用, 尝试使用端口: {port + 1}", err=True)
+            return self.start(port=port + 1, host=host, dev=dev)
 
         vite_cmd = f"vite{self.cmd_suffix}"
         if check_command_available(vite_cmd):
@@ -271,11 +268,12 @@ class ServeServer(NativeProdServer):
                     typer.echo(f"Vite 预览服务器已启动, 访问地址: http://{host}:{port}")
             except (subprocess.CalledProcessError, OSError) as e:
                 typer.echo(f"启动 Vite 服务器失败: {e!s}")
-                return
+                return None
             finally:
                 os.chdir(original_dir)
         else:
             typer.echo("未找到 Vite 命令, 请检查是否已安装")
+        return None
 
 
 def _get_nginx_conf(port: int, host: str, root_dir: str, working_dir: str) -> str:
