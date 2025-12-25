@@ -22,7 +22,6 @@ class BaseServer(abc.ABC):
     CWD = Path(__file__).parent
     FRONT_DIR = CWD / "frontend"
     DIST_DIR = CWD / "frontend" / "output"
-    DEV_MODE = False
 
     def __init__(self) -> None:
         self.server_proc: Optional[subprocess.Popen] = None
@@ -52,7 +51,7 @@ class BaseServer(abc.ABC):
         """启动本地 WebView 窗口."""
         try:
             webview.create_window(
-                title=f"{title}{' # [DEV]' if self.DEV_MODE else ''}",
+                title=title,
                 url=url,
                 width=1200,
                 height=800,
@@ -62,7 +61,7 @@ class BaseServer(abc.ABC):
                 x=None,
                 y=None,
             )
-            webview.start(debug=self.DEV_MODE)
+            webview.start(debug=False)
         except (RuntimeError, OSError, ImportError) as e:
             typer.echo(f"启动 WebView 窗口时出错: {e!s}", err=True)
         finally:
@@ -152,8 +151,6 @@ class BaseServer(abc.ABC):
 
 class NativeServer(BaseServer):
     """本地模式, 静态服务器."""
-
-    DEV_MODE = False
 
     def start(self) -> None:
         """启动服务器."""
