@@ -290,9 +290,8 @@ class NginxServeServer(ServeServer):
                 os.chdir(str(self.FRONTEND_DIR))
 
                 # 创建必要的目录
-                (self.NGINX_CONF_DIR / "logs").mkdir(exist_ok=True)
-                (self.NGINX_CONF_DIR / "temp").mkdir(exist_ok=True)
-                (self.NGINX_CONF_DIR / "tmp").mkdir(exist_ok=True)
+                for directory in ["logs", "tmp", "temp"]:
+                    (self.NGINX_CONF_DIR / directory).mkdir(exist_ok=True)
 
                 # 生成Nginx配置文件
                 self.write_nginx_conf(port=port, host=host)

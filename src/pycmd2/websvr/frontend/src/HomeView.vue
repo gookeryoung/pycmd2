@@ -6,7 +6,10 @@
                     <template #header>
                         <div class="card-header">
                             <h2>欢迎使用 PyCmd2 WebUI</h2>
-                            <el-button type="primary" @click="showWelcome">更多功能</el-button>
+                            <ElButtonGroup>
+                                <el-button type="primary" @click="showWelcome">更多功能</el-button>
+                                <el-button type="info" @click="showMoreInfo">更多信息</el-button>
+                            </ElButtonGroup>
                         </div>
                     </template>
                     <div class="welcome-content">
@@ -102,13 +105,20 @@
 </template>
 
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
+import { ElButtonGroup, ElMessage } from 'element-plus'
 import { Setting, Document, Histogram, Collection } from '@element-plus/icons-vue'
 
 const showWelcome = () => {
     ElMessage({
         message: '欢迎使用 PyCmd2 WebUI！更多功能正在开发中...',
         type: 'success'
+    })
+}
+
+const showMoreInfo = () => {
+    ElMessage({
+        message: '更多详情请参考项目文档',
+        type: 'info'
     })
 }
 </script>
