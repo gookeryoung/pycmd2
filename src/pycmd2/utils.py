@@ -1,4 +1,6 @@
 import logging
+import shutil
+import socket
 from functools import wraps
 from time import perf_counter
 from typing import Callable
@@ -42,3 +44,33 @@ def timer(func: Callable[P, R]) -> Callable[P, R]:
         return result
 
     return wrapper
+
+
+def check_proc_by_name(proc_name: str) -> bool:
+    """检查进程是否存在."""
+    try:
+        import psutil
+    except ImportError:
+        logger.warning("psutil 模块未安装, 无法检查进程是否存在")
+        return False
+
+    for proc in psutil.process_iter(["pid", "name"]):
+        if proc_name.lower() in proc.info["name"].lower():
+            return True
+    return False
+
+
+def check_port_available(host: str, port: int) -> bool:
+    """检查端口是否可用."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(1)
+            result = s.connect_ex((host, port))
+            return result != 0  # 0表示连接成功，说明端口被占用
+    except OSError:
+        return False
+
+
+def check_command_available(cmd: str) -> bool:
+    """检查可执行文件是否存在."""
+    return shutil.which(cmd) is not None

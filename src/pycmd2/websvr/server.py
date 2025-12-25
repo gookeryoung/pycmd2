@@ -3,8 +3,6 @@ from __future__ import annotations
 import abc
 import os
 import platform
-import shutil
-import socket
 import subprocess
 from functools import cached_property
 from pathlib import Path
@@ -13,21 +11,9 @@ from typing import Optional
 import typer
 import webview
 
-
-def _check_command_available(cmd: str) -> bool:
-    """检查可执行文件是否存在."""
-    return shutil.which(cmd) is not None
-
-
-def _check_port_available(host: str, port: int) -> bool:
-    """检查端口是否可用."""
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(1)
-            result = s.connect_ex((host, port))
-            return result != 0  # 0表示连接成功，说明端口被占用
-    except OSError:
-        return False
+from pycmd2.utils import check_command_available
+from pycmd2.utils import check_port_available
+from pycmd2.utils import check_proc_by_name
 
 
 class BaseServer(abc.ABC):
@@ -117,7 +103,7 @@ class BaseServer(abc.ABC):
     def find_package_manager(self) -> Optional[str]:
         """查找可用的包管理器."""
         for cmd in ["yarn", "npm"]:
-            if _check_command_available(f"{cmd}{self.cmd_suffix}"):
+            if check_command_available(f"{cmd}{self.cmd_suffix}"):
                 return f"{cmd}{self.cmd_suffix}"
         return None
 
@@ -140,7 +126,7 @@ class BaseServer(abc.ABC):
     def find_build_command(self) -> Optional[str]:
         """查找可用的构建命令."""
         for cmd in ["vite", "yarn", "npm"]:
-            if _check_command_available(f"{cmd}{self.cmd_suffix}"):
+            if check_command_available(f"{cmd}{self.cmd_suffix}"):
                 return f"{cmd}{self.cmd_suffix}"
         return None
 
@@ -179,7 +165,7 @@ class NativeDevServer(BaseServer):
 
         typer.echo("正在启动开发服务器...")
         vite_cmd = f"vite{self.cmd_suffix}"
-        if _check_command_available(vite_cmd):
+        if check_command_available(vite_cmd):
             try:
                 self.server_proc = subprocess.Popen(
                     [vite_cmd, "--port", str(port), "--host", host],
@@ -249,12 +235,12 @@ class ServeServer(NativeProdServer):
         assert self.FRONT_DIR.exists(), "未找到前端 `frontend` 目录"
 
         # 检查端口是否可用
-        if not _check_port_available(host, port):
+        if not check_port_available(host, port):
             typer.echo(f"端口 {port} 已被占用, 请使用其他端口", err=True)
             return
 
         vite_cmd = f"vite{self.cmd_suffix}"
-        if _check_command_available(vite_cmd):
+        if check_command_available(vite_cmd):
             original_dir = Path.cwd()
             try:
                 os.chdir(str(self.FRONT_DIR))
@@ -343,9 +329,13 @@ class NginxServeServer(ServeServer):
             typer.echo("未找到生产环境文件, 正在构建...")
             self.build()
 
+        if check_proc_by_name("nginx"):
+            typer.echo("已找到 Nginx 进程, 先停止 Nginx")
+            self.stop()
+
         typer.echo("正在启动 Nginx 服务器...")
         nginx_cmd = "nginx"
-        if _check_command_available(nginx_cmd):
+        if check_command_available(nginx_cmd):
             original_dir = Path.cwd()
             try:
                 # 确保工作目录存在
