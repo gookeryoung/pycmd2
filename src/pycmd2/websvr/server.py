@@ -21,7 +21,7 @@ class BaseServer(abc.ABC):
     """服务器基类."""
 
     CWD = Path(__file__).parent
-    FRONT_DIR = CWD / "frontend"
+    FRONTEND_DIR = CWD / "frontend"
     DIST_DIR = CWD / "frontend" / "output"
 
     def __init__(self) -> None:
@@ -92,7 +92,7 @@ class BaseServer(abc.ABC):
         # 保存当前工作目录
         original_dir = Path.cwd()
         try:
-            os.chdir(str(self.FRONT_DIR))
+            os.chdir(str(self.FRONTEND_DIR))
             subprocess.run([cmd, "install"], check=True)
         finally:
             # 恢复原始工作目录
@@ -115,7 +115,7 @@ class BaseServer(abc.ABC):
         # 保存当前工作目录
         original_dir = Path.cwd()
         try:
-            os.chdir(str(self.FRONT_DIR))
+            os.chdir(str(self.FRONTEND_DIR))
             build_proc = subprocess.run([command, "build"], check=False)
             if build_proc.returncode != 0:
                 msg = "构建失败, 请检查代码是否有错误"
@@ -176,7 +176,7 @@ class ServeServer(NativeServer):
         dev: bool = False,
     ) -> None:
         """启动静态文件服务器."""
-        assert self.FRONT_DIR.exists(), "未找到前端 `frontend` 目录"
+        assert self.FRONTEND_DIR.exists(), "未找到前端 `frontend` 目录"
 
         # 检查端口是否可用
         if not check_port_available(host, port):
@@ -187,12 +187,12 @@ class ServeServer(NativeServer):
         if check_command_available(vite_cmd):
             original_dir = Path.cwd()
             try:
-                os.chdir(str(self.FRONT_DIR))
+                os.chdir(str(self.FRONTEND_DIR))
                 if dev:
                     # 开发模式
                     self.server_proc = subprocess.Popen(
                         [vite_cmd, "--port", str(port), "--host", host],
-                        cwd=str(self.FRONT_DIR),
+                        cwd=str(self.FRONTEND_DIR),
                         stdout=None,  # 输出到标准输出，这样可以看到Vite命令行信息
                         stderr=None,  # 错误输出到标准错误
                         text=True,
@@ -207,7 +207,7 @@ class ServeServer(NativeServer):
                     # 启动预览服务器
                     self.server_proc = subprocess.Popen(
                         [vite_cmd, "preview", "--port", str(port), "--host", host],
-                        cwd=str(self.FRONT_DIR),
+                        cwd=str(self.FRONTEND_DIR),
                         stdout=None,
                         stderr=None,
                         text=True,
@@ -223,7 +223,7 @@ class ServeServer(NativeServer):
         return None
 
 
-def _get_nginx_conf(port: int, host: str, root_dir: str, working_dir: str) -> str:
+def _get_nginx_conf(port: int, host: str, dist_dir: str, working_dir: str) -> str:
     """生成 Nginx 配置文件内容."""
     # 设置错误日志和PID文件路径，使用工作目录下的logs和tmp目录
     logs_dir = f"{working_dir}/logs"
@@ -250,7 +250,7 @@ http {{
         access_log {logs_dir}/access.log;
 
         location / {{
-            root   {root_dir};
+            root   {dist_dir};
             index  index.html index.htm;
             try_files $uri $uri/ /index.html;
         }}
@@ -262,13 +262,16 @@ http {{
 class NginxServeServer(ServeServer):
     """使用 Nginx 启动静态文件服务器."""
 
+    NGINX_CONF_DIR = ServeServer.FRONTEND_DIR.parent / "nginx"
+
     def start(
         self,
         port: int = 8000,
         host: str = "127.0.0.1",
     ) -> None:
         """启动 Nginx 静态文件服务器."""
-        assert self.FRONT_DIR.exists(), "未找到前端 `frontend` 目录"
+        assert self.FRONTEND_DIR.exists(), "未找到前端 `frontend` 目录"
+        assert self.NGINX_CONF_DIR.exists(), "未找到 `nginx` 配置根目录"
 
         if not self.DIST_DIR.exists() or not self.index_html.exists():
             typer.echo("未找到生产环境文件, 正在构建...")
@@ -284,11 +287,12 @@ class NginxServeServer(ServeServer):
             original_dir = Path.cwd()
             try:
                 # 确保工作目录存在
-                os.chdir(str(self.FRONT_DIR))
+                os.chdir(str(self.FRONTEND_DIR))
 
                 # 创建必要的目录
-                (self.FRONT_DIR / "logs").mkdir(exist_ok=True)
-                (self.FRONT_DIR / "temp").mkdir(exist_ok=True)
+                (self.NGINX_CONF_DIR / "logs").mkdir(exist_ok=True)
+                (self.NGINX_CONF_DIR / "temp").mkdir(exist_ok=True)
+                (self.NGINX_CONF_DIR / "tmp").mkdir(exist_ok=True)
 
                 # 生成Nginx配置文件
                 self.write_nginx_conf(port=port, host=host)
@@ -296,7 +300,7 @@ class NginxServeServer(ServeServer):
                 # 启动Nginx
                 self.server_proc = subprocess.Popen(
                     [nginx_cmd, "-c", "nginx.conf"],
-                    cwd=str(self.FRONT_DIR),
+                    cwd=str(self.NGINX_CONF_DIR),
                     stdout=None,
                     stderr=None,
                     text=True,
@@ -312,14 +316,14 @@ class NginxServeServer(ServeServer):
 
     def write_nginx_conf(self, port: int, host: str) -> None:
         """写入 Nginx 配置文件."""
-        conf_path = self.FRONT_DIR / "nginx.conf"
+        conf_path = self.NGINX_CONF_DIR / "nginx.conf"
 
         typer.echo("正在写入 Nginx 配置文件...")
         conf = _get_nginx_conf(
             port=port,
             host=host,
-            root_dir=str(self.DIST_DIR),
-            working_dir=str(self.FRONT_DIR),
+            dist_dir=str(self.DIST_DIR),
+            working_dir=self.NGINX_CONF_DIR.as_posix(),
         )
         conf_path.write_text(conf)
         typer.echo("Nginx 配置文件已写入: " + str(conf_path))
@@ -329,15 +333,21 @@ class NginxServeServer(ServeServer):
         typer.echo("正在尝试停止 Nginx 服务器...")
         try:
             # 使用nginx命令优雅停止
-            pid_file = self.FRONT_DIR / "tmp" / "nginx.pid"
+            pid_file = self.NGINX_CONF_DIR / "tmp" / "nginx.pid"
             if pid_file.exists():
                 with Path(pid_file).open("r", encoding="utf-8") as f:
                     int(f.read().strip())
 
                 # 使用nginx -s stop命令
                 self.server_proc = subprocess.Popen(
-                    ["nginx", "-s", "stop", "-c", str(self.FRONT_DIR / "nginx.conf")],
-                    cwd=str(self.FRONT_DIR),
+                    [
+                        "nginx",
+                        "-s",
+                        "stop",
+                        "-c",
+                        str(self.NGINX_CONF_DIR / "nginx.conf"),
+                    ],
+                    cwd=str(self.NGINX_CONF_DIR),
                     stdout=None,
                     stderr=None,
                     text=True,
