@@ -15,24 +15,19 @@ def build() -> None:
     svr.build()
 
 
+@app.command("dev")
+@app.command("d")
+def dev() -> None:
+    """开发模式, 启动 Vite 构建工具并启动 WebView 应用, 默认别名: dev."""
+    svr = server.NativeDevServer()
+    svr.start()
+
+
 @app.command("run")
 @app.command("r")
-def run(
-    port: int = typer.Option(5173, "--port", "-p", help="指定端口 (仅开发模式)"),
-    host: str = typer.Option("127.0.0.1", "--host", "-H", help="指定主机 (仅开发模式)"),
-    *,
-    dev: bool = typer.Option(False, "--dev", "-d", help="开发模式"),
-    build: bool = typer.Option(False, "--build", "-b", help="加载前构建"),
-) -> None:
+def run() -> None:
     """开发模式, 启动 Vite 构建工具并启动 WebView 应用, 默认别名: r."""
-    if dev:
-        svr = server.NativeDevServer()
-        svr.start(port=port, host=host)
-        return
-
     svr = server.NativeProdServer()
-    if build:
-        svr.build()
     svr.start()
 
 
@@ -40,10 +35,27 @@ def run(
 @app.command("s")
 def serve(
     *,
-    dev: bool = typer.Option(False, "--dev", "-d", help="开发模式"),
     port: int = typer.Option(5173, "--port", "-p", help="指定端口 (仅开发模式)"),
     host: str = typer.Option("127.0.0.1", "--host", "-H", help="指定主机 (仅开发模式)"),
 ) -> None:
     """仅启动 Web 服务模式, 不创建 WebView 窗口, 默认别名: s."""
     svr = server.ServeServer()
-    svr.start(port=port, host=host, dev=dev)
+    svr.start(port=port, host=host)
+
+
+@app.command("nginx-server")
+@app.command("ns")
+def serve_nginx(
+    *,
+    port: int = typer.Option(5173, "--port", "-p", help="指定端口 (仅开发模式)"),
+    host: str = typer.Option("127.0.0.1", "--host", "-H", help="指定主机 (仅开发模式)"),
+    stop: bool = typer.Option(False, "--stop", "-s", help="停止服务"),
+) -> None:
+    """使用 Nginx 启动 Web 服务模式, 不创建 WebView 窗口, 默认别名: ns."""
+    if stop:
+        svr = server.NginxServeServer()
+        svr.stop()
+        return
+
+    svr = server.NginxServeServer()
+    svr.start(port=port, host=host)

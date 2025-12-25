@@ -4,6 +4,7 @@ import abc
 import os
 import platform
 import shutil
+import socket
 import subprocess
 from functools import cached_property
 from pathlib import Path
@@ -16,6 +17,17 @@ import webview
 def _check_command_available(cmd: str) -> bool:
     """检查可执行文件是否存在."""
     return shutil.which(cmd) is not None
+
+
+def _check_port_available(host: str, port: int) -> bool:
+    """检查端口是否可用."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(1)
+            result = s.connect_ex((host, port))
+            return result != 0  # 0表示连接成功，说明端口被占用
+    except OSError:
+        return False
 
 
 class BaseServer(abc.ABC):
@@ -143,9 +155,9 @@ class BaseServer(abc.ABC):
         original_dir = Path.cwd()
         try:
             os.chdir(str(self.FRONT_DIR))
-            build_proc = subprocess.run([command, "build"], check=True)
+            build_proc = subprocess.run([command, "build"], check=False)
             if build_proc.returncode != 0:
-                msg = "构建失败"
+                msg = "构建失败, 请检查代码是否有错误"
                 raise RuntimeError(msg)
         finally:
             # 恢复原始工作目录
@@ -236,11 +248,16 @@ class ServeServer(NativeProdServer):
         """启动静态文件服务器."""
         assert self.FRONT_DIR.exists(), "未找到前端 `frontend` 目录"
 
+        # 检查端口是否可用
+        if not _check_port_available(host, port):
+            typer.echo(f"端口 {port} 已被占用, 请使用其他端口", err=True)
+            return
+
         vite_cmd = f"vite{self.cmd_suffix}"
         if _check_command_available(vite_cmd):
             original_dir = Path.cwd()
-            os.chdir(str(self.FRONT_DIR))
             try:
+                os.chdir(str(self.FRONT_DIR))
                 if dev:
                     # 开发模式
                     self.server_proc = subprocess.Popen(
@@ -252,6 +269,7 @@ class ServeServer(NativeProdServer):
                     )
                     typer.echo(f"Vite 开发服务器已启动, 访问地址: http://{host}:{port}")
                 else:
+                    # 生产模式：只在需要时构建
                     if not self.DIST_DIR.exists() or not self.index_html.exists():
                         typer.echo("未找到生产环境文件, 正在构建...")
                         self.build()
@@ -272,3 +290,144 @@ class ServeServer(NativeProdServer):
                 os.chdir(original_dir)
         else:
             typer.echo("未找到 Vite 命令, 请检查是否已安装")
+
+
+def _get_nginx_conf(port: int, host: str, root_dir: str, working_dir: str) -> str:
+    """生成 Nginx 配置文件内容."""
+    # 设置错误日志和PID文件路径，使用工作目录下的logs和tmp目录
+    logs_dir = f"{working_dir}/logs"
+    tmp_dir = f"{working_dir}/tmp"
+
+    return f"""
+# 设置工作目录
+error_log {logs_dir}/error.log;
+pid {tmp_dir}/nginx.pid;
+
+events {{
+    worker_connections 1024;
+}}
+
+http {{
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    server {{
+        listen       {port};
+        server_name  {host};
+
+        # 设置日志文件路径
+        access_log {logs_dir}/access.log;
+
+        location / {{
+            root   {root_dir};
+            index  index.html index.htm;
+            try_files $uri $uri/ /index.html;
+        }}
+    }}
+}}
+    """
+
+
+class NginxServeServer(ServeServer):
+    """使用 Nginx 启动静态文件服务器."""
+
+    def start(
+        self,
+        port: int = 8000,
+        host: str = "127.0.0.1",
+    ) -> None:
+        """启动 Nginx 静态文件服务器."""
+        assert self.FRONT_DIR.exists(), "未找到前端 `frontend` 目录"
+
+        if not self.DIST_DIR.exists() or not self.index_html.exists():
+            typer.echo("未找到生产环境文件, 正在构建...")
+            self.build()
+
+        typer.echo("正在启动 Nginx 服务器...")
+        nginx_cmd = "nginx"
+        if _check_command_available(nginx_cmd):
+            original_dir = Path.cwd()
+            try:
+                # 确保工作目录存在
+                os.chdir(str(self.FRONT_DIR))
+
+                # 创建必要的目录
+                (self.FRONT_DIR / "logs").mkdir(exist_ok=True)
+                (self.FRONT_DIR / "temp").mkdir(exist_ok=True)
+
+                # 生成Nginx配置文件
+                self.write_nginx_conf(port=port, host=host)
+
+                # 启动Nginx
+                self.server_proc = subprocess.Popen(
+                    [nginx_cmd, "-c", "nginx.conf"],
+                    cwd=str(self.FRONT_DIR),
+                    stdout=None,
+                    stderr=None,
+                    text=True,
+                )
+                typer.echo(f"Nginx 服务器已启动, 访问地址: http://{host}:{port}")
+            except (subprocess.CalledProcessError, OSError) as e:
+                typer.echo(f"启动 Nginx 服务器失败: {e!s}")
+                return
+            finally:
+                os.chdir(original_dir)
+        else:
+            typer.echo("未找到 Nginx 命令, 请检查是否已安装")
+
+    def write_nginx_conf(self, port: int, host: str) -> None:
+        """写入 Nginx 配置文件."""
+        conf_path = self.FRONT_DIR / "nginx.conf"
+
+        typer.echo("正在写入 Nginx 配置文件...")
+        conf = _get_nginx_conf(
+            port=port,
+            host=host,
+            root_dir=str(self.DIST_DIR),
+            working_dir=str(self.FRONT_DIR),
+        )
+        conf_path.write_text(conf)
+        typer.echo("Nginx 配置文件已写入: " + str(conf_path))
+
+    def stop(self) -> None:
+        """停止 Nginx 服务器."""
+        typer.echo("正在尝试停止 Nginx 服务器...")
+        try:
+            # 使用nginx命令优雅停止
+            pid_file = self.FRONT_DIR / "tmp" / "nginx.pid"
+            if pid_file.exists():
+                with Path(pid_file).open("r", encoding="utf-8") as f:
+                    int(f.read().strip())
+
+                # 使用nginx -s stop命令
+                self.server_proc = subprocess.Popen(
+                    ["nginx", "-s", "stop", "-c", str(self.FRONT_DIR / "nginx.conf")],
+                    cwd=str(self.FRONT_DIR),
+                    stdout=None,
+                    stderr=None,
+                    text=True,
+                )
+
+                # 等待进程结束
+                try:
+                    import time
+
+                    for _ in range(10):  # 最多等待10秒
+                        if self.server_proc.poll() is not None:
+                            break
+                        time.sleep(1)
+
+                    if self.server_proc.poll() is not None:
+                        typer.echo("Nginx 服务器已正常关闭")
+                    else:
+                        typer.echo("Nginx 服务器未能正常关闭, 尝试强制终止")
+                        self.server_proc.terminate()
+                        self.server_proc.wait()
+                        typer.echo("Nginx 服务器已强制关闭")
+                except Exception as e:  # noqa: BLE001
+                    typer.echo(f"等待 Nginx 服务器关闭时出错: {e!s}")
+            else:
+                typer.echo("Nginx 服务器未运行")
+                return
+        except (OSError, subprocess.SubprocessError) as e:
+            typer.echo(f"停止 Nginx 服务器时出错: {e!s}", err=True)
