@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import abc
+import http.server
 import os
 import platform
 import shutil
+import socketserver
 import subprocess
+import threading
+import time
 from functools import cached_property
 from pathlib import Path
 from typing import Optional
@@ -17,7 +22,7 @@ def _check_command_available(cmd: str) -> bool:
     return shutil.which(cmd) is not None
 
 
-class BaseServer:
+class BaseServer(abc.ABC):
     """服务器基类."""
 
     CWD = Path(__file__).parent
@@ -40,7 +45,8 @@ class BaseServer:
         """index.html 文件路径."""
         return self.DIST_DIR / "index.html"
 
-    def start(self) -> None:
+    @abc.abstractmethod
+    def start(self, port: int = 5173, host: str = "127.0.0.1") -> None:
         """启动服务器."""
 
     def start_webview_window(
@@ -115,22 +121,12 @@ class BaseServer:
         return None
 
 
-class LocalDevServer(BaseServer):
+class NativeDevServer(BaseServer):
     """本地开发服务器."""
 
     DEV_MODE = True
 
-    def __init__(
-        self,
-        port: int = 5173,
-        host: str = "127.0.0.1",
-    ) -> None:
-        super().__init__()
-
-        self.port = port
-        self.host = host
-
-    def start(self) -> None:
+    def start(self, port: int = 5173, host: str = "127.0.0.1") -> None:
         """启动服务器."""
         assert self.FRONT_DIR.exists(), "未找到前端 `frontend` 目录"
 
@@ -143,7 +139,7 @@ class LocalDevServer(BaseServer):
         if _check_command_available(vite_cmd):
             try:
                 self.server_proc = subprocess.Popen(
-                    [vite_cmd, "--port", str(self.port), "--host", self.host],
+                    [vite_cmd, "--port", str(port), "--host", host],
                     cwd=str(self.FRONT_DIR),
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
@@ -156,7 +152,7 @@ class LocalDevServer(BaseServer):
             typer.echo("未找到 Vite 命令, 请检查是否已安装")
             return
 
-        self.start_webview_window(url=f"http://{self.host}:{self.port}")
+        self.start_webview_window(url=f"http://{host}:{port}")
 
     def _install_dependencies(self) -> None:
         """安装依赖."""
@@ -175,8 +171,8 @@ class LocalDevServer(BaseServer):
             os.chdir(original_dir)
 
 
-class LocalProdServer(BaseServer):
-    """本地生产服务器."""
+class NativeStaticServer(BaseServer):
+    """本地模式, 静态服务器."""
 
     DEV_MODE = False
 
@@ -223,6 +219,44 @@ class LocalProdServer(BaseServer):
         try:
             os.chdir(str(self.FRONT_DIR))
             subprocess.run([command, "build"], check=True)
+        finally:
+            # 恢复原始工作目录
+            os.chdir(original_dir)
+
+
+class ServeServer(BaseServer):
+    """本地开发服务器."""
+
+    DEV_MODE = True
+
+    def start(self, port: int = 8000, host: str = "127.0.0.1") -> None:
+        """启动静态文件服务器."""
+        # 切换到静态文件目录
+        original_dir = Path.cwd()
+        os.chdir(self.DIST_DIR)
+
+        try:
+            # 创建服务器
+            handler = http.server.SimpleHTTPRequestHandler
+            httpd = socketserver.TCPServer(("", 8000), handler)
+
+            # 在新线程中启动服务器
+            server_thread = threading.Thread(target=httpd.serve_forever)
+            server_thread.daemon = True
+            server_thread.start()
+
+            url = f"http://{host}:{port}"
+            typer.echo(f"静态文件服务器已启动, 请访问: {url}")
+            typer.echo("按 Ctrl+C 停止服务器")
+
+            # 保持服务器运行，直到用户手动停止
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                typer.echo("\n正在停止服务器...")
+                httpd.shutdown()
+                httpd.server_close()
         finally:
             # 恢复原始工作目录
             os.chdir(original_dir)

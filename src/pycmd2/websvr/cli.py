@@ -9,16 +9,30 @@ app = typer.Typer()
 
 @app.command("run", help="开发模式, 启动 Vite 构建工具并启动 WebView 应用, 默认别名: d")
 def run(
+    port: int = typer.Option(5173, "--port", "-p", help="指定端口 (仅开发模式)"),
+    host: str = typer.Option("127.0.0.1", "--host", "-H", help="指定主机 (仅开发模式)"),
     *,
     dev: bool = typer.Option(False, "--dev", "-d", help="开发模式"),
     build: bool = typer.Option(False, "--build", "-b", help="加载前构建"),
 ) -> None:
     """开发模式, 启动 Vite 构建工具并启动 WebView 应用, 默认别名: d."""
     if dev:
-        svr = server.LocalDevServer()
-        svr.start()
+        svr = server.NativeDevServer()
+        svr.start(port=port, host=host)
     else:
-        svr = server.LocalProdServer()
+        svr = server.NativeStaticServer()
         if build:
             svr.build()
         svr.start()
+
+
+@app.command("serve", help="仅启动 Web 服务模式, 不创建 WebView 窗口, 默认别名: s")
+def serve(
+    *,
+    dev: bool = typer.Option(False, "--dev", "-d", help="开发模式"),
+    port: int = typer.Option(5173, "--port", "-p", help="指定端口 (仅开发模式)"),
+    host: str = typer.Option("127.0.0.1", "--host", "-H", help="指定主机 (仅开发模式)"),
+) -> None:
+    """仅启动 Web 服务模式, 不创建 WebView 窗口, 默认别名: s."""
+    svr = server.ServeServer()
+    svr.start(port=port, host=host)
