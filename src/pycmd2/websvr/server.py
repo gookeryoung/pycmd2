@@ -1,14 +1,10 @@
 from __future__ import annotations
 
 import abc
-import http.server
 import os
 import platform
 import shutil
-import socketserver
 import subprocess
-import threading
-import time
 from functools import cached_property
 from pathlib import Path
 from typing import Optional
@@ -49,13 +45,13 @@ class BaseServer(abc.ABC):
     def start(self, port: int = 5173, host: str = "127.0.0.1") -> None:
         """启动服务器."""
 
-    def start_webview_window(
+    def start_native(
         self,
         url: str,
         *,
         title: str = "PyCmd2 WebView",
     ) -> None:
-        """启动 WebView 窗口."""
+        """启动本地 WebView 窗口."""
         try:
             webview.create_window(
                 title=f"{title}{' # [DEV]' if self.DEV_MODE else ''}",
@@ -113,48 +109,7 @@ class BaseServer(abc.ABC):
                 return f"{cmd}{self.cmd_suffix}"
         return None
 
-    def find_build_command(self) -> Optional[str]:
-        """查找可用的构建命令."""
-        for cmd in ["vite", "yarn", "npm"]:
-            if _check_command_available(f"{cmd}{self.cmd_suffix}"):
-                return f"{cmd}{self.cmd_suffix}"
-        return None
-
-
-class NativeDevServer(BaseServer):
-    """本地开发服务器."""
-
-    DEV_MODE = True
-
-    def start(self, port: int = 5173, host: str = "127.0.0.1") -> None:
-        """启动服务器."""
-        assert self.FRONT_DIR.exists(), "未找到前端 `frontend` 目录"
-
-        if not (self.FRONT_DIR / "node_modules").exists():
-            typer.echo("未找到依赖项, 正在安装...")
-            self._install_dependencies()
-
-        typer.echo("正在启动开发服务器...")
-        vite_cmd = f"vite{self.cmd_suffix}"
-        if _check_command_available(vite_cmd):
-            try:
-                self.server_proc = subprocess.Popen(
-                    [vite_cmd, "--port", str(port), "--host", host],
-                    cwd=str(self.FRONT_DIR),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True,
-                )
-            except (subprocess.CalledProcessError, OSError) as e:
-                typer.echo(f"启动 Vite 开发服务器失败: {e!s}")
-                return
-        else:
-            typer.echo("未找到 Vite 命令, 请检查是否已安装")
-            return
-
-        self.start_webview_window(url=f"http://{host}:{port}")
-
-    def _install_dependencies(self) -> None:
+    def install_dependencies(self) -> None:
         """安装依赖."""
         cmd = self.find_package_manager()
         if cmd is None:
@@ -170,8 +125,68 @@ class NativeDevServer(BaseServer):
             # 恢复原始工作目录
             os.chdir(original_dir)
 
+    def find_build_command(self) -> Optional[str]:
+        """查找可用的构建命令."""
+        for cmd in ["vite", "yarn", "npm"]:
+            if _check_command_available(f"{cmd}{self.cmd_suffix}"):
+                return f"{cmd}{self.cmd_suffix}"
+        return None
 
-class NativeStaticServer(BaseServer):
+    def build(self) -> None:
+        """构建前端."""
+        command = self.find_build_command()
+        if command is None:
+            msg = "未找到 yarn 或 npm 或 vite 命令"
+            raise RuntimeError(msg)
+
+        # 保存当前工作目录
+        original_dir = Path.cwd()
+        try:
+            os.chdir(str(self.FRONT_DIR))
+            build_proc = subprocess.run([command, "build"], check=True)
+            if build_proc.returncode != 0:
+                msg = "构建失败"
+                raise RuntimeError(msg)
+        finally:
+            # 恢复原始工作目录
+            os.chdir(original_dir)
+
+
+class NativeDevServer(BaseServer):
+    """本地开发服务器."""
+
+    DEV_MODE = True
+
+    def start(self, port: int = 5173, host: str = "127.0.0.1") -> None:
+        """启动服务器."""
+        assert self.FRONT_DIR.exists(), "未找到前端 `frontend` 目录"
+
+        if not (self.FRONT_DIR / "node_modules").exists():
+            typer.echo("未找到依赖项, 正在安装...")
+            self.install_dependencies()
+
+        typer.echo("正在启动开发服务器...")
+        vite_cmd = f"vite{self.cmd_suffix}"
+        if _check_command_available(vite_cmd):
+            try:
+                self.server_proc = subprocess.Popen(
+                    [vite_cmd, "--port", str(port), "--host", host],
+                    cwd=str(self.FRONT_DIR),
+                    stdout=None,  # 输出到标准输出，这样可以看到Vite命令行信息
+                    stderr=None,  # 错误输出到标准错误
+                    text=True,
+                )
+            except (subprocess.CalledProcessError, OSError) as e:
+                typer.echo(f"启动 Vite 开发服务器失败: {e!s}")
+                return
+        else:
+            typer.echo("未找到 Vite 命令, 请检查是否已安装")
+            return
+
+        self.start_native(url=f"http://{host}:{port}")
+
+
+class NativeProdServer(BaseServer):
     """本地模式, 静态服务器."""
 
     DEV_MODE = False
@@ -189,9 +204,9 @@ class NativeStaticServer(BaseServer):
             typer.echo("已找到生产环境文件, 直接启动.")
 
         typer.echo("正在启动生产服务器...")
-        self.start_webview_window(url=str(self.index_html))
+        self.start_native(url=str(self.index_html))
 
-    def _install_dependencies(self) -> None:
+    def install_dependencies(self) -> None:
         """安装依赖."""
         cmd = self.find_package_manager()
         if cmd is None:
@@ -207,56 +222,53 @@ class NativeStaticServer(BaseServer):
             # 恢复原始工作目录
             os.chdir(original_dir)
 
-    def build(self) -> None:
-        """构建前端."""
-        command = self.find_build_command()
-        if command is None:
-            msg = "未找到 yarn 或 npm 或 vite 命令"
-            raise RuntimeError(msg)
 
-        # 保存当前工作目录
-        original_dir = Path.cwd()
-        try:
-            os.chdir(str(self.FRONT_DIR))
-            subprocess.run([command, "build"], check=True)
-        finally:
-            # 恢复原始工作目录
-            os.chdir(original_dir)
-
-
-class ServeServer(BaseServer):
+class ServeServer(NativeProdServer):
     """本地开发服务器."""
 
-    DEV_MODE = True
-
-    def start(self, port: int = 8000, host: str = "127.0.0.1") -> None:
+    def start(
+        self,
+        port: int = 8000,
+        host: str = "127.0.0.1",
+        *,
+        dev: bool = False,
+    ) -> None:
         """启动静态文件服务器."""
-        # 切换到静态文件目录
-        original_dir = Path.cwd()
-        os.chdir(self.DIST_DIR)
+        assert self.FRONT_DIR.exists(), "未找到前端 `frontend` 目录"
 
-        try:
-            # 创建服务器
-            handler = http.server.SimpleHTTPRequestHandler
-            httpd = socketserver.TCPServer(("", 8000), handler)
-
-            # 在新线程中启动服务器
-            server_thread = threading.Thread(target=httpd.serve_forever)
-            server_thread.daemon = True
-            server_thread.start()
-
-            url = f"http://{host}:{port}"
-            typer.echo(f"静态文件服务器已启动, 请访问: {url}")
-            typer.echo("按 Ctrl+C 停止服务器")
-
-            # 保持服务器运行，直到用户手动停止
+        vite_cmd = f"vite{self.cmd_suffix}"
+        if _check_command_available(vite_cmd):
+            original_dir = Path.cwd()
+            os.chdir(str(self.FRONT_DIR))
             try:
-                while True:
-                    time.sleep(1)
-            except KeyboardInterrupt:
-                typer.echo("\n正在停止服务器...")
-                httpd.shutdown()
-                httpd.server_close()
-        finally:
-            # 恢复原始工作目录
-            os.chdir(original_dir)
+                if dev:
+                    # 开发模式
+                    self.server_proc = subprocess.Popen(
+                        [vite_cmd, "--port", str(port), "--host", host],
+                        cwd=str(self.FRONT_DIR),
+                        stdout=None,  # 输出到标准输出，这样可以看到Vite命令行信息
+                        stderr=None,  # 错误输出到标准错误
+                        text=True,
+                    )
+                    typer.echo(f"Vite 开发服务器已启动, 访问地址: http://{host}:{port}")
+                else:
+                    if not self.DIST_DIR.exists() or not self.index_html.exists():
+                        typer.echo("未找到生产环境文件, 正在构建...")
+                        self.build()
+
+                    # 启动预览服务器
+                    self.server_proc = subprocess.Popen(
+                        [vite_cmd, "preview", "--port", str(port), "--host", host],
+                        cwd=str(self.FRONT_DIR),
+                        stdout=None,
+                        stderr=None,
+                        text=True,
+                    )
+                    typer.echo(f"Vite 预览服务器已启动, 访问地址: http://{host}:{port}")
+            except (subprocess.CalledProcessError, OSError) as e:
+                typer.echo(f"启动 Vite 服务器失败: {e!s}")
+                return
+            finally:
+                os.chdir(original_dir)
+        else:
+            typer.echo("未找到 Vite 命令, 请检查是否已安装")

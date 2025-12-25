@@ -9,7 +9,7 @@ export default defineConfig({
     outDir: 'output',
   },
   server: {
-    host: 'localhost',
+    host: '0.0.0.0', // 允许从任何IP地址访问
     port: 5173,
     // 启用 CORS 以便 WebView 可以访问
     cors: true,
