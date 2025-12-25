@@ -150,41 +150,7 @@ class BaseServer(abc.ABC):
             os.chdir(original_dir)
 
 
-class NativeDevServer(BaseServer):
-    """本地开发服务器."""
-
-    DEV_MODE = True
-
-    def start(self, port: int = 5173, host: str = "127.0.0.1") -> None:
-        """启动服务器."""
-        assert self.FRONT_DIR.exists(), "未找到前端 `frontend` 目录"
-
-        if not (self.FRONT_DIR / "node_modules").exists():
-            typer.echo("未找到依赖项, 正在安装...")
-            self.install_dependencies()
-
-        typer.echo("正在启动开发服务器...")
-        vite_cmd = f"vite{self.cmd_suffix}"
-        if check_command_available(vite_cmd):
-            try:
-                self.server_proc = subprocess.Popen(
-                    [vite_cmd, "--port", str(port), "--host", host],
-                    cwd=str(self.FRONT_DIR),
-                    stdout=None,  # 输出到标准输出，这样可以看到Vite命令行信息
-                    stderr=None,  # 错误输出到标准错误
-                    text=True,
-                )
-            except (subprocess.CalledProcessError, OSError) as e:
-                typer.echo(f"启动 Vite 开发服务器失败: {e!s}")
-                return
-        else:
-            typer.echo("未找到 Vite 命令, 请检查是否已安装")
-            return
-
-        self.start_native(url=f"http://{host}:{port}")
-
-
-class NativeProdServer(BaseServer):
+class NativeServer(BaseServer):
     """本地模式, 静态服务器."""
 
     DEV_MODE = False
@@ -218,7 +184,7 @@ class NativeProdServer(BaseServer):
             os.chdir(original_dir)
 
 
-class ServeServer(NativeProdServer):
+class ServeServer(NativeServer):
     """本地开发服务器."""
 
     def start(

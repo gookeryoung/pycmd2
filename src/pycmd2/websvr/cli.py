@@ -11,7 +11,7 @@ app = typer.Typer()
 @app.command("b")
 def build() -> None:
     """构建静态文件, 默认别名: b."""
-    svr = server.NativeProdServer()
+    svr = server.NativeServer()
     svr.build()
 
 
@@ -30,7 +30,7 @@ def dev(
 @app.command("r")
 def run() -> None:
     """开发模式, 启动 Vite 构建工具并启动 WebView 应用, 默认别名: r."""
-    svr = server.NativeProdServer()
+    svr = server.NativeServer()
     svr.start()
 
 
