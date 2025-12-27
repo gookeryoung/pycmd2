@@ -53,8 +53,8 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-  const activeIndex = ref('1');
+  import { ref } from 'vue'
+  const activeIndex = ref('1')
 </script>
 
 <style scoped>

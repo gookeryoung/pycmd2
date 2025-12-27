@@ -5,10 +5,10 @@ const TODOS_STORAGE_KEY = 'pycmd2-todos'
 const FILTER_STORAGE_KEY = 'pycmd2-todos-filter'
 
 export interface Todo {
-  id: number;
-  text: string;
-  completed: boolean;
-  createdAt: Date;
+  id: number
+  text: string
+  completed: boolean
+  createdAt: Date
 }
 
 // 本地存储工具函数
@@ -85,12 +85,12 @@ export const useTodosStore = defineStore('todos', {
   getters: {
     filteredTodos: state => {
       switch (state.filter) {
-      case 'completed':
-        return state.todos.filter(todo => todo.completed)
-      case 'pending':
-        return state.todos.filter(todo => !todo.completed)
-      default:
-        return state.todos
+        case 'completed':
+          return state.todos.filter(todo => todo.completed)
+        case 'pending':
+          return state.todos.filter(todo => !todo.completed)
+        default:
+          return state.todos
       }
     },
     completedCount: state => state.todos.filter(todo => todo.completed).length,

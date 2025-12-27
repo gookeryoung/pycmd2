@@ -104,7 +104,7 @@
     Delete,
     ArrowLeft,
     ArrowRight
-  } from '@element-plus/icons-vue';
+  } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>

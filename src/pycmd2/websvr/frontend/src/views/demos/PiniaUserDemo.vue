@@ -2,10 +2,7 @@
   <div class="pinia-user-demo">
     <!-- 登录表单 -->
     <el-card v-if="!userStore.isAuthenticated" header="用户认证示例 - User Store" class="auth-card">
-      <el-form :model="loginForm"
-               :rules="rules"
-               ref="loginFormRef"
-               label-width="80px">
+      <el-form :model="loginForm" :rules="rules" ref="loginFormRef" label-width="80px">
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="loginForm.email" placeholder="demo@example.com" />
         </el-form-item>
@@ -129,19 +126,19 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, reactive, onMounted } from 'vue';
-  import { useUserStore } from '../../stores/user';
-  import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
-  import { Message, Moon, Sunny, SwitchButton } from '@element-plus/icons-vue';
+  import { ref, computed, reactive, onMounted } from 'vue'
+  import { useUserStore } from '../../stores/user'
+  import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+  import { Message, Moon, Sunny, SwitchButton } from '@element-plus/icons-vue'
 
-  const userStore = useUserStore();
-  const loginFormRef = ref<FormInstance>();
+  const userStore = useUserStore()
+  const loginFormRef = ref<FormInstance>()
 
   // 登录表单数据
   const loginForm = reactive({
     email: 'demo@example.com',
     password: 'password'
-  });
+  })
 
   // 表单验证规则
   const rules: FormRules = {
@@ -153,88 +150,88 @@
       { required: true, message: '请输入密码', trigger: 'blur' },
       { min: 6, message: '密码长度至少为6位', trigger: 'blur' }
     ]
-  };
+  }
 
   // 个人资料表单
   const profileForm = reactive({
     name: '',
     email: ''
-  });
+  })
 
   // 偏好设置的响应式引用
   const isDarkTheme = computed({
     get: () => userStore.isDarkTheme,
     set: () => {} // 实际更新通过 toggleTheme 方法处理
-  });
+  })
 
   const notificationsEnabled = computed({
     get: () => userStore.notificationsEnabled,
     set: () => {} // 实际更新通过 toggleNotifications 方法处理
-  });
+  })
 
-  const selectedLanguage = ref('zh-CN');
+  const selectedLanguage = ref('zh-CN')
 
   // 初始化个人资料表单
   onMounted(() => {
     if (userStore.user) {
-      profileForm.name = userStore.user.name;
-      profileForm.email = userStore.user.email;
-      selectedLanguage.value = userStore.user.preferences.language;
+      profileForm.name = userStore.user.name
+      profileForm.email = userStore.user.email
+      selectedLanguage.value = userStore.user.preferences.language
     }
-  });
+  })
 
   // 登录处理
   const handleLogin = async () => {
-    if (!loginFormRef.value) return;
+    if (!loginFormRef.value) return
 
     await loginFormRef.value.validate(async valid => {
       if (valid) {
-        const success = await userStore.login(loginForm.email, loginForm.password);
+        const success = await userStore.login(loginForm.email, loginForm.password)
         if (success) {
           // 初始化个人资料表单
           if (userStore.user) {
-            profileForm.name = userStore.user.name;
-            profileForm.email = userStore.user.email;
-            selectedLanguage.value = userStore.user.preferences.language;
+            profileForm.name = userStore.user.name
+            profileForm.email = userStore.user.email
+            selectedLanguage.value = userStore.user.preferences.language
           }
-          ElMessage.success('登录成功');
+          ElMessage.success('登录成功')
         }
       }
-    });
-  };
+    })
+  }
 
   // 退出登录
   const handleLogout = () => {
-    userStore.logout();
-    ElMessage.success('已退出登录');
-  };
+    userStore.logout()
+    ElMessage.success('已退出登录')
+  }
 
   // 切换主题
   const toggleTheme = () => {
-    userStore.toggleTheme();
-    ElMessage.success(`主题已切换为${userStore.isDarkTheme ? '深色' : '浅色'}模式`);
-  };
+    userStore.toggleTheme()
+    ElMessage.success(`主题已切换为${userStore.isDarkTheme ? '深色' : '浅色'}模式`)
+  }
 
   // 切换通知
   const toggleNotifications = () => {
-    userStore.toggleNotifications();
-    ElMessage.success(`通知已${userStore.notificationsEnabled ? '开启' : '关闭'}`);
-  };
+    userStore.toggleNotifications()
+    ElMessage.success(`通知已${userStore.notificationsEnabled ? '开启' : '关闭'}`)
+  }
 
   // 更新语言
   const updateLanguage = () => {
-    userStore.updatePreferences({ language: selectedLanguage.value });
-    ElMessage.success(`语言已更新为 ${selectedLanguage.value}`);
-  };
+    userStore.updatePreferences({ language: selectedLanguage.value })
+    ElMessage.success(`语言已更新为 ${selectedLanguage.value}`)
+  }
 
   // 更新个人资料
   const updateProfile = () => {
     userStore.updateProfile({
       name: profileForm.name,
       email: profileForm.email
-    });
-    ElMessage.success('个人资料已更新');
-  };
+    })
+    ElMessage.success('个人资料已更新')
+  }
 </script>
 
 <style scoped>

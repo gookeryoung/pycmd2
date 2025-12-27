@@ -157,8 +157,8 @@
 </template>
 
 <script setup lang="ts">
-  import { reactive, ref } from 'vue';
-  import type { FormInstance, FormRules } from 'element-plus';
+  import { reactive, ref } from 'vue'
+  import type { FormInstance, FormRules } from 'element-plus'
 
   // 基础表单数据
   const form = reactive({
@@ -170,16 +170,16 @@
     type: [],
     resource: '',
     desc: ''
-  });
+  })
 
   // 行内表单数据
   const inlineForm = reactive({
     user: '',
     region: ''
-  });
+  })
 
   // 表单验证数据
-  const ruleFormRef = ref<FormInstance>();
+  const ruleFormRef = ref<FormInstance>()
   const ruleForm = reactive({
     name: '',
     region: '',
@@ -189,7 +189,7 @@
     type: [],
     resource: '',
     desc: ''
-  });
+  })
 
   const rules = reactive<FormRules>({
     name: [
@@ -223,32 +223,32 @@
     ],
     resource: [{ required: true, message: '请选择活动资源', trigger: 'change' }],
     desc: [{ required: true, message: '请填写活动形式', trigger: 'blur' }]
-  });
+  })
 
   // 提交方法
   const onSubmit = () => {
-    console.log('submit!', form);
-  };
+    console.log('submit!', form)
+  }
 
   const onInlineSubmit = () => {
-    console.log('submit inline!', inlineForm);
-  };
+    console.log('submit inline!', inlineForm)
+  }
 
   const submitForm = async (formEl: FormInstance | undefined) => {
-    if (!formEl) return;
+    if (!formEl) return
     await formEl.validate((valid, fields) => {
       if (valid) {
-        console.log('submit!', ruleForm);
+        console.log('submit!', ruleForm)
       } else {
-        console.log('error submit!', fields);
+        console.log('error submit!', fields)
       }
-    });
-  };
+    })
+  }
 
   const resetForm = (formEl: FormInstance | undefined) => {
-    if (!formEl) return;
-    formEl.resetFields();
-  };
+    if (!formEl) return
+    formEl.resetFields()
+  }
 </script>
 
 <style scoped>

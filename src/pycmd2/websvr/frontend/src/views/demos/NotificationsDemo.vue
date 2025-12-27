@@ -111,38 +111,38 @@
 </template>
 
 <script setup lang="ts">
-  import { ElMessage, ElNotification, ElLoading } from 'element-plus';
-  import { ref } from 'vue';
+  import { ElMessage, ElNotification, ElLoading } from 'element-plus'
+  import { ref } from 'vue'
 
-  const title = ref('标题');
-  const message = ref('这是一条消息');
-  const type = ref('success');
+  const title = ref('标题')
+  const message = ref('这是一条消息')
+  const type = ref('success')
 
   // 基础消息提示
   const open1 = () => {
     ElMessage({
       message: '恭喜你，这是一条成功消息',
       type: 'success'
-    });
-  };
+    })
+  }
 
   const open2 = () => {
     ElMessage({
       message: '警告哦，这是一条警告消息',
       type: 'warning'
-    });
-  };
+    })
+  }
 
   const open3 = () => {
     ElMessage({
       message: '这是一条消息提示',
       type: 'info'
-    });
-  };
+    })
+  }
 
   const open4 = () => {
-    ElMessage.error('错了哦，这是一条错误消息');
-  };
+    ElMessage.error('错了哦，这是一条错误消息')
+  }
 
   // 可关闭的消息提示
   const open5 = () => {
@@ -150,32 +150,32 @@
       showClose: true,
       message: '恭喜你，这是一条成功消息',
       type: 'success'
-    });
-  };
+    })
+  }
 
   const open6 = () => {
     ElMessage({
       showClose: true,
       message: '警告哦，这是一条警告消息',
       type: 'warning'
-    });
-  };
+    })
+  }
 
   const open7 = () => {
     ElMessage({
       showClose: true,
       message: '这是一条消息提示',
       type: 'info'
-    });
-  };
+    })
+  }
 
   const open8 = () => {
     ElMessage({
       showClose: true,
       message: '错了哦，这是一条错误消息',
       type: 'error'
-    });
-  };
+    })
+  }
 
   // 自定义持续时间
   const open9 = () => {
@@ -183,16 +183,16 @@
       showClose: true,
       message: '这条消息不会自动关闭',
       duration: 0
-    });
-  };
+    })
+  }
 
   const open10 = () => {
     ElMessage({
       showClose: true,
       message: '这条消息会在5秒后关闭',
       duration: 5000
-    });
-  };
+    })
+  }
 
   // 带有偏移量的消息提示
   const open11 = () => {
@@ -200,16 +200,16 @@
       showClose: true,
       message: '偏移量为 20px',
       offset: 20
-    });
-  };
+    })
+  }
 
   // 使用 HTML 片段
   const open12 = () => {
     ElMessage({
       dangerouslyUseHTMLString: true,
       message: '<strong>这是 <i>HTML</i> 片段</strong>'
-    });
-  };
+    })
+  }
 
   // 消息队列
   const open13 = () => {
@@ -219,9 +219,9 @@
         message: '这是第 ' + (i + 1) + ' 条消息',
         type: i % 2 === 0 ? 'success' : 'warning',
         duration: 1000 * (i + 1)
-      });
+      })
     }
-  };
+  }
 
   // 通知
   const openNotify = () => {
@@ -229,8 +229,8 @@
       title: title.value,
       message: message.value,
       type: type.value as any
-    });
-  };
+    })
+  }
 
   // Loading 加载
   const openLoading1 = () => {
@@ -238,12 +238,12 @@
       lock: true,
       text: '加载中...',
       background: 'rgba(0, 0, 0, 0.7)'
-    });
+    })
 
     setTimeout(() => {
-      loading.close();
-    }, 3000);
-  };
+      loading.close()
+    }, 3000)
+  }
 
   const openLoading2 = () => {
     const loading = ElLoading.service({
@@ -252,12 +252,12 @@
       background: 'rgba(0, 0, 0, 0.7)',
       spinner: 'el-icon-loading',
       customClass: 'custom-loading'
-    });
+    })
 
     setTimeout(() => {
-      loading.close();
-    }, 3000);
-  };
+      loading.close()
+    }, 3000)
+  }
 </script>
 
 <style scoped>

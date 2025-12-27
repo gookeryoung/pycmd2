@@ -26,8 +26,8 @@
 </template>
 
 <script setup lang="ts">
-  import { useRouter } from 'vue-router';
-  import { Grid } from '@element-plus/icons-vue';
+  import { useRouter } from 'vue-router'
+  import { Grid } from '@element-plus/icons-vue'
 
   const apps = [
     {
@@ -39,12 +39,12 @@
       route: '/apps/todo',
       component: () => import('./todo/TodoApp.vue')
     }
-  ];
+  ]
 
-  const router = useRouter();
+  const router = useRouter()
   const navigateToApp = (route: string) => {
-    router.push(route);
-  };
+    router.push(route)
+  }
 </script>
 
 <style>

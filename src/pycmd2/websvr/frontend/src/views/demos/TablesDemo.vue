@@ -61,10 +61,7 @@
       <el-col :span="24">
         <el-card header="固定列和表头">
           <el-table :data="largeTableData" style="width: 100%" height="250">
-            <el-table-column fixed
-                             prop="date"
-                             label="日期"
-                             width="150" />
+            <el-table-column fixed prop="date" label="日期" width="150" />
             <el-table-column prop="name" label="姓名" width="120" />
             <el-table-column prop="state" label="省份" width="120" />
             <el-table-column prop="city" label="市区" width="120" />
@@ -119,10 +116,7 @@
             </el-table-column>
             <el-table-column label="姓名">
               <template #default="scope">
-                <el-popover effect="light"
-                            trigger="hover"
-                            placement="top"
-                            width="auto">
+                <el-popover effect="light" trigger="hover" placement="top" width="auto">
                   <template #default>
                     <div>姓名: {{ scope.row.name }}</div>
                     <div>地址: {{ scope.row.address }}</div>
@@ -158,16 +152,16 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import { Calendar } from '@element-plus/icons-vue';
+  import { ref } from 'vue'
+  import { Calendar } from '@element-plus/icons-vue'
 
   interface User {
-    date: string;
-    name: string;
-    address: string;
+    date: string
+    name: string
+    address: string
   }
 
-  const search = ref('');
+  const search = ref('')
 
   // 基础表格数据
   const tableData: User[] = [
@@ -191,7 +185,7 @@
       name: '赵六',
       address: '北京市朝阳区普陀区金沙江路 1516 弄'
     }
-  ];
+  ]
 
   // 状态表格数据
   const statusTableData = [
@@ -225,7 +219,7 @@
       price: 1999,
       status: '缺货'
     }
-  ];
+  ]
 
   // 大型表格数据
   const largeTableData = [
@@ -285,7 +279,7 @@
       address: '上海市普陀区金沙江路 1518 弄',
       zip: 200333
     }
-  ];
+  ]
 
   // 可展开表格数据
   const expandTableData = [
@@ -321,7 +315,7 @@
       address: 'No. 189, Grove St, Los Angeles',
       zip: 'CA 90036'
     }
-  ];
+  ]
 
   // 自定义表头表格数据
   const customHeaderTableData = [
@@ -345,16 +339,16 @@
       name: 'Jessy',
       address: 'No. 189, Grove St, Los Angeles'
     }
-  ];
+  ]
 
   // 操作方法
   const handleEdit = (index: number, row: User) => {
-    console.log(index, row);
-  };
+    console.log(index, row)
+  }
 
   const handleDelete = (index: number, row: User) => {
-    console.log(index, row);
-  };
+    console.log(index, row)
+  }
 </script>
 
 <style scoped>

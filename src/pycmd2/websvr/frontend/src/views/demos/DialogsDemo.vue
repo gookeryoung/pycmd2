@@ -42,10 +42,7 @@
           <el-button type="text" @click="outerVisible = true"> 点击打开外层 Dialog </el-button>
 
           <el-dialog v-model="outerVisible" title="外层 Dialog">
-            <el-dialog v-model="innerVisible"
-                       width="30%"
-                       title="内层 Dialog"
-                       append-to-body>
+            <el-dialog v-model="innerVisible" width="30%" title="内层 Dialog" append-to-body>
               <span>这是一个内层对话框</span>
             </el-dialog>
             <div class="dialog-content">
@@ -60,10 +57,7 @@
         <el-card header="居中布局">
           <el-button type="text" @click="centerDialogVisible = true"> 点击打开 Dialog </el-button>
 
-          <el-dialog v-model="centerDialogVisible"
-                     title="提示"
-                     width="30%"
-                     center>
+          <el-dialog v-model="centerDialogVisible" title="提示" width="30%" center>
             <span> 需要注意的是内容是默认不居中的，居中需要自己处理样式 </span>
             <template #footer>
               <span class="dialog-footer">
@@ -104,10 +98,7 @@
         <el-card header="对话框内容滚动的设置">
           <el-button type="text" @click="scrollDialogVisible = true"> 打开对话框 </el-button>
 
-          <el-dialog v-model="scrollDialogVisible"
-                     title="提示"
-                     width="500"
-                     fullscreen>
+          <el-dialog v-model="scrollDialogVisible" title="提示" width="500" fullscreen>
             <div class="scroll-content">
               <p v-for="i in 20" :key="i">
                 这是第 {{ i }} 行内容，用于测试滚动效果。当内容超出对话框高度时，会出现滚动条。
@@ -181,21 +172,21 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, reactive } from 'vue';
-  import { ElMessageBox, ElMessage } from 'element-plus';
-  import { CircleCloseFilled } from '@element-plus/icons-vue';
+  import { ref, reactive } from 'vue'
+  import { ElMessageBox, ElMessage } from 'element-plus'
+  import { CircleCloseFilled } from '@element-plus/icons-vue'
 
   // 基础对话框
-  const dialogVisible = ref(false);
-  const centerDialogVisible = ref(false);
-  const outerVisible = ref(false);
-  const innerVisible = ref(false);
-  const noDragDialogVisible = ref(false);
-  const scrollDialogVisible = ref(false);
-  const slotDialogVisible = ref(false);
+  const dialogVisible = ref(false)
+  const centerDialogVisible = ref(false)
+  const outerVisible = ref(false)
+  const innerVisible = ref(false)
+  const noDragDialogVisible = ref(false)
+  const scrollDialogVisible = ref(false)
+  const slotDialogVisible = ref(false)
 
   // 表格对话框
-  const dialogTableVisible = ref(false);
+  const dialogTableVisible = ref(false)
   const gridData = [
     {
       date: '2016-05-02',
@@ -217,13 +208,13 @@
       name: '王小虎',
       address: '上海市普陀区金沙江路 1518 弄'
     }
-  ];
+  ]
 
   // 表单数据
   const form = reactive({
     name: '',
     region: ''
-  });
+  })
 
   // 确认消息框
   const openConfirm1 = () => {
@@ -236,15 +227,15 @@
         ElMessage({
           type: 'success',
           message: '删除成功!'
-        });
+        })
       })
       .catch(() => {
         ElMessage({
           type: 'info',
           message: '已取消删除'
-        });
-      });
-  };
+        })
+      })
+  }
 
   const openConfirm2 = () => {
     ElMessageBox.confirm('此操作将永久删除该文件, 是否继续?', '提示', {
@@ -256,15 +247,15 @@
         ElMessage({
           type: 'success',
           message: '删除成功!'
-        });
+        })
       })
       .catch(() => {
         ElMessage({
           type: 'info',
           message: '已取消删除'
-        });
-      });
-  };
+        })
+      })
+  }
 
   const openConfirm3 = () => {
     ElMessageBox.confirm('此操作将永久删除该文件, 是否继续?', '提示', {
@@ -276,15 +267,15 @@
         ElMessage({
           type: 'success',
           message: '删除成功!'
-        });
+        })
       })
       .catch(() => {
         ElMessage({
           type: 'info',
           message: '已取消删除'
-        });
-      });
-  };
+        })
+      })
+  }
 
   const openConfirm4 = () => {
     ElMessageBox.confirm('此操作将永久删除该文件, 是否继续?', '提示', {
@@ -296,15 +287,15 @@
         ElMessage({
           type: 'success',
           message: '删除成功!'
-        });
+        })
       })
       .catch(() => {
         ElMessage({
           type: 'info',
           message: '已取消删除'
-        });
-      });
-  };
+        })
+      })
+  }
 
   // 提交内容
   const openPrompt = () => {
@@ -314,10 +305,10 @@
         ElMessage({
           type: 'info',
           message: `action: ${action}`
-        });
+        })
       }
-    });
-  };
+    })
+  }
 
   const openPrompt2 = () => {
     ElMessageBox.prompt('请输入邮箱', '提示', {
@@ -331,15 +322,15 @@
         ElMessage({
           type: 'success',
           message: `你的邮箱是: ${value}`
-        });
+        })
       })
       .catch(() => {
         ElMessage({
           type: 'info',
           message: '取消输入'
-        });
-      });
-  };
+        })
+      })
+  }
 </script>
 
 <style scoped>

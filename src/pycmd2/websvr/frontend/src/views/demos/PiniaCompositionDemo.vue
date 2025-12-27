@@ -206,177 +206,177 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, reactive, computed, onMounted } from 'vue';
-  import { useUserStore } from '../../stores/user';
-  import { useCounterStore } from '../../stores/counter';
-  import { useTodosStore } from '../../stores/todos';
-  import { ElMessage } from 'element-plus';
-  import { User, DataAnalysis, Operation, Refresh, Warning } from '@element-plus/icons-vue';
+  import { ref, reactive, computed, onMounted } from 'vue'
+  import { useUserStore } from '../../stores/user'
+  import { useCounterStore } from '../../stores/counter'
+  import { useTodosStore } from '../../stores/todos'
+  import { ElMessage } from 'element-plus'
+  import { User, DataAnalysis, Operation, Refresh, Warning } from '@element-plus/icons-vue'
 
   // 初始化所有 stores
-  const userStore = useUserStore();
-  const counterStore = useCounterStore();
-  const todosStore = useTodosStore();
+  const userStore = useUserStore()
+  const counterStore = useCounterStore()
+  const todosStore = useTodosStore()
 
   // 响应式数据
-  const isProcessing = ref(false);
-  const lastOperation = ref('');
-  const loginDialogVisible = ref(false);
-  const operationLock = ref(false); // 操作锁，防止并发操作
+  const isProcessing = ref(false)
+  const lastOperation = ref('')
+  const loginDialogVisible = ref(false)
+  const operationLock = ref(false) // 操作锁，防止并发操作
 
   // 快速登录表单
   const quickLoginForm = reactive({
     email: 'demo@example.com',
     password: 'password'
-  });
+  })
 
   // 计算属性 - 组合多个 store 的数据
   // 优化：缓存计算结果，只在依赖项变化时重新计算
   const totalOperations = computed(() => {
     // 这里可以添加更复杂的计算逻辑
     // 使用 Math.abs 确保结果为正数，避免负数混淆
-    return Math.abs(counterStore.count * 2 + todosStore.totalCount);
-  });
+    return Math.abs(counterStore.count * 2 + todosStore.totalCount)
+  })
 
   const overallProgress = computed(() => {
     // 综合用户活动、计数器、待办事项的整体进度
-    let progress = 0;
+    let progress = 0
 
     // 用户登录状态占 30%
-    if (userStore.isAuthenticated) progress += 30;
+    if (userStore.isAuthenticated) progress += 30
 
     // 计数器进度占 30% (假设 20 为满分)
-    progress += Math.min(counterStore.count * 1.5, 30);
+    progress += Math.min(counterStore.count * 1.5, 30)
 
     // 待办事项完成率占 40%
-    progress += todosStore.completionPercentage * 0.4;
+    progress += todosStore.completionPercentage * 0.4
 
-    return Math.round(progress);
-  });
+    return Math.round(progress)
+  })
 
   const getProgressStatus = computed(() => {
-    const progress = overallProgress.value;
-    if (progress === 100) return 'success';
-    if (progress >= 60) return 'warning';
-    return 'exception';
-  });
+    const progress = overallProgress.value
+    if (progress === 100) return 'success'
+    if (progress >= 60) return 'warning'
+    return 'exception'
+  })
 
   // 方法
   const showLoginDialog = () => {
-    loginDialogVisible.value = true;
-  };
+    loginDialogVisible.value = true
+  }
 
   const quickLogin = async () => {
-    const success = await userStore.login(quickLoginForm.email, quickLoginForm.password);
+    const success = await userStore.login(quickLoginForm.email, quickLoginForm.password)
     if (success) {
-      loginDialogVisible.value = false;
-      ElMessage.success('登录成功');
+      loginDialogVisible.value = false
+      ElMessage.success('登录成功')
       // 初始化一些示例数据
-      await todosStore.fetchTodos();
+      await todosStore.fetchTodos()
     } else {
-      ElMessage.error('登录失败，请检查邮箱和密码');
+      ElMessage.error('登录失败，请检查邮箱和密码')
     }
-  };
+  }
 
   const performComplexOperation = async () => {
     // 检查操作锁，防止并发操作
     if (operationLock.value) {
-      ElMessage.warning('操作正在进行中，请稍候...');
-      return;
+      ElMessage.warning('操作正在进行中，请稍候...')
+      return
     }
 
-    isProcessing.value = true;
-    operationLock.value = true;
-    lastOperation.value = '';
+    isProcessing.value = true
+    operationLock.value = true
+    lastOperation.value = ''
 
     try {
       // 模拟复杂操作：修改多个 store 的状态
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
       // 增加计数器
-      counterStore.increment(10);
+      counterStore.increment(10)
 
       // 添加待办事项
       if (userStore.isAuthenticated) {
-        todosStore.addTodo(`由 ${userStore.user?.name} 创建的任务`);
+        todosStore.addTodo(`由 ${userStore.user?.name} 创建的任务`)
       } else {
-        todosStore.addTodo('执行了组合操作');
+        todosStore.addTodo('执行了组合操作')
       }
 
       // 更新用户偏好
       if (userStore.isAuthenticated) {
         userStore.updatePreferences({
           theme: userStore.isDarkTheme ? 'light' : 'dark'
-        });
+        })
       }
 
-      lastOperation.value = '组合操作执行成功！已更新多个 Store 的状态';
-      ElMessage.success('操作完成');
+      lastOperation.value = '组合操作执行成功！已更新多个 Store 的状态'
+      ElMessage.success('操作完成')
     } catch (error) {
-      ElMessage.error('操作失败');
-      console.error('Complex operation failed:', error);
+      ElMessage.error('操作失败')
+      console.error('Complex operation failed:', error)
     } finally {
-      isProcessing.value = false;
-      operationLock.value = false;
+      isProcessing.value = false
+      operationLock.value = false
     }
-  };
+  }
 
   const syncUserData = async () => {
     // 检查操作锁，防止并发操作
     if (operationLock.value) {
-      ElMessage.warning('操作正在进行中，请稍候...');
-      return;
+      ElMessage.warning('操作正在进行中，请稍候...')
+      return
     }
 
     if (!userStore.isAuthenticated) {
-      ElMessage.warning('请先登录');
-      return;
+      ElMessage.warning('请先登录')
+      return
     }
 
-    operationLock.value = true;
+    operationLock.value = true
 
     try {
       // 模拟同步数据
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise(resolve => setTimeout(resolve, 800))
 
       // 重置计数器并设置一个基于用户名的值
-      counterStore.reset();
-      const userInitial = userStore.user?.name.charCodeAt(0) || 0;
-      counterStore.increment(userInitial % 10);
+      counterStore.reset()
+      const userInitial = userStore.user?.name.charCodeAt(0) || 0
+      counterStore.increment(userInitial % 10)
 
       // 添加用户特定的待办事项
-      todosStore.addTodo(`${userStore.user?.name} 的待办事项`);
+      todosStore.addTodo(`${userStore.user?.name} 的待办事项`)
 
-      ElMessage.success('数据同步成功');
+      ElMessage.success('数据同步成功')
     } catch (error) {
-      ElMessage.error('同步失败');
-      console.error('Data sync failed:', error);
+      ElMessage.error('同步失败')
+      console.error('Data sync failed:', error)
     } finally {
-      operationLock.value = false;
+      operationLock.value = false
     }
-  };
+  }
 
   const resetAllStores = () => {
-    counterStore.reset();
-    todosStore.clearCompleted();
+    counterStore.reset()
+    todosStore.clearCompleted()
     // 重置本地状态
-    lastOperation.value = '';
-    operationLock.value = false;
-    ElMessage.success('所有 Store 状态已重置');
-  };
+    lastOperation.value = ''
+    operationLock.value = false
+    ElMessage.success('所有 Store 状态已重置')
+  }
 
   // 组件挂载时初始化数据
   onMounted(async () => {
     try {
       // 如果用户已认证，获取待办事项
       if (userStore.isAuthenticated) {
-        await todosStore.fetchTodos();
+        await todosStore.fetchTodos()
       }
     } catch (error) {
-      ElMessage.error('初始化数据失败');
-      console.error('Initialization failed:', error);
+      ElMessage.error('初始化数据失败')
+      console.error('Initialization failed:', error)
     }
-  });
+  })
 </script>
 
 <style scoped>

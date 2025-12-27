@@ -218,8 +218,8 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, reactive, computed, onMounted } from 'vue';
-  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { ref, reactive, computed, onMounted } from 'vue'
+  import { ElMessage, ElMessageBox } from 'element-plus'
   import {
     Setting,
     Document,
@@ -230,7 +230,7 @@
     Delete,
     View,
     CopyDocument
-  } from '@element-plus/icons-vue';
+  } from '@element-plus/icons-vue'
 
   // 应用设置
   const appSettings = reactive({
@@ -238,141 +238,141 @@
     language: 'zh-CN',
     fontSize: 16,
     autoSave: true
-  });
+  })
 
   // 用户数据
   const userData = reactive({
     name: '',
     email: '',
     bio: ''
-  });
+  })
 
   // 便签数据
-  const notes = ref<string[]>([]);
-  const newNote = ref('');
+  const notes = ref<string[]>([])
+  const newNote = ref('')
 
   // 存储管理
-  const showImportDialog = ref(false);
-  const importData = ref('');
-  const lastUpdated = ref('');
+  const showImportDialog = ref(false)
+  const importData = ref('')
+  const lastUpdated = ref('')
 
   // 存储数据相关
   const storageKeys = computed(() => {
-    const keys = [];
+    const keys = []
     for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
+      const key = localStorage.key(i)
       if (key && key.startsWith('pinia-demo-')) {
-        keys.push(key);
+        keys.push(key)
       }
     }
-    return keys;
-  });
+    return keys
+  })
 
   const storageSize = computed(() => {
-    let size = 0;
+    let size = 0
     for (const key of storageKeys.value) {
-      const value = localStorage.getItem(key);
+      const value = localStorage.getItem(key)
       if (value) {
-        size += value.length;
+        size += value.length
       }
     }
-    return size;
-  });
+    return size
+  })
 
   const storageData = computed(() => {
-    const data: Record<string, any> = {};
+    const data: Record<string, any> = {}
     for (const key of storageKeys.value) {
-      const value = localStorage.getItem(key);
+      const value = localStorage.getItem(key)
       if (value) {
         try {
-          data[key] = JSON.parse(value);
+          data[key] = JSON.parse(value)
         } catch {
-          data[key] = value;
+          data[key] = value
         }
       }
     }
-    return data;
-  });
+    return data
+  })
 
   // 初始化
   onMounted(() => {
-    loadFromStorage();
-  });
+    loadFromStorage()
+  })
 
   // 从本地存储加载数据
   const loadFromStorage = () => {
     try {
       // 加载应用设置
-      const settingsData = localStorage.getItem('pinia-demo-settings');
+      const settingsData = localStorage.getItem('pinia-demo-settings')
       if (settingsData) {
-        Object.assign(appSettings, JSON.parse(settingsData));
+        Object.assign(appSettings, JSON.parse(settingsData))
       }
 
       // 加载用户数据
-      const userDataStr = localStorage.getItem('pinia-demo-user');
+      const userDataStr = localStorage.getItem('pinia-demo-user')
       if (userDataStr) {
-        Object.assign(userData, JSON.parse(userDataStr));
+        Object.assign(userData, JSON.parse(userDataStr))
       }
 
       // 加载便签
-      const notesData = localStorage.getItem('pinia-demo-notes');
+      const notesData = localStorage.getItem('pinia-demo-notes')
       if (notesData) {
-        notes.value = JSON.parse(notesData);
+        notes.value = JSON.parse(notesData)
       }
 
       // 加载最后更新时间
-      const lastUpdatedStr = localStorage.getItem('pinia-demo-lastUpdated');
+      const lastUpdatedStr = localStorage.getItem('pinia-demo-lastUpdated')
       if (lastUpdatedStr) {
-        lastUpdated.value = new Date(lastUpdatedStr).toLocaleString();
+        lastUpdated.value = new Date(lastUpdatedStr).toLocaleString()
       }
     } catch (error) {
-      ElMessage.error('加载数据失败: ' + error);
+      ElMessage.error('加载数据失败: ' + error)
     }
-  };
+  }
 
   // 保存到本地存储
   const saveToStorage = (key: string, data: any) => {
     try {
-      localStorage.setItem(key, JSON.stringify(data));
-      updateLastUpdated();
+      localStorage.setItem(key, JSON.stringify(data))
+      updateLastUpdated()
     } catch (error) {
-      ElMessage.error('保存数据失败' + error);
+      ElMessage.error('保存数据失败' + error)
     }
-  };
+  }
 
   // 更新最后更新时间
   const updateLastUpdated = () => {
-    const now = new Date().toISOString();
-    localStorage.setItem('pinia-demo-lastUpdated', now);
-    lastUpdated.value = new Date(now).toLocaleString();
-  };
+    const now = new Date().toISOString()
+    localStorage.setItem('pinia-demo-lastUpdated', now)
+    lastUpdated.value = new Date(now).toLocaleString()
+  }
 
   // 更新设置
   const updateSetting = (key: string) => {
-    saveToStorage('pinia-demo-settings', appSettings);
-    ElMessage.success(`设置已保存: ${key}`);
-  };
+    saveToStorage('pinia-demo-settings', appSettings)
+    ElMessage.success(`设置已保存: ${key}`)
+  }
 
   // 更新用户数据
   const updateUserData = () => {
-    saveToStorage('pinia-demo-user', userData);
-  };
+    saveToStorage('pinia-demo-user', userData)
+  }
 
   // 添加便签
   const addNote = () => {
     if (newNote.value.trim()) {
-      notes.value.push(newNote.value.trim());
-      newNote.value = '';
-      saveToStorage('pinia-demo-notes', notes.value);
-      ElMessage.success('便签已添加');
+      notes.value.push(newNote.value.trim())
+      newNote.value = ''
+      saveToStorage('pinia-demo-notes', notes.value)
+      ElMessage.success('便签已添加')
     }
-  };
+  }
 
   // 删除便签
   const removeNote = (index: number) => {
-    notes.value.splice(index, 1);
-    saveToStorage('pinia-demo-notes', notes.value);
-  };
+    notes.value.splice(index, 1)
+    saveToStorage('pinia-demo-notes', notes.value)
+  }
 
   // 导出数据
   const exportData = () => {
@@ -381,54 +381,54 @@
       user: userData,
       notes: notes.value,
       exportTime: new Date().toISOString()
-    };
+    }
 
-    const dataStr = JSON.stringify(exportObj, null, 2);
+    const dataStr = JSON.stringify(exportObj, null, 2)
     navigator.clipboard
       .writeText(dataStr)
       .then(() => {
-        ElMessage.success('数据已复制到剪贴板');
+        ElMessage.success('数据已复制到剪贴板')
       })
       .catch(() => {
-        ElMessage.error('复制失败，请手动复制');
-        showImportDialog.value = true;
-        importData.value = dataStr;
-      });
-  };
+        ElMessage.error('复制失败，请手动复制')
+        showImportDialog.value = true
+        importData.value = dataStr
+      })
+  }
 
   // 导入数据
   const importDataHandler = () => {
     try {
-      const data = JSON.parse(importData.value);
+      const data = JSON.parse(importData.value)
 
       if (data.settings) {
-        Object.assign(appSettings, data.settings);
-        saveToStorage('pinia-demo-settings', appSettings);
+        Object.assign(appSettings, data.settings)
+        saveToStorage('pinia-demo-settings', appSettings)
       }
 
       if (data.user) {
-        Object.assign(userData, data.user);
-        saveToStorage('pinia-demo-user', userData);
+        Object.assign(userData, data.user)
+        saveToStorage('pinia-demo-user', userData)
       }
 
       if (data.notes) {
-        notes.value = data.notes;
-        saveToStorage('pinia-demo-notes', notes.value);
+        notes.value = data.notes
+        saveToStorage('pinia-demo-notes', notes.value)
       }
 
-      ElMessage.success('数据导入成功');
-      showImportDialog.value = false;
-      loadFromStorage();
+      ElMessage.success('数据导入成功')
+      showImportDialog.value = false
+      loadFromStorage()
     } catch (error) {
-      ElMessage.error('数据格式错误，导入失败: ' + error);
+      ElMessage.error('数据格式错误，导入失败: ' + error)
     }
-  };
+  }
 
   // 刷新数据
   const refreshData = () => {
-    loadFromStorage();
-    ElMessage.success('数据已刷新');
-  };
+    loadFromStorage()
+    ElMessage.success('数据已刷新')
+  }
 
   // 清除所有数据
   const clearAllData = () => {
@@ -439,7 +439,7 @@
     })
       .then(() => {
         for (const key of storageKeys.value) {
-          localStorage.removeItem(key);
+          localStorage.removeItem(key)
         }
 
         // 重置数据
@@ -448,49 +448,49 @@
           language: 'zh-CN',
           fontSize: 16,
           autoSave: true
-        });
+        })
 
         Object.assign(userData, {
           name: '',
           email: '',
           bio: ''
-        });
+        })
 
-        notes.value = [];
-        lastUpdated.value = '';
+        notes.value = []
+        lastUpdated.value = ''
 
-        ElMessage.success('所有数据已清除');
+        ElMessage.success('所有数据已清除')
       })
       .catch(() => {
-        ElMessage.info('操作已取消');
-      });
-  };
+        ElMessage.info('操作已取消')
+      })
+  }
 
   // 复制到剪贴板
   const copyToClipboard = (data: any) => {
     navigator.clipboard
       .writeText(JSON.stringify(data, null, 2))
       .then(() => {
-        ElMessage.success('已复制到剪贴板');
+        ElMessage.success('已复制到剪贴板')
       })
       .catch(() => {
-        ElMessage.error('复制失败');
-      });
-  };
+        ElMessage.error('复制失败')
+      })
+  }
 
   // 格式化字节大小
   const formatBytes = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
 
   // 格式化 JSON
   const formatJson = (data: any) => {
-    return JSON.stringify(data, null, 2);
-  };
+    return JSON.stringify(data, null, 2)
+  }
 
   // 获取显示名称
   const getDisplayName = (key: string) => {
@@ -499,9 +499,9 @@
       'pinia-demo-user': '用户数据',
       'pinia-demo-notes': '便签',
       'pinia-demo-lastUpdated': '最后更新'
-    };
-    return nameMap[key] || key;
-  };
+    }
+    return nameMap[key] || key
+  }
 </script>
 
 <style scoped>

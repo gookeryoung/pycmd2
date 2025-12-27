@@ -128,23 +128,23 @@
 </template>
 
 <script setup lang="ts">
-  import { ElButtonGroup, ElMessage } from 'element-plus';
-  import { Setting, Document, Collection, TrendCharts } from '@element-plus/icons-vue';
-  import AppsCard from './apps/AppsCard.vue';
+  import { ElButtonGroup, ElMessage } from 'element-plus'
+  import { Setting, Document, Collection, TrendCharts } from '@element-plus/icons-vue'
+  import AppsCard from './apps/AppsCard.vue'
 
   const showWelcome = () => {
     ElMessage({
       message: '欢迎使用 PyCmd2 WebUI！更多功能正在开发中...',
       type: 'success'
-    });
-  };
+    })
+  }
 
   const showMoreInfo = () => {
     ElMessage({
       message: '更多详情请参考项目文档',
       type: 'info'
-    });
-  };
+    })
+  }
 </script>
 
 <style scoped>

@@ -114,57 +114,57 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted } from 'vue';
-  import { useTodosStore } from '../../stores/todos';
-  import { ElMessage } from 'element-plus';
-  import { Plus, Delete } from '@element-plus/icons-vue';
+  import { ref, computed, onMounted } from 'vue'
+  import { useTodosStore } from '../../stores/todos'
+  import { ElMessage } from 'element-plus'
+  import { Plus, Delete } from '@element-plus/icons-vue'
 
-  const todosStore = useTodosStore();
-  const newTodo = ref('');
-  const selectedTodos = ref<number[]>([]);
+  const todosStore = useTodosStore()
+  const newTodo = ref('')
+  const selectedTodos = ref<number[]>([])
 
   // 使用 store 的 getter
-  const filteredTodos = computed(() => todosStore.filteredTodos);
+  const filteredTodos = computed(() => todosStore.filteredTodos)
 
   // 根据完成度设置进度条颜色
   const getProgressColor = computed(() => {
-    const percentage = todosStore.completionPercentage;
-    if (percentage === 100) return '#67c23a';
-    if (percentage >= 50) return '#409eff';
-    return '#e6a23c';
-  });
+    const percentage = todosStore.completionPercentage
+    if (percentage === 100) return '#67c23a'
+    if (percentage >= 50) return '#409eff'
+    return '#e6a23c'
+  })
 
   onMounted(() => {
     // 初始化时获取待办事项
-    todosStore.fetchTodos();
-  });
+    todosStore.fetchTodos()
+  })
 
   const addTodo = () => {
     if (newTodo.value.trim()) {
-      todosStore.addTodo(newTodo.value);
-      newTodo.value = '';
-      ElMessage.success('待办事项已添加');
+      todosStore.addTodo(newTodo.value)
+      newTodo.value = ''
+      ElMessage.success('待办事项已添加')
     }
-  };
+  }
 
   const toggleTodo = (id: number) => {
-    todosStore.toggleTodo(id);
-  };
+    todosStore.toggleTodo(id)
+  }
 
   const removeTodo = (id: number) => {
-    todosStore.removeTodo(id);
-    ElMessage.success('待办事项已删除');
-  };
+    todosStore.removeTodo(id)
+    ElMessage.success('待办事项已删除')
+  }
 
   const clearCompleted = () => {
-    todosStore.clearCompleted();
-    selectedTodos.value = [];
-    ElMessage.success('已完成的待办事项已清除');
-  };
+    todosStore.clearCompleted()
+    selectedTodos.value = []
+    ElMessage.success('已完成的待办事项已清除')
+  }
 
   const onFilterChange = () => {
-    selectedTodos.value = [];
-  };
+    selectedTodos.value = []
+  }
 
   const formatTime = (date: Date) => {
     return new Intl.DateTimeFormat('zh-CN', {
@@ -172,8 +172,8 @@
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    }).format(date);
-  };
+    }).format(date)
+  }
 </script>
 
 <style scoped>

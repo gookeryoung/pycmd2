@@ -135,42 +135,42 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted } from 'vue';
-  import { useTodosStore } from '../../../stores/todos';
-  import { ElMessage, ElMessageBox } from 'element-plus';
-  import { Plus, Delete, Refresh } from '@element-plus/icons-vue';
+  import { ref, computed, onMounted } from 'vue'
+  import { useTodosStore } from '../../../stores/todos'
+  import { ElMessage, ElMessageBox } from 'element-plus'
+  import { Plus, Delete, Refresh } from '@element-plus/icons-vue'
 
-  const todosStore = useTodosStore();
-  const newTodoText = ref('');
-  const currentFilter = ref<'all' | 'completed' | 'pending'>('all');
+  const todosStore = useTodosStore()
+  const newTodoText = ref('')
+  const currentFilter = ref<'all' | 'completed' | 'pending'>('all')
 
   // 使用 store 的 getter
-  const filteredTodos = computed(() => todosStore.filteredTodos);
+  const filteredTodos = computed(() => todosStore.filteredTodos)
 
   // 根据完成度设置进度条颜色
   const progressColor = computed(() => {
-    const percentage = todosStore.completionPercentage;
-    if (percentage === 100) return '#67c23a';
-    if (percentage >= 50) return '#409eff';
-    return '#e6a23c';
-  });
+    const percentage = todosStore.completionPercentage
+    if (percentage === 100) return '#67c23a'
+    if (percentage >= 50) return '#409eff'
+    return '#e6a23c'
+  })
 
   onMounted(() => {
     // 初始化时获取待办事项
-    todosStore.fetchTodos();
-  });
+    todosStore.fetchTodos()
+  })
 
   const addTodo = () => {
     if (newTodoText.value.trim()) {
-      todosStore.addTodo(newTodoText.value);
-      newTodoText.value = '';
-      ElMessage.success('待办事项已添加');
+      todosStore.addTodo(newTodoText.value)
+      newTodoText.value = ''
+      ElMessage.success('待办事项已添加')
     }
-  };
+  }
 
   const toggleTodo = (id: number) => {
-    todosStore.toggleTodo(id);
-  };
+    todosStore.toggleTodo(id)
+  }
 
   const confirmRemoveTodo = (todo: any) => {
     ElMessageBox.confirm(`确定要删除待办事项"${todo.text}"吗?`, '确认删除', {
@@ -179,16 +179,16 @@
       type: 'warning'
     })
       .then(() => {
-        todosStore.removeTodo(todo.id);
-        ElMessage.success('待办事项已删除');
+        todosStore.removeTodo(todo.id)
+        ElMessage.success('待办事项已删除')
       })
       .catch(() => {
         // 用户取消删除
-      });
-  };
+      })
+  }
 
   const clearCompleted = () => {
-    if (todosStore.completedCount === 0) return;
+    if (todosStore.completedCount === 0) return
 
     ElMessageBox.confirm(
       `确定要清除所有已完成的 ${todosStore.completedCount} 项待办事项吗?`,
@@ -200,32 +200,32 @@
       }
     )
       .then(() => {
-        todosStore.clearCompleted();
-        ElMessage.success('已清除所有已完成的待办事项');
+        todosStore.clearCompleted()
+        ElMessage.success('已清除所有已完成的待办事项')
       })
       .catch(() => {
         // 用户取消清除
-      });
-  };
+      })
+  }
 
   const handleFilterChange = () => {
-    todosStore.setFilter(currentFilter.value);
-  };
+    todosStore.setFilter(currentFilter.value)
+  }
 
   const refreshTodos = () => {
-    todosStore.fetchTodos();
-    ElMessage.success('待办事项已刷新');
-  };
+    todosStore.fetchTodos()
+    ElMessage.success('待办事项已刷新')
+  }
 
   const addSampleTodos = () => {
-    const sampleTodos = ['学习 Vue 3 组合式 API', '完成项目文档', '准备明天的会议', '锻炼身体'];
+    const sampleTodos = ['学习 Vue 3 组合式 API', '完成项目文档', '准备明天的会议', '锻炼身体']
 
     sampleTodos.forEach(text => {
-      todosStore.addTodo(text);
-    });
+      todosStore.addTodo(text)
+    })
 
-    ElMessage.success('已添加示例待办事项');
-  };
+    ElMessage.success('已添加示例待办事项')
+  }
 
   const confirmClearAllData = () => {
     ElMessageBox.confirm('确定要清除所有待办事项数据吗？此操作不可恢复！', '危险操作', {
@@ -235,33 +235,33 @@
       dangerouslyUseHTMLString: true
     })
       .then(() => {
-        todosStore.clearAllData();
-        ElMessage.success('所有数据已清除');
+        todosStore.clearAllData()
+        ElMessage.success('所有数据已清除')
       })
       .catch(() => {
         // 用户取消清除
-      });
-  };
+      })
+  }
 
   const formatRelativeTime = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - new Date(date).getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const now = new Date()
+    const diff = now.getTime() - new Date(date).getTime()
+    const minutes = Math.floor(diff / (1000 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 
-    if (minutes < 1) return '刚刚';
-    if (minutes < 60) return `${minutes}分钟前`;
-    if (hours < 24) return `${hours}小时前`;
-    if (days < 7) return `${days}天前`;
+    if (minutes < 1) return '刚刚'
+    if (minutes < 60) return `${minutes}分钟前`
+    if (hours < 24) return `${hours}小时前`
+    if (days < 7) return `${days}天前`
 
     return new Intl.DateTimeFormat('zh-CN', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    }).format(date);
-  };
+    }).format(date)
+  }
 </script>
 
 <style scoped>

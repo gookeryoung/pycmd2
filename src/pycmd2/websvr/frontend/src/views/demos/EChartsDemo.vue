@@ -132,10 +132,10 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onBeforeUnmount } from 'vue';
-  import VChart from 'vue-echarts';
-  import { use } from 'echarts/core';
-  import { LineChart, BarChart, PieChart, ScatterChart } from 'echarts/charts';
+  import { ref, onMounted, onBeforeUnmount } from 'vue'
+  import VChart from 'vue-echarts'
+  import { use } from 'echarts/core'
+  import { LineChart, BarChart, PieChart, ScatterChart } from 'echarts/charts'
   import {
     TitleComponent,
     TooltipComponent,
@@ -144,9 +144,9 @@
     DatasetComponent,
     TransformComponent,
     DataZoomComponent
-  } from 'echarts/components';
-  import { UniversalTransition } from 'echarts/features';
-  import { CanvasRenderer } from 'echarts/renderers';
+  } from 'echarts/components'
+  import { UniversalTransition } from 'echarts/features'
+  import { CanvasRenderer } from 'echarts/renderers'
 
   // 注册 ECharts 组件
   use([
@@ -163,15 +163,15 @@
     DataZoomComponent,
     CanvasRenderer,
     UniversalTransition
-  ]);
+  ])
 
   // 响应式变量
-  const lineChartLoading = ref(false);
-  const barChartLoading = ref(false);
-  const pieChartLoading = ref(false);
-  const scatterChartLoading = ref(false);
-  const realTimeChartActive = ref(false);
-  let realTimeInterval: number | null = null;
+  const lineChartLoading = ref(false)
+  const barChartLoading = ref(false)
+  const pieChartLoading = ref(false)
+  const scatterChartLoading = ref(false)
+  const realTimeChartActive = ref(false)
+  let realTimeInterval: number | null = null
 
   // 图表配置选项
   const lineChartOption = ref({
@@ -207,7 +207,7 @@
         data: [220, 182, 191, 234, 290, 330]
       }
     ]
-  });
+  })
 
   const barChartOption = ref({
     title: {
@@ -240,7 +240,7 @@
         data: [150, 230, 180, 120]
       }
     ]
-  });
+  })
 
   const pieChartOption = ref({
     title: {
@@ -276,7 +276,7 @@
         }
       }
     ]
-  });
+  })
 
   const scatterChartOption = ref({
     title: {
@@ -286,7 +286,7 @@
     tooltip: {
       trigger: 'item',
       formatter: (params: { value: number[] }) => {
-        return `身高: ${params.value[0]}cm<br/>体重: ${params.value[1]}kg`;
+        return `身高: ${params.value[0]}cm<br/>体重: ${params.value[1]}kg`
       }
     },
     xAxis: {
@@ -311,7 +311,7 @@
         data: generateScatterData(155, 170, 45, 70, 50)
       }
     ]
-  });
+  })
 
   const realTimeChartOption = ref({
     title: {
@@ -350,11 +350,11 @@
         data: generateRandomArray(20, 70)
       }
     ]
-  });
+  })
 
   // 生成随机数组的工具函数
   function generateRandomArray(length: number, max: number): number[] {
-    return Array.from({ length }, () => Math.round(Math.random() * max));
+    return Array.from({ length }, () => Math.round(Math.random() * max))
   }
 
   // 生成散点数据
@@ -368,44 +368,44 @@
     return Array.from({ length: count }, () => [
       Math.round(xMin + Math.random() * (xMax - xMin)),
       Math.round(yMin + Math.random() * (yMax - yMin))
-    ]);
+    ])
   }
 
   // 刷新折线图数据
   function refreshLineChart() {
-    lineChartLoading.value = true;
+    lineChartLoading.value = true
     setTimeout(() => {
       if (
         lineChartOption.value.series &&
         lineChartOption.value.series[0] &&
         lineChartOption.value.series[1]
       ) {
-        lineChartOption.value.series[0].data = generateRandomArray(6, 300);
-        lineChartOption.value.series[1].data = generateRandomArray(6, 400);
+        lineChartOption.value.series[0].data = generateRandomArray(6, 300)
+        lineChartOption.value.series[1].data = generateRandomArray(6, 400)
       }
-      lineChartLoading.value = false;
-    }, 1000);
+      lineChartLoading.value = false
+    }, 1000)
   }
 
   // 刷新柱状图数据
   function refreshBarChart() {
-    barChartLoading.value = true;
+    barChartLoading.value = true
     setTimeout(() => {
       if (
         barChartOption.value.series &&
         barChartOption.value.series[0] &&
         barChartOption.value.series[1]
       ) {
-        barChartOption.value.series[0].data = generateRandomArray(4, 250);
-        barChartOption.value.series[1].data = generateRandomArray(4, 350);
+        barChartOption.value.series[0].data = generateRandomArray(4, 250)
+        barChartOption.value.series[1].data = generateRandomArray(4, 350)
       }
-      barChartLoading.value = false;
-    }, 1000);
+      barChartLoading.value = false
+    }, 1000)
   }
 
   // 刷新饼图数据
   function refreshPieChart() {
-    pieChartLoading.value = true;
+    pieChartLoading.value = true
     setTimeout(() => {
       if (pieChartOption.value.series && pieChartOption.value.series[0]) {
         const data = [
@@ -414,27 +414,27 @@
           { value: Math.round(Math.random() * 700), name: '家居用品' },
           { value: Math.round(Math.random() * 600), name: '食品饮料' },
           { value: Math.round(Math.random() * 500), name: '其他' }
-        ];
-        pieChartOption.value.series[0].data = data;
+        ]
+        pieChartOption.value.series[0].data = data
       }
-      pieChartLoading.value = false;
-    }, 1000);
+      pieChartLoading.value = false
+    }, 1000)
   }
 
   // 刷新散点图数据
   function refreshScatterChart() {
-    scatterChartLoading.value = true;
+    scatterChartLoading.value = true
     setTimeout(() => {
       if (
         scatterChartOption.value.series &&
         scatterChartOption.value.series[0] &&
         scatterChartOption.value.series[1]
       ) {
-        scatterChartOption.value.series[0].data = generateScatterData(165, 180, 55, 80, 50);
-        scatterChartOption.value.series[1].data = generateScatterData(155, 170, 45, 70, 50);
+        scatterChartOption.value.series[0].data = generateScatterData(165, 180, 55, 80, 50)
+        scatterChartOption.value.series[1].data = generateScatterData(155, 170, 45, 70, 50)
       }
-      scatterChartLoading.value = false;
-    }, 1000);
+      scatterChartLoading.value = false
+    }, 1000)
   }
 
   // 生成时间标签字符串
@@ -442,58 +442,58 @@
     return `${date.getHours().toString().padStart(2, '0')}:${date
       .getMinutes()
       .toString()
-      .padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+      .padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`
   }
 
   // 切换实时图表
   function toggleRealTimeChart() {
     // 如果已经有定时器运行，先清除
     if (realTimeInterval) {
-      clearInterval(realTimeInterval);
-      realTimeInterval = null;
+      clearInterval(realTimeInterval)
+      realTimeInterval = null
     }
 
-    realTimeChartActive.value = !realTimeChartActive.value;
+    realTimeChartActive.value = !realTimeChartActive.value
 
     if (realTimeChartActive.value) {
       realTimeInterval = setInterval(() => {
-        const cpuData = realTimeChartOption.value.series[0]?.data;
-        const memData = realTimeChartOption.value.series[1]?.data;
-        const xAxisData = realTimeChartOption.value.xAxis?.data;
+        const cpuData = realTimeChartOption.value.series[0]?.data
+        const memData = realTimeChartOption.value.series[1]?.data
+        const xAxisData = realTimeChartOption.value.xAxis?.data
 
         // 移除第一个数据点，添加新数据点
         if (cpuData) {
-          cpuData.shift();
-          cpuData.push(Math.round(Math.random() * 100));
+          cpuData.shift()
+          cpuData.push(Math.round(Math.random() * 100))
         }
 
         if (memData) {
-          memData.shift();
-          memData.push(Math.round(Math.random() * 100));
+          memData.shift()
+          memData.push(Math.round(Math.random() * 100))
         }
 
         // 更新X轴时间标签
         if (xAxisData) {
-          const now = new Date();
-          xAxisData.shift();
-          xAxisData.push(generateTimeLabel(now));
+          const now = new Date()
+          xAxisData.shift()
+          xAxisData.push(generateTimeLabel(now))
         }
-      }, 1000);
+      }, 1000)
     }
   }
 
   // 组件挂载时初始化
   onMounted(() => {
     // 可以在这里进行初始化操作
-  });
+  })
 
   // 组件卸载前清理定时器
   onBeforeUnmount(() => {
     if (realTimeInterval) {
-      clearInterval(realTimeInterval);
-      realTimeInterval = null;
+      clearInterval(realTimeInterval)
+      realTimeInterval = null
     }
-  });
+  })
 </script>
 
 <style scoped>

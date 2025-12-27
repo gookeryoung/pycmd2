@@ -21,14 +21,14 @@ export const useUserStore = defineStore('user', {
   }),
 
   getters: {
-    fullName: (state) => {
+    fullName: state => {
       if (!state.user) return ''
       return state.user.name
     },
-    isDarkTheme: (state) => {
+    isDarkTheme: state => {
       return state.user?.preferences.theme === 'dark'
     },
-    notificationsEnabled: (state) => {
+    notificationsEnabled: state => {
       return state.user?.preferences.notifications ?? true
     }
   },

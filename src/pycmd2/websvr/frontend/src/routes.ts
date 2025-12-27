@@ -26,9 +26,7 @@ const routes = [
   { path: '/about', component: AboutView },
   {
     path: '/apps',
-    children: [
-      { path: 'todo', component: TodoApp }
-    ]
+    children: [{ path: 'todo', component: TodoApp }]
   },
   {
     path: '/demos',

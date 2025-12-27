@@ -70,34 +70,34 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import { useCounterStore } from '../../stores/counter';
-  import { ElMessage } from 'element-plus';
-  import { Plus, Minus, Refresh } from '@element-plus/icons-vue';
+  import { ref } from 'vue'
+  import { useCounterStore } from '../../stores/counter'
+  import { ElMessage } from 'element-plus'
+  import { Plus, Minus, Refresh } from '@element-plus/icons-vue'
 
-  const counterStore = useCounterStore();
-  const newName = ref('');
-  const isLoading = ref(false);
+  const counterStore = useCounterStore()
+  const newName = ref('')
+  const isLoading = ref(false)
 
   const fetchRandomCount = async () => {
-    isLoading.value = true;
+    isLoading.value = true
     try {
-      await counterStore.fetchRandomCount();
-      ElMessage.success(`随机计数已更新为: ${counterStore.count}`);
+      await counterStore.fetchRandomCount()
+      ElMessage.success(`随机计数已更新为: ${counterStore.count}`)
     } catch (error) {
-      ElMessage.error('获取随机计数失败: ' + error);
+      ElMessage.error('获取随机计数失败: ' + error)
     } finally {
-      isLoading.value = false;
+      isLoading.value = false
     }
-  };
+  }
 
   const updateName = () => {
     if (newName.value.trim()) {
-      counterStore.setName(newName.value.trim());
-      newName.value = '';
-      ElMessage.success('名称已更新');
+      counterStore.setName(newName.value.trim())
+      newName.value = ''
+      ElMessage.success('名称已更新')
     }
-  };
+  }
 </script>
 
 <style scoped>
