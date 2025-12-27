@@ -1,19 +1,10 @@
-<script setup lang="ts">
-  import { ref } from 'vue';
-
-  const activeIndex = ref('1');
-</script>
-
 <template>
   <el-container class="layout-container">
     <el-header class="header">
       <div class="logo-container">
         <h1>PyCmd2 WebUI</h1>
       </div>
-      <el-menu :default-active="activeIndex"
-               mode="horizontal"
-               :router="true"
-               class="nav-menu">
+      <el-menu :default-active="activeIndex" mode="horizontal" :router="true" class="nav-menu">
         <el-menu-item index="/">
           <el-icon>
             <HomeFilled />
@@ -61,6 +52,11 @@
   </el-container>
 </template>
 
+<script setup lang="ts">
+  import { ref } from 'vue';
+  const activeIndex = ref('1');
+</script>
+
 <style scoped>
   .layout-container {
     min-height: 100vh;
@@ -87,8 +83,8 @@
 
   .nav-menu {
     flex-grow: 1;
-    max-width: 600px;
-    margin-left: 20px;
+    max-width: 80%;
+    justify-content: flex-end;
   }
 
   .main-content {

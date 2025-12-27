@@ -56,7 +56,7 @@
   }
 
   .app-card {
-    background: #f9f9f9;
+    background: hwb(191 91% 0%);
     border-radius: 16px;
     padding: 12px;
     text-align: center;

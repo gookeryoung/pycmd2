@@ -61,10 +61,7 @@
 
       <!-- 错误提示 -->
       <div v-else-if="todosStore.error" class="error-container">
-        <el-alert :title="todosStore.error"
-                  type="error"
-                  :closable="false"
-                  show-icon />
+        <el-alert :title="todosStore.error" type="error" :closable="false" show-icon />
       </div>
 
       <!-- 待办事项列表 -->

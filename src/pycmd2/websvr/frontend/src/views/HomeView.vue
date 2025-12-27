@@ -21,6 +21,12 @@
     </el-row>
 
     <el-row :gutter="20" class="feature-row">
+      <el-col :span="24">
+        <AppsCard />
+      </el-col>
+    </el-row>
+
+    <el-row :gutter="20" class="feature-row">
       <el-col :span="8">
         <el-card shadow="hover" class="feature-card">
           <template #header>
@@ -78,12 +84,6 @@
             </router-link>
           </div>
         </el-card>
-      </el-col>
-    </el-row>
-
-    <el-row :gutter="20" class="feature-row">
-      <el-col :span="24">
-        <AppsCard />
       </el-col>
     </el-row>
 
