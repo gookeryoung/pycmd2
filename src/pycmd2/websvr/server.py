@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import abc
+import http.server
 import os
 import platform
 import shutil
+import socketserver
 import subprocess
 import sys
 import threading
+import time
 from functools import cached_property
 from pathlib import Path
 from typing import Optional
@@ -191,7 +194,13 @@ class ApiServer(BaseServer):
 class NativeServer(BaseServer):
     """本地模式, 静态服务器."""
 
-    def start(self, title: str = "PyCmd2 WebView", *, debug: bool = False) -> None:
+    def start(
+        self,
+        title: str = "PyCmd2 WebView",
+        *,
+        port: int = 11888,
+        debug: bool = False,
+    ) -> None:
         """启动服务器."""
         # 检查是否需要构建
         if not self.DIST_DIR.exists() or not self.index_html.exists():
@@ -200,18 +209,66 @@ class NativeServer(BaseServer):
 
         typer.echo("正在启动生产服务器...")
         try:
-            webview.create_window(
-                title=title,
-                url=str(self.index_html),
-                width=1200,
-                height=800,
-                resizable=True,  # 允许调整窗口大小
-                min_size=(800, 600),  # 设置最小窗口大小
-                # 设置窗口居中显示
-                x=None,
-                y=None,
-            )
-            webview.start(debug=debug)
+            # 设置服务器
+            class FrontendRouterHandler(http.server.SimpleHTTPRequestHandler):
+                DIST_DIR = BaseServer.DIST_DIR
+
+                def __init__(self, *args, **kwargs) -> None:  # noqa: ANN002, ANN003
+                    super().__init__(
+                        *args,
+                        directory=str(self.DIST_DIR),
+                        **kwargs,
+                    )
+
+                def do_GET(self) -> None:
+                    path = self.path.split("?")[0].split("#")[0]  # 去除查询参数和锚点
+
+                    if path in {"/", ""}:
+                        self.path = "/"
+                    else:
+                        requested_file = Path(self.DIST_DIR) / Path(
+                            path.lstrip("/"),
+                        )
+                        if not requested_file.exists():
+                            self.path = "/"
+
+                    super().do_GET()
+
+            # 启动HTTP服务器
+            if not check_port_available("127.0.0.1", port):
+                typer.echo(f"端口 {port} 已被占用, 尝试使用端口: {port + 1}")
+                return self.start(title, port=port + 1, debug=debug)
+
+            typer.echo(f"启动内部HTTP服务器, 端口: {port}")
+            with socketserver.TCPServer(("", port), FrontendRouterHandler) as httpd:
+                # 在后台线程中启动服务器
+                server_thread = threading.Thread(
+                    target=httpd.serve_forever,
+                    daemon=True,
+                )
+                server_thread.start()
+
+                # 等待服务器启动
+                time.sleep(0.5)
+
+                try:
+                    webview.create_window(
+                        title=title,
+                        url=f"http://127.0.0.1:{port}",
+                        width=1200,
+                        height=800,
+                        resizable=True,  # 允许调整窗口大小
+                        min_size=(800, 600),  # 设置最小窗口大小
+                        # 设置窗口居中显示
+                        x=None,
+                        y=None,
+                    )
+                    webview.start(debug=debug)
+                finally:
+                    # 关闭HTTP服务器
+                    httpd.shutdown()
+                    httpd.server_close()
+                    typer.echo("内部HTTP服务器已关闭")
         except (RuntimeError, OSError, ImportError) as e:
             typer.echo(f"启动 WebView 窗口时出错: {e!s}", err=True)
         finally:

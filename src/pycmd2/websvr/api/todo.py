@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
+from datetime import timezone
 from pathlib import Path
 from typing import List
 from typing import Optional
 
-import trio
 import typer
 from fastapi import HTTPException
 from fastapi import status
@@ -111,7 +112,7 @@ def create_todo(todo_data: TodoCreate) -> Todo:
         id=get_next_id(todos),
         text=todo_data.text.strip(),
         completed=False,
-        created_at=str(trio.Path(__file__).stat),  # 简化的时间戳
+        created_at=datetime.now(tz=timezone.utc).isoformat(),  # 使用ISO格式的时间戳
     )
 
     todos.append(new_todo)
