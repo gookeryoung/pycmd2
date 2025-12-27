@@ -156,3 +156,5 @@ tsconfig.tsbuildinfo
 __init__.py.bak
 src/pycmd2/websvr/.vite
 src/pycmd2/websvr/frontend/package-lock.json
+src/pycmd2/websvr/nginx/nginx.conf
+src/pycmd2/websvr/nginx/tmp/nginx.pid

@@ -38,6 +38,15 @@
       color: '#409EFF',
       route: '/apps/todo-api',
       component: () => import('./todo/TodoApiApp.vue')
+    },
+    {
+      id: 'emoji-viewer',
+      name: '表情包浏览器',
+      description: '浏览和搜索表情包',
+      icon: 'Smile',
+      color: '#E6A23C',
+      route: '/apps/emoji-viewer',
+      component: () => import('./EmojiViewer.vue')
     }
   ]
 

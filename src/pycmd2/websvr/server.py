@@ -253,9 +253,18 @@ class ServeServer(NativeServer):
                         typer.echo("未找到生产环境文件, 正在构建...")
                         self.build()
 
-                    # 启动预览服务器
+                    # 启动预览服务器，配置spa模式以支持前端路由
                     self.server_proc = subprocess.Popen(
-                        [vite_cmd, "preview", "--port", str(port), "--host", host],
+                        [
+                            vite_cmd,
+                            "preview",
+                            "--port",
+                            str(port),
+                            "--host",
+                            host,
+                            "--base",
+                            "/",
+                        ],
                         cwd=str(self.FRONTEND_DIR),
                         stdout=None,
                         stderr=None,
@@ -298,6 +307,31 @@ http {{
         # 设置日志文件路径
         access_log {logs_dir}/access.log;
 
+        # API 路由 - 代理到后端API服务器
+        location /api/ {{
+            proxy_pass http://127.0.0.1:8001/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }}
+
+        location /health {{
+            proxy_pass http://127.0.0.1:8001/health;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }}
+
+        # 静态资源 - 直接从文件系统提供服务
+        location /static/ {{
+            alias {dist_dir}/static/;
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }}
+
+        # 主页和其他所有路由 - 提供 index.html 以支持前端路由
         location / {{
             root   {dist_dir};
             index  index.html index.htm;

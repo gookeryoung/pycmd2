@@ -1,4 +1,4 @@
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createWebHistory, createRouter } from 'vue-router'
 
 import HomeView from './views/HomeView.vue'
 import AboutView from './views/AboutView.vue'
@@ -21,6 +21,7 @@ const PiniaPersistentDemo = () => import(/* webpackChunkName: "pinia-demos" */ '
 
 // Todo App - 独立 chunk
 const TodoApiApp = () => import(/* webpackChunkName: "apps" */ './views/apps/todo/TodoApiApp.vue')
+const EmojiViewer = () => import(/* webpackChunkName: "apps" */ './views/apps/EmojiViewer.vue')
 
 // VueUse Demo views - 分组到 vueuse-demos chunk
 const UseMouseDemo = () => import(/* webpackChunkName: "vueuse-demos" */ './views/vueuse/UseMouseDemo.vue')
@@ -39,7 +40,10 @@ const routes = [
   { path: '/about', component: AboutView },
   {
     path: '/apps',
-    children: [{ path: 'todo-api', component: TodoApiApp }]
+    children: [
+      { path: 'todo-api', component: TodoApiApp },
+      { path: 'emoji-viewer', component: EmojiViewer }
+    ]
   },
   {
     path: '/demos',
@@ -78,7 +82,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHistory(),
   routes
 })
 
