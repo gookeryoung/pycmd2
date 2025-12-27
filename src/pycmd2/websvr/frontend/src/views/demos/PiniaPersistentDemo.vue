@@ -232,6 +232,8 @@
     CopyDocument
   } from '@element-plus/icons-vue'
 
+  type StorageData = Record<string, unknown>
+
   // 应用设置
   const appSettings = reactive({
     theme: 'light',
@@ -280,7 +282,7 @@
   })
 
   const storageData = computed(() => {
-    const data: Record<string, any> = {}
+    const data: StorageData = {}
     for (const key of storageKeys.value) {
       const value = localStorage.getItem(key)
       if (value) {
@@ -331,7 +333,7 @@
   }
 
   // 保存到本地存储
-  const saveToStorage = (key: string, data: any) => {
+  const saveToStorage = (key: string, data: unknown) => {
     try {
       localStorage.setItem(key, JSON.stringify(data))
       updateLastUpdated()
@@ -467,7 +469,7 @@
   }
 
   // 复制到剪贴板
-  const copyToClipboard = (data: any) => {
+  const copyToClipboard = (data: unknown) => {
     navigator.clipboard
       .writeText(JSON.stringify(data, null, 2))
       .then(() => {
@@ -488,7 +490,7 @@
   }
 
   // 格式化 JSON
-  const formatJson = (data: any) => {
+  const formatJson = (data: unknown) => {
     return JSON.stringify(data, null, 2)
   }
 

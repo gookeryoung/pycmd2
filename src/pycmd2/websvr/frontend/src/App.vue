@@ -5,12 +5,15 @@
         <h1>PyCmd2 WebUI</h1>
       </div>
       <el-menu :default-active="activeIndex" mode="horizontal" :router="true" class="nav-menu">
+        <!-- 首页 -->
         <el-menu-item index="/">
           <el-icon>
             <HomeFilled />
           </el-icon>
           <span>首页</span>
         </el-menu-item>
+
+        <!-- ElementPlus UI组件示例 -->
         <el-sub-menu index="/demos">
           <template #title>
             <el-icon>
@@ -24,6 +27,8 @@
           <el-menu-item index="/demos/notifications">通知提示</el-menu-item>
           <el-menu-item index="/demos/dialogs">对话框</el-menu-item>
         </el-sub-menu>
+
+        <!-- Pinia状态管理示例 -->
         <el-sub-menu index="/pinia-demos">
           <template #title>
             <el-icon>
@@ -37,6 +42,8 @@
           <el-menu-item index="/pinia-demos/composition">Store组合使用</el-menu-item>
           <el-menu-item index="/pinia-demos/persistent">持久化存储</el-menu-item>
         </el-sub-menu>
+
+        <!-- 关于页面 -->
         <el-menu-item index="/about">
           <el-icon>
             <InfoFilled />
