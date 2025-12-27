@@ -8,14 +8,10 @@
           </el-icon>
           应用中心
         </h3>
-        <el-tag type="primary">Apps</el-tag>
       </div>
     </template>
     <div class="apps-grid">
-      <div v-for="app in apps"
-           :key="app.id"
-           class="app-card"
-           @click="navigateToApp(app.route)">
+      <div v-for="app in apps" :key="app.id" class="app-card" @click="navigateToApp(app.route)">
         <div class="app-icon" :style="{ backgroundColor: app.color }">
           <el-icon :size="32" color="white">
             <component :is="app.icon" />
@@ -61,8 +57,8 @@
 
   .app-card {
     background: #f9f9f9;
-    border-radius: 8px;
-    padding: 20px;
+    border-radius: 16px;
+    padding: 12px;
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -76,8 +72,8 @@
   }
 
   .app-icon {
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     display: flex;
     align-items: center;
