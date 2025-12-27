@@ -266,10 +266,3 @@ def export_todos() -> dict:
     """导出所有待办事项."""
     todos = load_todos()
     return {"todos": [todo.model_dump() for todo in todos]}
-
-
-# 健康检查
-@router.get("/health")
-def health_check() -> dict:
-    """健康检查端点."""
-    return {"status": "healthy", "service": "PyCmd2 Todo API"}

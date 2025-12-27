@@ -18,4 +18,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# 健康检查
+@app.get("/health")
+def health_check() -> dict:
+    """健康检查端点."""
+    return {"status": "healthy", "service": "PyCmd2 Todo API"}
+
+
 app.include_router(todo_router)
