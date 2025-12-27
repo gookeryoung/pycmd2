@@ -116,13 +116,16 @@ class BaseServer(abc.ABC):
 
     def clean(self) -> None:
         """清理构建文件."""
-        if self.DIST_DIR.exists():
-            try:
-                shutil.rmtree(self.DIST_DIR)
-            except OSError as e:
-                typer.echo(f"清理构建文件时出错: {e!s}", err=True)
-            else:
-                typer.echo("清理构建文件成功")
+        if not self.DIST_DIR.exists():
+            typer.echo("构建文件不存在, 无需清理")
+            return
+
+        try:
+            shutil.rmtree(self.DIST_DIR)
+        except OSError as e:
+            typer.echo(f"清理构建文件时出错: {e!s}", err=True)
+        else:
+            typer.echo("清理构建文件成功")
 
     def lint(self) -> None:
         """检查代码."""
