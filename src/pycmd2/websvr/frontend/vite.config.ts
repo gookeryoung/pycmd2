@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [vue()],
   build: {
     // 设置输出目录为 output
-    outDir: 'output',
+    outDir: 'output'
   },
   server: {
     host: '0.0.0.0', // 允许从任何IP地址访问
@@ -16,7 +16,7 @@ export default defineConfig({
     // 监听文件变化
     watch: {
       usePolling: true,
-      interval: 100,
-    },
-  },
+      interval: 100
+    }
+  }
 })
