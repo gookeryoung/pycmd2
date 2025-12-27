@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ElMessage } from 'element-plus'
-import { todoApi, type Todo, type TodoCreate, type TodoStats, ApiError } from '@/services/todoApi'
+import { todoApi, type Todo, type TodoStats } from '@/services/todoApi'
 
 export interface ApiState {
   todos: Todo[]
