@@ -3,7 +3,7 @@
     <el-card class="todo-container" shadow="always">
       <template #header>
         <div class="card-header">
-          <h2>🌐 API版待办事项</h2>
+          <h2>📕 待办事项</h2>
           <div class="header-actions">
             <el-tag :type="apiStore.connectionStatus.connected ? 'success' : 'danger'">
               {{ apiStore.connectionStatus.status }}

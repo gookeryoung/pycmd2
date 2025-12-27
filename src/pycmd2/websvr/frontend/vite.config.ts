@@ -4,9 +4,7 @@ import { fileURLToPath, URL } from 'node:url'
 import type { UserConfig } from 'vite'
 
 // https://vite.dev/config/
-export default defineConfig(({ command, mode }) => {
-  const isAnalyze = mode === 'analyze'
-
+export default defineConfig(() => {
   const baseConfig: UserConfig = {
     plugins: [vue()],
     resolve: {
@@ -64,8 +62,6 @@ export default defineConfig(({ command, mode }) => {
 
           // 静态资源命名
           assetFileNames: (assetInfo: { name?: string }) => {
-            const info = assetInfo.name?.split('.') || []
-            const extType = info[info.length - 1] || ''
             if (/\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/i.test(assetInfo.name || '')) {
               return `media/[name]-[hash][extname]`
             }

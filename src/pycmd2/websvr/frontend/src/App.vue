@@ -69,8 +69,7 @@
             </el-icon>
             <span>应用工具</span>
           </template>
-          <el-menu-item index="/apps/todo">本地存储版</el-menu-item>
-          <el-menu-item index="/apps/todo-api">API后端版</el-menu-item>
+          <el-menu-item index="/apps/todo-api">TODO</el-menu-item>
         </el-sub-menu>
 
         <!-- 关于页面 -->

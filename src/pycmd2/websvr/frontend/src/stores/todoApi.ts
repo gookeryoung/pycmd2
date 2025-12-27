@@ -57,7 +57,7 @@ export const useTodoApiStore = defineStore('todoApi', {
         return this.apiConnected
       } catch (error) {
         this.apiConnected = false
-        this.setError('API连接失败')
+        this.setError('API连接失败: ' + (error instanceof Error ? error.message : '未知错误'))
         return false
       }
     },

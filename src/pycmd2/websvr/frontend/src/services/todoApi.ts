@@ -26,7 +26,7 @@ export interface TodoStats {
   completion_rate: number
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = object> {
   data?: T
   message?: string
   error?: string

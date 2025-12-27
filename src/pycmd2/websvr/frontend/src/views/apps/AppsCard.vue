@@ -36,8 +36,8 @@
       description: '管理您的待办事项，提高工作效率',
       icon: 'List',
       color: '#409EFF',
-      route: '/apps/todo',
-      component: () => import('./todo/TodoApp.vue')
+      route: '/apps/todo-api',
+      component: () => import('./todo/TodoApiApp.vue')
     }
   ]
 
