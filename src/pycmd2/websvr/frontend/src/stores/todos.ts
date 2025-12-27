@@ -8,7 +8,7 @@ export interface Todo {
   id: number
   text: string
   completed: boolean
-  createdAt: Date
+  created_at: Date
 }
 
 // 本地存储工具函数
@@ -26,7 +26,7 @@ const localStorageUtils = {
       // 将字符串日期转换回Date对象
       return todos.map((todo: Todo) => ({
         ...todo,
-        createdAt: new Date(todo.createdAt)
+        created_at: new Date(todo.created_at)
       }))
     } catch (error) {
       console.error('获取待办事项失败:', error)
@@ -117,10 +117,10 @@ export const useTodosStore = defineStore('todos', {
         } else {
           // 如果没有保存的数据，使用示例数据
           const mockTodos: Todo[] = [
-            { id: 1, text: '学习 Pinia 基础', completed: true, createdAt: new Date() },
-            { id: 2, text: '创建第一个 Store', completed: true, createdAt: new Date() },
-            { id: 3, text: '实现 Getters 计算属性', completed: false, createdAt: new Date() },
-            { id: 4, text: '添加 Actions 操作', completed: false, createdAt: new Date() }
+            { id: 1, text: '学习 Pinia 基础', completed: true, created_at: new Date() },
+            { id: 2, text: '创建第一个 Store', completed: true, created_at: new Date() },
+            { id: 3, text: '实现 Getters 计算属性', completed: false, created_at: new Date() },
+            { id: 4, text: '添加 Actions 操作', completed: false, created_at: new Date() }
           ]
           this.todos = mockTodos
         }
@@ -146,7 +146,7 @@ export const useTodosStore = defineStore('todos', {
         id: Date.now(),
         text: text.trim(),
         completed: false,
-        createdAt: new Date()
+        created_at: new Date()
       }
 
       this.todos.push(newTodo)

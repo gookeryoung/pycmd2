@@ -61,6 +61,18 @@
           <el-menu-item index="/vueuse-demos/windowsize">窗口大小</el-menu-item>
         </el-sub-menu>
 
+        <!-- 应用工具 -->
+        <el-sub-menu index="/apps">
+          <template #title>
+            <el-icon>
+              <List />
+            </el-icon>
+            <span>应用工具</span>
+          </template>
+          <el-menu-item index="/apps/todo">本地存储版</el-menu-item>
+          <el-menu-item index="/apps/todo-api">API后端版</el-menu-item>
+        </el-sub-menu>
+
         <!-- 关于页面 -->
         <el-menu-item index="/about">
           <el-icon>
@@ -79,7 +91,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue'
-  import { Tools } from '@element-plus/icons-vue'
+  import { Tools, List } from '@element-plus/icons-vue'
   const activeIndex = ref('1')
 </script>
 

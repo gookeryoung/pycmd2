@@ -5,6 +5,8 @@ import os
 import platform
 import shutil
 import subprocess
+import sys
+import threading
 from functools import cached_property
 from pathlib import Path
 from typing import Optional
@@ -137,6 +139,52 @@ class BaseServer(abc.ABC):
             typer.echo("检查代码成功")
         finally:
             os.chdir(original_dir)
+
+
+class ApiServer(BaseServer):
+    """API 服务器."""
+
+    API_DIR = BaseServer.CWD / "api"
+
+    def start(self, port: int = 8001, host: str = "127.0.0.1") -> None:
+        """启动服务器."""
+        if not self.API_DIR.exists():
+            typer.echo("API 目录不存在, 请先运行 pycmd2 cli install")
+            return
+
+        # 检查端口是否可用
+        if not check_port_available(host, port):
+            typer.echo(f"端口 {port} 已被占用, 请选择其他端口")
+            return
+
+        def start_server() -> None:
+            typer.echo("正在启动 API 服务器...")
+            original_dir = Path.cwd()
+            os.chdir(self.API_DIR)
+            try:
+                cmd = [
+                    sys.executable,
+                    "-m",
+                    "uvicorn",
+                    "todo:app",
+                    "--host",
+                    host,
+                    "--port",
+                    str(port),
+                    "--reload",
+                    # "--log-level",
+                    # "info",
+                ]
+                subprocess.run(cmd, check=True)
+            except (subprocess.CalledProcessError, OSError) as e:
+                typer.echo(f"启动 API 服务器时出错: {e!s}", err=True)
+                typer.Exit(1)
+            finally:
+                os.chdir(original_dir)
+
+        typer.echo("正在启动开发服务器, 使用单独线程...")
+        api_thread = threading.Thread(target=start_server, daemon=True)
+        api_thread.start()
 
 
 class NativeServer(BaseServer):

@@ -21,6 +21,7 @@ const PiniaPersistentDemo = () => import(/* webpackChunkName: "pinia-demos" */ '
 
 // Todo App - 独立 chunk
 const TodoApp = () => import(/* webpackChunkName: "apps" */ './views/apps/todo/TodoApp.vue')
+const TodoApiApp = () => import(/* webpackChunkName: "apps" */ './views/apps/todo/TodoApiApp.vue')
 
 // VueUse Demo views - 分组到 vueuse-demos chunk
 const UseMouseDemo = () => import(/* webpackChunkName: "vueuse-demos" */ './views/vueuse/UseMouseDemo.vue')
@@ -39,7 +40,10 @@ const routes = [
   { path: '/about', component: AboutView },
   {
     path: '/apps',
-    children: [{ path: 'todo', component: TodoApp }]
+    children: [
+      { path: 'todo', component: TodoApp },
+      { path: 'todo-api', component: TodoApiApp }
+    ]
   },
   {
     path: '/demos',
