@@ -24,17 +24,18 @@ class CustomBuildHook(BuildHookInterface):
             return
 
         # 检查是否已经有构建文件
-        output_dir = frontend_dir / "output"
+        output_dir = frontend_dir / "deploy"
         if output_dir.exists() and any(output_dir.iterdir()):
-            logger.info("前端文件已存在, 跳过构建")
+            logger.info(f"前端文件夹 `{output_dir.name}` 已存在, 跳过构建")
             return
 
         # 执行前端构建
+        logger.info(f"前端文件夹不存在: `{output_dir}`")
         logger.info("正在构建前端文件...")
         cmd_suffix = ".cmd" if sys.platform == "win32" else ""
 
         # 尝试使用各种命令构建前端
-        cmds = ["vite", "yarn", "npm"]
+        cmds = ["yarn", "npm"]
         build_success = False
         for cmd in cmds:
             full_cmd = f"{cmd}{cmd_suffix}"
@@ -49,7 +50,7 @@ class CustomBuildHook(BuildHookInterface):
                 logger.info(f"使用 {full_cmd} 构建前端...")
                 try:
                     subprocess.run(
-                        [full_cmd, "build"],
+                        [full_cmd, "run", "build"],
                         cwd=str(frontend_dir),
                         check=True,
                         capture_output=True,

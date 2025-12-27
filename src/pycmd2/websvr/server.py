@@ -24,7 +24,7 @@ class BaseServer(abc.ABC):
 
     CWD = Path(__file__).parent
     FRONTEND_DIR = CWD / "frontend"
-    DIST_DIR = CWD / "frontend" / "output"
+    DIST_DIR = CWD / "frontend" / "deploy"
 
     def __init__(self) -> None:
         self.server_proc: Optional[subprocess.Popen] = None

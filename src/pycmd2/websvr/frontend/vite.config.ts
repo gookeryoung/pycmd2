@@ -13,8 +13,8 @@ export default defineConfig(() => {
       }
     },
     build: {
-      // 设置输出目录为 output
-      outDir: 'output',
+      // 设置输出目录为 deploy
+      outDir: 'deploy',
       // 优化的 chunk 分割策略 - 使用正则表达式配置
       rollupOptions: {
         output: {

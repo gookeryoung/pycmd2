@@ -20,7 +20,7 @@ def build_frontend() -> bool:
         return False
 
     # 删除旧的输出目录（如果存在）
-    output_dir = frontend_dir / "output"
+    output_dir = frontend_dir / "deploy"
     if output_dir.exists():
         rmtree(output_dir)
 
