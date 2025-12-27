@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+  import { ref } from 'vue';
 
-const activeIndex = ref('1')
+  const activeIndex = ref('1');
 </script>
 
 <template>
@@ -10,7 +10,10 @@ const activeIndex = ref('1')
       <div class="logo-container">
         <h1>PyCmd2 WebUI</h1>
       </div>
-      <el-menu :default-active="activeIndex" mode="horizontal" :router="true" class="nav-menu">
+      <el-menu :default-active="activeIndex"
+               mode="horizontal"
+               :router="true"
+               class="nav-menu">
         <el-menu-item index="/">
           <el-icon>
             <HomeFilled />
@@ -59,91 +62,91 @@ const activeIndex = ref('1')
 </template>
 
 <style scoped>
-.layout-container {
-  min-height: 100vh;
-  width: 100%;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-bottom: solid 1px #a0c0fd;
-  height: 60px;
-}
-
-.logo-container h1 {
-  margin: 0;
-  color: #409EFF;
-  font-size: 22px;
-  white-space: nowrap;
-}
-
-.nav-menu {
-  flex-grow: 1;
-  max-width: 600px;
-  margin-left: 20px;
-}
-
-.main-content {
-  padding: 20px;
-  background-color: #f5f7fa;
-  overflow-y: auto;
-  height: calc(100vh - 60px);
-  /* 减去header高度 */
-  box-sizing: border-box;
-}
-
-/* 响应式布局 */
-@media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    height: auto;
-    padding: 10px;
+  .layout-container {
+    min-height: 100vh;
+    width: 100%;
   }
 
-  .logo-container {
-    margin-bottom: 10px;
-    width: 100%;
-    text-align: center;
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-bottom: solid 1px #a0c0fd;
+    height: 60px;
   }
 
   .logo-container h1 {
-    font-size: 20px;
+    margin: 0;
+    color: #409eff;
+    font-size: 22px;
+    white-space: nowrap;
   }
 
   .nav-menu {
-    margin-left: 0;
-    max-width: 100%;
-  }
-
-  .el-menu--horizontal {
-    border-bottom: none;
+    flex-grow: 1;
+    max-width: 600px;
+    margin-left: 20px;
   }
 
   .main-content {
-    height: calc(100vh - 120px);
-    /* 适应新的header高度 */
-    padding: 15px;
-  }
-}
-
-@media (max-width: 576px) {
-  .header {
-    padding: 5px;
+    padding: 20px;
+    background-color: #f5f7fa;
+    overflow-y: auto;
+    height: calc(100vh - 60px);
+    /* 减去header高度 */
+    box-sizing: border-box;
   }
 
-  .logo-container h1 {
-    font-size: 18px;
+  /* 响应式布局 */
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+      height: auto;
+      padding: 10px;
+    }
+
+    .logo-container {
+      margin-bottom: 10px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .logo-container h1 {
+      font-size: 20px;
+    }
+
+    .nav-menu {
+      margin-left: 0;
+      max-width: 100%;
+    }
+
+    .el-menu--horizontal {
+      border-bottom: none;
+    }
+
+    .main-content {
+      height: calc(100vh - 120px);
+      /* 适应新的header高度 */
+      padding: 15px;
+    }
   }
 
-  .main-content {
-    height: calc(100vh - 100px);
-    /* 适应更紧凑的header */
-    padding: 10px;
+  @media (max-width: 576px) {
+    .header {
+      padding: 5px;
+    }
+
+    .logo-container h1 {
+      font-size: 18px;
+    }
+
+    .main-content {
+      height: calc(100vh - 100px);
+      /* 适应更紧凑的header */
+      padding: 10px;
+    }
   }
-}
 </style>

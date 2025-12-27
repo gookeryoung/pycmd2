@@ -62,7 +62,7 @@ export const useUserStore = defineStore('user', {
           return false
         }
       } catch (error) {
-        this.error = '登录失败'
+        this.error = '登录失败: ' + error
         return false
       } finally {
         this.loading = false

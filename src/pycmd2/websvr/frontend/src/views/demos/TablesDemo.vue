@@ -61,7 +61,10 @@
       <el-col :span="24">
         <el-card header="固定列和表头">
           <el-table :data="largeTableData" style="width: 100%" height="250">
-            <el-table-column fixed prop="date" label="日期" width="150" />
+            <el-table-column fixed
+                             prop="date"
+                             label="日期"
+                             width="150" />
             <el-table-column prop="name" label="姓名" width="120" />
             <el-table-column prop="state" label="省份" width="120" />
             <el-table-column prop="city" label="市区" width="120" />
@@ -116,7 +119,10 @@
             </el-table-column>
             <el-table-column label="姓名">
               <template #default="scope">
-                <el-popover effect="light" trigger="hover" placement="top" width="auto">
+                <el-popover effect="light"
+                            trigger="hover"
+                            placement="top"
+                            width="auto">
                   <template #default>
                     <div>姓名: {{ scope.row.name }}</div>
                     <div>地址: {{ scope.row.address }}</div>
@@ -135,7 +141,11 @@
                 <el-button size="small" @click="handleEdit(scope.$index, scope.row)">
                   编辑
                 </el-button>
-                <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">
+                <el-button
+                  size="small"
+                  type="danger"
+                  @click="handleDelete(scope.$index, scope.row)"
+                >
                   删除
                 </el-button>
               </template>
@@ -148,214 +158,212 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Calendar } from '@element-plus/icons-vue'
+  import { ref } from 'vue';
+  import { Calendar } from '@element-plus/icons-vue';
 
-interface User {
-  date: string
-  name: string
-  address: string
-}
-
-
-
-const search = ref('')
-
-// 基础表格数据
-const tableData: User[] = [
-  {
-    date: '2016-05-03',
-    name: '张三',
-    address: '北京市朝阳区普陀区金沙江路 1518 弄'
-  },
-  {
-    date: '2016-05-02',
-    name: '李四',
-    address: '北京市朝阳区普陀区金沙江路 1517 弄'
-  },
-  {
-    date: '2016-05-04',
-    name: '王五',
-    address: '北京市朝阳区普陀区金沙江路 1519 弄'
-  },
-  {
-    date: '2016-05-01',
-    name: '赵六',
-    address: '北京市朝阳区普陀区金沙江路 1516 弄'
+  interface User {
+    date: string;
+    name: string;
+    address: string;
   }
-]
 
-// 状态表格数据
-const statusTableData = [
-  {
-    name: 'iPhone 14',
-    sell: 3200,
-    price: 5999,
-    status: '热销'
-  },
-  {
-    name: 'iPad Pro',
-    sell: 1200,
-    price: 6799,
-    status: '缺货'
-  },
-  {
-    name: 'MacBook Air',
-    sell: 850,
-    price: 7999,
-    status: '热销'
-  },
-  {
-    name: 'Apple Watch',
-    sell: 2100,
-    price: 2999,
-    status: '热销'
-  },
-  {
-    name: 'AirPods Pro',
-    sell: 3800,
-    price: 1999,
-    status: '缺货'
-  }
-]
+  const search = ref('');
 
-// 大型表格数据
-const largeTableData = [
-  {
-    date: '2016-05-03',
-    name: '王小虎',
-    state: '上海',
-    city: '普陀区',
-    address: '上海市普陀区金沙江路 1518 弄',
-    zip: 200333
-  },
-  {
-    date: '2016-05-02',
-    name: '王小虎',
-    state: '上海',
-    city: '普陀区',
-    address: '上海市普陀区金沙江路 1518 弄',
-    zip: 200333
-  },
-  {
-    date: '2016-05-04',
-    name: '王小虎',
-    state: '上海',
-    city: '普陀区',
-    address: '上海市普陀区金沙江路 1518 弄',
-    zip: 200333
-  },
-  {
-    date: '2016-05-01',
-    name: '王小虎',
-    state: '上海',
-    city: '普陀区',
-    address: '上海市普陀区金沙江路 1518 弄',
-    zip: 200333
-  },
-  {
-    date: '2016-05-08',
-    name: '王小虎',
-    state: '上海',
-    city: '普陀区',
-    address: '上海市普陀区金沙江路 1518 弄',
-    zip: 200333
-  },
-  {
-    date: '2016-05-06',
-    name: '王小虎',
-    state: '上海',
-    city: '普陀区',
-    address: '上海市普陀区金沙江路 1518 弄',
-    zip: 200333
-  },
-  {
-    date: '2016-05-07',
-    name: '王小虎',
-    state: '上海',
-    city: '普陀区',
-    address: '上海市普陀区金沙江路 1518 弄',
-    zip: 200333
-  }
-]
+  // 基础表格数据
+  const tableData: User[] = [
+    {
+      date: '2016-05-03',
+      name: '张三',
+      address: '北京市朝阳区普陀区金沙江路 1518 弄'
+    },
+    {
+      date: '2016-05-02',
+      name: '李四',
+      address: '北京市朝阳区普陀区金沙江路 1517 弄'
+    },
+    {
+      date: '2016-05-04',
+      name: '王五',
+      address: '北京市朝阳区普陀区金沙江路 1519 弄'
+    },
+    {
+      date: '2016-05-01',
+      name: '赵六',
+      address: '北京市朝阳区普陀区金沙江路 1516 弄'
+    }
+  ];
 
-// 可展开表格数据
-const expandTableData = [
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    state: 'California',
-    city: 'Los Angeles',
-    address: 'No. 189, Grove St, Los Angeles',
-    zip: 'CA 90036'
-  },
-  {
-    date: '2016-05-02',
-    name: 'Tom',
-    state: 'California',
-    city: 'Los Angeles',
-    address: 'No. 189, Grove St, Los Angeles',
-    zip: 'CA 90036'
-  },
-  {
-    date: '2016-05-04',
-    name: 'Tom',
-    state: 'California',
-    city: 'Los Angeles',
-    address: 'No. 189, Grove St, Los Angeles',
-    zip: 'CA 90036'
-  },
-  {
-    date: '2016-05-01',
-    name: 'Tom',
-    state: 'California',
-    city: 'Los Angeles',
-    address: 'No. 189, Grove St, Los Angeles',
-    zip: 'CA 90036'
-  }
-]
+  // 状态表格数据
+  const statusTableData = [
+    {
+      name: 'iPhone 14',
+      sell: 3200,
+      price: 5999,
+      status: '热销'
+    },
+    {
+      name: 'iPad Pro',
+      sell: 1200,
+      price: 6799,
+      status: '缺货'
+    },
+    {
+      name: 'MacBook Air',
+      sell: 850,
+      price: 7999,
+      status: '热销'
+    },
+    {
+      name: 'Apple Watch',
+      sell: 2100,
+      price: 2999,
+      status: '热销'
+    },
+    {
+      name: 'AirPods Pro',
+      sell: 3800,
+      price: 1999,
+      status: '缺货'
+    }
+  ];
 
-// 自定义表头表格数据
-const customHeaderTableData = [
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
-  },
-  {
-    date: '2016-05-02',
-    name: 'John',
-    address: 'No. 189, Grove St, Los Angeles'
-  },
-  {
-    date: '2016-05-04',
-    name: 'Morgan',
-    address: 'No. 189, Grove St, Los Angeles'
-  },
-  {
-    date: '2016-05-01',
-    name: 'Jessy',
-    address: 'No. 189, Grove St, Los Angeles'
-  }
-]
+  // 大型表格数据
+  const largeTableData = [
+    {
+      date: '2016-05-03',
+      name: '王小虎',
+      state: '上海',
+      city: '普陀区',
+      address: '上海市普陀区金沙江路 1518 弄',
+      zip: 200333
+    },
+    {
+      date: '2016-05-02',
+      name: '王小虎',
+      state: '上海',
+      city: '普陀区',
+      address: '上海市普陀区金沙江路 1518 弄',
+      zip: 200333
+    },
+    {
+      date: '2016-05-04',
+      name: '王小虎',
+      state: '上海',
+      city: '普陀区',
+      address: '上海市普陀区金沙江路 1518 弄',
+      zip: 200333
+    },
+    {
+      date: '2016-05-01',
+      name: '王小虎',
+      state: '上海',
+      city: '普陀区',
+      address: '上海市普陀区金沙江路 1518 弄',
+      zip: 200333
+    },
+    {
+      date: '2016-05-08',
+      name: '王小虎',
+      state: '上海',
+      city: '普陀区',
+      address: '上海市普陀区金沙江路 1518 弄',
+      zip: 200333
+    },
+    {
+      date: '2016-05-06',
+      name: '王小虎',
+      state: '上海',
+      city: '普陀区',
+      address: '上海市普陀区金沙江路 1518 弄',
+      zip: 200333
+    },
+    {
+      date: '2016-05-07',
+      name: '王小虎',
+      state: '上海',
+      city: '普陀区',
+      address: '上海市普陀区金沙江路 1518 弄',
+      zip: 200333
+    }
+  ];
 
-// 操作方法
-const handleEdit = (index: number, row: User) => {
-  console.log(index, row)
-}
+  // 可展开表格数据
+  const expandTableData = [
+    {
+      date: '2016-05-03',
+      name: 'Tom',
+      state: 'California',
+      city: 'Los Angeles',
+      address: 'No. 189, Grove St, Los Angeles',
+      zip: 'CA 90036'
+    },
+    {
+      date: '2016-05-02',
+      name: 'Tom',
+      state: 'California',
+      city: 'Los Angeles',
+      address: 'No. 189, Grove St, Los Angeles',
+      zip: 'CA 90036'
+    },
+    {
+      date: '2016-05-04',
+      name: 'Tom',
+      state: 'California',
+      city: 'Los Angeles',
+      address: 'No. 189, Grove St, Los Angeles',
+      zip: 'CA 90036'
+    },
+    {
+      date: '2016-05-01',
+      name: 'Tom',
+      state: 'California',
+      city: 'Los Angeles',
+      address: 'No. 189, Grove St, Los Angeles',
+      zip: 'CA 90036'
+    }
+  ];
 
-const handleDelete = (index: number, row: User) => {
-  console.log(index, row)
-}
+  // 自定义表头表格数据
+  const customHeaderTableData = [
+    {
+      date: '2016-05-03',
+      name: 'Tom',
+      address: 'No. 189, Grove St, Los Angeles'
+    },
+    {
+      date: '2016-05-02',
+      name: 'John',
+      address: 'No. 189, Grove St, Los Angeles'
+    },
+    {
+      date: '2016-05-04',
+      name: 'Morgan',
+      address: 'No. 189, Grove St, Los Angeles'
+    },
+    {
+      date: '2016-05-01',
+      name: 'Jessy',
+      address: 'No. 189, Grove St, Los Angeles'
+    }
+  ];
+
+  // 操作方法
+  const handleEdit = (index: number, row: User) => {
+    console.log(index, row);
+  };
+
+  const handleDelete = (index: number, row: User) => {
+    console.log(index, row);
+  };
 </script>
 
 <style scoped>
-.demo-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
+  .demo-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
 
-.demo-section {
-  margin-bottom: 24px;
-}
+  .demo-section {
+    margin-bottom: 24px;
+  }
 </style>

@@ -100,7 +100,8 @@ h1 {
     font-size: 14px;
   }
 
-  .el-table th, .el-table td {
+  .el-table th,
+  .el-table td {
     padding: 8px 4px !important;
   }
 }

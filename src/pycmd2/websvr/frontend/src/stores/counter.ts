@@ -9,7 +9,7 @@ export const useCounterStore = defineStore('counter', {
   getters: {
     doubleCount: (state) => state.count * 2,
     formattedCount: (state) => `当前计数: ${state.count}`,
-    countHistory: (state) => {
+    countHistory: (_) => {
       // 这里只是示例，实际上我们会把历史记录保存在state中
       return [0, 1, 2, 3, 4, 5].map(n => n * 2)
     }

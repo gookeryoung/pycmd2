@@ -86,9 +86,11 @@
         <el-button-group>
           <el-button type="primary" :icon="ArrowLeft">上一页</el-button>
           <el-button type="primary">中间</el-button>
-          <el-button type="primary">下一页<el-icon class="el-icon--right">
-              <ArrowRight />
-            </el-icon></el-button>
+          <el-button type="primary"
+          >
+            下一页<el-icon class="el-icon--right"> <ArrowRight /> </el-icon
+            >
+          </el-button>
         </el-button-group>
       </el-col>
     </el-row>
@@ -96,68 +98,76 @@
 </template>
 
 <script setup lang="ts">
-import { Search, Edit, Message, Star, Delete, ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+  import {
+    Search,
+    Edit,
+    Message,
+    Star,
+    Delete,
+    ArrowLeft,
+    ArrowRight
+  } from '@element-plus/icons-vue';
 </script>
 
 <style scoped>
-.demo-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.demo-section {
-  margin-bottom: 24px;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
-
-.demo-section h3 {
-  margin-top: 0;
-  margin-bottom: 16px;
-  color: #303133;
-  font-size: 18px;
-}
-
-.button-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-/* 响应式布局 */
-@media (max-width: 768px) {
   .demo-container {
-    padding: 0 10px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
   }
 
   .demo-section {
-    padding: 15px;
+    margin-bottom: 24px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   }
 
   .demo-section h3 {
-    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #303133;
+    font-size: 18px;
   }
 
   .button-group {
-    gap: 8px;
-  }
-}
-
-@media (max-width: 576px) {
-  .demo-section {
-    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 
-  .button-group {
-    flex-direction: column;
-    gap: 8px;
+  /* 响应式布局 */
+  @media (max-width: 768px) {
+    .demo-container {
+      padding: 0 10px;
+    }
+
+    .demo-section {
+      padding: 15px;
+    }
+
+    .demo-section h3 {
+      font-size: 16px;
+    }
+
+    .button-group {
+      gap: 8px;
+    }
   }
 
-  .button-group .el-button {
-    width: 100%;
+  @media (max-width: 576px) {
+    .demo-section {
+      padding: 10px;
+    }
+
+    .button-group {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .button-group .el-button {
+      width: 100%;
+    }
   }
-}
 </style>
