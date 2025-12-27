@@ -1,12 +1,13 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
+import type { UserConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
   const isAnalyze = mode === 'analyze'
 
-  const baseConfig: any = {
+  const baseConfig: UserConfig = {
     plugins: [vue()],
     resolve: {
       alias: {
@@ -19,41 +20,40 @@ export default defineConfig(({ command, mode }) => {
       // 优化 chunk 分割
       rollupOptions: {
         output: {
-          // 手动分割第三方库
-          manualChunks: id => {
-            // 第三方库分组策略
-            if (id.includes('node_modules')) {
-              // Vue 生态系统
-              if (id.includes('vue') || id.includes('vue-router') || id.includes('pinia')) {
-                return 'vue-vendor'
-              }
-
-              // Element Plus UI 库
-              if (id.includes('element-plus') || id.includes('@element-plus')) {
-                return 'element-plus'
-              }
-
-              // 图表库
-              if (id.includes('echarts') || id.includes('vue-echarts')) {
-                return 'charts'
-              }
-
-              // VueUse 工具库
-              if (id.includes('@vueuse')) {
-                return 'vueuse'
-              }
-
-              // 其他工具库
-              if (id.includes('lodash') || id.includes('dayjs') || id.includes('axios')) {
-                return 'utils'
-              }
-
-              // 其他第三方库
-              return 'vendor'
+          // 优化的手动分割第三方库 - 使用映射表提高性能
+          manualChunks: (id: string) => {
+            // 非第三方库不分割，返回 undefined 让 Rollup 处理
+            if (!id.includes('node_modules')) {
+              return undefined
             }
+
+            // 高效的映射表匹配 - O(n) 时间复杂度
+            const chunkMapping: Record<string, string> = {
+              vue: 'vue-vendor',
+              'vue-router': 'vue-vendor',
+              pinia: 'vue-vendor',
+              'element-plus': 'element-plus',
+              '@element-plus': 'element-plus',
+              echarts: 'charts',
+              'vue-echarts': 'charts',
+              '@vueuse': 'vueuse'
+              // 'lodash': 'utils',
+              // 'dayjs': 'utils',
+              // 'axios': 'utils'
+            }
+
+            // 使用 for...of 循环进行高效匹配
+            for (const [key, chunkName] of Object.entries(chunkMapping)) {
+              if (id.includes(key)) {
+                return chunkName
+              }
+            }
+
+            // 其他第三方库归类
+            return 'vendor'
           },
           // 优化 chunk 命名
-          chunkFileNames: chunkInfo => {
+          chunkFileNames: (chunkInfo: { facadeModuleId?: string }) => {
             const facadeModuleId = chunkInfo.facadeModuleId
             if (facadeModuleId) {
               const fileName = facadeModuleId.split('/').pop() || 'chunk'
@@ -62,7 +62,7 @@ export default defineConfig(({ command, mode }) => {
             return 'js/[name]-[hash].js'
           },
           // 静态资源命名
-          assetFileNames: assetInfo => {
+          assetFileNames: (assetInfo: { name?: string }) => {
             const info = assetInfo.name?.split('.') || []
             const extType = info[info.length - 1] || ''
             if (/\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/i.test(assetInfo.name || '')) {
@@ -94,19 +94,6 @@ export default defineConfig(({ command, mode }) => {
         interval: 100
       }
     }
-  }
-
-  // 如果是分析模式，添加打包分析插件
-  if (isAnalyze && baseConfig.plugins) {
-    // 安装: npm install --save-dev rollup-plugin-visualizer
-    // 然后取消下面注释:
-    // import { visualizer } from 'rollup-plugin-visualizer'
-    // baseConfig.plugins.push(visualizer({
-    //   filename: 'output/stats.html',
-    //   open: true,
-    //   gzipSize: true,
-    //   brotliSize: true
-    // }))
   }
 
   return baseConfig
