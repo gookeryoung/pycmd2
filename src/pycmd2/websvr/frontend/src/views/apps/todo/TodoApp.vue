@@ -136,7 +136,8 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted } from 'vue'
-  import { useTodosStore } from '../../../stores/todos'
+  import { useTodosStore } from '@/stores/todos'
+  import type { Todo } from '@/stores/todos'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import { Plus, Delete, Refresh } from '@element-plus/icons-vue'
 
@@ -172,7 +173,7 @@
     todosStore.toggleTodo(id)
   }
 
-  const confirmRemoveTodo = (todo: any) => {
+  const confirmRemoveTodo = (todo: Todo) => {
     ElMessageBox.confirm(`确定要删除待办事项"${todo.text}"吗?`, '确认删除', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',

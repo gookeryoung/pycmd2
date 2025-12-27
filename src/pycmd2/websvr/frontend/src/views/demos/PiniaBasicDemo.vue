@@ -71,7 +71,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue'
-  import { useCounterStore } from '../../stores/counter'
+  import { useCounterStore } from '@/stores/counter'
   import { ElMessage } from 'element-plus'
   import { Plus, Minus, Refresh } from '@element-plus/icons-vue'
 

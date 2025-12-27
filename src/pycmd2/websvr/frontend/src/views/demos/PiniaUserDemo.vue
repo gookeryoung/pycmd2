@@ -127,7 +127,7 @@
 
 <script setup lang="ts">
   import { ref, computed, reactive, onMounted } from 'vue'
-  import { useUserStore } from '../../stores/user'
+  import { useUserStore } from '@/stores/user'
   import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
   import { Message, Moon, Sunny, SwitchButton } from '@element-plus/icons-vue'
 

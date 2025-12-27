@@ -115,7 +115,7 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted } from 'vue'
-  import { useTodosStore } from '../../stores/todos'
+  import { useTodosStore } from '@/stores/todos'
   import { ElMessage } from 'element-plus'
   import { Plus, Delete } from '@element-plus/icons-vue'
 

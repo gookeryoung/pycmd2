@@ -207,9 +207,9 @@
 
 <script setup lang="ts">
   import { ref, reactive, computed, onMounted } from 'vue'
-  import { useUserStore } from '../../stores/user'
-  import { useCounterStore } from '../../stores/counter'
-  import { useTodosStore } from '../../stores/todos'
+  import { useUserStore } from '@/stores/user'
+  import { useCounterStore } from '@/stores/counter'
+  import { useTodosStore } from '@/stores/todos'
   import { ElMessage } from 'element-plus'
   import { User, DataAnalysis, Operation, Refresh, Warning } from '@element-plus/icons-vue'
 

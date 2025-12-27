@@ -116,7 +116,7 @@
 
   const title = ref('标题')
   const message = ref('这是一条消息')
-  const type = ref('success')
+  const type = ref<'success' | 'warning' | 'info' | 'error'>('success')
 
   // 基础消息提示
   const open1 = () => {
@@ -228,7 +228,7 @@
     ElNotification({
       title: title.value,
       message: message.value,
-      type: type.value as any
+      type: type.value
     })
   }
 
