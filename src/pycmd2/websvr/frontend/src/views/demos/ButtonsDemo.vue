@@ -86,10 +86,8 @@
         <el-button-group>
           <el-button type="primary" :icon="ArrowLeft">上一页</el-button>
           <el-button type="primary">中间</el-button>
-          <el-button type="primary"
-          >
-            下一页<el-icon class="el-icon--right"> <ArrowRight /> </el-icon
-            >
+          <el-button type="primary">
+            下一页<el-icon class="el-icon--right"> <ArrowRight /> </el-icon>
           </el-button>
         </el-button-group>
       </el-col>

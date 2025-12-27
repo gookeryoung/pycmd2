@@ -163,12 +163,12 @@
               <p>这是使用自定义插槽的对话框内容</p>
               <el-form :model="form" label-width="80px">
                 <el-form-item label="名称">
-                  <el-input v-model="form.name" autocomplete="off"/>
+                  <el-input v-model="form.name" autocomplete="off" />
                 </el-form-item>
                 <el-form-item label="区域">
                   <el-select v-model="form.region" placeholder="请选择区域">
-                    <el-option label="上海" value="shanghai"/>
-                    <el-option label="北京" value="beijing"/>
+                    <el-option label="上海" value="shanghai" />
+                    <el-option label="北京" value="beijing" />
                   </el-select>
                 </el-form-item>
               </el-form>

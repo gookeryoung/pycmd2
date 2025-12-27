@@ -7,12 +7,12 @@
         <el-card header="基础表单">
           <el-form :model="form" label-width="80px">
             <el-form-item label="活动名称">
-              <el-input v-model="form.name" placeholder="请输入活动名称"/>
+              <el-input v-model="form.name" placeholder="请输入活动名称" />
             </el-form-item>
             <el-form-item label="活动区域">
               <el-select v-model="form.region" placeholder="请选择活动区域">
-                <el-option label="区域一" value="shanghai"/>
-                <el-option label="区域二" value="beijing"/>
+                <el-option label="区域一" value="shanghai" />
+                <el-option label="区域二" value="beijing" />
               </el-select>
             </el-form-item>
             <el-form-item label="活动时间">
@@ -28,32 +28,28 @@
                 <span class="text-gray-500">-</span>
               </el-col>
               <el-col :span="11">
-                <el-time-picker
-                  placeholder="选择时间"
-                  v-model="form.date2"
-                  style="width: 100%"
-                />
+                <el-time-picker placeholder="选择时间" v-model="form.date2" style="width: 100%" />
               </el-col>
             </el-form-item>
             <el-form-item label="即时配送">
-              <el-switch v-model="form.delivery"/>
+              <el-switch v-model="form.delivery" />
             </el-form-item>
             <el-form-item label="活动性质">
               <el-checkbox-group v-model="form.type">
-                <el-checkbox label="美食/餐厅线上活动" name="type"/>
-                <el-checkbox label="地推活动" name="type"/>
-                <el-checkbox label="线下主题活动" name="type"/>
-                <el-checkbox label="单纯品牌曝光" name="type"/>
+                <el-checkbox label="美食/餐厅线上活动" name="type" />
+                <el-checkbox label="地推活动" name="type" />
+                <el-checkbox label="线下主题活动" name="type" />
+                <el-checkbox label="单纯品牌曝光" name="type" />
               </el-checkbox-group>
             </el-form-item>
             <el-form-item label="特殊资源">
               <el-radio-group v-model="form.resource">
-                <el-radio label="线上品牌商赞助"/>
-                <el-radio label="线下场地免费"/>
+                <el-radio label="线上品牌商赞助" />
+                <el-radio label="线下场地免费" />
               </el-radio-group>
             </el-form-item>
             <el-form-item label="活动形式">
-              <el-input type="textarea" v-model="form.desc" placeholder="请输入活动形式"/>
+              <el-input type="textarea" v-model="form.desc" placeholder="请输入活动形式" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="onSubmit">立即创建</el-button>
@@ -67,12 +63,12 @@
         <el-card header="行内表单">
           <el-form :inline="true" :model="inlineForm" class="demo-form-inline">
             <el-form-item label="审批人">
-              <el-input v-model="inlineForm.user" placeholder="审批人"/>
+              <el-input v-model="inlineForm.user" placeholder="审批人" />
             </el-form-item>
             <el-form-item label="活动区域">
               <el-select v-model="inlineForm.region" placeholder="活动区域">
-                <el-option label="区域一" value="shanghai"/>
-                <el-option label="区域二" value="beijing"/>
+                <el-option label="区域一" value="shanghai" />
+                <el-option label="区域二" value="beijing" />
               </el-select>
             </el-form-item>
             <el-form-item>
@@ -95,12 +91,12 @@
             status-icon
           >
             <el-form-item label="活动名称" prop="name">
-              <el-input v-model="ruleForm.name"/>
+              <el-input v-model="ruleForm.name" />
             </el-form-item>
             <el-form-item label="活动区域" prop="region">
               <el-select v-model="ruleForm.region" placeholder="请选择活动区域">
-                <el-option label="上海" value="shanghai"/>
-                <el-option label="北京" value="beijing"/>
+                <el-option label="上海" value="shanghai" />
+                <el-option label="北京" value="beijing" />
               </el-select>
             </el-form-item>
             <el-form-item label="活动时间" required>
