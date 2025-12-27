@@ -43,6 +43,24 @@
           <el-menu-item index="/pinia-demos/persistent">持久化存储</el-menu-item>
         </el-sub-menu>
 
+        <!-- VueUse组合式函数示例 -->
+        <el-sub-menu index="/vueuse-demos">
+          <template #title>
+            <el-icon>
+              <Tools />
+            </el-icon>
+            <span>VueUse组合式函数</span>
+          </template>
+          <el-menu-item index="/vueuse-demos/mouse">鼠标位置跟踪</el-menu-item>
+          <el-menu-item index="/vueuse-demos/dark">暗黑模式切换</el-menu-item>
+          <el-menu-item index="/vueuse-demos/debounce">防抖函数</el-menu-item>
+          <el-menu-item index="/vueuse-demos/throttle">节流函数</el-menu-item>
+          <el-menu-item index="/vueuse-demos/localstorage">本地存储</el-menu-item>
+          <el-menu-item index="/vueuse-demos/clipboard">剪贴板操作</el-menu-item>
+          <el-menu-item index="/vueuse-demos/eventlistener">事件监听</el-menu-item>
+          <el-menu-item index="/vueuse-demos/windowsize">窗口大小</el-menu-item>
+        </el-sub-menu>
+
         <!-- 关于页面 -->
         <el-menu-item index="/about">
           <el-icon>
@@ -61,6 +79,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue'
+  import { Tools } from '@element-plus/icons-vue'
   const activeIndex = ref('1')
 </script>
 

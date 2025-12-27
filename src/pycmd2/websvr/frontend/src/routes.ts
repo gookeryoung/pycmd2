@@ -21,6 +21,16 @@ const PiniaPersistentDemo = () => import('./views/demos/PiniaPersistentDemo.vue'
 // Todo App
 const TodoApp = () => import('./views/apps/todo/TodoApp.vue')
 
+// VueUse Demo views
+const UseMouseDemo = () => import('./views/vueuse/UseMouseDemo.vue')
+const UseDarkDemo = () => import('./views/vueuse/UseDarkDemo.vue')
+const UseDebounceDemo = () => import('./views/vueuse/UseDebounceDemo.vue')
+const UseThrottleDemo = () => import('./views/vueuse/UseThrottleDemo.vue')
+const UseLocalStorageDemo = () => import('./views/vueuse/UseLocalStorageDemo.vue')
+const UseClipboardDemo = () => import('./views/vueuse/UseClipboardDemo.vue')
+const UseEventListenerDemo = () => import('./views/vueuse/UseEventListenerDemo.vue')
+const UseWindowSizeDemo = () => import('./views/vueuse/UseWindowSizeDemo.vue')
+
 const routes = [
   { path: '/', component: HomeView },
   { path: '/about', component: AboutView },
@@ -47,6 +57,19 @@ const routes = [
       { path: 'user', component: PiniaUserDemo },
       { path: 'composition', component: PiniaCompositionDemo },
       { path: 'persistent', component: PiniaPersistentDemo }
+    ]
+  },
+  {
+    path: '/vueuse-demos',
+    children: [
+      { path: 'mouse', component: UseMouseDemo },
+      { path: 'dark', component: UseDarkDemo },
+      { path: 'debounce', component: UseDebounceDemo },
+      { path: 'throttle', component: UseThrottleDemo },
+      { path: 'localstorage', component: UseLocalStorageDemo },
+      { path: 'clipboard', component: UseClipboardDemo },
+      { path: 'eventlistener', component: UseEventListenerDemo },
+      { path: 'windowsize', component: UseWindowSizeDemo }
     ]
   }
 ]
