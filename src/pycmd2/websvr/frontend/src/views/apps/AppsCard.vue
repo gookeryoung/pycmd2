@@ -10,16 +10,16 @@
         </h3>
       </div>
     </template>
+
     <div class="apps-grid">
       <div v-for="app in apps" :key="app.id" class="app-card" @click="navigateToApp(app.route)">
         <div class="app-icon" :style="{ backgroundColor: app.color }">
-          <el-icon :size="32" color="white">
+          <el-icon :size="18" color="white">
             <component :is="app.icon" />
           </el-icon>
         </div>
         <h4>{{ app.name }}</h4>
         <p>{{ app.description }}</p>
-        <el-button type="primary" size="small" plain>打开应用</el-button>
       </div>
     </div>
   </el-card>
@@ -33,7 +33,7 @@
     {
       id: 'todo',
       name: '待办事项',
-      description: '管理您的待办事项，提高工作效率',
+      description: '管理待办事项',
       icon: 'List',
       color: '#409EFF',
       route: '/apps/todo-api',
@@ -59,47 +59,58 @@
 <style>
   .apps-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-    margin-top: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }
 
   .app-card {
-    background: hwb(191 91% 0%);
-    border-radius: 16px;
-    padding: 12px;
+    background: #006aff1a;
+    border-radius: 12px;
+    padding: 8px;
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
-    border: 1px solid #ebeef5;
+    border: 2px solid #ebeef5;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .app-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
     border-color: #409eff;
   }
 
   .app-icon {
-    width: 64px;
-    height: 64px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 15px;
+    margin: 0 auto 8px;
   }
 
   .app-card h4 {
-    margin: 0 0 10px;
-    font-size: 18px;
+    margin: 0 0 6px;
+    font-size: 15px;
     color: #303133;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .app-card p {
-    margin: 0 0 15px;
-    color: #606266;
-    font-size: 14px;
-    line-height: 1.5;
+    margin: 0;
+    color: #909399;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 </style>
