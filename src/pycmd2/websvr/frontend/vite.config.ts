@@ -17,44 +17,39 @@ export default defineConfig(({ command, mode }) => {
     build: {
       // 设置输出目录为 output
       outDir: 'output',
-      // 优化 chunk 分割
+      // 优化的 chunk 分割策略 - 使用正则表达式配置
       rollupOptions: {
         output: {
-          // 优化的 chunk 分割策略 - 使用映射配置替代分支检测
+          // 声明式 chunk 分割配置
           manualChunks: (id: string) => {
             // 非第三方库不分割
             if (!id.includes('node_modules')) {
               return undefined
             }
 
-            // 包名到 chunk 的映射配置
-            const chunkMapping: Record<string, string[]> = {
-              'vue-core': ['vue'], // 核心 Vue 库
-              vueuse: ['@vueuse'], // VueUse 工具库
-              'element-plus': ['element-plus'], // UI 组件库
-              charts: ['echarts'], // 图表库
-              utils: ['lodash', 'dayjs', 'axios'] // 工具库
-            }
+            // 使用正则表达式配置 - 更精确且易维护
+            const chunkRules = [
+              // Vue 生态系统 - 使用正则表达式避免复杂逻辑
+              { name: 'vue-vendor', pattern: /(?:^|\/)node_modules\/(?:vue|@vueuse|pinia|vue-router)/ },
 
-            // 遍历映射配置，检查包名匹配
-            for (const [chunkName, packages] of Object.entries(chunkMapping)) {
-              // 检查是否匹配当前 chunk 的任何包名
-              const matchesPackage = packages.some(pkg => id.includes(pkg))
+              // UI 组件库
+              { name: 'ui-vendor', pattern: /(?:^|\/)node_modules\/element-plus/ },
 
-              // 特殊处理：vue-core 需要排除 vue 生态系统中的其他包
-              if (chunkName === 'vue-core' && matchesPackage) {
-                const isVueEcosystem =
-                  chunkMapping['vueuse'].some(pkg => id.includes(pkg)) ||
-                  chunkMapping['element-plus'].some(pkg => id.includes(pkg))
-                if (!isVueEcosystem) {
-                  return chunkName
-                }
-              } else if (matchesPackage) {
-                return chunkName
+              // 图表库
+              { name: 'charts-vendor', pattern: /(?:^|\/)node_modules\/echarts/ },
+
+              // 工具库
+              { name: 'utils-vendor', pattern: /(?:^|\/)node_modules\/(?:lodash|dayjs|axios)/ }
+            ]
+
+            // 按优先级匹配 - 避免循环依赖问题
+            for (const rule of chunkRules) {
+              if (rule.pattern.test(id)) {
+                return rule.name
               }
             }
 
-            // 其他第三方库归类
+            // 其他第三方库
             return 'vendor'
           },
           // 优化 chunk 命名
