@@ -1,33 +1,19 @@
 <template>
-  <el-card shadow="hover">
-    <template #header>
-      <div class="card-header">
-        <h3>
-          <el-icon>
-            <Grid />
-          </el-icon>
-          应用中心
-        </h3>
+  <div class="apps-grid">
+    <div v-for="app in apps" :key="app.id" class="app-card" @click="navigateToApp(app.route)">
+      <div class="app-icon" :style="{ backgroundColor: app.color }">
+        <el-icon :size="18" color="white">
+          <component :is="app.icon" />
+        </el-icon>
       </div>
-    </template>
-
-    <div class="apps-grid">
-      <div v-for="app in apps" :key="app.id" class="app-card" @click="navigateToApp(app.route)">
-        <div class="app-icon" :style="{ backgroundColor: app.color }">
-          <el-icon :size="18" color="white">
-            <component :is="app.icon" />
-          </el-icon>
-        </div>
-        <h4>{{ app.name }}</h4>
-        <p>{{ app.description }}</p>
-      </div>
+      <h4>{{ app.name }}</h4>
+      <p>{{ app.description }}</p>
     </div>
-  </el-card>
+  </div>
 </template>
 
 <script setup lang="ts">
   import { useRouter } from 'vue-router'
-  import { Grid } from '@element-plus/icons-vue'
 
   const apps = [
     {

@@ -22,7 +22,20 @@
 
     <el-row :gutter="20" class="feature-row">
       <el-col :span="24">
-        <AppsCard />
+        <el-card shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <h3>
+                <el-icon>
+                  <Grid />
+                </el-icon>
+                应用中心
+              </h3>
+            </div>
+          </template>
+
+          <AppsCard />
+        </el-card>
       </el-col>
     </el-row>
 
@@ -129,7 +142,7 @@
 
 <script setup lang="ts">
   import { ElButtonGroup, ElMessage } from 'element-plus'
-  import { Setting, Document, Collection, TrendCharts } from '@element-plus/icons-vue'
+  import { Setting, Document, Collection, Grid, TrendCharts } from '@element-plus/icons-vue'
   import AppsCard from './apps/AppsCard.vue'
 
   const showWelcome = () => {
