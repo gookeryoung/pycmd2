@@ -120,21 +120,11 @@
                   <div v-for="(todo, index) in todos" :key="todo.id" class="todo-item">
                     <el-checkbox :label="todo.id">
                       <span :class="{ completed: todo.completed }">{{ todo.text }}</span>
-                      <el-tag
-                        size="small"
-                        :type="todo.completed ? 'success' : 'info'"
-                        class="todo-tag"
-                      >
+                      <el-tag size="small" :type="todo.completed ? 'success' : 'info'" class="todo-tag">
                         {{ todo.completed ? '已完成' : '待完成' }}
                       </el-tag>
                     </el-checkbox>
-                    <el-button
-                      size="small"
-                      type="danger"
-                      @click="removeTodo(index)"
-                      circle
-                      :icon="Delete"
-                    />
+                    <el-button size="small" type="danger" @click="removeTodo(index)" circle :icon="Delete" />
                   </div>
                 </el-checkbox-group>
               </div>
@@ -180,13 +170,7 @@
 
               <div class="storage-keys">
                 <h4>当前存储的键:</h4>
-                <el-tag
-                  v-for="key in storageKeys"
-                  :key="key"
-                  closable
-                  @close="removeStorageKey(key)"
-                  class="key-tag"
-                >
+                <el-tag v-for="key in storageKeys" :key="key" closable @close="removeStorageKey(key)" class="key-tag">
                   {{ key }}
                 </el-tag>
               </div>
@@ -210,16 +194,7 @@
 <script setup lang="ts">
   import { useLocalStorage } from '@vueuse/core'
   import { ref, computed, onMounted } from 'vue'
-  import {
-    FolderOpened,
-    Document,
-    List,
-    Plus,
-    Delete,
-    Refresh,
-    Upload,
-    Operation
-  } from '@element-plus/icons-vue'
+  import { FolderOpened, Document, List, Plus, Delete, Refresh, Upload, Operation } from '@element-plus/icons-vue'
   import { ElMessage } from 'element-plus'
 
   // 用户设置类型定义

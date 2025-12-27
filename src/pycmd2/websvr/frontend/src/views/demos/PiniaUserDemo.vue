@@ -7,32 +7,16 @@
           <el-input v-model="loginForm.email" placeholder="demo@example.com" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input
-            v-model="loginForm.password"
-            type="password"
-            placeholder="password"
-            show-password
-          />
+          <el-input v-model="loginForm.password" type="password" placeholder="password" show-password />
         </el-form-item>
         <el-form-item>
-          <el-button
-            type="primary"
-            @click="handleLogin"
-            :loading="userStore.loading"
-            class="login-button"
-          >
+          <el-button type="primary" @click="handleLogin" :loading="userStore.loading" class="login-button">
             登录
           </el-button>
         </el-form-item>
       </el-form>
 
-      <el-alert
-        v-if="userStore.error"
-        :title="userStore.error"
-        type="error"
-        :closable="false"
-        class="error-alert"
-      />
+      <el-alert v-if="userStore.error" :title="userStore.error" type="error" :closable="false" class="error-alert" />
 
       <el-divider>提示</el-divider>
       <p>测试账号: demo@example.com</p>

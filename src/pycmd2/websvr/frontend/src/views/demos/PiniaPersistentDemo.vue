@@ -38,12 +38,7 @@
                 </el-form-item>
 
                 <el-form-item label="字体大小">
-                  <el-slider
-                    v-model="appSettings.fontSize"
-                    :min="12"
-                    :max="24"
-                    @change="updateSetting('fontSize')"
-                  />
+                  <el-slider v-model="appSettings.fontSize" :min="12" :max="24" @change="updateSetting('fontSize')" />
                 </el-form-item>
 
                 <el-form-item label="自动保存">
@@ -68,12 +63,7 @@
                   <template #prepend>用户名</template>
                 </el-input>
 
-                <el-input
-                  v-model="userData.email"
-                  placeholder="邮箱"
-                  style="margin-top: 10px"
-                  @input="updateUserData"
-                >
+                <el-input v-model="userData.email" placeholder="邮箱" style="margin-top: 10px" @input="updateUserData">
                   <template #prepend>邮箱</template>
                 </el-input>
 
@@ -175,18 +165,9 @@
               </template>
 
               <el-tabs>
-                <el-tab-pane
-                  v-for="key in storageKeys"
-                  :key="key"
-                  :label="getDisplayName(key)"
-                  :name="key"
-                >
+                <el-tab-pane v-for="key in storageKeys" :key="key" :label="getDisplayName(key)" :name="key">
                   <div class="content-viewer">
-                    <el-button
-                      size="small"
-                      @click="copyToClipboard(storageData[key])"
-                      style="margin-bottom: 10px"
-                    >
+                    <el-button size="small" @click="copyToClipboard(storageData[key])" style="margin-bottom: 10px">
                       <el-icon><CopyDocument /></el-icon>
                       复制
                     </el-button>
@@ -202,12 +183,7 @@
 
     <!-- 导入对话框 -->
     <el-dialog v-model="showImportDialog" title="导入数据" width="500px">
-      <el-input
-        v-model="importData"
-        type="textarea"
-        :rows="10"
-        placeholder="粘贴导出的 JSON 数据..."
-      />
+      <el-input v-model="importData" type="textarea" :rows="10" placeholder="粘贴导出的 JSON 数据..." />
 
       <template #footer>
         <el-button @click="showImportDialog = false">取消</el-button>

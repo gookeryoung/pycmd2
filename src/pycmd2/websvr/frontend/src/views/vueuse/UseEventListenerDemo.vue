@@ -55,22 +55,13 @@
               <div class="shortcuts">
                 <h4>快捷键示例:</h4>
                 <el-space>
-                  <el-button
-                    @click="toggleShortcut('ctrl+s')"
-                    :type="shortcuts['ctrl+s'] ? 'success' : 'info'"
-                  >
+                  <el-button @click="toggleShortcut('ctrl+s')" :type="shortcuts['ctrl+s'] ? 'success' : 'info'">
                     Ctrl+S (保存)
                   </el-button>
-                  <el-button
-                    @click="toggleShortcut('ctrl+z')"
-                    :type="shortcuts['ctrl+z'] ? 'success' : 'info'"
-                  >
+                  <el-button @click="toggleShortcut('ctrl+z')" :type="shortcuts['ctrl+z'] ? 'success' : 'info'">
                     Ctrl+Z (撤销)
                   </el-button>
-                  <el-button
-                    @click="toggleShortcut('enter')"
-                    :type="shortcuts.enter ? 'success' : 'info'"
-                  >
+                  <el-button @click="toggleShortcut('enter')" :type="shortcuts.enter ? 'success' : 'info'">
                     Enter (确认)
                   </el-button>
                 </el-space>
@@ -232,10 +223,7 @@
                 <el-form-item>
                   <el-space>
                     <el-button @click="fireCustomEvent" type="primary"> 触发自定义事件 </el-button>
-                    <el-button
-                      @click="toggleCustomListener"
-                      :type="isCustomListenerActive ? 'success' : 'info'"
-                    >
+                    <el-button @click="toggleCustomListener" :type="isCustomListenerActive ? 'success' : 'info'">
                       {{ isCustomListenerActive ? '停止监听' : '开始监听' }}
                     </el-button>
                   </el-space>
@@ -266,13 +254,7 @@
 </template>
 
 <script setup lang="ts">
-  import {
-    useEventListener,
-    useOnline,
-    useNetwork,
-    useDocumentVisibility,
-    useDeviceOrientation
-  } from '@vueuse/core'
+  import { useEventListener, useOnline, useNetwork, useDocumentVisibility, useDeviceOrientation } from '@vueuse/core'
   import { ref, reactive } from 'vue'
   import { Mouse, Connection, Timer } from '@element-plus/icons-vue'
 
@@ -471,10 +453,8 @@
     text-align: center;
     margin-bottom: 20px;
     background:
-      linear-gradient(45deg, #f0f9ff 25%, transparent 25%),
-      linear-gradient(-45deg, #f0f9ff 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #f0f9ff 75%),
-      linear-gradient(-45deg, transparent 75%, #f0f9ff 75%);
+      linear-gradient(45deg, #f0f9ff 25%, transparent 25%), linear-gradient(-45deg, #f0f9ff 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #f0f9ff 75%), linear-gradient(-45deg, transparent 75%, #f0f9ff 75%);
     background-size: 20px 20px;
     background-position:
       0 0,

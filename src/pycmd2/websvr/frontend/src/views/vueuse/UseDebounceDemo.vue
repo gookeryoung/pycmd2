@@ -22,12 +22,7 @@
             <div class="input-section">
               <el-form>
                 <el-form-item label="搜索内容">
-                  <el-input
-                    v-model="searchInput"
-                    placeholder="输入搜索内容..."
-                    @input="handleSearch"
-                    clearable
-                  />
+                  <el-input v-model="searchInput" placeholder="输入搜索内容..." @input="handleSearch" clearable />
                 </el-form-item>
 
                 <el-form-item label="防抖延迟">
@@ -121,11 +116,7 @@
                   </el-descriptions-item>
                   <el-descriptions-item label="节省率">
                     <el-tag type="info">
-                      {{
-                        Math.round(
-                          ((buttonClickCount - buttonExecuteCount) / buttonClickCount) * 100
-                        )
-                      }}%
+                      {{ Math.round(((buttonClickCount - buttonExecuteCount) / buttonClickCount) * 100) }}%
                     </el-tag>
                   </el-descriptions-item>
                 </el-descriptions>
@@ -158,9 +149,7 @@
                   <div class="chart-item">
                     <h4>有防抖 - 只执行最后一次</h4>
                     <el-progress
-                      :percentage="
-                        searchCount > 0 ? Math.round((actualSearchCount / searchCount) * 100) : 0
-                      "
+                      :percentage="searchCount > 0 ? Math.round((actualSearchCount / searchCount) * 100) : 0"
                       status="success"
                       :stroke-width="10"
                     />

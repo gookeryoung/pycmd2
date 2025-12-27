@@ -123,20 +123,12 @@
                     <el-statistic title="实际执行次数" :value="executeCount" />
                   </el-col>
                   <el-col :span="6">
-                    <el-statistic
-                      title="节省次数"
-                      :value="clickCount - executeCount"
-                      value-style="color: #f56c6c"
-                    />
+                    <el-statistic title="节省次数" :value="clickCount - executeCount" value-style="color: #f56c6c" />
                   </el-col>
                   <el-col :span="6">
                     <el-statistic
                       title="节省率"
-                      :value="
-                        clickCount > 0
-                          ? Math.round(((clickCount - executeCount) / clickCount) * 100)
-                          : 0
-                      "
+                      :value="clickCount > 0 ? Math.round(((clickCount - executeCount) / clickCount) * 100) : 0"
                       suffix="%"
                       value-style="color: #67c23a"
                     />
@@ -147,12 +139,7 @@
               <div class="click-log">
                 <h4>点击日志:</h4>
                 <div class="log-container">
-                  <el-tag
-                    v-for="(log, index) in clickLogs"
-                    :key="index"
-                    :type="log.type"
-                    class="log-item"
-                  >
+                  <el-tag v-for="(log, index) in clickLogs" :key="index" :type="log.type" class="log-item">
                     {{ log.message }}
                   </el-tag>
                 </div>
@@ -179,20 +166,14 @@
                     <h4>鼠标移动</h4>
                     <el-progress
                       type="circle"
-                      :percentage="
-                        mouseMoveCount > 0
-                          ? Math.round((throttledMoveCount / mouseMoveCount) * 100)
-                          : 0
-                      "
+                      :percentage="mouseMoveCount > 0 ? Math.round((throttledMoveCount / mouseMoveCount) * 100) : 0"
                       :width="100"
                     />
                     <p>
                       优化率:
                       {{
                         mouseMoveCount > 0
-                          ? Math.round(
-                              ((mouseMoveCount - throttledMoveCount) / mouseMoveCount) * 100
-                            )
+                          ? Math.round(((mouseMoveCount - throttledMoveCount) / mouseMoveCount) * 100)
                           : 0
                       }}%
                     </p>
@@ -203,17 +184,13 @@
                     <h4>滚动事件</h4>
                     <el-progress
                       type="circle"
-                      :percentage="
-                        scrollCount > 0 ? Math.round((throttledScrollCount / scrollCount) * 100) : 0
-                      "
+                      :percentage="scrollCount > 0 ? Math.round((throttledScrollCount / scrollCount) * 100) : 0"
                       :width="100"
                     />
                     <p>
                       优化率:
                       {{
-                        scrollCount > 0
-                          ? Math.round(((scrollCount - throttledScrollCount) / scrollCount) * 100)
-                          : 0
+                        scrollCount > 0 ? Math.round(((scrollCount - throttledScrollCount) / scrollCount) * 100) : 0
                       }}%
                     </p>
                   </div>
@@ -223,18 +200,12 @@
                     <h4>按钮点击</h4>
                     <el-progress
                       type="circle"
-                      :percentage="
-                        clickCount > 0 ? Math.round((executeCount / clickCount) * 100) : 0
-                      "
+                      :percentage="clickCount > 0 ? Math.round((executeCount / clickCount) * 100) : 0"
                       :width="100"
                     />
                     <p>
                       优化率:
-                      {{
-                        clickCount > 0
-                          ? Math.round(((clickCount - executeCount) / clickCount) * 100)
-                          : 0
-                      }}%
+                      {{ clickCount > 0 ? Math.round(((clickCount - executeCount) / clickCount) * 100) : 0 }}%
                     </p>
                   </div>
                 </el-col>
@@ -409,10 +380,8 @@
     position: relative;
     margin-bottom: 20px;
     background:
-      linear-gradient(45deg, #f0f9ff 25%, transparent 25%),
-      linear-gradient(-45deg, #f0f9ff 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #f0f9ff 75%),
-      linear-gradient(-45deg, transparent 75%, #f0f9ff 75%);
+      linear-gradient(45deg, #f0f9ff 25%, transparent 25%), linear-gradient(-45deg, #f0f9ff 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #f0f9ff 75%), linear-gradient(-45deg, transparent 75%, #f0f9ff 75%);
     background-size: 20px 20px;
     background-position:
       0 0,

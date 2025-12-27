@@ -174,10 +174,7 @@
 
   // 自定义样式状态
   const customStyle = computed(() => {
-    return (
-      document.documentElement.classList.contains('dark') ||
-      document.documentElement.classList.contains('light')
-    )
+    return document.documentElement.classList.contains('dark') || document.documentElement.classList.contains('light')
   })
 
   // 主题切换处理

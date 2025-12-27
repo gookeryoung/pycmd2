@@ -30,12 +30,7 @@
         <el-card header="实时监听控制">
           <div class="listener-controls">
             <h4>监听状态:</h4>
-            <el-switch
-              v-model="isListening"
-              active-text="监听中"
-              inactive-text="已暂停"
-              @change="toggleListener"
-            />
+            <el-switch v-model="isListening" active-text="监听中" inactive-text="已暂停" @change="toggleListener" />
             <el-divider />
             <h4>监听选项:</h4>
             <el-checkbox-group v-model="listenOptions">
@@ -126,12 +121,7 @@
       <el-col :span="12">
         <el-card header="尺寸变化历史">
           <div class="size-history">
-            <el-button
-              @click="clearHistory"
-              type="warning"
-              size="small"
-              style="margin-bottom: 10px"
-            >
+            <el-button @click="clearHistory" type="warning" size="small" style="margin-bottom: 10px">
               清空历史
             </el-button>
             <el-table :data="sizeHistory" height="200" stripe>
@@ -196,27 +186,13 @@
             <h4>自定义尺寸:</h4>
             <el-row :gutter="15">
               <el-col :span="8">
-                <el-input-number
-                  v-model="customWidth"
-                  :min="200"
-                  :max="4000"
-                  placeholder="宽度"
-                  style="width: 100%"
-                />
+                <el-input-number v-model="customWidth" :min="200" :max="4000" placeholder="宽度" style="width: 100%" />
               </el-col>
               <el-col :span="8">
-                <el-input-number
-                  v-model="customHeight"
-                  :min="200"
-                  :max="4000"
-                  placeholder="高度"
-                  style="width: 100%"
-                />
+                <el-input-number v-model="customHeight" :min="200" :max="4000" placeholder="高度" style="width: 100%" />
               </el-col>
               <el-col :span="8">
-                <el-button @click="simulateCustom" type="primary" style="width: 100%">
-                  应用尺寸
-                </el-button>
+                <el-button @click="simulateCustom" type="primary" style="width: 100%"> 应用尺寸 </el-button>
               </el-col>
             </el-row>
           </div>
@@ -464,20 +440,12 @@
 
     const maxVal = Math.max(
       ...chartData.map(d =>
-        chartType.value === 'width'
-          ? d.width
-          : chartType.value === 'height'
-            ? d.height
-            : Math.max(d.width, d.height)
+        chartType.value === 'width' ? d.width : chartType.value === 'height' ? d.height : Math.max(d.width, d.height)
       )
     )
     const minVal = Math.min(
       ...chartData.map(d =>
-        chartType.value === 'width'
-          ? d.width
-          : chartType.value === 'height'
-            ? d.height
-            : Math.min(d.width, d.height)
+        chartType.value === 'width' ? d.width : chartType.value === 'height' ? d.height : Math.min(d.width, d.height)
       )
     )
     const range = maxVal - minVal || 1

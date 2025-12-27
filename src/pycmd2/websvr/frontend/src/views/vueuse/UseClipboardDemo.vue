@@ -22,12 +22,7 @@
             <div class="copy-section">
               <el-form label-width="80px">
                 <el-form-item label="内容">
-                  <el-input
-                    v-model="textToCopy"
-                    type="textarea"
-                    :rows="4"
-                    placeholder="输入要复制的内容..."
-                  />
+                  <el-input v-model="textToCopy" type="textarea" :rows="4" placeholder="输入要复制的内容..." />
                 </el-form-item>
 
                 <el-form-item>
@@ -148,11 +143,7 @@
                     </el-form>
 
                     <div class="image-preview" v-if="imageUrl">
-                      <img
-                        :src="imageUrl"
-                        alt="预览图片"
-                        style="max-width: 200px; max-height: 200px"
-                      />
+                      <img :src="imageUrl" alt="预览图片" style="max-width: 200px; max-height: 200px" />
                     </div>
                   </div>
                 </el-tab-pane>
@@ -165,9 +156,7 @@
                       <el-table-column prop="city" label="城市" />
                       <el-table-column label="操作">
                         <template #default="scope">
-                          <el-button @click="copyTableRow(scope.row)" size="small">
-                            复制行
-                          </el-button>
+                          <el-button @click="copyTableRow(scope.row)" size="small"> 复制行 </el-button>
                         </template>
                       </el-table-column>
                     </el-table>
@@ -209,9 +198,7 @@
                 </el-timeline-item>
               </el-timeline>
 
-              <el-button @click="clearHistory" size="small" style="margin-top: 10px">
-                清除历史
-              </el-button>
+              <el-button @click="clearHistory" size="small" style="margin-top: 10px"> 清除历史 </el-button>
             </div>
           </el-card>
         </el-col>
@@ -369,11 +356,7 @@
   }
 
   // 添加到历史记录
-  const addToHistory = (
-    action: string,
-    content: string,
-    type: 'primary' | 'success' | 'warning' | 'danger'
-  ) => {
+  const addToHistory = (action: string, content: string, type: 'primary' | 'success' | 'warning' | 'danger') => {
     history.value.unshift({
       action,
       content,

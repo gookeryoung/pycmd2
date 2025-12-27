@@ -10,13 +10,7 @@
 
       <!-- 添加新待办事项 -->
       <div class="add-todo-section">
-        <el-input
-          v-model="newTodoText"
-          placeholder="添加新的待办事项..."
-          @keyup.enter="addTodo"
-          clearable
-          size="large"
-        >
+        <el-input v-model="newTodoText" placeholder="添加新的待办事项..." @keyup.enter="addTodo" clearable size="large">
           <template #append>
             <el-button type="primary" @click="addTodo" :disabled="!newTodoText.trim()">
               <el-icon>
@@ -32,23 +26,13 @@
       <div class="filter-stats-section">
         <el-radio-group v-model="currentFilter" @change="handleFilterChange" class="filter-group">
           <el-radio-button label="all"> 全部 ({{ todosStore.totalCount }}) </el-radio-button>
-          <el-radio-button label="pending">
-            待完成 ({{ todosStore.pendingCount }})
-          </el-radio-button>
-          <el-radio-button label="completed">
-            已完成 ({{ todosStore.completedCount }})
-          </el-radio-button>
+          <el-radio-button label="pending"> 待完成 ({{ todosStore.pendingCount }}) </el-radio-button>
+          <el-radio-button label="completed"> 已完成 ({{ todosStore.completedCount }}) </el-radio-button>
         </el-radio-group>
 
         <div class="progress-container">
-          <el-progress
-            :percentage="todosStore.completionPercentage"
-            :color="progressColor"
-            :stroke-width="8"
-          />
-          <div class="progress-text">
-            完成进度: {{ todosStore.completedCount }} / {{ todosStore.totalCount }}
-          </div>
+          <el-progress :percentage="todosStore.completionPercentage" :color="progressColor" :stroke-width="8" />
+          <div class="progress-text">完成进度: {{ todosStore.completedCount }} / {{ todosStore.totalCount }}</div>
         </div>
       </div>
 
@@ -75,11 +59,7 @@
             <div v-for="todo in filteredTodos" :key="todo.id" class="todo-item">
               <el-card shadow="hover" class="todo-card" :class="{ completed: todo.completed }">
                 <div class="todo-content">
-                  <el-checkbox
-                    :model-value="todo.completed"
-                    @change="toggleTodo(todo.id)"
-                    size="large"
-                  />
+                  <el-checkbox :model-value="todo.completed" @change="toggleTodo(todo.id)" size="large" />
 
                   <div class="todo-text-container">
                     <p class="todo-text" :class="{ completed: todo.completed }">
@@ -96,13 +76,7 @@
                   </div>
 
                   <div class="todo-actions">
-                    <el-button
-                      type="danger"
-                      size="small"
-                      @click="confirmRemoveTodo(todo)"
-                      :icon="Delete"
-                      circle
-                    />
+                    <el-button type="danger" size="small" @click="confirmRemoveTodo(todo)" :icon="Delete" circle />
                   </div>
                 </div>
               </el-card>
@@ -112,11 +86,7 @@
 
         <!-- 批量操作 -->
         <div v-if="filteredTodos.length > 0" class="bulk-actions">
-          <el-button
-            type="warning"
-            @click="clearCompleted"
-            :disabled="todosStore.completedCount === 0"
-          >
+          <el-button type="warning" @click="clearCompleted" :disabled="todosStore.completedCount === 0">
             <el-icon>
               <Delete />
             </el-icon>
@@ -125,9 +95,7 @@
 
           <el-button type="info" @click="refreshTodos" :icon="Refresh"> 刷新 </el-button>
 
-          <el-button type="danger" @click="confirmClearAllData" :icon="Delete">
-            清除所有数据
-          </el-button>
+          <el-button type="danger" @click="confirmClearAllData" :icon="Delete"> 清除所有数据 </el-button>
         </div>
       </div>
     </el-card>
@@ -191,15 +159,11 @@
   const clearCompleted = () => {
     if (todosStore.completedCount === 0) return
 
-    ElMessageBox.confirm(
-      `确定要清除所有已完成的 ${todosStore.completedCount} 项待办事项吗?`,
-      '确认清除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    ElMessageBox.confirm(`确定要清除所有已完成的 ${todosStore.completedCount} 项待办事项吗?`, '确认清除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
       .then(() => {
         todosStore.clearCompleted()
         ElMessage.success('已清除所有已完成的待办事项')

@@ -171,10 +171,8 @@
     justify-content: center;
     position: relative;
     background:
-      linear-gradient(45deg, #f0f9ff 25%, transparent 25%),
-      linear-gradient(-45deg, #f0f9ff 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #f0f9ff 75%),
-      linear-gradient(-45deg, transparent 75%, #f0f9ff 75%);
+      linear-gradient(45deg, #f0f9ff 25%, transparent 25%), linear-gradient(-45deg, #f0f9ff 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #f0f9ff 75%), linear-gradient(-45deg, transparent 75%, #f0f9ff 75%);
     background-size: 20px 20px;
     background-position:
       0 0,

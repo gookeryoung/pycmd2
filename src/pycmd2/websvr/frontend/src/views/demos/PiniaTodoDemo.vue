@@ -3,12 +3,7 @@
     <el-card header="待办事项管理示例 - Todo Store">
       <div class="todo-section">
         <div class="add-todo">
-          <el-input
-            v-model="newTodo"
-            placeholder="添加新的待办事项..."
-            @keyup.enter="addTodo"
-            clearable
-          >
+          <el-input v-model="newTodo" placeholder="添加新的待办事项..." @keyup.enter="addTodo" clearable>
             <template #append>
               <el-button type="primary" @click="addTodo">
                 <el-icon>
@@ -23,20 +18,14 @@
         <div class="filters">
           <el-radio-group v-model="todosStore.filter" @change="onFilterChange">
             <el-radio-button label="all">全部 ({{ todosStore.totalCount }})</el-radio-button>
-            <el-radio-button label="pending">
-              待完成 ({{ todosStore.pendingCount }})
-            </el-radio-button>
-            <el-radio-button label="completed">
-              已完成 ({{ todosStore.completedCount }})
-            </el-radio-button>
+            <el-radio-button label="pending"> 待完成 ({{ todosStore.pendingCount }}) </el-radio-button>
+            <el-radio-button label="completed"> 已完成 ({{ todosStore.completedCount }}) </el-radio-button>
           </el-radio-group>
         </div>
 
         <div class="progress-section">
           <el-progress :percentage="todosStore.completionPercentage" :color="getProgressColor" />
-          <div class="progress-text">
-            完成进度: {{ todosStore.completedCount }} / {{ todosStore.totalCount }}
-          </div>
+          <div class="progress-text">完成进度: {{ todosStore.completedCount }} / {{ todosStore.totalCount }}</div>
         </div>
 
         <el-divider />
@@ -56,24 +45,14 @@
             <div v-for="todo in filteredTodos" :key="todo.id" class="todo-item">
               <el-card shadow="hover" class="todo-card">
                 <div class="todo-content">
-                  <el-checkbox
-                    :model-value="todo.completed"
-                    @change="toggleTodo(todo.id)"
-                    :label="todo.id"
-                  >
+                  <el-checkbox :model-value="todo.completed" @change="toggleTodo(todo.id)" :label="todo.id">
                     <span :class="{ completed: todo.completed }" class="todo-text">
                       {{ todo.text }}
                     </span>
                   </el-checkbox>
 
                   <div class="todo-actions">
-                    <el-button
-                      type="danger"
-                      size="small"
-                      @click="removeTodo(todo.id)"
-                      :icon="Delete"
-                      circle
-                    />
+                    <el-button type="danger" size="small" @click="removeTodo(todo.id)" :icon="Delete" circle />
                   </div>
                 </div>
 
@@ -89,11 +68,7 @@
         </div>
 
         <div class="bulk-actions" v-if="filteredTodos.length > 0">
-          <el-button
-            type="warning"
-            @click="clearCompleted"
-            :disabled="todosStore.completedCount === 0"
-          >
+          <el-button type="warning" @click="clearCompleted" :disabled="todosStore.completedCount === 0">
             <el-icon>
               <Delete />
             </el-icon>

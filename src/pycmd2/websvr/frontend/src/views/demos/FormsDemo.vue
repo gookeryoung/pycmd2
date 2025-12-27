@@ -17,12 +17,7 @@
             </el-form-item>
             <el-form-item label="活动时间">
               <el-col :span="11">
-                <el-date-picker
-                  type="date"
-                  placeholder="选择日期"
-                  v-model="form.date1"
-                  style="width: 100%"
-                />
+                <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%" />
               </el-col>
               <el-col :span="2" class="text-center">
                 <span class="text-gray-500">-</span>

@@ -25,12 +25,7 @@
                   </el-tag>
                 </div>
 
-                <el-button
-                  type="danger"
-                  size="small"
-                  @click="userStore.logout"
-                  style="margin-top: 15px"
-                >
+                <el-button type="danger" size="small" @click="userStore.logout" style="margin-top: 15px">
                   退出登录
                 </el-button>
               </div>
@@ -65,9 +60,7 @@
                   <el-button type="primary" @click="counterStore.increment()">+</el-button>
                 </el-button-group>
 
-                <el-button type="warning" size="small" @click="counterStore.reset()">
-                  重置
-                </el-button>
+                <el-button type="warning" size="small" @click="counterStore.reset()"> 重置 </el-button>
               </div>
             </el-card>
           </el-col>
@@ -89,10 +82,7 @@
               <div class="stats-container">
                 <el-row :gutter="20">
                   <el-col :span="6">
-                    <el-statistic
-                      title="用户状态"
-                      :value="userStore.isAuthenticated ? '已登录' : '未登录'"
-                    />
+                    <el-statistic title="用户状态" :value="userStore.isAuthenticated ? '已登录' : '未登录'" />
                   </el-col>
                   <el-col :span="6">
                     <el-statistic title="计数操作" :value="totalOperations" />
@@ -101,19 +91,11 @@
                     <el-statistic title="待办事项" :value="todosStore.totalCount" />
                   </el-col>
                   <el-col :span="6">
-                    <el-statistic
-                      title="完成率"
-                      :value="todosStore.completionPercentage"
-                      suffix="%"
-                    />
+                    <el-statistic title="完成率" :value="todosStore.completionPercentage" suffix="%" />
                   </el-col>
                 </el-row>
 
-                <el-progress
-                  :percentage="overallProgress"
-                  :status="getProgressStatus"
-                  style="margin-top: 20px"
-                />
+                <el-progress :percentage="overallProgress" :status="getProgressStatus" style="margin-top: 20px" />
               </div>
             </el-card>
           </el-col>
@@ -133,22 +115,14 @@
               </template>
 
               <div class="quick-actions">
-                <el-button
-                  type="primary"
-                  @click="performComplexOperation"
-                  :loading="isProcessing || operationLock"
-                >
+                <el-button type="primary" @click="performComplexOperation" :loading="isProcessing || operationLock">
                   <el-icon>
                     <Magic />
                   </el-icon>
                   执行组合操作
                 </el-button>
 
-                <el-button
-                  type="success"
-                  @click="syncUserData"
-                  :disabled="!userStore.isAuthenticated || operationLock"
-                >
+                <el-button type="success" @click="syncUserData" :disabled="!userStore.isAuthenticated || operationLock">
                   <el-icon>
                     <Refresh />
                   </el-icon>

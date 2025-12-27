@@ -132,16 +132,8 @@
                 <el-input v-model="search" size="small" placeholder="搜索姓名" />
               </template>
               <template #default="scope">
-                <el-button size="small" @click="handleEdit(scope.$index, scope.row)">
-                  编辑
-                </el-button>
-                <el-button
-                  size="small"
-                  type="danger"
-                  @click="handleDelete(scope.$index, scope.row)"
-                >
-                  删除
-                </el-button>
+                <el-button size="small" @click="handleEdit(scope.$index, scope.row)"> 编辑 </el-button>
+                <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)"> 删除 </el-button>
               </template>
             </el-table-column>
           </el-table>

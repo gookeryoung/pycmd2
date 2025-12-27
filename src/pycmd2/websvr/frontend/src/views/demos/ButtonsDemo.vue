@@ -96,15 +96,7 @@
 </template>
 
 <script setup lang="ts">
-  import {
-    Search,
-    Edit,
-    Message,
-    Star,
-    Delete,
-    ArrowLeft,
-    ArrowRight
-  } from '@element-plus/icons-vue'
+  import { Search, Edit, Message, Star, Delete, ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>

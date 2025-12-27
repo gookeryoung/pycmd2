@@ -21,9 +21,7 @@
 
       <el-col :span="12">
         <el-card header="自定义内容">
-          <el-button type="text" @click="dialogTableVisible = true">
-            打开嵌套表格的 Dialog
-          </el-button>
+          <el-button type="text" @click="dialogTableVisible = true"> 打开嵌套表格的 Dialog </el-button>
 
           <el-dialog v-model="dialogTableVisible" title="收货地址" width="800">
             <el-table :data="gridData">

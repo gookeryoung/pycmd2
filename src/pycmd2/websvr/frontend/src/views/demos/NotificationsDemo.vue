@@ -62,11 +62,7 @@
         <el-card header="可关闭的全局消息">
           <div class="notification-controls">
             <el-input v-model="title" placeholder="标题" style="width: 200px; margin-right: 10px" />
-            <el-input
-              v-model="message"
-              placeholder="消息内容"
-              style="width: 300px; margin-right: 10px"
-            />
+            <el-input v-model="message" placeholder="消息内容" style="width: 300px; margin-right: 10px" />
             <el-select v-model="type" style="width: 120px; margin-right: 10px">
               <el-option label="成功" value="success" />
               <el-option label="警告" value="warning" />

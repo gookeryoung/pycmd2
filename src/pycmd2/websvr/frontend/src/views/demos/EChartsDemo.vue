@@ -14,22 +14,12 @@
               <template #header>
                 <div class="card-header">
                   <span>折线图示例</span>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click="refreshLineChart"
-                    :loading="lineChartLoading"
-                  >
+                  <el-button type="primary" size="small" @click="refreshLineChart" :loading="lineChartLoading">
                     刷新数据
                   </el-button>
                 </div>
               </template>
-              <VChart
-                class="chart"
-                :option="lineChartOption"
-                :loading="lineChartLoading"
-                autoresize
-              />
+              <VChart class="chart" :option="lineChartOption" :loading="lineChartLoading" autoresize />
             </el-card>
           </el-col>
 
@@ -39,22 +29,12 @@
               <template #header>
                 <div class="card-header">
                   <span>柱状图示例</span>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click="refreshBarChart"
-                    :loading="barChartLoading"
-                  >
+                  <el-button type="primary" size="small" @click="refreshBarChart" :loading="barChartLoading">
                     刷新数据
                   </el-button>
                 </div>
               </template>
-              <VChart
-                class="chart"
-                :option="barChartOption"
-                :loading="barChartLoading"
-                autoresize
-              />
+              <VChart class="chart" :option="barChartOption" :loading="barChartLoading" autoresize />
             </el-card>
           </el-col>
         </el-row>
@@ -66,22 +46,12 @@
               <template #header>
                 <div class="card-header">
                   <span>饼图示例</span>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click="refreshPieChart"
-                    :loading="pieChartLoading"
-                  >
+                  <el-button type="primary" size="small" @click="refreshPieChart" :loading="pieChartLoading">
                     刷新数据
                   </el-button>
                 </div>
               </template>
-              <VChart
-                class="chart"
-                :option="pieChartOption"
-                :loading="pieChartLoading"
-                autoresize
-              />
+              <VChart class="chart" :option="pieChartOption" :loading="pieChartLoading" autoresize />
             </el-card>
           </el-col>
 
@@ -91,22 +61,12 @@
               <template #header>
                 <div class="card-header">
                   <span>散点图示例</span>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click="refreshScatterChart"
-                    :loading="scatterChartLoading"
-                  >
+                  <el-button type="primary" size="small" @click="refreshScatterChart" :loading="scatterChartLoading">
                     刷新数据
                   </el-button>
                 </div>
               </template>
-              <VChart
-                class="chart"
-                :option="scatterChartOption"
-                :loading="scatterChartLoading"
-                autoresize
-              />
+              <VChart class="chart" :option="scatterChartOption" :loading="scatterChartLoading" autoresize />
             </el-card>
           </el-col>
         </el-row>
@@ -358,13 +318,7 @@
   }
 
   // 生成散点数据
-  function generateScatterData(
-    xMin: number,
-    xMax: number,
-    yMin: number,
-    yMax: number,
-    count: number
-  ) {
+  function generateScatterData(xMin: number, xMax: number, yMin: number, yMax: number, count: number) {
     return Array.from({ length: count }, () => [
       Math.round(xMin + Math.random() * (xMax - xMin)),
       Math.round(yMin + Math.random() * (yMax - yMin))
@@ -375,11 +329,7 @@
   function refreshLineChart() {
     lineChartLoading.value = true
     setTimeout(() => {
-      if (
-        lineChartOption.value.series &&
-        lineChartOption.value.series[0] &&
-        lineChartOption.value.series[1]
-      ) {
+      if (lineChartOption.value.series && lineChartOption.value.series[0] && lineChartOption.value.series[1]) {
         lineChartOption.value.series[0].data = generateRandomArray(6, 300)
         lineChartOption.value.series[1].data = generateRandomArray(6, 400)
       }
@@ -391,11 +341,7 @@
   function refreshBarChart() {
     barChartLoading.value = true
     setTimeout(() => {
-      if (
-        barChartOption.value.series &&
-        barChartOption.value.series[0] &&
-        barChartOption.value.series[1]
-      ) {
+      if (barChartOption.value.series && barChartOption.value.series[0] && barChartOption.value.series[1]) {
         barChartOption.value.series[0].data = generateRandomArray(4, 250)
         barChartOption.value.series[1].data = generateRandomArray(4, 350)
       }
@@ -425,11 +371,7 @@
   function refreshScatterChart() {
     scatterChartLoading.value = true
     setTimeout(() => {
-      if (
-        scatterChartOption.value.series &&
-        scatterChartOption.value.series[0] &&
-        scatterChartOption.value.series[1]
-      ) {
+      if (scatterChartOption.value.series && scatterChartOption.value.series[0] && scatterChartOption.value.series[1]) {
         scatterChartOption.value.series[0].data = generateScatterData(165, 180, 55, 80, 50)
         scatterChartOption.value.series[1].data = generateScatterData(155, 170, 45, 70, 50)
       }
