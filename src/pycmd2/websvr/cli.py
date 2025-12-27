@@ -23,7 +23,22 @@ def clean() -> None:
     svr.clean()
 
 
-@app.command("dev")
+@app.command("install")
+@app.command("i")
+def install() -> None:
+    """安装依赖, 默认别名: i."""
+    svr = server.NativeServer()
+    svr.install_dependencies()
+
+
+@app.command("lint")
+@app.command("l")
+def lint() -> None:
+    """代码检查."""
+    svr = server.NativeServer()
+    svr.lint()
+
+
 @app.command("d")
 def dev(
     port: int = typer.Argument(

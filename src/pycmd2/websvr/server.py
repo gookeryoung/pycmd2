@@ -85,9 +85,7 @@ class BaseServer(abc.ABC):
     def install_dependencies(self) -> None:
         """安装依赖."""
         cmd = self.find_package_manager()
-        if cmd is None:
-            msg = "未找到 yarn 或 npm 命令"
-            raise RuntimeError(msg)
+        assert cmd, "未找到包管理器"
 
         # 保存当前工作目录
         original_dir = Path.cwd()
@@ -98,30 +96,19 @@ class BaseServer(abc.ABC):
             # 恢复原始工作目录
             os.chdir(original_dir)
 
-    def find_build_command(self) -> Optional[str]:
-        """查找可用的构建命令."""
-        for cmd in ["vite", "yarn", "npm"]:
-            if check_command_available(f"{cmd}{self.cmd_suffix}"):
-                return f"{cmd}{self.cmd_suffix}"
-        return None
-
     def build(self) -> None:
         """构建前端."""
-        command = self.find_build_command()
-        if command is None:
-            msg = "未找到 yarn 或 npm 或 vite 命令"
-            raise RuntimeError(msg)
+        command = self.find_package_manager()
+        assert command, "未找到构建命令"
 
-        # 保存当前工作目录
         original_dir = Path.cwd()
         try:
             os.chdir(str(self.FRONTEND_DIR))
-            build_proc = subprocess.run([command, "build"], check=False)
+            build_proc = subprocess.run([command, "run", "build"], check=False)
             if build_proc.returncode != 0:
                 msg = "构建失败, 请检查代码是否有错误"
                 raise RuntimeError(msg)
         finally:
-            # 恢复原始工作目录
             os.chdir(original_dir)
 
     def clean(self) -> None:
@@ -133,6 +120,23 @@ class BaseServer(abc.ABC):
                 typer.echo(f"清理构建文件时出错: {e!s}", err=True)
             else:
                 typer.echo("清理构建文件成功")
+
+    def lint(self) -> None:
+        """检查代码."""
+        command = self.find_package_manager()
+        assert command, "未找到包管理器"
+
+        original_dir = Path.cwd()
+        typer.echo("正在检查代码...")
+        try:
+            os.chdir(str(self.FRONTEND_DIR))
+            subprocess.run([command, "run", "lint"], check=True)
+        except subprocess.CalledProcessError as e:
+            typer.echo(f"检查代码时出错: {e!s}", err=True)
+        else:
+            typer.echo("检查代码成功")
+        finally:
+            os.chdir(original_dir)
 
 
 class NativeServer(BaseServer):

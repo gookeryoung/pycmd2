@@ -65,8 +65,7 @@ taskk = "pycmd2.commands.system.task_kill:cli.app"
 wch = "pycmd2.commands.system.which:cli.app"
 
 # web
-websvr = "pycmd2.web.cli:main"
-wv = "pycmd2.websvr.cli:app"
+websvr = "pycmd2.websvr.cli:app"
 
 [project.urls]
 Documentation = "https://pycmd2.readthedocs.io/zh-cn/stable/"
