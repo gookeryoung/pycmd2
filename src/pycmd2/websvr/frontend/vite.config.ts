@@ -20,31 +20,36 @@ export default defineConfig(({ command, mode }) => {
       // 优化 chunk 分割
       rollupOptions: {
         output: {
-          // 优化的手动分割第三方库 - 使用映射表提高性能
+          // 优化的 chunk 分割策略 - 使用映射配置替代分支检测
           manualChunks: (id: string) => {
-            // 非第三方库不分割，返回 undefined 让 Rollup 处理
+            // 非第三方库不分割
             if (!id.includes('node_modules')) {
               return undefined
             }
 
-            // 高效的映射表匹配 - O(n) 时间复杂度
-            const chunkMapping: Record<string, string> = {
-              vue: 'vue-vendor',
-              'vue-router': 'vue-vendor',
-              pinia: 'vue-vendor',
-              'element-plus': 'element-plus',
-              '@element-plus': 'element-plus',
-              echarts: 'charts',
-              'vue-echarts': 'charts',
-              '@vueuse': 'vueuse'
-              // 'lodash': 'utils',
-              // 'dayjs': 'utils',
-              // 'axios': 'utils'
+            // 包名到 chunk 的映射配置
+            const chunkMapping: Record<string, string[]> = {
+              'vue-core': ['vue'], // 核心 Vue 库
+              vueuse: ['@vueuse'], // VueUse 工具库
+              'element-plus': ['element-plus'], // UI 组件库
+              charts: ['echarts'], // 图表库
+              utils: ['lodash', 'dayjs', 'axios'] // 工具库
             }
 
-            // 使用 for...of 循环进行高效匹配
-            for (const [key, chunkName] of Object.entries(chunkMapping)) {
-              if (id.includes(key)) {
+            // 遍历映射配置，检查包名匹配
+            for (const [chunkName, packages] of Object.entries(chunkMapping)) {
+              // 检查是否匹配当前 chunk 的任何包名
+              const matchesPackage = packages.some(pkg => id.includes(pkg))
+
+              // 特殊处理：vue-core 需要排除 vue 生态系统中的其他包
+              if (chunkName === 'vue-core' && matchesPackage) {
+                const isVueEcosystem =
+                  chunkMapping['vueuse'].some(pkg => id.includes(pkg)) ||
+                  chunkMapping['element-plus'].some(pkg => id.includes(pkg))
+                if (!isVueEcosystem) {
+                  return chunkName
+                }
+              } else if (matchesPackage) {
                 return chunkName
               }
             }
@@ -61,6 +66,7 @@ export default defineConfig(({ command, mode }) => {
             }
             return 'js/[name]-[hash].js'
           },
+
           // 静态资源命名
           assetFileNames: (assetInfo: { name?: string }) => {
             const info = assetInfo.name?.split('.') || []
@@ -81,7 +87,9 @@ export default defineConfig(({ command, mode }) => {
       // 设置 chunk 大小警告限制
       chunkSizeWarningLimit: 1000,
       // 启用 CSS 代码分割
-      cssCodeSplit: true
+      cssCodeSplit: true,
+      // 使用 esbuild 进行压缩（Vite 默认，更快且无需额外依赖）
+      minify: 'esbuild'
     },
     server: {
       host: '0.0.0.0', // 允许从任何IP地址访问
