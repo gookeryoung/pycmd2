@@ -17,6 +17,7 @@ import webview
 from pycmd2.utils import check_command_available
 from pycmd2.utils import check_port_available
 from pycmd2.utils import check_proc_by_name
+from pycmd2.utils import kill_proc_by_port
 
 
 class BaseServer(abc.ABC):
@@ -154,8 +155,8 @@ class ApiServer(BaseServer):
 
         # 检查端口是否可用
         if not check_port_available(host, port):
-            typer.echo(f"端口 {port} 已被占用, 请选择其他端口")
-            return
+            typer.echo(f"端口 {port} 已被占用, 尝试终止占用进程")
+            kill_proc_by_port(port)
 
         def start_server() -> None:
             original_dir = Path.cwd()

@@ -103,10 +103,10 @@ def call_command(cmd: str, kill_func: Optional[Callable[[str], None]] = None) ->
         if kill_func:
             kill_func(cmd)
         else:
-            kill_process(cmd)
+            kill_proc(cmd)
 
 
-def kill_process(proc_name: str) -> None:
+def kill_proc(proc_name: str) -> None:
     """杀死进程."""
     if not PSUTIL_AVAILABLE:
         typer.echo("psutil 模块未安装, 无法杀死进程", err=True)
@@ -123,3 +123,40 @@ def kill_process(proc_name: str) -> None:
     else:
         if killed_count > 0:
             typer.echo(f"已终止 {killed_count} 个 `{proc_name}` 进程")
+
+
+def kill_proc_by_pid(pid: int) -> None:
+    """杀死进程."""
+    if not PSUTIL_AVAILABLE:
+        typer.echo("psutil 模块未安装, 无法杀死进程", err=True)
+        return
+
+    try:
+        proc = psutil.Process(pid)
+        proc.kill()
+    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+        typer.echo(f"无法终止进程 `{proc.info['name']}`", err=True)
+    else:
+        typer.echo(f"已终止 `{proc.info['name']}` 进程: {proc.info['name']}")
+
+
+def kill_proc_by_port(port: int) -> None:
+    """杀死进程."""
+    if not PSUTIL_AVAILABLE:
+        typer.echo("psutil 模块未安装, 无法杀死进程", err=True)
+        return
+
+    try:
+        for proc in psutil.process_iter(["pid", "name", "net_connections"]):
+            if proc.info["net_connections"]:
+                for conn in proc.info["net_connections"]:
+                    if conn.laddr.port == port:
+                        proc.kill()
+                        typer.echo(
+                            f"已终止 `{proc.info['name']}` 进程, "
+                            f"pid: {proc.info['pid']}, "
+                            f"port: {port}",
+                        )
+                        return
+    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+        typer.echo(f"无法终止进程 `{proc.info['name']}`", err=True)
