@@ -80,6 +80,14 @@ def check_port_available(host: str, port: int) -> bool:
         return False
 
 
+def find_free_port() -> int:
+    """查找可用的端口."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("", 0))
+        s.listen(1)
+        return s.getsockname()[1]
+
+
 def check_command_available(cmd: str) -> bool:
     """检查可执行文件是否存在."""
     return shutil.which(cmd) is not None
