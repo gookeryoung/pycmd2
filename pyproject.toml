@@ -234,6 +234,8 @@ ignore = [
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
 quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
 
 # 导入排序配置
 [tool.ruff.lint.isort]

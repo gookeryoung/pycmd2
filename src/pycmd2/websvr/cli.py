@@ -26,7 +26,10 @@ def clean() -> None:
 @app.command("dev")
 @app.command("d")
 def dev(
-    port: int = typer.Option(5173, "--port", "-p", help="指定端口 (仅开发模式)"),
+    port: int = typer.Argument(
+        default=5173,
+        help="指定端口 (仅开发模式)",
+    ),
     host: str = typer.Option("127.0.0.1", "--host", "-H", help="指定主机 (仅开发模式)"),
 ) -> None:
     """开发模式, 启动 Vite 构建工具并启动 WebView 应用, 默认别名: dev."""
@@ -46,7 +49,7 @@ def run() -> None:
 @app.command("s")
 def serve(
     *,
-    port: int = typer.Option(5173, "--port", "-p", help="指定端口 (仅开发模式)"),
+    port: int = typer.Argument(5173, help="指定端口 (仅开发模式)"),
     host: str = typer.Option("127.0.0.1", "--host", "-H", help="指定主机 (仅开发模式)"),
 ) -> None:
     """仅启动 Web 服务模式, 不创建 WebView 窗口, 默认别名: s."""
@@ -58,7 +61,7 @@ def serve(
 @app.command("ns")
 def serve_nginx(
     *,
-    port: int = typer.Option(5173, "--port", "-p", help="指定端口 (仅开发模式)"),
+    port: int = typer.Argument(5173, help="指定端口 (仅开发模式)"),
     host: str = typer.Option("127.0.0.1", "--host", "-H", help="指定主机 (仅开发模式)"),
 ) -> None:
     """使用 Nginx 启动 Web 服务模式, 不创建 WebView 窗口, 默认别名: ns."""
