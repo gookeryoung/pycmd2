@@ -188,7 +188,7 @@ class ApiServer(BaseServer):
 class NativeServer(BaseServer):
     """本地模式, 静态服务器."""
 
-    def start(self, title: str = "PyCmd2 WebView") -> None:
+    def start(self, title: str = "PyCmd2 WebView", *, debug: bool = False) -> None:
         """启动服务器."""
         # 检查是否需要构建
         if not self.DIST_DIR.exists() or not self.index_html.exists():
@@ -208,7 +208,7 @@ class NativeServer(BaseServer):
                 x=None,
                 y=None,
             )
-            webview.start(debug=False)
+            webview.start(debug=debug)
         except (RuntimeError, OSError, ImportError) as e:
             typer.echo(f"启动 WebView 窗口时出错: {e!s}", err=True)
         finally:

@@ -62,13 +62,16 @@ def dev(
 
 @app.command("run")
 @app.command("r")
-def run() -> None:
+def run(
+    *,
+    debug: bool = typer.Option(False, "--debug", "-d", help="启用调试模式"),
+) -> None:
     """开发模式, 启动 Vite 构建工具并启动 WebView 应用, 默认别名: r."""
     api_server = server.ApiServer()
     api_server.start()
 
     svr = server.NativeServer()
-    svr.start()
+    svr.start(debug=debug)
 
 
 @app.command("serve")
