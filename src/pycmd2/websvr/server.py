@@ -158,7 +158,6 @@ class ApiServer(BaseServer):
             return
 
         def start_server() -> None:
-            typer.echo("正在启动 API 服务器...")
             original_dir = Path.cwd()
             os.chdir(self.API_DIR)
             try:
@@ -166,14 +165,12 @@ class ApiServer(BaseServer):
                     sys.executable,
                     "-m",
                     "uvicorn",
-                    "todo:app",
+                    "main:app",
                     "--host",
                     host,
                     "--port",
                     str(port),
                     "--reload",
-                    # "--log-level",
-                    # "info",
                 ]
                 subprocess.run(cmd, check=True)
             except (subprocess.CalledProcessError, OSError) as e:

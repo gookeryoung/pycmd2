@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 def start_fastapi_server() -> None:
     """启动FastAPI后端服务器."""
     try:
-        from pycmd2.backend.cli import app  # noqa: PLC0415
+        from pycmd2.backend.cli import app
 
         # 配置uvicorn服务器
         config = uvicorn.Config(

@@ -8,32 +8,21 @@ from typing import List
 from typing import Optional
 
 import trio
-from fastapi import FastAPI
+import typer
 from fastapi import HTTPException
 from fastapi import status
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.routing import APIRouter
 from pydantic import BaseModel
 
-# 数据存储路径
+router = APIRouter(
+    prefix="/api/todos",
+    tags=["todos"],
+    responses={404: {"description": "待办事项不存在"}},
+)
+
 DATA_DIR = Path.home() / ".pycmd2" / "websvr"
 DATA_DIR.mkdir(exist_ok=True)
 TODOS_FILE = DATA_DIR / "todos.json"
-
-# FastAPI应用实例
-app = FastAPI(
-    title="PyCmd2 Todo API",
-    description="Todo应用的后端API服务",
-    version="1.0.0",
-)
-
-# CORS中间件配置
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # 开发环境允许所有来源
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 # 数据模型
@@ -69,6 +58,7 @@ class TodoList(BaseModel):
 def load_todos() -> List[Todo]:
     """从文件加载待办事项."""
     if not TODOS_FILE.exists():
+        typer.echo("未找到待办事项文件")
         return []
 
     try:
@@ -106,21 +96,14 @@ def get_next_id(todos: List[Todo]) -> int:
     return max(todo.id for todo in todos) + 1
 
 
-# API端点
-@app.get("/")
-async def root() -> dict:
-    """根端点."""
-    return {"message": "PyCmd2 Todo API", "version": "1.0.0"}
-
-
-@app.get("/api/todos", response_model=List[Todo])
-async def get_todos() -> List[Todo]:
+@router.get("/", response_model=List[Todo])
+def get_todos() -> List[Todo]:
     """获取所有待办事项."""
     return load_todos()
 
 
-@app.post("/api/todos", response_model=Todo)
-async def create_todo(todo_data: TodoCreate) -> Todo:
+@router.post("/", response_model=Todo)
+def create_todo(todo_data: TodoCreate) -> Todo:
     """创建新的待办事项."""
     todos = load_todos()
 
@@ -141,8 +124,8 @@ async def create_todo(todo_data: TodoCreate) -> Todo:
     )
 
 
-@app.get("/api/todos/{todo_id}", response_model=Todo)
-async def get_todo(todo_id: int) -> Todo:
+@router.get("/{todo_id}", response_model=Todo)
+def get_todo(todo_id: int) -> Todo:
     """获取指定ID的待办事项."""
     todos = load_todos()
     todo = next((t for t in todos if t.id == todo_id), None)
@@ -156,8 +139,8 @@ async def get_todo(todo_id: int) -> Todo:
     return todo
 
 
-@app.put("/api/todos/{todo_id}", response_model=Todo)
-async def update_todo(todo_id: int, todo_update: TodoUpdate) -> Todo:
+@router.put("/{todo_id}", response_model=Todo)
+def update_todo(todo_id: int, todo_update: TodoUpdate) -> Todo:
     """更新待办事项."""
     todos = load_todos()
     todo = next((t for t in todos if t.id == todo_id), None)
@@ -183,8 +166,8 @@ async def update_todo(todo_id: int, todo_update: TodoUpdate) -> Todo:
     )
 
 
-@app.delete("/api/todos/{todo_id}")
-async def delete_todo(todo_id: int) -> dict:
+@router.delete("/{todo_id}")
+def delete_todo(todo_id: int) -> dict:
     """删除待办事项."""
     todos = load_todos()
     original_length = len(todos)
@@ -205,8 +188,8 @@ async def delete_todo(todo_id: int) -> dict:
     )
 
 
-@app.delete("/api/todos")
-async def clear_completed() -> dict:
+@router.delete("/")
+def clear_completed() -> dict:
     """清除已完成的待办事项."""
     todos = load_todos()
     completed_count = len([t for t in todos if t.completed])
@@ -224,8 +207,8 @@ async def clear_completed() -> dict:
     )
 
 
-@app.delete("/api/todos/all")
-async def clear_all() -> dict:
+@router.delete("/all")
+def clear_all() -> dict:
     """清除所有待办事项."""
     if save_todos([]):
         return {"message": "所有待办事项已清除"}
@@ -235,8 +218,8 @@ async def clear_all() -> dict:
     )
 
 
-@app.get("/api/todos/stats")
-async def get_stats() -> dict:
+@router.get("/stats")
+def get_stats() -> dict:
     """获取待办事项统计信息."""
     todos = load_todos()
     total = len(todos)
@@ -251,8 +234,8 @@ async def get_stats() -> dict:
     }
 
 
-@app.post("/api/todos/import")
-async def import_todos(todo_list: TodoList) -> dict:
+@router.post("/import")
+def import_todos(todo_list: TodoList) -> dict:
     """导入待办事项列表."""
     todos = load_todos()
 
@@ -278,27 +261,15 @@ async def import_todos(todo_list: TodoList) -> dict:
     )
 
 
-@app.get("/api/todos/export")
-async def export_todos() -> dict:
+@router.get("/export")
+def export_todos() -> dict:
     """导出所有待办事项."""
     todos = load_todos()
     return {"todos": [todo.model_dump() for todo in todos]}
 
 
 # 健康检查
-@app.get("/health")
-async def health_check() -> dict:
+@router.get("/health")
+def health_check() -> dict:
     """健康检查端点."""
     return {"status": "healthy", "service": "PyCmd2 Todo API"}
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(
-        "todo:app",
-        host="127.0.0.1",
-        port=8001,
-        reload=True,
-        log_level="info",
-    )
