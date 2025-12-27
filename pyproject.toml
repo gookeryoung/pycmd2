@@ -25,7 +25,7 @@ maintainers = [{ name = "gooker_young", email = "gooker_young@qq.com" }]
 name = "pycmd2"
 readme = "README.rst"
 requires-python = ">=3.8"
-version = "0.7.6"
+version = "0.7.7"
 
 [project.scripts]
 pycmd2 = "pycmd2.cli:cli.app"
